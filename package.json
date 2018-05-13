@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "repository": "https://github.com/Urigo/graphql-modules.git",
+  "author": "dotansimha <dotansimha@gmail.com>",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*/"
+    ]
+  },
+  "scripts": {
+    "test": "lerna run test",
+    "build": "lerna run build",
+    "clean": "lerna clean --yes && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@types/graphql": "0.13.1",
+    "@types/jest": "22.2.3",
+    "graphql": "0.13.2",
+    "jest": "22.4.3",
+    "lerna": "^2.11.0",
+    "rimraf": "2.6.2",
+    "ts-jest": "22.4.6",
+    "tslint": "5.10.0",
+    "typescript": "2.8.3"
+  }
+}
