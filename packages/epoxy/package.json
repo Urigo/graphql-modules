@@ -1,5 +1,5 @@
 {
-  "name": "@graphql-modules/glue-schema",
+  "name": "@graphql-modules/graphql-epoxy",
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
