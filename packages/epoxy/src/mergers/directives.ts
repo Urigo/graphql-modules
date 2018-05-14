@@ -1,7 +1,7 @@
 import { DirectiveNode } from 'graphql/language/ast';
 
 function directiveAlreadyExists(directivesArr: ReadonlyArray<DirectiveNode>, otherDirective: DirectiveNode): boolean {
-  return directivesArr.find(directive => directive.name.value === otherDirective.name.value);
+  return !!directivesArr.find(directive => directive.name.value === otherDirective.name.value);
 }
 
 export function mergeDirectives(d1: ReadonlyArray<DirectiveNode>, d2: ReadonlyArray<DirectiveNode>): DirectiveNode[] {

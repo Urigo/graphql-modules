@@ -1,5 +1,7 @@
 import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/merge-schema';
+import { makeExecutableSchema } from 'graphql-tools';
 import { stripWhitespaces } from './utils';
+import gql from 'graphql-tag';
 
 describe('Merge Schema', () => {
   describe('mergeGraphQLTypes', () => {
@@ -107,6 +109,101 @@ describe('Merge Schema', () => {
           f2: Int
           f3: Int
         } 
+  
+        schema {
+          query: Query
+        }`));
+    });
+  });
+
+  describe('input arguments', () => {
+    it('should handle string correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        'type Query { f1: String }',
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+        }
+  
+        schema {
+          query: Query
+        }`));
+    });
+
+    it('should handle compiled gql correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        gql`type Query { f1: String }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+        }
+  
+        schema {
+          query: Query
+        }`));
+    });
+
+    it('should handle compiled gql and strings correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        gql`type Query { f1: String }`,
+        'type Query { f2: String }',
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+          f2: String
+        }
+  
+        schema {
+          query: Query
+        }`));
+    });
+
+    it('should handle GraphQLSchema correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type Query { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+        'type Query { f2: String }',
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+          f2: String
+        }
+  
+        schema {
+          query: Query
+        }`));
+    });
+
+    it('should handle all merged correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type Query { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+        'type Query { f2: String }',
+        gql`type Query { f3: String }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+          f2: String
+          f3: String
+        }
   
         schema {
           query: Query

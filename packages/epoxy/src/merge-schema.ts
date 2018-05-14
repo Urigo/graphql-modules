@@ -1,8 +1,8 @@
-import { DefinitionNode, DocumentNode, parse, print, Source } from 'graphql';
-import { isSourceTypes, isStringTypes } from './utils';
+import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source } from 'graphql';
+import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
-export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode>): string {
+export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): string {
   const astDefinitions = mergeGraphQLTypes(types);
 
   return astDefinitions
@@ -14,10 +14,14 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode>
     .join('\n');
 }
 
-export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode>): DefinitionNode[] {
+export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
-      if (isStringTypes(type) || isSourceTypes(type)) {
+      if (isGraphQLSchema(type)) {
+        const printedSchema = printSchema(type);
+
+        return parse(printedSchema);
+      } else if (isStringTypes(type) || isSourceTypes(type)) {
         return parse(type);
       }
 

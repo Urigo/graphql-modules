@@ -5,7 +5,7 @@ import {
   NamedTypeNode,
   ObjectTypeDefinitionNode,
   Source,
-  UnionTypeDefinitionNode, SchemaDefinitionNode, ScalarTypeDefinitionNode, InputObjectTypeDefinitionNode
+  UnionTypeDefinitionNode, SchemaDefinitionNode, ScalarTypeDefinitionNode, InputObjectTypeDefinitionNode, GraphQLSchema
 } from 'graphql';
 
 export function isStringTypes(types: any): types is string {
@@ -36,8 +36,8 @@ export function isGraphQLInputType(definition: DefinitionNode): definition is In
   return definition.kind === 'InputObjectTypeDefinition';
 }
 
-export function isSchemaDefinitionNode(definition: DefinitionNode): definition is SchemaDefinitionNode {
-  return definition.kind === 'SchemaDefinition';
+export function isGraphQLSchema(obj: any): obj is GraphQLSchema {
+  return obj instanceof GraphQLSchema;
 }
 
 export function extractType(type: TypeNode): NamedTypeNode {
