@@ -180,4 +180,26 @@ describe('Merge Nodes', () => {
       expect(result.fields[1].name.value).toBe('f2');
     });
   });
+
+  describe('schema', () => {
+    it('should merge Query type correctly', () => {
+      const type1 = parse(`type Query { f1: String }`);
+      const type2 = parse(`type Query { f2: String }`);
+      const merged = mergeGraphQLNodes([...type1.definitions, ...type2.definitions]);
+      const type: any = merged['Query'];
+
+      expect(type.fields.length).toBe(2);
+      expect(type.fields[0].name.value).toBe('f1');
+      expect(type.fields[1].name.value).toBe('f2');
+      expect(type.fields[0].type.name.value).toBe('String');
+      expect(type.fields[1].type.name.value).toBe('String');
+    });
+
+    it('should remove schema definition', () => {
+      const type1 = parse(`schema { query: Query } type Query { f1: String }`);
+      const type2 = parse(`type Query { f2: String }`);
+      const merged = mergeGraphQLNodes([...type1.definitions, ...type2.definitions]);
+      expect(Object.values(merged).length).toBe(1);
+    });
+  });
 });
