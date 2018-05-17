@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:9
+      - image: circleci/node:9@sha256:a12b4563b0a3ca863a6a583948016be5573e008ecf91060d93c9e6a6bdbc099e
     steps:
       - checkout
       - restore_cache:
