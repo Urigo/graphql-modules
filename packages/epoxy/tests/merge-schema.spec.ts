@@ -1,4 +1,4 @@
-import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/merge-schema';
+import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/merge-schema';
 import { makeExecutableSchema } from 'graphql-tools';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';

@@ -6,10 +6,10 @@ import {
   isGraphQLType,
   isGraphQLUnion,
 } from './utils';
-import { mergeType } from './mergers/type';
-import { mergeEnum } from './mergers/enum';
-import { mergeUnion } from './mergers/union';
-import { mergeInputType } from './mergers/input-type';
+import { mergeType } from './type';
+import { mergeEnum } from './enum';
+import { mergeUnion } from './union';
+import { mergeInputType } from './input-type';
 
 export type MergedResultMap = {[name: string]: DefinitionNode};
 

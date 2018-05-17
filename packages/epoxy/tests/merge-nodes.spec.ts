@@ -1,4 +1,4 @@
-import { mergeGraphQLNodes } from '../src/merge-nodes';
+import { mergeGraphQLNodes } from '../src/schema-mergers/merge-nodes';
 import { parse } from 'graphql';
 
 describe('Merge Nodes', () => {

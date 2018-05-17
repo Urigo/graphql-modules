@@ -1,5 +1,5 @@
 import { FieldDefinitionNode, InputValueDefinitionNode } from 'graphql/language/ast';
-import { extractType } from '../utils';
+import { extractType } from './utils';
 
 function fieldAlreadyExists(fieldsArr: ReadonlyArray<any>, otherField: any): boolean {
   const result: FieldDefinitionNode | null = fieldsArr.find(field => field.name.value === otherField.name.value);
