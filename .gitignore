@@ -4,3 +4,4 @@ dist
 build
 out
 temp
+lerna-debug.log

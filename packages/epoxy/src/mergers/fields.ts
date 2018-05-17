@@ -19,6 +19,6 @@ function fieldAlreadyExists(fieldsArr: ReadonlyArray<any>, otherField: any): boo
 export function mergeFields<T>(f1: ReadonlyArray<T>, f2: ReadonlyArray<T>): T[] {
   return [
     ...f2,
-    ...(f1.filter(f => !fieldAlreadyExists(f2, f)))
+    ...(f1.filter(f => !fieldAlreadyExists(f2, f))),
   ];
 }

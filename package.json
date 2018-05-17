@@ -11,6 +11,7 @@
   "scripts": {
     "test": "lerna run test",
     "build": "lerna run build",
+    "lint": "lerna run lint",
     "clean": "lerna clean --yes && rm -rf node_modules"
   },
   "devDependencies": {

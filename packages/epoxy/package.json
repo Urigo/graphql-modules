@@ -1,11 +1,12 @@
 {
-  "name": "@graphql-modules/graphql-epoxy",
+  "name": "@graphql-modules/epoxy",
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
     "transform": {

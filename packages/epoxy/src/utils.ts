@@ -5,7 +5,7 @@ import {
   NamedTypeNode,
   ObjectTypeDefinitionNode,
   Source,
-  UnionTypeDefinitionNode, SchemaDefinitionNode, ScalarTypeDefinitionNode, InputObjectTypeDefinitionNode, GraphQLSchema
+  UnionTypeDefinitionNode, SchemaDefinitionNode, ScalarTypeDefinitionNode, InputObjectTypeDefinitionNode, GraphQLSchema,
 } from 'graphql';
 
 export function isStringTypes(types: any): types is string {
