@@ -23,12 +23,20 @@
     ]
   },
   "devDependencies": {
+    "@graphql-modules/logger": "*",
     "jest": "22.4.4",
     "tslint": "5.10.0",
     "typescript": "2.8.3"
   },
+  "peerDependencies": {
+    "@graphql-modules/logger": "0.0.1"
+  },
   "dependencies": {
     "@types/glob": "5.0.35",
     "glob": "7.1.2"
+  },
+  "typings": "./dist/index.d.ts",
+  "typescript": {
+    "definition": "./dist/index.d.ts"
   }
 }

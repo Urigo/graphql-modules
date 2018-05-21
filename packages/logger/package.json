@@ -1,31 +1,21 @@
 {
-  "name": "@graphql-modules/core",
+  "name": "@graphql-modules/logger",
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
+    "test": "",
     "build": "tsc",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
   "devDependencies": {
-    "jest": "22.4.4",
     "tslint": "5.10.0",
     "typescript": "2.8.3"
+  },
+  "dependencies": {
+    "@types/winston": "2.3.9",
+    "moment": "2.22.1",
+    "winston": "2.4.2"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

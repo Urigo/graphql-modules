@@ -1,11 +1,12 @@
-import { sync } from 'glob';
-import { readFileSync } from 'fs';
+import {sync} from 'glob';
+import {readFileSync} from 'fs';
+import {logger} from '@graphql-modules/logger';
 
 const DEFAULT_SCHEMA_EXTENSIONS = ['gql', 'graphql', 'graphqls'];
 const DEFAULT_RESOLVERS_EXTENSIONS = ['ts', 'js'];
 
 function scanForFiles(globStr: string): string[] {
-  return sync(globStr, { absolute: true });
+  return sync(globStr, {absolute: true});
 }
 
 function buildGlob(basePath: string, extensions: string[]): string {
@@ -39,7 +40,7 @@ function extractExports(fileExport: any): any | null {
 export function loadSchemaFiles(basePath: string, extensions: string[] = DEFAULT_SCHEMA_EXTENSIONS): string[] {
   const relevantPaths = scanForFiles(buildGlob(basePath, extensions));
 
-  return relevantPaths.map(path => readFileSync(path, { encoding: 'utf-8' }));
+  return relevantPaths.map(path => readFileSync(path, {encoding: 'utf-8'}));
 }
 
 export function loadResolversFiles(basePath: string, extensions: string[] = DEFAULT_RESOLVERS_EXTENSIONS): any[] {
@@ -51,6 +52,8 @@ export function loadResolversFiles(basePath: string, extensions: string[] = DEFA
 
       return extractExports(fileExports);
     } catch (e) {
+      logger.error(`Unable to load resolver file: ${path}`, e);
+
       return null;
     }
   }).filter(t => t);
