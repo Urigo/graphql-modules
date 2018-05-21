@@ -1,4 +1,4 @@
-import { loadSchemaFiles } from '../src';
+import {loadResolversFiles, loadSchemaFiles} from '../src';
 
 function testSchemaDir(path, expectedResult, note, extensions?) {
   it(`should return the correct schema results for path: ${path} (${note})`, () => {
@@ -9,10 +9,18 @@ function testSchemaDir(path, expectedResult, note, extensions?) {
   });
 }
 
+function testResolversDir(path, expectedResult, note, extensions?) {
+  it(`should return the correct resolvers results for path: ${path} (${note})`, () => {
+    const result = loadResolversFiles(path, extensions);
+
+    expect(result.length).toBe(expectedResult.length);
+    expect(result).toEqual(expectedResult);
+  });
+}
+
 function stripWhitespaces(str: string): string {
   return str.replace(/\s+/g, ' ').trim();
 }
-
 
 describe('file scanner', function () {
   describe('schema', () => {
@@ -25,6 +33,9 @@ describe('file scanner', function () {
   });
 
   describe('resolvers', () => {
-
+    testResolversDir('./tests/test-assets/6', [{ MyType: { f: 1 }}], 'one file');
+    testResolversDir('./tests/test-assets/7', [{ MyType: { f: 1 }}, { MyType: { f: 2 }}], 'multiple files');
+    testResolversDir('./tests/test-assets/8', [{ MyType: { f: 1 }}], 'default export');
+    testResolversDir('./tests/test-assets/9', [{ MyType: { f: 1 }}, { MyType: { f: 2 }}], 'named exports');
   });
 });
