@@ -1,16 +1,10 @@
-import {makeExecutableSchema} from 'graphql-tools';
-import {createGraphQLModule, GraphQLModule, METADATA_KEY} from '../src/graphql-module-decorator';
+import {createGraphQLModule, GraphQLModule, METADATA_KEY} from '../src';
 
 describe('@GraphQLModule', function () {
-  const schema = makeExecutableSchema({
-    typeDefs: [
-      'type MyType { f1: String }',
-    ],
-    allowUndefinedInResolve: true,
-  });
+  const testModuleOptions = {name: 'my-module', types: 'type MyType { f1: String }' };
 
   it('should inject options correctly into the class prototype', function () {
-    @GraphQLModule({name: 'my-module', schema})
+    @GraphQLModule(testModuleOptions)
     class Test {
 
     }
@@ -19,13 +13,13 @@ describe('@GraphQLModule', function () {
   });
 
   it('should create class correctly when using createGraphQLModule', function () {
-    const Test = createGraphQLModule({name: 'my-module', schema});
+    const Test = createGraphQLModule(testModuleOptions);
 
     expect(Test.prototype[METADATA_KEY]).toBeDefined();
   });
 
   it('should create class correctly when using createGraphQLModule and buildContext', function () {
-    const Test = createGraphQLModule({name: 'my-module', schema}, () => null);
+    const Test = createGraphQLModule(testModuleOptions, () => null);
 
     expect(Test.prototype[METADATA_KEY]).toBeDefined();
     expect(Test.prototype.buildContext).toBeDefined();

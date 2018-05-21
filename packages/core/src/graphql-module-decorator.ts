@@ -1,10 +1,11 @@
-import {GraphQLSchema} from 'graphql';
+import {IResolvers} from 'graphql-tools';
 
 export const METADATA_KEY = '$$GRAPHQL_MODULES';
 
 export interface GraphQLModuleOptions {
   name: string;
-  schema: GraphQLSchema;
+  types?: string;
+  resolvers?: IResolvers;
 }
 
 export interface IGraphQLContext {
@@ -13,41 +14,28 @@ export interface IGraphQLContext {
 
 export type Constructor<T = any> = { new(...args: any[]): T };
 
-export type RequestGenericObject =
-  | {
-  headers: { [name: string]: string | string[] | undefined | null };
-  [key: string]: any;
-}
-  | undefined
-  | null;
-
-export type BuildContextFn = (currentContext: IGraphQLContext, request?: RequestGenericObject) => IGraphQLContext;
+export type BuildContextFn = (httpRequest?: any) => IGraphQLContext;
 
 export function GraphQLModule<T extends Constructor>(options: GraphQLModuleOptions) {
-  return function (target: T) {
+  return (target: T) => {
     target.prototype[METADATA_KEY] = options;
 
     return target;
   };
 }
 
-export interface GraphQLModuleContextBuilderHttp {
+export interface GraphQLModuleContextBuilder {
   buildContext: BuildContextFn;
 }
 
-export function createGraphQLModule(options: GraphQLModuleOptions, buildContext?: BuildContextFn): Function {
+export function createGraphQLModule(options: GraphQLModuleOptions, buildContext?: BuildContextFn): Constructor {
   if (buildContext) {
-    let result = class implements GraphQLModuleContextBuilderHttp {
-      buildContext(currentContext: IGraphQLContext, request?: RequestGenericObject): IGraphQLContext {
-        return buildContext(currentContext, request);
+    return GraphQLModule(options)(class implements GraphQLModuleContextBuilder {
+      buildContext(currentContext: IGraphQLContext, httpRequest?: any): IGraphQLContext {
+        return buildContext(httpRequest);
       }
-    };
-
-    return GraphQLModule(options)(result);
+    });
   }
 
-  let result = class {
-  };
-
-  return GraphQLModule(options)(result);
+  return GraphQLModule(options)(class {});
 }

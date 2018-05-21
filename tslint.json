@@ -5,6 +5,7 @@
   ],
   "jsRules": {},
   "rules": {
+    "variable-name": false,
     "align": [
       true,
       "parameters"
@@ -75,11 +76,6 @@
       true,
       "allow-null-check"
     ],
-    "variable-name": [
-      true,
-      "check-format",
-      "allow-leading-underscore"
-    ],
     "whitespace": [
       true,
       "check-branch",
@@ -87,7 +83,9 @@
       "check-operator",
       "check-separator",
       "check-type"
-    ]
+    ],
+    "interface-name": false,
+    "max-classes-per-file": false
   },
   "rulesDirectory": []
 }
