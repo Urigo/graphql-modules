@@ -36,6 +36,11 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   const mutationType = allTypes.includes('Mutation') ? 'mutation: Mutation' : null;
   const subscriptionType = allTypes.includes('Subscription') ? 'subscription: Subscription' : null;
   const relevantTypes = [queryType, mutationType, subscriptionType].filter(a => a);
+
+  if (relevantTypes.length === 0) {
+    return Object.values(mergedNodes);
+  }
+
   const schemaDefinition = parse(`schema { ${relevantTypes.join('\n')} }`).definitions[0];
 
   return [

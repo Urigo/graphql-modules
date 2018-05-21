@@ -209,5 +209,41 @@ describe('Merge Schema', () => {
           query: Query
         }`));
     });
+
+    it('should allow GraphQLSchema with empty Query', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type MyType { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type MyType { f1: String }
+        `));
+    });
+
+    it('should allow GraphQLSchema with empty Query', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type MyType { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+        makeExecutableSchema({
+          typeDefs: [
+            'type MyType { f2: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        type MyType { f1: String f2: String }
+        `));
+    });
   });
 });
