@@ -28,7 +28,7 @@
     "@graphql-modules/sonar": "0.0.1"
   },
   "devDependencies": {
-    "jest": "22.4.4",
+    "jest": "23.0.1",
     "tslint": "5.10.0",
     "typescript": "2.8.3"
   },
