@@ -13,7 +13,9 @@
     "test": "lerna run test",
     "build": "lerna run build",
     "lint": "lerna run lint",
-    "clean": "lerna clean --yes && rm -rf node_modules"
+    "clean": "lerna clean --yes && rm -rf node_modules",
+    "release": "lerna publish --exact --force-publish=\"*\"",
+    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact"
   },
   "devDependencies": {
     "@types/graphql": "0.13.1",
