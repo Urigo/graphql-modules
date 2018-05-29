@@ -23,13 +23,14 @@ describe('GraphQLApp', () => {
 
   // B
   const typesB = [`type B { f: String}`, `type Query { b: B }`];
+  const resolversB = {
+    Query: { b: () => ({}) },
+    B: { f: (root, args, context) => context.user.id },
+  };
   const moduleB = new GraphQLModule({
     name: 'moduleB',
     typeDefs: typesB,
-    resolvers: {
-      Query: { b: () => ({}) },
-      B: { f: (root, args, context) => context.user.id },
-    },
+    resolvers: resolversB,
   });
 
   // C (with context building fn)
@@ -116,5 +117,26 @@ describe('GraphQLApp', () => {
     expect(context['moduleA']).toBe(moduleAImpl);
     expect(context['moduleB']).not.toBeDefined();
     expect(context['moduleC']).not.toBeDefined();
+  });
+
+  it('should accept non modules schema and resovlers', async () => {
+    const app = new GraphQLApp({ modules: [moduleA], nonModules: { typeDefs: typesB, resolvers: resolversB } });
+    const schema = app.schema;
+
+    expect(schema).toBeDefined();
+    expect((schema as any) instanceof GraphQLSchema).toBeTruthy();
+    expect(stripWhitespaces(printSchema(schema))).toBe(stripWhitespaces(`
+      type A {
+        f: String
+      }
+      
+      type B {
+        f: String
+      }
+      
+      type Query {
+        a: A
+        b: B
+      }`));
   });
 });

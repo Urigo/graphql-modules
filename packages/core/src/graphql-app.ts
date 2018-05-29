@@ -3,10 +3,16 @@ import { makeExecutableSchema } from 'graphql-tools';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
-import { CommunicationBridge } from './communication/communication-bridge';
+import { CommunicationBridge } from './communication';
+
+export interface NonModules {
+  typeDefs?: any;
+  resolvers?: any;
+}
 
 export interface GraphQLAppOptions {
   modules: GraphQLModule[];
+  nonModules?: NonModules;
   communicationBridge?: CommunicationBridge;
 }
 
@@ -16,11 +22,15 @@ export class GraphQLApp {
 
   constructor(options: GraphQLAppOptions) {
     const allTypes = options.modules.map<string>(m => m.typeDefs).filter(t => t);
+    const nonModules = options.nonModules || {};
 
     this._modules = options.modules;
     this._schema = makeExecutableSchema({
-      typeDefs: mergeGraphQLSchemas(allTypes),
-      resolvers: mergeResolvers(options.modules.map(m => m.resolvers || {})),
+      typeDefs: mergeGraphQLSchemas([
+        ...allTypes,
+        ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
+      ]),
+      resolvers: mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {})),
     });
   }
 
