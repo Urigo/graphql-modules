@@ -1,3 +1,3 @@
-export * from './bootstrap';
 export * from './graphql-module';
-export * from './pub-sub-bridge';
+export * from './graphql-app';
+export * from './communication-bridge';

@@ -38,6 +38,10 @@ export class GraphQLModule<Impl = any>{
     return this._contextBuilder;
   }
 
+  get resolvers(): IResolvers {
+    return this._resolvers;
+  }
+
   setImplementation(implementation: Impl): void {
     this._impl = implementation;
   }
