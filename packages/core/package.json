@@ -31,7 +31,8 @@
   "devDependencies": {
     "jest": "23.0.1",
     "tslint": "5.10.0",
-    "typescript": "2.8.3"
+    "typescript": "2.8.3",
+    "graphql-tag": "2.9.2"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

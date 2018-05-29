@@ -28,7 +28,7 @@ export class GraphQLApp {
     return this._schema;
   }
 
-  async buildContext(networkRequest: any): Promise<any> {
+  async buildContext(networkRequest?: any): Promise<any> {
     const relevantModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
     const result = {};
     let module;

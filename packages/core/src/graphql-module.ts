@@ -1,4 +1,4 @@
-import {IResolvers} from 'graphql-tools';
+import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 
 export interface IGraphQLContext {
@@ -11,19 +11,27 @@ export type Context<Impl = any> = {
   [P in keyof Impl]: Impl[P];
 };
 
-export class GraphQLModule<Impl = any>{
+export interface GraphQLModuleOptions<Impl> {
+  name: string;
+  typeDefs: string | string[];
+  resolvers?: IResolvers;
+  implementation?: Impl;
+  contextBuilder?: BuildContextFn;
+}
+
+export class GraphQLModule<Impl = any> {
   private readonly _name: string;
   private readonly _typeDefs: string;
   private readonly _resolvers: IResolvers = {};
   private _impl: Impl = null;
   private _contextBuilder: BuildContextFn = null;
 
-  constructor(name: string, typeDefs: string | string[], resolvers?: IResolvers, implementation?: Impl, contextBuilder?: BuildContextFn) {
-    this._name = name;
-    this._typeDefs = Array.isArray(typeDefs) ? mergeGraphQLSchemas(typeDefs) : typeDefs;
-    this._resolvers = resolvers || {};
-    this._impl = implementation;
-    this._contextBuilder = contextBuilder;
+  constructor(options: GraphQLModuleOptions<Impl>) {
+    this._name = options.name;
+    this._typeDefs = Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs;
+    this._resolvers = options.resolvers || {};
+    this._impl = options.implementation || null;
+    this._contextBuilder = options.contextBuilder || null;
   }
 
   get typeDefs(): string {
