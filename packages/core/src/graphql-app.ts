@@ -3,7 +3,7 @@ import { makeExecutableSchema } from 'graphql-tools';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
-import { CommunicationBridge } from './communication-bridge';
+import { CommunicationBridge } from './communication/communication-bridge';
 
 export interface GraphQLAppOptions {
   modules: GraphQLModule[];
@@ -28,17 +28,23 @@ export class GraphQLApp {
     return this._schema;
   }
 
-  async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
-    const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
+  private buildImplementationsObject() {
     const relevantImplModules: GraphQLModule[] = this._modules.filter(f => f.implementation);
     const result = {};
-    const builtResult = {};
 
-    let module;
-    for (module of relevantImplModules) {
+    for (const module of relevantImplModules) {
       result[module.name] = module.implementation;
     }
 
+    return result;
+  }
+
+  async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
+    const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
+    const builtResult = {};
+    const result = this.buildImplementationsObject();
+
+    let module;
     try {
       for (module of relevantContextModules) {
         const appendToContext: any = await module.contextBuilder(networkRequest);

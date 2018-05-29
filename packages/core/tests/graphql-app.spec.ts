@@ -1,7 +1,8 @@
-import { GraphQLApp, GraphQLModule } from '../src';
+import { GraphQLApp, GraphQLModule, IGraphQLContext } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
+import { InjectCurrentContext, WithCurrentContext } from '../src/implementation/with-current-execution';
 
 describe('GraphQLApp', () => {
   // A
