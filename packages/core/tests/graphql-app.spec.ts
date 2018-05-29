@@ -112,8 +112,6 @@ describe('GraphQLApp', () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
     const context = await app.buildContext();
 
-    console.log(context);
-
     expect(context['moduleA']).toBe(moduleAImpl);
     expect(context['moduleB']).not.toBeDefined();
     expect(context['moduleC']).not.toBeDefined();
