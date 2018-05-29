@@ -1,10 +1,8 @@
 import {GraphQLModule} from '@graphql-modules/core';
 import {resolvers, types} from './schema';
 
-@GraphQLModule({
+export const userModule = new GraphQLModule({
   name: 'user',
-  types,
+  typeDefs: types,
   resolvers,
-})
-export class UserModule {
-}
+});

@@ -25,12 +25,14 @@
   "dependencies": {
     "graphql-tools": "3.0.2",
     "@graphql-modules/epoxy": "0.0.1",
-    "@graphql-modules/sonar": "0.0.1"
+    "@graphql-modules/sonar": "0.0.1",
+    "@graphql-modules/logger": "0.0.1"
   },
   "devDependencies": {
     "jest": "23.0.1",
     "tslint": "5.10.0",
-    "typescript": "2.8.3"
+    "typescript": "2.8.3",
+    "graphql-tag": "2.9.2"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

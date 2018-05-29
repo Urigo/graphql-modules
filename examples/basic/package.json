@@ -19,6 +19,7 @@
   },
   "resolutions": {
     "@graphql-modules/epoxy": "file:../../packages/epoxy/",
-    "@graphql-modules/sonar": "file:../../packages/sonar/"
+    "@graphql-modules/sonar": "file:../../packages/sonar/",
+    "@graphql-modules/logger": "file:../../packages/logger/"
   }
 }
