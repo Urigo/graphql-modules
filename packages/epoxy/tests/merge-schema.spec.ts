@@ -85,34 +85,8 @@ describe('Merge Schema', () => {
       ]);
 
       expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
-        type Query @test @test2 {
-          f1: String
-          f2: String
-          f3: MyType
-        }
-  
-        type MyType {
-          field: Int
-        }
-        
-        union MyUnion = MyType | MyType2
-        
-        type MyType2 {
-          field: Int
-        }
-        
-        type MyType3 implements MyInterface { 
-          f: Int
-        }
-        
-        type MyType4 implements MyInterface2 & MyInterface3 {
-          f2: Int
-          f3: Int
-        } 
-  
-        schema {
-          query: Query
-        }`));
+        type Query @test @test2 { f1: String f2: String f3: MyType } type MyType { field: Int } union MyUnion = MyType | MyType2 type MyType2 { field: Int } interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int } interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 & MyInterface3 { f2: Int f3: Int } interface MyInterface3 { f3: Int } schema { query: Query }
+        `));
     });
   });
 

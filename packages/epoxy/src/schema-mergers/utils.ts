@@ -5,7 +5,12 @@ import {
   NamedTypeNode,
   ObjectTypeDefinitionNode,
   Source,
-  UnionTypeDefinitionNode, SchemaDefinitionNode, ScalarTypeDefinitionNode, InputObjectTypeDefinitionNode, GraphQLSchema,
+  UnionTypeDefinitionNode,
+  SchemaDefinitionNode,
+  ScalarTypeDefinitionNode,
+  InputObjectTypeDefinitionNode,
+  GraphQLSchema,
+  InterfaceTypeDefinitionNode,
 } from 'graphql';
 
 export function isStringTypes(types: any): types is string {
@@ -34,6 +39,10 @@ export function isGraphQLScalar(definition: DefinitionNode): definition is Scala
 
 export function isGraphQLInputType(definition: DefinitionNode): definition is InputObjectTypeDefinitionNode {
   return definition.kind === 'InputObjectTypeDefinition';
+}
+
+export function isGraphQLInterface(definition: DefinitionNode): definition is InterfaceTypeDefinitionNode {
+  return definition.kind === 'InterfaceTypeDefinition';
 }
 
 export function isGraphQLSchema(obj: any): obj is GraphQLSchema {

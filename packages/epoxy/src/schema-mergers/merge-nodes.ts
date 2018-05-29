@@ -1,7 +1,7 @@
 import { DefinitionNode } from 'graphql';
 import {
   isGraphQLEnum,
-  isGraphQLInputType,
+  isGraphQLInputType, isGraphQLInterface,
   isGraphQLScalar,
   isGraphQLType,
   isGraphQLUnion,
@@ -10,6 +10,7 @@ import { mergeType } from './type';
 import { mergeEnum } from './enum';
 import { mergeUnion } from './union';
 import { mergeInputType } from './input-type';
+import { mergeInterface } from './interface';
 
 export type MergedResultMap = {[name: string]: DefinitionNode};
 
@@ -30,6 +31,8 @@ export function mergeGraphQLNodes(nodes: ReadonlyArray<DefinitionNode>): MergedR
         prev[name] = nodeDefinition;
       } else if (isGraphQLInputType(nodeDefinition)) {
         prev[name] = mergeInputType(nodeDefinition as any, prev[name] as any);
+      } else if (isGraphQLInterface(nodeDefinition)) {
+        prev[name] = mergeInterface(nodeDefinition as any, prev[name] as any);
       }
     }
 
