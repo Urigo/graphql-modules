@@ -30,6 +30,7 @@ describe('file scanner', function () {
     testSchemaDir('./tests/test-assets/3', [schemaContent, schemaContent, schemaContent], 'recursive');
     testSchemaDir('./tests/test-assets/4', [schemaContent], 'custom extension', ['schema']);
     testSchemaDir('./tests/test-assets/5', [schemaContent, schemaContent], 'custom extensions', ['schema', 'myschema']);
+    testSchemaDir('./tests/test-assets/10', [schemaContent, schemaContent, schemaContent], 'code files with gql tag', ['js']);
   });
 
   describe('resolvers', () => {
