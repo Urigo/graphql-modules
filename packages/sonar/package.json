@@ -23,7 +23,7 @@
     ]
   },
   "devDependencies": {
-    "@graphql-modules/logger": "*",
+    "@graphql-modules/logger": "0.1.0-alpha.15d0adbd",
     "jest": "23.0.1",
     "tslint": "5.10.0",
     "typescript": "2.8.3"
