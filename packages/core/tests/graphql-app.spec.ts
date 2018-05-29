@@ -40,6 +40,15 @@ describe('GraphQLApp', () => {
     contextBuilder: cContextBuilder,
   });
 
+  // D
+  const moduleD = new GraphQLModule({
+    name: 'moduleD',
+    typeDefs: typesC,
+    contextBuilder: () => {
+      throw new Error('oops');
+    },
+  });
+
   // Queries
   const testQuery = gql`query { b { f }}`;
 
@@ -90,5 +99,23 @@ describe('GraphQLApp', () => {
     });
 
     expect(result.data.b.f).toBe('1');
+  });
+
+  it ('should throw an exception when a contextFn throws an exception', async () => {
+    const app = new GraphQLApp({ modules: [moduleD] });
+    const spy = jest.fn();
+
+    await app.buildContext().catch(spy).then(() => expect(spy).toHaveBeenCalled());
+  });
+
+  it('should append the correct implementation instances to the context', async () => {
+    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const context = await app.buildContext();
+
+    console.log(context);
+
+    expect(context['moduleA']).toBe(moduleAImpl);
+    expect(context['moduleB']).not.toBeDefined();
+    expect(context['moduleC']).not.toBeDefined();
   });
 });

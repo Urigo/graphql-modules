@@ -2,7 +2,7 @@ import { GraphQLSchema } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule } from './graphql-module';
+import { GraphQLModule, IGraphQLContext } from './graphql-module';
 import { CommunicationBridge } from './communication-bridge';
 
 export interface GraphQLAppOptions {
@@ -28,23 +28,39 @@ export class GraphQLApp {
     return this._schema;
   }
 
-  async buildContext(networkRequest?: any): Promise<any> {
-    const relevantModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
+  async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
+    const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
+    const relevantImplModules: GraphQLModule[] = this._modules.filter(f => f.implementation);
     const result = {};
+    const builtResult = {};
+
     let module;
+    for (module of relevantImplModules) {
+      result[module.name] = module.implementation;
+    }
 
     try {
-      for (module of relevantModules) {
+      for (module of relevantContextModules) {
         const appendToContext: any = await module.contextBuilder(networkRequest);
 
         if (appendToContext && typeof appendToContext === 'object') {
-          Object.assign(result, appendToContext);
+          Object.assign(builtResult, appendToContext);
         }
       }
     } catch (e) {
-      logger.error(`Unable to build context! Module ${module} failed: `, e);
+      logger.error(`Unable to build context! Module "${module.name}" failed: `, e);
 
       throw e;
+    }
+
+    const builtKeys = Object.keys(builtResult);
+
+    for (const key of builtKeys) {
+      if (result.hasOwnProperty(key)) {
+        logger.warn(`One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`);
+      } else {
+        result[key] = builtResult[key];
+      }
     }
 
     return result;

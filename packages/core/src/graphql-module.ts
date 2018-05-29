@@ -34,6 +34,10 @@ export class GraphQLModule<Impl = any> {
     this._contextBuilder = options.contextBuilder || null;
   }
 
+  get name(): string {
+    return this._name;
+  }
+
   get typeDefs(): string {
     return this._typeDefs;
   }

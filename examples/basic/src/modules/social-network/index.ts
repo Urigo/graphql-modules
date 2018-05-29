@@ -1,10 +1,8 @@
 import {GraphQLModule} from '@graphql-modules/core';
 import {resolvers, types} from './schema';
 
-@GraphQLModule({
-  name: 'social-network',
-  types,
+export const socialNetworkModule = new GraphQLModule({
+  name: 'socialNetwork',
+  typeDefs: types,
   resolvers,
-})
-export class SocialNetworkModule {
-}
+});
