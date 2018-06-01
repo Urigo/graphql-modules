@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@types/graphql": "0.13.1",
-    "@types/jest": "22.2.3",
+    "@types/jest": "23.0.0",
     "graphql": "0.13.2",
     "jest": "23.0.1",
     "lerna": "2.11.0",
