@@ -26,7 +26,7 @@
     "@graphql-modules/logger": "*",
     "jest": "23.0.1",
     "tslint": "5.10.0",
-    "typescript": "2.8.3"
+    "typescript": "2.9.1"
   },
   "peerDependencies": {
     "@graphql-modules/logger": "0.0.1"
