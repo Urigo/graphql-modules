@@ -119,6 +119,12 @@ describe('GraphQLApp', () => {
     expect(context['moduleC']).not.toBeDefined();
   });
 
+  it('should allow to get resolvers', async () => {
+    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    
+    expect(app.resolvers).toBeDefined();
+  });
+
   it('should accept non modules schema and resovlers', async () => {
     const app = new GraphQLApp({ modules: [moduleA], nonModules: { typeDefs: typesB, resolvers: resolversB } });
     const schema = app.schema;

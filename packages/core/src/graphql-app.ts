@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema, IResolvers } from 'graphql-tools';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
@@ -19,23 +19,29 @@ export interface GraphQLAppOptions {
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private readonly _schema: GraphQLSchema;
+  private readonly _resolvers: IResolvers;
 
   constructor(options: GraphQLAppOptions) {
     const allTypes = options.modules.map<string>(m => m.typeDefs).filter(t => t);
     const nonModules = options.nonModules || {};
 
     this._modules = options.modules;
+    this._resolvers = mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
     this._schema = makeExecutableSchema({
       typeDefs: mergeGraphQLSchemas([
         ...allTypes,
         ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
       ]),
-      resolvers: mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {})),
+      resolvers: this._resolvers,
     });
   }
 
   get schema(): GraphQLSchema {
     return this._schema;
+  }
+
+  get resolvers(): IResolvers {
+    return this._resolvers;
   }
 
   private buildImplementationsObject() {
