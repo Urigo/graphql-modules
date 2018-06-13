@@ -2,7 +2,6 @@ import { GraphQLApp, GraphQLModule, IGraphQLContext } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { InjectCurrentContext, WithCurrentContext } from '../src/implementation/with-current-execution';
 
 describe('GraphQLApp', () => {
   // A
@@ -49,6 +48,16 @@ describe('GraphQLApp', () => {
     contextBuilder: () => {
       throw new Error('oops');
     },
+  });
+
+  // E
+  const mockOnInit = jest.fn().mockReturnValue({
+    test: 1,
+  });
+  const moduleE = new GraphQLModule({
+    name: 'moduleE',
+    typeDefs: typesC,
+    onInit: mockOnInit,
   });
 
   // Queries
@@ -117,6 +126,21 @@ describe('GraphQLApp', () => {
     expect(context['moduleA']).toBe(moduleAImpl);
     expect(context['moduleB']).not.toBeDefined();
     expect(context['moduleC']).not.toBeDefined();
+  });
+
+  it('should call the onInit function correctly', async () => {
+    const params = { test: true };
+    const app = new GraphQLApp({ initParams: params, modules: [moduleE] });
+    await app.init();
+
+    expect(mockOnInit.mock.calls.length).toBe(1);
+    expect(mockOnInit.mock.calls[0][0]).toBe(params);
+
+    const context = await app.buildContext();
+    expect(context.initParams).toBe(params);
+    expect(context.moduleE).toEqual({
+      test: 1
+    });
   });
 
   it('should allow to get resolvers', async () => {
