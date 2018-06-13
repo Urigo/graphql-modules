@@ -6,6 +6,7 @@ export interface IGraphQLContext {
 }
 
 export type BuildContextFn = (networkContext?: any) => IGraphQLContext;
+export type InitFn = (params: any) => any;
 
 export type Context<Impl = any> = {
   [P in keyof Impl]: Impl[P];
@@ -17,12 +18,14 @@ export interface GraphQLModuleOptions<Impl> {
   resolvers?: IResolvers;
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
+  onInit?: InitFn;
 }
 
 export class GraphQLModule<Impl = any> {
   private readonly _name: string;
   private readonly _typeDefs: string;
   private readonly _resolvers: IResolvers = {};
+  private readonly _onInit: InitFn = null;
   private _impl: Impl = null;
   private _contextBuilder: BuildContextFn = null;
 
@@ -32,6 +35,11 @@ export class GraphQLModule<Impl = any> {
     this._resolvers = options.resolvers || {};
     this._impl = options.implementation || null;
     this._contextBuilder = options.contextBuilder || null;
+    this._onInit = options.onInit || null;
+  }
+
+  get onInit(): InitFn {
+    return this._onInit;
   }
 
   get name(): string {

@@ -73,4 +73,11 @@ describe('GraphQLModule', () => {
 
     expect(module.contextBuilder).toBe(mockCallback);
   });
+
+  it('should set the init fn correctly', () => {
+    const mockCallback = jest.fn();
+    const module = new GraphQLModule({ onInit: mockCallback, name: 'test', typeDefs: TEST_TYPES });
+
+    expect(module.onInit).toBe(mockCallback);
+  });
 });
