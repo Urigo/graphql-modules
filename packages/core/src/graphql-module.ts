@@ -15,7 +15,7 @@ export type Context<Impl = any> = {
 export interface GraphQLModuleOptions<Impl> {
   name: string;
   typeDefs: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
-  resolvers?: IResolvers;
+  resolvers?: IResolvers | (() => IResolvers);
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
@@ -23,8 +23,8 @@ export interface GraphQLModuleOptions<Impl> {
 
 export class GraphQLModule<Impl = any> {
   private readonly _name: string;
-  private readonly _resolvers: IResolvers = {};
   private readonly _onInit: InitFn = null;
+  private _resolvers: IResolvers = {};
   private _typeDefs: string;
   private _impl: Impl = null;
   private _contextBuilder: BuildContextFn = null;
@@ -34,7 +34,7 @@ export class GraphQLModule<Impl = any> {
     this._options = options;
     this._name = options.name;
     this._typeDefs = typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs;
-    this._resolvers = options.resolvers || {};
+    this._resolvers = typeof options.resolvers === 'function' ? null : (options.resolvers || {});
     this._impl = options.implementation || null;
     this._contextBuilder = options.contextBuilder || null;
     this._onInit = options.onInit || null;
@@ -70,6 +70,10 @@ export class GraphQLModule<Impl = any> {
 
   get resolvers(): IResolvers {
     return this._resolvers;
+  }
+
+  set resolvers(value: IResolvers) {
+    this._resolvers = value;
   }
 
   setImplementation(implementation: Impl): void {

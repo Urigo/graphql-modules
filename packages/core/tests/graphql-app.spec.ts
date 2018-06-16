@@ -62,15 +62,18 @@ describe('GraphQLApp', () => {
 
   // F
   const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
+  const resolversFnMock = jest.fn().mockReturnValue({ C: {}});
   const moduleF = new GraphQLModule({
     name: 'moduleF',
     typeDefs: typeDefsFnMock,
+    resolvers: resolversFnMock,
     onInit: mockOnInit,
   });
 
   afterEach(() => {
     mockOnInit.mockClear();
     typeDefsFnMock.mockClear();
+    resolversFnMock.mockClear();
   });
 
   // Queries
@@ -170,6 +173,20 @@ describe('GraphQLApp', () => {
     expect(typeDefsFnMock.mock.calls.length).toBe(1);
     expect(typeDefsFnMock.mock.calls[0][0]).toBe(params);
     expect(typeDefsFnMock.mock.calls[0][1]).toEqual({
+      test: 1,
+    });
+  });
+
+  it('should trigger resolvers functions after onInit function', async () => {
+    const params = { test: true };
+    const app = new GraphQLApp({ modules: [moduleF] });
+    await app.init(params);
+
+    expect(mockOnInit.mock.calls.length).toBe(1);
+    expect(mockOnInit.mock.calls[0][0]).toBe(params);
+    expect(resolversFnMock.mock.calls.length).toBe(1);
+    expect(resolversFnMock.mock.calls[0][0]).toBe(params);
+    expect(resolversFnMock.mock.calls[0][1]).toEqual({
       test: 1,
     });
   });

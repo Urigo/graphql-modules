@@ -23,19 +23,18 @@ export interface GraphQLAppOptions {
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
-  private readonly _resolvers: IResolvers;
+  private _resolvers: IResolvers;
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
 
   constructor(private options: GraphQLAppOptions) {
-    const nonModules = this.options.nonModules || {};
     this._modules = options.modules;
-    this._resolvers = mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
   }
 
   private buildSchema() {
     const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
     const nonModules = this.options.nonModules || {};
+    this._resolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
 
     this._schema = makeExecutableSchema({
       typeDefs: mergeGraphQLSchemas([
@@ -69,6 +68,10 @@ export class GraphQLApp {
 
         if (typeof module.options.typeDefs === 'function') {
           module.typeDefs = module.options.typeDefs(params, appendToContext);
+        }
+
+        if (typeof module.options.resolvers === 'function') {
+          module.resolvers = module.options.resolvers(params, appendToContext);
         }
 
         if (appendToContext && typeof appendToContext === 'object') {
