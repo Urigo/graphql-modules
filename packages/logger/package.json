@@ -10,12 +10,12 @@
   },
   "devDependencies": {
     "tslint": "5.10.0",
-    "typescript": "2.9.1"
+    "typescript": "2.9.2"
   },
   "dependencies": {
     "@types/winston": "2.3.9",
     "moment": "2.22.2",
-    "winston": "2.4.2"
+    "winston": "2.4.3"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {
