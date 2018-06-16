@@ -15,7 +15,7 @@ export type Context<Impl = any> = {
 export interface GraphQLModuleOptions<Impl> {
   name: string;
   typeDefs: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
-  resolvers?: IResolvers | (() => IResolvers);
+  resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
