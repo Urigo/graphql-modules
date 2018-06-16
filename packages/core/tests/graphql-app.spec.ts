@@ -147,8 +147,8 @@ describe('GraphQLApp', () => {
 
   it('should call the onInit function correctly', async () => {
     const params = { test: true };
-    const app = new GraphQLApp({ initParams: params, modules: [moduleE] });
-    await app.init();
+    const app = new GraphQLApp({ modules: [moduleE] });
+    await app.init(params);
 
     expect(mockOnInit.mock.calls.length).toBe(1);
     expect(mockOnInit.mock.calls[0][0]).toBe(params);
@@ -162,8 +162,8 @@ describe('GraphQLApp', () => {
 
   it('should trigger typedefs functions after onInit function', async () => {
     const params = { test: true };
-    const app = new GraphQLApp({ initParams: params, modules: [moduleF] });
-    await app.init();
+    const app = new GraphQLApp({ modules: [moduleF] });
+    await app.init(params);
 
     expect(mockOnInit.mock.calls.length).toBe(1);
     expect(mockOnInit.mock.calls[0][0]).toBe(params);

@@ -23,6 +23,7 @@
     ]
   },
   "dependencies": {
+    "@graphql-modules/logger": "0.0.3",
     "@types/deepmerge": "2.1.0",
     "deepmerge": "2.1.1",
     "graphql-tools": "3.0.2"
@@ -32,6 +33,9 @@
     "jest": "23.1.0",
     "tslint": "5.10.0",
     "typescript": "2.9.1"
+  },
+  "peerDependencies": {
+    "@graphql-modules/logger": "*"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

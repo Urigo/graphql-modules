@@ -18,7 +18,6 @@ export interface GraphQLAppOptions {
   modules: GraphQLModule[];
   nonModules?: NonModules;
   communicationBridge?: CommunicationBridge;
-  initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>);
 }
 
 export class GraphQLApp {
@@ -47,15 +46,15 @@ export class GraphQLApp {
     });
   }
 
-  async init(): Promise<void> {
+  async init(initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>)): Promise<void> {
     let params: InitParams = null;
     const builtResult = {};
 
-    if (this.options && this.options.initParams) {
-      if (typeof this.options.initParams === 'object') {
-        params = this.options.initParams;
-      } else if (typeof this.options.initParams === 'function') {
-        params = await this.options.initParams();
+    if (initParams) {
+      if (typeof initParams === 'object') {
+        params = initParams;
+      } else if (typeof initParams === 'function') {
+        params = initParams();
       }
     }
 
