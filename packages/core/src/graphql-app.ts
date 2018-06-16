@@ -23,17 +23,21 @@ export interface GraphQLAppOptions {
 
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
-  private readonly _schema: GraphQLSchema;
+  private _schema: GraphQLSchema;
   private readonly _resolvers: IResolvers;
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
 
   constructor(private options: GraphQLAppOptions) {
-    const allTypes = options.modules.map<string>(m => m.typeDefs).filter(t => t);
-    const nonModules = options.nonModules || {};
-
+    const nonModules = this.options.nonModules || {};
     this._modules = options.modules;
     this._resolvers = mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
+  }
+
+  private buildSchema() {
+    const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
+    const nonModules = this.options.nonModules || {};
+
     this._schema = makeExecutableSchema({
       typeDefs: mergeGraphQLSchemas([
         ...allTypes,
@@ -64,6 +68,10 @@ export class GraphQLApp {
       for (module of relevantModules) {
         const appendToContext: any = await module.onInit(params);
 
+        if (typeof module.options.typeDefs === 'function') {
+          module.typeDefs = module.options.typeDefs(params, appendToContext);
+        }
+
         if (appendToContext && typeof appendToContext === 'object') {
           Object.assign(builtResult, { [module.name]: appendToContext });
         }
@@ -75,9 +83,14 @@ export class GraphQLApp {
     }
 
     this._initModulesValue = builtResult;
+    this.buildSchema();
   }
 
   get schema(): GraphQLSchema {
+    if (!this._schema) {
+      throw new Error(`GraphQL App schema is not built yet. Make sure you have called graphqlApp.init()!`);
+    }
+
     return this._schema;
   }
 

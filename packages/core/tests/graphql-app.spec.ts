@@ -60,11 +60,25 @@ describe('GraphQLApp', () => {
     onInit: mockOnInit,
   });
 
+  // F
+  const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
+  const moduleF = new GraphQLModule({
+    name: 'moduleF',
+    typeDefs: typeDefsFnMock,
+    onInit: mockOnInit,
+  });
+
+  afterEach(() => {
+    mockOnInit.mockClear();
+    typeDefsFnMock.mockClear();
+  });
+
   // Queries
   const testQuery = gql`query { b { f }}`;
 
-  it('should return the correct GraphQLSchema', () => {
+  it('should return the correct GraphQLSchema', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB] });
+    await app.init();
     const schema = app.schema;
 
     expect(schema).toBeDefined();
@@ -86,6 +100,7 @@ describe('GraphQLApp', () => {
 
   it('should trigger the correct GraphQL context builders and build the correct context', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    await app.init();
     const schema = app.schema;
     const context = await app.buildContext();
 
@@ -100,6 +115,7 @@ describe('GraphQLApp', () => {
 
   it('should inject implementation object into the context using the module name', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    await app.init();
     const schema = app.schema;
     const context = await app.buildContext();
 
@@ -114,6 +130,7 @@ describe('GraphQLApp', () => {
 
   it ('should throw an exception when a contextFn throws an exception', async () => {
     const app = new GraphQLApp({ modules: [moduleD] });
+    await app.init();
     const spy = jest.fn();
 
     await app.buildContext().catch(spy).then(() => expect(spy).toHaveBeenCalled());
@@ -143,14 +160,30 @@ describe('GraphQLApp', () => {
     });
   });
 
+  it('should trigger typedefs functions after onInit function', async () => {
+    const params = { test: true };
+    const app = new GraphQLApp({ initParams: params, modules: [moduleF] });
+    await app.init();
+
+    expect(mockOnInit.mock.calls.length).toBe(1);
+    expect(mockOnInit.mock.calls[0][0]).toBe(params);
+    expect(typeDefsFnMock.mock.calls.length).toBe(1);
+    expect(typeDefsFnMock.mock.calls[0][0]).toBe(params);
+    expect(typeDefsFnMock.mock.calls[0][1]).toEqual({
+      test: 1,
+    });
+  });
+
   it('should allow to get resolvers', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
-    
+    await app.init();
+
     expect(app.resolvers).toBeDefined();
   });
 
   it('should accept non modules schema and resovlers', async () => {
     const app = new GraphQLApp({ modules: [moduleA], nonModules: { typeDefs: typesB, resolvers: resolversB } });
+    await app.init();
     const schema = app.schema;
 
     expect(schema).toBeDefined();
