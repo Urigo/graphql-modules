@@ -19,6 +19,15 @@ describe('GraphQLModule', () => {
     expect(stripWhitespaces(module.typeDefs)).toEqual(stripWhitespaces(`type Test { f: String } type Test2 { f: String }`));
   });
 
+  it('should not use typedefs when typedefs are a function', () => {
+    const module = new GraphQLModule({
+      name: 'test',
+      typeDefs: () => [`type Test { f: String }`, `type Test2 { f: String }`]
+    });
+
+    expect(module.typeDefs).toBeNull();
+  });
+
   it('should set the correct implementation module when using simple object', () => {
     interface Impl {
       foo: () => string;
