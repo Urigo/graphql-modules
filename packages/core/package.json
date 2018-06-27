@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "graphql-tag": "2.9.2",
-    "jest": "23.1.0",
+    "jest": "23.2.0",
     "tslint": "5.10.0",
     "typescript": "2.9.2"
   },
