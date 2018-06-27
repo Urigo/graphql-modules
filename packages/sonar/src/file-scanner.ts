@@ -1,14 +1,14 @@
-import { sync } from 'glob';
+import { IOptions, sync } from 'glob';
 import { extname } from 'path';
 import { readFileSync } from 'fs';
 import { logger } from '@graphql-modules/logger';
-import { DocumentNode, print } from 'graphql';
+import { print } from 'graphql';
 
 const DEFAULT_SCHEMA_EXTENSIONS = ['gql', 'graphql', 'graphqls', 'ts', 'js'];
 const DEFAULT_RESOLVERS_EXTENSIONS = ['ts', 'js'];
 
-function scanForFiles(globStr: string): string[] {
-  return sync(globStr, { absolute: true });
+function scanForFiles(globStr: string, globOptions: IOptions = {}): string[] {
+  return sync(globStr, { absolute: true, ...globOptions });
 }
 
 function buildGlob(basePath: string, extensions: string[]): string {
@@ -43,15 +43,29 @@ function extractExports(fileExport: any): any | null {
   return fileExport;
 }
 
-export function loadSchemaFiles(basePath: string, extensions: string[] = DEFAULT_SCHEMA_EXTENSIONS): string[] {
-  const relevantPaths = scanForFiles(buildGlob(basePath, extensions));
+export interface LoadSchemaFilesOptions {
+  extensions?: string[];
+  useRequire?: boolean;
+  requireMethod?: any;
+  globOptions?: IOptions;
+}
+
+const LoadSchemaFilesDefaultOptions: LoadSchemaFilesOptions = {
+  extensions: DEFAULT_SCHEMA_EXTENSIONS,
+  useRequire: false,
+  requireMethod: null,
+  globOptions: {},
+};
+
+export function loadSchemaFiles(basePath: string, options: LoadSchemaFilesOptions = LoadSchemaFilesDefaultOptions): string[] {
+  const execOptions = { ...LoadSchemaFilesDefaultOptions, ...options };
+  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions), options.globOptions);
 
   return relevantPaths.map(path => {
     const extension = extname(path);
 
-    if (extension === '.js' || extension === '.ts') {
-      const fileExports = require(path);
-
+    if (extension === '.js' || extension === '.ts' || execOptions.useRequire) {
+      const fileExports = (execOptions.requireMethod ? execOptions.requireMethod : require)(path);
       const extractedExport = extractExports(fileExports);
 
       if (extractedExport && extractedExport.kind === 'Document') {
@@ -60,17 +74,30 @@ export function loadSchemaFiles(basePath: string, extensions: string[] = DEFAULT
 
       return extractedExport;
     } else {
-      return readFileSync(path, {encoding: 'utf-8'});
+      return readFileSync(path, { encoding: 'utf-8' });
     }
   });
 }
 
-export function loadResolversFiles(basePath: string, extensions: string[] = DEFAULT_RESOLVERS_EXTENSIONS): any[] {
-  const relevantPaths = scanForFiles(buildGlob(basePath, extensions));
+export interface LoadResolversFilesOptions {
+  extensions?: string[];
+  requireMethod?: any;
+  globOptions?: IOptions;
+}
+
+const LoadResolversFilesDefaultOptions: LoadResolversFilesOptions = {
+  extensions: DEFAULT_RESOLVERS_EXTENSIONS,
+  requireMethod: null,
+  globOptions: {},
+};
+
+export function loadResolversFiles(basePath: string, options: LoadResolversFilesOptions = LoadResolversFilesDefaultOptions): any[] {
+  const execOptions = { ...LoadResolversFilesDefaultOptions, ...options };
+  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions), execOptions.globOptions);
 
   return relevantPaths.map(path => {
     try {
-      const fileExports = require(path);
+      const fileExports = (execOptions.requireMethod ? execOptions.requireMethod : require)(path);
 
       return extractExports(fileExports);
     } catch (e) {
