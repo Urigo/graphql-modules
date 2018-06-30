@@ -23,19 +23,19 @@ export interface GraphQLAppOptions {
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
-  private readonly _resolvers: IResolvers;
+  private _resolvers: IResolvers;
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
+  private _currentContext = null;
 
   constructor(private options: GraphQLAppOptions) {
-    const nonModules = this.options.nonModules || {};
     this._modules = options.modules;
-    this._resolvers = mergeResolvers(options.modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
   }
 
   private buildSchema() {
     const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
     const nonModules = this.options.nonModules || {};
+    this._resolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
 
     this._schema = makeExecutableSchema({
       typeDefs: mergeGraphQLSchemas([
@@ -71,6 +71,10 @@ export class GraphQLApp {
           module.typeDefs = module.options.typeDefs(params, appendToContext);
         }
 
+        if (typeof module.options.resolvers === 'function') {
+          module.resolvers = module.options.resolvers(params, appendToContext);
+        }
+
         if (appendToContext && typeof appendToContext === 'object') {
           Object.assign(builtResult, { [module.name]: appendToContext });
         }
@@ -102,10 +106,30 @@ export class GraphQLApp {
     const result = {};
 
     for (const module of relevantImplModules) {
-      result[module.name] = module.implementation;
+      result[module.name] = this.getModuleWrappedImplementation(module.implementation);
     }
 
     return result;
+  }
+
+  private getCurrentContext() {
+    return this._currentContext;
+  }
+
+  private getModuleWrappedImplementation(implementation) {
+    const fnKeys = Object.keys(implementation).filter(key => typeof implementation[key] === 'function');
+
+    for (const key of fnKeys) {
+      const originalFn = implementation[key];
+
+      implementation[key] = (...args) => {
+        return originalFn.call(implementation, ...args, {
+          context: this.getCurrentContext(),
+        });
+      };
+    }
+
+    return implementation;
   }
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
@@ -137,6 +161,8 @@ export class GraphQLApp {
         result[key] = builtResult[key];
       }
     }
+
+    this._currentContext = result;
 
     return result;
   }

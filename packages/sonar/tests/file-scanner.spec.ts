@@ -1,8 +1,8 @@
 import {loadResolversFiles, loadSchemaFiles} from '../src';
 
-function testSchemaDir(path, expectedResult, note, extensions?) {
+function testSchemaDir(path, expectedResult, note, extensions?: string[]) {
   it(`should return the correct schema results for path: ${path} (${note})`, () => {
-    const result = loadSchemaFiles(path, extensions);
+    const result = loadSchemaFiles(path, extensions ? { extensions } : {});
 
     expect(result.length).toBe(expectedResult.length);
     expect(result.map(stripWhitespaces)).toEqual(expectedResult.map(stripWhitespaces));
@@ -11,7 +11,7 @@ function testSchemaDir(path, expectedResult, note, extensions?) {
 
 function testResolversDir(path, expectedResult, note, extensions?) {
   it(`should return the correct resolvers results for path: ${path} (${note})`, () => {
-    const result = loadResolversFiles(path, extensions);
+    const result = loadResolversFiles(path, extensions ? { extensions } : {});
 
     expect(result.length).toBe(expectedResult.length);
     expect(result).toEqual(expectedResult);
