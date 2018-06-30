@@ -119,7 +119,7 @@ export class GraphQLApp {
   private getModuleWrappedImplementation(implementation) {
     const fnKeys = Object.keys(implementation).filter(key => typeof implementation[key] === 'function');
 
-    for (let key of fnKeys) {
+    for (const key of fnKeys) {
       const originalFn = implementation[key];
 
       implementation[key] = (...args) => {
