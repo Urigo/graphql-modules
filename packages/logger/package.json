@@ -13,9 +13,8 @@
     "typescript": "2.9.2"
   },
   "dependencies": {
-    "@types/winston": "2.3.9",
     "moment": "2.22.2",
-    "winston": "2.4.3"
+    "winston": "3.0.0"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

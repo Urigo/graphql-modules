@@ -1,14 +1,14 @@
 import * as winston from 'winston';
-import * as moment from 'moment';
+import { createLogger, Logger, format } from 'winston';
 
-export const logger: winston.LoggerInstance = new winston.Logger({
-  level: 'info',
-  transports: [
-    new winston.transports.Console({
-      timestamp: () => moment().format('DD.MM.YYYY(Z) HH:mm:ss'),
-      colorize: true,
-    }),
-  ],
+export const logger: Logger = createLogger({
+  level: 'debug',
+  transports: [ new winston.transports.Console()],
+  format: format.combine(
+    format.json(),
+    format.timestamp(),
+    format.colorize(),
+  ),
 });
 
 export default logger;
