@@ -26,6 +26,7 @@ export class GraphQLApp {
   private _resolvers: IResolvers;
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
+  private _currentContext = null;
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -105,10 +106,30 @@ export class GraphQLApp {
     const result = {};
 
     for (const module of relevantImplModules) {
-      result[module.name] = module.implementation;
+      result[module.name] = this.getModuleWrappedImplementation(module.implementation);
     }
 
     return result;
+  }
+
+  private getCurrentContext() {
+    return this._currentContext;
+  }
+
+  private getModuleWrappedImplementation(implementation) {
+    const fnKeys = Object.keys(implementation).filter(key => typeof implementation[key] === 'function');
+
+    for (const key of fnKeys) {
+      const originalFn = implementation[key];
+
+      implementation[key] = (...args) => {
+        return originalFn.call(implementation, ...args, {
+          context: this.getCurrentContext(),
+        });
+      };
+    }
+
+    return implementation;
   }
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
@@ -140,6 +161,8 @@ export class GraphQLApp {
         result[key] = builtResult[key];
       }
     }
+
+    this._currentContext = result;
 
     return result;
   }
