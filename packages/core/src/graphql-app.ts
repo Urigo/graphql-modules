@@ -4,6 +4,7 @@ import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
 import { CommunicationBridge } from './communication';
+import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 
 export interface NonModules {
   typeDefs?: any;
@@ -18,6 +19,7 @@ export interface GraphQLAppOptions {
   modules: GraphQLModule[];
   nonModules?: NonModules;
   communicationBridge?: CommunicationBridge;
+  resolversComposition?: IResolversComposerMapping;
 }
 
 export class GraphQLApp {
@@ -35,7 +37,8 @@ export class GraphQLApp {
   private buildSchema() {
     const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
     const nonModules = this.options.nonModules || {};
-    this._resolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
+    const mergedResolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
+    this._resolvers = this.composeResolvers(mergedResolvers, this.options.resolversComposition);
 
     this._schema = makeExecutableSchema({
       typeDefs: mergeGraphQLSchemas([
@@ -44,6 +47,14 @@ export class GraphQLApp {
       ]),
       resolvers: this._resolvers,
     });
+  }
+
+  private composeResolvers(resolvers: IResolvers, composition: IResolversComposerMapping) {
+    if (composition) {
+      return composeResolvers(resolvers, composition);
+    }
+
+    return resolvers;
   }
 
   async init(initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>)): Promise<void> {
