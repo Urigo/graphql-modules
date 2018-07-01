@@ -5,7 +5,6 @@ export const logger: Logger = createLogger({
   level: 'debug',
   transports: [ new winston.transports.Console()],
   format: format.combine(
-    format.json(),
     format.timestamp(),
     format.colorize(),
   ),
