@@ -219,5 +219,31 @@ describe('Merge Schema', () => {
         type MyType { f1: String f2: String }
         `));
     });
+
+    it('should include directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
   });
 });
