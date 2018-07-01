@@ -141,6 +141,7 @@ describe('GraphQLApp', () => {
 
   it('should append the correct implementation instances to the context', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    await app.init();
     const context = await app.buildContext();
 
     expect(context['moduleA']).toBe(moduleAImpl);
@@ -220,20 +221,29 @@ describe('GraphQLApp', () => {
       }`));
   });
 
-
   it('should expose the current context correctly to the implementation fns', async () => {
-    const spy = jest.fn();
-    const impl = { doSomething: spy };
+    const spy1 = jest.fn();
+    const spy2 = jest.fn();
+    const impl1 = { doSomething: () => null };
+    const impl2 = { doSomething: () => null };
     const types = [`type Query { a: String }`];
     const m = new GraphQLModule({
-      name: 'module',
+      name: 'module1',
       typeDefs: types,
       resolvers: {
         Query: { a: (root, args, { module }) => module.doSomething() },
       },
-      implementation: impl,
+      implementation: spy1.mockReturnValue(impl1)
     });
-    const app = new GraphQLApp({ modules: [m] });
+    const m2 = new GraphQLModule({
+      name: 'module2',
+      typeDefs: types,
+      resolvers: {
+        Query: { a: (root, args, { module }) => module.doSomething() },
+      },
+      implementation: spy2.mockReturnValue(impl2)
+    });
+    const app = new GraphQLApp({ modules: [m, m2] });
     await app.init();
     const schema = app.schema;
     const context = await app.buildContext();
@@ -244,42 +254,18 @@ describe('GraphQLApp', () => {
       contextValue: context,
     });
 
-    expect(spy.mock.calls[0][0].context).toBe(context);
+    expect(typeof spy1.mock.calls[0][1].getCurrentContext).toBe('function');
+    expect(spy1.mock.calls[0][1]).toBeDefined();
+    expect(spy1.mock.calls[0][1].getCurrentContext()).toBe(context);
+    expect(spy1.mock.calls[0][0]).toBeDefined();
+    expect(spy1.mock.calls[0][0].module1).toBeDefined();
+    expect(spy1.mock.calls[0][0].module2).toBeDefined();
+
+    expect(typeof spy2.mock.calls[0][1].getCurrentContext).toBe('function');
+    expect(spy2.mock.calls[0][1]).toBeDefined();
+    expect(spy2.mock.calls[0][1].getCurrentContext()).toBe(context);
+    expect(spy2.mock.calls[0][0]).toBeDefined();
+    expect(spy2.mock.calls[0][0].module1).toBeDefined();
+    expect(spy2.mock.calls[0][0].module2).toBeDefined();
   });
-
-  it('should expose the current context correctly to the implementation fns (using class)', async () => {
-    const spy = jest.fn();
-
-    class Impl {
-      doSomething = spy;
-    }
-
-    const impl = new Impl();
-
-    const types = [`type Query { a: String }`];
-    const m = new GraphQLModule({
-      name: 'module',
-      typeDefs: types,
-      resolvers: {
-        Query: { a: (root, args, { module }) => module.doSomething() },
-      },
-      implementation: impl,
-    });
-    const app = new GraphQLApp({ modules: [m] });
-    await app.init();
-    const schema = app.schema;
-    const context = await app.buildContext();
-
-    await execute({
-      schema,
-      document: gql`query { a { f }}`,
-      contextValue: context,
-    });
-
-    expect(spy.mock.calls[0][0].context).toBe(context);
-
-    // Verify that we didn't destroy class context
-    expect(spy.mock.instances[0]).toBe(impl);
-  });
-
 });
