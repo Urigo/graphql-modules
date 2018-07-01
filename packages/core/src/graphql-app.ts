@@ -29,7 +29,7 @@ export class GraphQLApp {
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
   private _currentContext = null;
-  private _allImplementations;
+  private _allImplementations: { [key: string]: any; };
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -132,6 +132,14 @@ export class GraphQLApp {
     return this._currentContext;
   }
 
+  private getModule(name) {
+    return this._modules.find(module => module.name === name);
+  }
+
+  private getModuleImplementation(name) {
+    return this._allImplementations[name] || null;
+  }
+
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
     const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
     const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {} };
@@ -140,7 +148,7 @@ export class GraphQLApp {
     let module;
     try {
       for (module of relevantContextModules) {
-        const appendToContext: any = await module.contextBuilder(networkRequest);
+        const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
 
         if (appendToContext && typeof appendToContext === 'object') {
           Object.assign(builtResult, appendToContext);

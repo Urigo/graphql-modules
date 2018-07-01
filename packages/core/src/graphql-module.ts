@@ -5,7 +5,7 @@ export interface IGraphQLContext {
   [key: string]: any;
 }
 
-export type BuildContextFn = (networkContext?: any) => IGraphQLContext;
+export type BuildContextFn = (networkContext: any, allImplementations: any, currentContext: Context) => IGraphQLContext;
 export type InitFn = (initParams: any, moduleConfig: any) => any;
 
 export type Context<Impl = any> = {
