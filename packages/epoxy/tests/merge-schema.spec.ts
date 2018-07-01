@@ -88,6 +88,32 @@ describe('Merge Schema', () => {
         type Query @test @test2 { f1: String f2: String f3: MyType } type MyType { field: Int } union MyUnion = MyType | MyType2 type MyType2 { field: Int } interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int } interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 & MyInterface3 { f2: Int f3: Int } interface MyInterface3 { f3: Int } schema { query: Query }
         `));
     });
+
+    it('should include directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
   });
 
   describe('input arguments', () => {
@@ -218,32 +244,6 @@ describe('Merge Schema', () => {
       expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
         type MyType { f1: String f2: String }
         `));
-    });
-
-    it('should include directives', () => {
-      const merged = mergeGraphQLSchemas([
-        `directive @id on FIELD_DEFINITION`,
-        `type MyType { id: Int @id }`,
-        `type Query { f1: MyType }`,
-      ]);
-
-      expect(stripWhitespaces(merged)).toBe(
-        stripWhitespaces(`
-          directive @id on FIELD_DEFINITION
-          
-          type MyType {
-            id: Int @id
-          } 
-          
-          type Query {
-            f1: MyType
-          } 
-          
-          schema {
-            query: Query
-          }
-        `),
-      );
     });
   });
 });
