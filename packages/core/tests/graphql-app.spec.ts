@@ -227,6 +227,7 @@ describe('GraphQLApp', () => {
     const impl1 = { doSomething: () => null };
     const impl2 = { doSomething: () => null };
     const types = [`type Query { a: String }`];
+    const moduleConfig = { a: 1 };
     const m = new GraphQLModule({
       name: 'module1',
       typeDefs: types,
@@ -243,7 +244,7 @@ describe('GraphQLApp', () => {
       },
       implementation: spy2.mockReturnValue(impl2)
     });
-    const app = new GraphQLApp({ modules: [m, m2] });
+    const app = new GraphQLApp({ modules: [m, m2.withConfig(moduleConfig)] });
     await app.init();
     const schema = app.schema;
     const context = await app.buildContext();
@@ -254,16 +255,16 @@ describe('GraphQLApp', () => {
       contextValue: context,
     });
 
-    expect(typeof spy1.mock.calls[0][1].getCurrentContext).toBe('function');
-    expect(spy1.mock.calls[0][1]).toBeDefined();
-    expect(spy1.mock.calls[0][1].getCurrentContext()).toBe(context);
+    expect(spy1.mock.calls[0][1]).toBe(null);
+    expect(typeof spy1.mock.calls[0][2].getCurrentContext).toBe('function');
+    expect(spy1.mock.calls[0][2].getCurrentContext()).toBe(context);
     expect(spy1.mock.calls[0][0]).toBeDefined();
     expect(spy1.mock.calls[0][0].module1).toBeDefined();
     expect(spy1.mock.calls[0][0].module2).toBeDefined();
 
-    expect(typeof spy2.mock.calls[0][1].getCurrentContext).toBe('function');
-    expect(spy2.mock.calls[0][1]).toBeDefined();
-    expect(spy2.mock.calls[0][1].getCurrentContext()).toBe(context);
+    expect(spy2.mock.calls[0][1]).toBe(moduleConfig);
+    expect(typeof spy2.mock.calls[0][2].getCurrentContext).toBe('function');
+    expect(spy2.mock.calls[0][2].getCurrentContext()).toBe(context);
     expect(spy2.mock.calls[0][0]).toBeDefined();
     expect(spy2.mock.calls[0][0].module1).toBeDefined();
     expect(spy2.mock.calls[0][0].module2).toBeDefined();

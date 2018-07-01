@@ -77,7 +77,7 @@ export class GraphQLApp {
 
     try {
       for (module of relevantModules) {
-        const appendToContext: any = await module.onInit(params);
+        const appendToContext: any = await module.onInit(params, module.config);
 
         if (typeof module.options.typeDefs === 'function') {
           module.typeDefs = module.options.typeDefs(params, appendToContext);
@@ -121,7 +121,7 @@ export class GraphQLApp {
     for (const module of relevantImplModules) {
       result[module.name] =
         typeof module.implementation === 'function' ?
-          await module.implementation(result, { getCurrentContext: () => this.getCurrentContext() }) :
+          await module.implementation(result, module.config, { getCurrentContext: () => this.getCurrentContext() }) :
           module.implementation;
     }
 
