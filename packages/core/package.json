@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -23,9 +23,9 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/epoxy": "0.0.8",
-    "@graphql-modules/logger": "0.0.8",
-    "@graphql-modules/sonar": "0.0.8",
+    "@graphql-modules/epoxy": "0.0.9",
+    "@graphql-modules/logger": "0.0.9",
+    "@graphql-modules/sonar": "0.0.9",
     "graphql-tools": "3.0.4"
   },
   "devDependencies": {
