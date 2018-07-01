@@ -29,6 +29,7 @@ export class GraphQLApp {
   private _initModulesValue: { [key: string]: any; } = {};
   private _resolvedInitParams: { [key: string]: any; } = {};
   private _currentContext = null;
+  private _allImplementations: { [key: string]: any; };
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -76,7 +77,7 @@ export class GraphQLApp {
 
     try {
       for (module of relevantModules) {
-        const appendToContext: any = await module.onInit(params);
+        const appendToContext: any = await module.onInit(params, module.config);
 
         if (typeof module.options.typeDefs === 'function') {
           module.typeDefs = module.options.typeDefs(params, appendToContext);
@@ -98,6 +99,7 @@ export class GraphQLApp {
 
     this._initModulesValue = builtResult;
     this.buildSchema();
+    this._allImplementations = await this.buildImplementationsObject();
   }
 
   get schema(): GraphQLSchema {
@@ -112,12 +114,15 @@ export class GraphQLApp {
     return this._resolvers;
   }
 
-  private buildImplementationsObject() {
+  private async buildImplementationsObject() {
     const relevantImplModules: GraphQLModule[] = this._modules.filter(f => f.implementation);
     const result = {};
 
     for (const module of relevantImplModules) {
-      result[module.name] = this.getModuleWrappedImplementation(module.implementation);
+      result[module.name] =
+        typeof module.implementation === 'function' ?
+          await module.implementation(result, module.config, { getCurrentContext: () => this.getCurrentContext() }) :
+          module.implementation;
     }
 
     return result;
@@ -127,31 +132,23 @@ export class GraphQLApp {
     return this._currentContext;
   }
 
-  private getModuleWrappedImplementation(implementation) {
-    const fnKeys = Object.keys(implementation).filter(key => typeof implementation[key] === 'function');
+  public getModule(name) {
+    return this._modules.find(module => module.name === name);
+  }
 
-    for (const key of fnKeys) {
-      const originalFn = implementation[key];
-
-      implementation[key] = (...args) => {
-        return originalFn.call(implementation, ...args, {
-          context: this.getCurrentContext(),
-        });
-      };
-    }
-
-    return implementation;
+  public getModuleImplementation(name) {
+    return this._allImplementations[name] || null;
   }
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
     const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
     const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {} };
-    const result = this.buildImplementationsObject();
+    const result = { ...this._allImplementations };
 
     let module;
     try {
       for (module of relevantContextModules) {
-        const appendToContext: any = await module.contextBuilder(networkRequest);
+        const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
 
         if (appendToContext && typeof appendToContext === 'object') {
           Object.assign(builtResult, appendToContext);

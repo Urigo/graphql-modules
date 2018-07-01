@@ -5,8 +5,8 @@ export interface IGraphQLContext {
   [key: string]: any;
 }
 
-export type BuildContextFn = (networkContext?: any) => IGraphQLContext;
-export type InitFn = (params: any) => any;
+export type BuildContextFn = (networkContext: any, allImplementations: any, currentContext: Context) => IGraphQLContext;
+export type InitFn = (initParams: any, moduleConfig: any) => any;
 
 export type Context<Impl = any> = {
   [P in keyof Impl]: Impl[P];
@@ -21,7 +21,7 @@ export interface GraphQLModuleOptions<Impl> {
   onInit?: InitFn;
 }
 
-export class GraphQLModule<Impl = any> {
+export class GraphQLModule<Impl = any, Config = any> {
   private readonly _name: string;
   private readonly _onInit: InitFn = null;
   private _resolvers: IResolvers = {};
@@ -29,6 +29,7 @@ export class GraphQLModule<Impl = any> {
   private _impl: Impl = null;
   private _contextBuilder: BuildContextFn = null;
   private _options: GraphQLModuleOptions<Impl>;
+  private _moduleConfig: Config = null;
 
   constructor(options: GraphQLModuleOptions<Impl>) {
     this._options = options;
@@ -38,6 +39,16 @@ export class GraphQLModule<Impl = any> {
     this._impl = options.implementation || null;
     this._contextBuilder = options.contextBuilder || null;
     this._onInit = options.onInit || null;
+  }
+
+  withConfig(config: Config): this {
+    this._moduleConfig = config;
+
+    return this;
+  }
+
+  get config(): Config {
+    return this._moduleConfig;
   }
 
   get options(): GraphQLModuleOptions<Impl> {
