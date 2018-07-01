@@ -132,11 +132,11 @@ export class GraphQLApp {
     return this._currentContext;
   }
 
-  private getModule(name) {
+  public getModule(name) {
     return this._modules.find(module => module.name === name);
   }
 
-  private getModuleImplementation(name) {
+  public getModuleImplementation(name) {
     return this._allImplementations[name] || null;
   }
 
