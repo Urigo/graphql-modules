@@ -45,7 +45,9 @@ export class GraphQLApp {
       ...allTypes,
       ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
     ]);
+  }
 
+  private buildSchemaObject() {
     this._schema = makeExecutableSchema({
       typeDefs: this._typeDefs,
       resolvers: this._resolvers,
@@ -106,7 +108,7 @@ export class GraphQLApp {
 
   get schema(): GraphQLSchema {
     if (!this._schema) {
-      throw new Error(`GraphQL App schema is not built yet. Make sure you have called graphqlApp.init()!`);
+      this.buildSchemaObject();
     }
 
     return this._schema;
