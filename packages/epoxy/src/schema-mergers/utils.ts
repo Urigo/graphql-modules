@@ -11,6 +11,7 @@ import {
   InputObjectTypeDefinitionNode,
   GraphQLSchema,
   InterfaceTypeDefinitionNode,
+  DirectiveDefinitionNode,
 } from 'graphql';
 
 export function isStringTypes(types: any): types is string {
@@ -43,6 +44,10 @@ export function isGraphQLInputType(definition: DefinitionNode): definition is In
 
 export function isGraphQLInterface(definition: DefinitionNode): definition is InterfaceTypeDefinitionNode {
   return definition.kind === 'InterfaceTypeDefinition';
+}
+
+export function isGraphQLDirective(definition: DefinitionNode): definition is DirectiveDefinitionNode {
+  return definition.kind === 'DirectiveDefinition';
 }
 
 export function isGraphQLSchema(obj: any): obj is GraphQLSchema {

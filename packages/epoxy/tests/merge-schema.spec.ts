@@ -88,6 +88,107 @@ describe('Merge Schema', () => {
         type Query @test @test2 { f1: String f2: String f3: MyType } type MyType { field: Int } union MyUnion = MyType | MyType2 type MyType2 { field: Int } interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int } interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 & MyInterface3 { f2: Int f3: Int } interface MyInterface3 { f3: Int } schema { query: Query }
         `));
     });
+
+    it('should include directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
+
+    it('should fail if inputs of the same directive are different from each other', (done: jest.DoneCallback) => {
+      try {
+        mergeGraphQLSchemas([
+          `directive @id on FIELD_DEFINITION`,
+          `directive @id(name: String) on FIELD_DEFINITION`,
+          `type MyType { id: Int @id }`,
+          `type Query { f1: MyType }`,
+        ]);
+
+        done.fail('It should have failed');
+      } catch (e) {
+        const msg = stripWhitespaces(e.message);
+
+        expect(msg).toMatch('GraphQL directive "id"');
+        expect(msg).toMatch('Existing directive: directive @id on FIELD_DEFINITION');
+        expect(msg).toMatch('Received directive: directive @id(name: String) on FIELD_DEFINITION');
+
+        done();
+      }
+    });
+
+    it('should merge the same directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `directive @id on FIELD_DEFINITION`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
+
+    it('should merge the same directives and its locations', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `directive @id on OBJECT`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION | OBJECT
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
   });
 
   describe('input arguments', () => {

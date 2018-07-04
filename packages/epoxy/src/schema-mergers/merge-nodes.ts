@@ -5,12 +5,14 @@ import {
   isGraphQLScalar,
   isGraphQLType,
   isGraphQLUnion,
+  isGraphQLDirective,
 } from './utils';
 import { mergeType } from './type';
 import { mergeEnum } from './enum';
 import { mergeUnion } from './union';
 import { mergeInputType } from './input-type';
 import { mergeInterface } from './interface';
+import { mergeDirective } from './directives';
 
 export type MergedResultMap = {[name: string]: DefinitionNode};
 
@@ -33,6 +35,8 @@ export function mergeGraphQLNodes(nodes: ReadonlyArray<DefinitionNode>): MergedR
         prev[name] = mergeInputType(nodeDefinition as any, prev[name] as any);
       } else if (isGraphQLInterface(nodeDefinition)) {
         prev[name] = mergeInterface(nodeDefinition as any, prev[name] as any);
+      } else if (isGraphQLDirective(nodeDefinition)) {
+        prev[name] = mergeDirective(nodeDefinition, prev[name] as any);
       }
     }
 
