@@ -30,6 +30,7 @@ export class GraphQLApp {
   private _resolvedInitParams: { [key: string]: any; } = {};
   private _currentContext = null;
   private _allImplementations: { [key: string]: any; };
+  private _typeDefs: string;
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -40,12 +41,13 @@ export class GraphQLApp {
     const nonModules = this.options.nonModules || {};
     const mergedResolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
     this._resolvers = this.composeResolvers(mergedResolvers, this.options.resolversComposition);
+    this._typeDefs = mergeGraphQLSchemas([
+      ...allTypes,
+      ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
+    ]);
 
     this._schema = makeExecutableSchema({
-      typeDefs: mergeGraphQLSchemas([
-        ...allTypes,
-        ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
-      ]),
+      typeDefs: this._typeDefs,
       resolvers: this._resolvers,
     });
   }
@@ -112,6 +114,10 @@ export class GraphQLApp {
 
   get resolvers(): IResolvers {
     return this._resolvers;
+  }
+
+  get typeDefs(): string {
+    return this._typeDefs;
   }
 
   private async buildImplementationsObject() {
