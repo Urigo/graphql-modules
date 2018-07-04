@@ -1,4 +1,4 @@
-import { DefinitionNode, print } from 'graphql';
+import { DefinitionNode } from 'graphql';
 import {
   isGraphQLEnum,
   isGraphQLInputType, isGraphQLInterface,
