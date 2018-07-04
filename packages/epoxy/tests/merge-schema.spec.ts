@@ -114,6 +114,54 @@ describe('Merge Schema', () => {
         `),
       );
     });
+
+    it('should fail when there are multiple different directive definitions', (done: jest.DoneCallback) => {
+      try {
+        mergeGraphQLSchemas([
+          `directive @id on FIELD_DEFINITION`,
+          `directive @id(name: String) on FIELD_DEFINITION`,
+          `type MyType { id: Int @id }`,
+          `type Query { f1: MyType }`,
+        ]);
+
+        done.fail('It should have failed');
+      } catch (e) {
+        const msg = stripWhitespaces(e.message);
+
+        expect(msg).toMatch('GraphQL directive "id"');
+        expect(msg).toMatch('Existing directive: directive @id on FIELD_DEFINITION');
+        expect(msg).toMatch('Received directive: directive @id(name: String) on FIELD_DEFINITION');
+
+        done();
+      }
+    });
+
+    it('should merge the same directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id on FIELD_DEFINITION`,
+        `directive @id on FIELD_DEFINITION`,
+        `type MyType { id: Int @id }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
   });
 
   describe('input arguments', () => {
