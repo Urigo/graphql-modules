@@ -14,7 +14,7 @@ export type Context<Impl = any> = {
 
 export interface GraphQLModuleOptions<Impl> {
   name: string;
-  typeDefs: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
+  typeDefs?: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
   resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
@@ -34,7 +34,7 @@ export class GraphQLModule<Impl = any, Config = any> {
   constructor(options: GraphQLModuleOptions<Impl>) {
     this._options = options;
     this._name = options.name;
-    this._typeDefs = typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs;
+    this._typeDefs = options.typeDefs && (typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs);
     this._resolvers = typeof options.resolvers === 'function' ? null : (options.resolvers || {});
     this._impl = options.implementation || null;
     this._contextBuilder = options.contextBuilder || null;

@@ -116,6 +116,18 @@ describe('GraphQLApp', () => {
     expect(result.data.b.f).toBe('1');
   });
 
+  it('should work without a GraphQL schema and inject implementation', async () => {
+    const impl = {};
+    const module = new GraphQLModule<any>({
+      name: 'module',
+      implementation: impl,
+    });
+    const app = new GraphQLApp({ modules: [module] });
+    await app.init();
+    const context = await app.buildContext();
+    expect(context.module).toBe(impl);
+  });
+
   it('should inject implementation object into the context using the module name', async () => {
     const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
     await app.init();
