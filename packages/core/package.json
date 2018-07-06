@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@graphql-modules/epoxy": "0.0.13",
-    "@graphql-modules/logger": "0.0.13",
+    "@graphql-modules/logger": "0.0.12",
     "@graphql-modules/sonar": "0.0.13",
     "graphql-tools": "3.0.4"
   },
