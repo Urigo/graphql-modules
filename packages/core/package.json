@@ -27,7 +27,7 @@
     "@graphql-modules/logger": "0.0.13",
     "@graphql-modules/sonar": "0.0.13",
     "dependency-graph": "0.7.1",
-    "graphql-tools": "3.0.4"
+    "graphql-tools": "3.0.5"
   },
   "devDependencies": {
     "graphql-tag": "2.9.2",
