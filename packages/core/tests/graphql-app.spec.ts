@@ -8,6 +8,7 @@ describe('GraphQLApp', () => {
   interface ModuleAImpl {
     doSomething: () => string;
   }
+
   const moduleAImpl = { doSomething: () => 'Test' };
   const typesA = [`type A { f: String}`, `type Query { a: A }`];
   const moduleA = new GraphQLModule<ModuleAImpl>({
@@ -62,7 +63,7 @@ describe('GraphQLApp', () => {
 
   // F
   const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
-  const resolversFnMock = jest.fn().mockReturnValue({ C: {}});
+  const resolversFnMock = jest.fn().mockReturnValue({ C: {} });
   const moduleF = new GraphQLModule({
     name: 'moduleF',
     typeDefs: typeDefsFnMock,
@@ -143,7 +144,7 @@ describe('GraphQLApp', () => {
     expect(result.data.b.f).toBe('1');
   });
 
-  it ('should throw an exception when a contextFn throws an exception', async () => {
+  it('should throw an exception when a contextFn throws an exception', async () => {
     const app = new GraphQLApp({ modules: [moduleD] });
     await app.init();
     const spy = jest.fn();
@@ -280,5 +281,54 @@ describe('GraphQLApp', () => {
     expect(spy2.mock.calls[0][0]).toBeDefined();
     expect(spy2.mock.calls[0][0].module1).toBeDefined();
     expect(spy2.mock.calls[0][0].module2).toBeDefined();
+  });
+
+  describe('Module Dependencies', () => {
+    it('should init modules in the right order', async () => {
+      let counter = 0;
+      const module1Impl = jest.fn(() => counter++);
+      const module2Impl = jest.fn(() => counter++);
+      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], implementation: module1Impl });
+      const module2 = new GraphQLModule({ name: '2', implementation: module2Impl });
+      const app = new GraphQLApp({ modules: [module2, module1] });
+      await app.init();
+
+      expect(module1Impl.mock.calls[0]).toBeDefined();
+      expect(module2Impl.mock.calls[0]).toBeDefined();
+      expect(app.getModuleImplementation(module1.name)).toBe(1);
+      expect(app.getModuleImplementation(module2.name)).toBe(0);
+    });
+
+    it('should init modules in the right order with multiple circular dependencies', async () => {
+      let counter = 0;
+      const module1Impl = jest.fn(() => counter++);
+      const module2Impl = jest.fn(() => counter++);
+      const module3Impl = jest.fn(() => counter++);
+      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], implementation: module1Impl });
+      const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], implementation: module2Impl });
+      const module3 = new GraphQLModule({ name: '3', dependencies: ['1'], implementation: module3Impl });
+      const app = new GraphQLApp({ modules: [module2, module1, module3] });
+      await app.init();
+
+      expect(module1Impl.mock.calls[0]).toBeDefined();
+      expect(module2Impl.mock.calls[0]).toBeDefined();
+      expect(app.getModuleImplementation(module1.name)).toBe(1);
+      expect(app.getModuleImplementation(module2.name)).toBe(0);
+    });
+
+    it('should init modules in the right order with 2 circular dependencies', async () => {
+      let counter = 0;
+      const module1Impl = jest.fn(() => counter++);
+      const module2Impl = jest.fn(() => counter++);
+      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], implementation: module1Impl });
+      const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], implementation: module2Impl });
+      const app = new GraphQLApp({ modules: [module2, module1] });
+      await app.init();
+
+      expect(module1Impl.mock.calls[0]).toBeDefined();
+      expect(module2Impl.mock.calls[0]).toBeDefined();
+      expect(app.getModuleImplementation(module1.name)).toBe(1);
+      expect(app.getModuleImplementation(module2.name)).toBe(0);
+    });
   });
 });

@@ -12,6 +12,8 @@ export type Context<Impl = any> = {
   [P in keyof Impl]: Impl[P];
 };
 
+export type ModuleDependency = string;
+
 export interface GraphQLModuleOptions<Impl> {
   name: string;
   typeDefs?: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
@@ -19,6 +21,7 @@ export interface GraphQLModuleOptions<Impl> {
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
+  dependencies?: ModuleDependency[]
 }
 
 export class GraphQLModule<Impl = any, Config = any> {
@@ -46,6 +49,10 @@ export class GraphQLModule<Impl = any, Config = any> {
     this._moduleConfig = config;
 
     return this;
+  }
+
+  get dependencies(): ModuleDependency[] {
+    return this.options.dependencies || []
   }
 
   get config(): Config {

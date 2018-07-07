@@ -1,5 +1,6 @@
 import { GraphQLSchema } from 'graphql';
 import { makeExecutableSchema, IResolvers } from 'graphql-tools';
+import { DepGraph } from 'dependency-graph';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
@@ -52,6 +53,33 @@ export class GraphQLApp {
       typeDefs: this._typeDefs,
       resolvers: this._resolvers,
     });
+  }
+
+  public getModulesDependencyGraph(modules: GraphQLModule[]) {
+    const graph = new DepGraph({ circular: true });
+
+    for (const module of modules) {
+      graph.addNode(module.name);
+    }
+
+    for (const module of modules) {
+      (module.dependencies || []).forEach(dep => graph.addDependency(module.name, dep));
+    }
+
+    const order = graph.overallOrder() || [];
+
+    if (order.length !== modules.length) {
+      return [
+        ...(modules.map(m => m.name)),
+        ...order,
+      ];
+    }
+
+    return order;
+  }
+
+  public get implementations() {
+    return this._allImplementations;
   }
 
   private composeResolvers(resolvers: IResolvers, composition: IResolversComposerMapping) {
@@ -114,6 +142,10 @@ export class GraphQLApp {
     return this._schema;
   }
 
+  get modules(): GraphQLModule[] {
+    return this._modules;
+  }
+
   get resolvers(): IResolvers {
     return this._resolvers;
   }
@@ -123,14 +155,18 @@ export class GraphQLApp {
   }
 
   private async buildImplementationsObject() {
-    const relevantImplModules: GraphQLModule[] = this._modules.filter(f => f.implementation);
     const result = {};
+    const depGraph = this.getModulesDependencyGraph(this._modules);
 
-    for (const module of relevantImplModules) {
-      result[module.name] =
-        typeof module.implementation === 'function' ?
-          await module.implementation(result, module.config, { getCurrentContext: () => this.getCurrentContext() }) :
-          module.implementation;
+    for (const depName of depGraph) {
+      const module = this.getModule(depName);
+
+      if (module && module.implementation) {
+        result[module.name] =
+          typeof module.implementation === 'function' ?
+            await module.implementation(result, module.config, { getCurrentContext: () => this.getCurrentContext() }) :
+            module.implementation;
+      }
     }
 
     return result;
@@ -145,21 +181,31 @@ export class GraphQLApp {
   }
 
   public getModuleImplementation(name) {
-    return this._allImplementations[name] || null;
+    const impl = this._allImplementations[name];
+
+    if (impl !== null && impl !== undefined) {
+      return impl;
+    }
+
+    return null;
   }
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
-    const relevantContextModules: GraphQLModule[] = this._modules.filter(f => f.contextBuilder);
+    const depGraph = this.getModulesDependencyGraph(this._modules);
     const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {} };
     const result = { ...this._allImplementations };
 
     let module;
     try {
-      for (module of relevantContextModules) {
-        const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
+      for (const depName of depGraph) {
+        const module = this.getModule(depName);
 
-        if (appendToContext && typeof appendToContext === 'object') {
-          Object.assign(builtResult, appendToContext);
+        if (module && module.contextBuilder) {
+          const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
+
+          if (appendToContext && typeof appendToContext === 'object') {
+            Object.assign(builtResult, appendToContext);
+          }
         }
       }
     } catch (e) {
