@@ -269,15 +269,15 @@ describe('GraphQLApp', () => {
     });
 
     expect(spy1.mock.calls[0][1]).toBe(null);
-    expect(typeof spy1.mock.calls[0][2].getCurrentContext).toBe('function');
-    expect(spy1.mock.calls[0][2].getCurrentContext()).toBe(context);
+    expect(typeof spy1.mock.calls[0][3].getCurrentContext).toBe('function');
+    expect(spy1.mock.calls[0][3].getCurrentContext()).toBe(context);
     expect(spy1.mock.calls[0][0]).toBeDefined();
     expect(spy1.mock.calls[0][0].module1).toBeDefined();
     expect(spy1.mock.calls[0][0].module2).toBeDefined();
 
     expect(spy2.mock.calls[0][1]).toBe(moduleConfig);
-    expect(typeof spy2.mock.calls[0][2].getCurrentContext).toBe('function');
-    expect(spy2.mock.calls[0][2].getCurrentContext()).toBe(context);
+    expect(typeof spy2.mock.calls[0][3].getCurrentContext).toBe('function');
+    expect(spy2.mock.calls[0][3].getCurrentContext()).toBe(context);
     expect(spy2.mock.calls[0][0]).toBeDefined();
     expect(spy2.mock.calls[0][0].module1).toBeDefined();
     expect(spy2.mock.calls[0][0].module2).toBeDefined();
