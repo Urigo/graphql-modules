@@ -164,7 +164,7 @@ export class GraphQLApp {
       if (module && module.implementation) {
         result[module.name] =
           typeof module.implementation === 'function' ?
-            await module.implementation(result, module.config, { getCurrentContext: () => this.getCurrentContext() }) :
+            await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
             module.implementation;
       }
     }
