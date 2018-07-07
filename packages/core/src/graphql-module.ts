@@ -21,7 +21,7 @@ export interface GraphQLModuleOptions<Impl> {
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
-  dependencies?: ModuleDependency[]
+  dependencies?: ModuleDependency[];
 }
 
 export class GraphQLModule<Impl = any, Config = any> {
@@ -52,7 +52,7 @@ export class GraphQLModule<Impl = any, Config = any> {
   }
 
   get dependencies(): ModuleDependency[] {
-    return this.options.dependencies || []
+    return this.options.dependencies || [];
   }
 
   get config(): Config {

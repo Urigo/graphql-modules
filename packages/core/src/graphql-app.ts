@@ -198,7 +198,7 @@ export class GraphQLApp {
     let module;
     try {
       for (const depName of depGraph) {
-        const module = this.getModule(depName);
+        module = this.getModule(depName);
 
         if (module && module.contextBuilder) {
           const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
