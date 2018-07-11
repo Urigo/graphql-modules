@@ -13,7 +13,7 @@ export type Context<Impl = any> = {
   [P in keyof Impl]: Impl[P];
 };
 
-export type ModuleDependency = string;
+export type ModuleDependency = GraphQLModule;
 
 export interface GraphQLModuleOptions<Impl> {
   name: string;
@@ -22,7 +22,7 @@ export interface GraphQLModuleOptions<Impl> {
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
-  dependencies?: ModuleDependency[];
+  dependencies?: () => ModuleDependency[];
   providers?: Provider[];
 }
 
@@ -59,7 +59,7 @@ export class GraphQLModule<Impl = any, Config = any> {
   }
 
   get dependencies(): ModuleDependency[] {
-    return this.options.dependencies || [];
+    return this.options.dependencies && this.options.dependencies() || [];
   }
 
   get config(): Config {

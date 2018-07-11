@@ -68,7 +68,7 @@ export class GraphQLApp {
     }
 
     for (const module of modules) {
-      (module.dependencies || []).forEach(dep => graph.addDependency(module.name, dep));
+      (module.dependencies || []).forEach(dep => graph.addDependency(module.name, dep.name));
     }
 
     const order = graph.overallOrder() || [];
