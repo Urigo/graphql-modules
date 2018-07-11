@@ -1,6 +1,7 @@
 import { GraphQLSchema } from 'graphql';
 import { makeExecutableSchema, IResolvers } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
+import { Container, ContainerModule, interfaces } from 'inversify';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext } from './graphql-module';
@@ -32,6 +33,7 @@ export class GraphQLApp {
   private _currentContext = null;
   private _allImplementations: { [key: string]: any; };
   private _typeDefs: string;
+  private _container = new Container();
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -129,9 +131,15 @@ export class GraphQLApp {
       throw e;
     }
 
+    this._container.bind(CommunicationBridge).toConstantValue(this.options.communicationBridge);
+
     this._initModulesValue = builtResult;
     this.buildSchema();
     this._allImplementations = await this.buildImplementationsObject();
+
+    // this._container.load(
+    //   ...this._allImplementations.filter(impl => impl instanceof ContainerModule),
+    // );
   }
 
   get schema(): GraphQLSchema {
@@ -162,10 +170,15 @@ export class GraphQLApp {
       const module = this.getModule(depName);
 
       if (module && module.implementation) {
-        result[module.name] =
-          typeof module.implementation === 'function' ?
-            await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
-            module.implementation;
+        // ContainerModule
+        if (typeof module.implementation === 'function' && module.implementation.length === 1) {
+          this._container.load(new ContainerModule((bind: interfaces.Bind) => module.implementation(bind)));
+        } else {
+          result[module.name] =
+            typeof module.implementation === 'function' ?
+              await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
+              module.implementation;
+        }
       }
     }
 
@@ -192,7 +205,7 @@ export class GraphQLApp {
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
-    const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {} };
+    const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {}, container: this._container };
     const result = { ...this._allImplementations };
 
     let module;
