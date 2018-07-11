@@ -22,11 +22,11 @@ export class Container extends IContainer {
     }
 
     if (isType(provider)) {
-      this.bind(provider).toSelf();
+      this.bind(provider).toSelf().inSingletonScope();
     } else if (isValue(provider)) {
       this.bind(provider.provide).toConstantValue(provider.useValue);
     } else if (isClass(provider)) {
-      this.bind(provider.provide).to(provider.useClass);
+      this.bind(provider.provide).to(provider.useClass).inSingletonScope();
     } else {
       throw new Error(`Couldn't bind provider ${provider}`);
     }
