@@ -221,15 +221,16 @@ export class GraphQLApp {
           // B should access D
           // C should access D
 
-          // TODO: change that to use dependencies
+          module.container.provide(provider);
 
-          // if global container already has the provider
-          if (this._container.has(provider)) {
-            // provide a new instance in module's container
-            module.container.provide(provider);
-          } else {
-            this._container.provide(provider);
-          }
+          // TODO: change that to use dependencies
+          // // if global container already has the provider
+          // if (this._container.has(provider)) {
+          //   // provide a new instance in module's container
+          //   module.container.provide(provider);
+          // } else {
+          //   this._container.provide(provider);
+          // }
         });
 
         // bind module's config
