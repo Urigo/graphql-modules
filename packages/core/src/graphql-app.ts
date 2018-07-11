@@ -187,6 +187,42 @@ export class GraphQLApp {
         });
         module.container.parent = this._container;
         module.providers.forEach(provider => {
+          // we should use dependencies to create a parent container
+          //
+          // +-------------------+
+          // |       APP         |
+          // +---------+----+----+
+          // |         |    |    |
+          // +         +    |    +
+          // A         B+-------+C
+          // +             |-|
+          // +             +-+
+          // E+------------+D
+
+          // A - E
+          // B - D
+          // C - D
+          // D - E [circ dep]
+          // E - D [circ dep]
+          // APP - A
+          // APP - B
+          // APP - C
+          // APP - D
+
+          // D has two parents (APP, E)
+          // E has two parents (A, E)
+          // A, B, C has one parent (APP)
+          // APP has no parents
+
+          // APP should access A, B, C, D
+          // A should access E
+          // E should access D
+          // D should access E
+          // B should access D
+          // C should access D
+
+          // TODO: change that to use dependencies
+
           // if global container already has the provider
           if (this._container.has(provider)) {
             // provide a new instance in module's container
