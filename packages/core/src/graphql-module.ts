@@ -1,5 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
+import { Container, Provider } from './di';
 
 export interface IGraphQLContext {
   [key: string]: any;
@@ -22,6 +23,7 @@ export interface GraphQLModuleOptions<Impl> {
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
   dependencies?: ModuleDependency[];
+  providers?: Provider[];
 }
 
 export class GraphQLModule<Impl = any, Config = any> {
@@ -30,9 +32,11 @@ export class GraphQLModule<Impl = any, Config = any> {
   private _resolvers: IResolvers = {};
   private _typeDefs: string;
   private _impl: Impl = null;
+  private _providers: Provider[] = null;
   private _contextBuilder: BuildContextFn = null;
   private _options: GraphQLModuleOptions<Impl>;
   private _moduleConfig: Config = null;
+  private _container = new Container();
 
   constructor(options: GraphQLModuleOptions<Impl>) {
     this._options = options;
@@ -41,6 +45,7 @@ export class GraphQLModule<Impl = any, Config = any> {
       options.typeDefs && (typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs);
     this._resolvers = typeof options.resolvers === 'function' ? null : (options.resolvers || {});
     this._impl = options.implementation || null;
+    this._providers = options.providers || null;
     this._contextBuilder = options.contextBuilder || null;
     this._onInit = options.onInit || null;
   }
@@ -93,6 +98,14 @@ export class GraphQLModule<Impl = any, Config = any> {
 
   set resolvers(value: IResolvers) {
     this._resolvers = value;
+  }
+
+  get providers() {
+    return this._providers;
+  }
+
+  get container() {
+    return this._container;
   }
 
   setImplementation(implementation: Impl): void {
