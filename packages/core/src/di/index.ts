@@ -1,6 +1,6 @@
 import { Container as IContainer } from 'inversify';
 
-export { injectable, inject } from 'inversify';
+export { injectable, inject, optional } from 'inversify';
 export interface Type<T> extends Function {
   new (...args: any[]): T;
 }
