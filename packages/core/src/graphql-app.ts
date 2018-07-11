@@ -173,6 +173,31 @@ export class GraphQLApp {
     return this._typeDefs;
   }
 
+  private belongsToApp(module: GraphQLModule): boolean {
+    return this._modules.some(({name}) => name === module.name);
+  }
+
+  private getParentContainer(module: GraphQLModule): Container {
+    const belongsToApp = this.belongsToApp(module);
+    const hasDependencies = module.dependencies.length;
+
+    if (belongsToApp && !hasDependencies) {
+      return this._container;
+    }
+
+    if (hasDependencies) {
+      return module.dependencies.reduce(
+        // here we won't get container when there's a circular dependency
+        (container, mod) => Container.merge(container, mod.container),
+        belongsToApp ? this._container : new Container({
+          defaultScope: 'Singleton',
+        }),
+      );
+    }
+
+    return;
+  }
+
   private async buildImplementationsObject() {
     const result = {};
     const depGraph = this.getModulesDependencyGraph(this._modules);
@@ -185,7 +210,7 @@ export class GraphQLApp {
         module.container = new Container({
           defaultScope: 'Singleton',
         });
-        module.container.parent = this._container;
+        module.container.parent = this.getParentContainer(module);
         module.providers.forEach(provider => {
           // we should use dependencies to create a parent container
           //

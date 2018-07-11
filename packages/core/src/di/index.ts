@@ -1,4 +1,5 @@
-import { Container as IContainer } from 'inversify';
+import { Container as IContainer, interfaces } from 'inversify';
+import { getBindingDictionary } from 'inversify/lib/planning/planner';
 
 export { injectable, inject, optional, LazyServiceIdentifer as Lazy } from 'inversify';
 export interface Type<T> extends Function {
@@ -43,6 +44,35 @@ export class Container extends IContainer {
       throw new Error(`Couldn't check provider ${provider}`);
     }
   }
+
+  public static merge(container1: Container, container2: Container): Container {
+
+    const container = new Container({
+      defaultScope: 'Singleton',
+    });
+    const bindingDictionary: interfaces.Lookup<interfaces.Binding<any>> = getBindingDictionary(container);
+    const bindingDictionary1: interfaces.Lookup<interfaces.Binding<any>> = getBindingDictionary(container1);
+    const bindingDictionary2: interfaces.Lookup<interfaces.Binding<any>> = getBindingDictionary(container2);
+
+    function copyDictionary(
+        origin: interfaces.Lookup<interfaces.Binding<any>>,
+        destination: interfaces.Lookup<interfaces.Binding<any>>,
+    ) {
+
+        origin.traverse((key, value) => {
+            value.forEach((binding) => {
+                destination.add(binding.serviceIdentifier, binding.clone());
+            });
+        });
+
+    }
+
+    copyDictionary(bindingDictionary1, bindingDictionary);
+    copyDictionary(bindingDictionary2, bindingDictionary);
+
+    return container;
+
+}
 }
 
 function isType(v: any): v is Type<any> {
