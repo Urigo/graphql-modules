@@ -1,4 +1,4 @@
-import { Users } from '../..//implementations/users';
+import { Users } from '../../providers/users';
 
 export const resolvers = {
   Query: {
