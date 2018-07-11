@@ -1,5 +1,5 @@
 import { injectable, inject } from '@graphql-modules/core';
-import { Users } from '../../user/implementations/users';
+import { Users } from '../../user/providers/users';
 
 const posts = [
   {

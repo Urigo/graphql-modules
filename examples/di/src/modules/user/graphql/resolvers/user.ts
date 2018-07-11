@@ -1,4 +1,4 @@
-import { Blog } from '../../../blog/implementations/blog';
+import { Blog } from '../../../blog/providers/blog';
 
 export const resolvers = {
   User: {
