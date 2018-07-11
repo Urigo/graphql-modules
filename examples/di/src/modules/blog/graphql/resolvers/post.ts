@@ -1,11 +1,11 @@
-import { Users } from '../../../user/implementations/users';
+import { Blog } from '../../implementations/blog';
 
 export const resolvers = {
     Post: {
       id: post => post._id,
       title: post => post.title,
-      author: (post, args, { user }) => {
-        return user.get(Users).getUser(post.authorId);
+      author: (post, args, { blog }) => {
+        return blog.get(Blog).getAuthor(post.authorId);
       },
     },
   };

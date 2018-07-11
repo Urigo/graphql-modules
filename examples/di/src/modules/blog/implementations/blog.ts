@@ -1,26 +1,41 @@
-import { injectable } from '../../../../../../packages/core/dist';
+import { injectable, inject } from '@graphql-modules/core';
+import { Users } from '../../user/implementations/users';
 
-const posts = [{
+const posts = [
+  {
     _id: 0,
     authorId: 0,
     title: 'Title 1',
-}, {
+  },
+  {
     _id: 1,
     authorId: 1,
     title: 'Title 2',
-}, {
+  },
+  {
     _id: 2,
     authorId: 0,
     title: 'Title 3',
-}];
+  },
+];
 
 @injectable()
 export class Blog {
-    getPostsOf(userId: number) {
-        return posts.filter(({authorId}) => userId === authorId);
-    }
+  constructor(@inject(Users) private users: Users) {}
 
-    allPosts() {
-        return posts;
+  getPostsOf(userId: number) {
+    return posts.filter(({ authorId }) => userId === authorId);
+  }
+
+  allPosts() {
+    return posts;
+  }
+
+  getAuthor(postId: number) {
+    const post = posts.find(({ _id }) => _id === postId);
+
+    if (post) {
+      return this.users.getUser(post.authorId);
     }
+  }
 }

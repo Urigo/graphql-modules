@@ -26,6 +26,8 @@ export interface GraphQLModuleOptions<Impl> {
   providers?: Provider[];
 }
 
+export const ModuleConfig = Symbol.for('ModuleConfig');
+
 export class GraphQLModule<Impl = any, Config = any> {
   private readonly _name: string;
   private readonly _onInit: InitFn = null;
@@ -36,7 +38,7 @@ export class GraphQLModule<Impl = any, Config = any> {
   private _contextBuilder: BuildContextFn = null;
   private _options: GraphQLModuleOptions<Impl>;
   private _moduleConfig: Config = null;
-  private _container = new Container();
+  private _container: Container;
 
   constructor(options: GraphQLModuleOptions<Impl>) {
     this._options = options;
@@ -106,6 +108,10 @@ export class GraphQLModule<Impl = any, Config = any> {
 
   get container() {
     return this._container;
+  }
+
+  set container(container: Container) {
+    this._container = container;
   }
 
   setImplementation(implementation: Impl): void {

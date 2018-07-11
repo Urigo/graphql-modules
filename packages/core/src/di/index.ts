@@ -31,6 +31,18 @@ export class Container extends IContainer {
       throw new Error(`Couldn't bind provider ${provider}`);
     }
   }
+
+  has(provider: Provider): boolean {
+    if (isType(provider)) {
+      return this.isBound(provider);
+    } else if (isValue(provider)) {
+      return this.isBound(provider.provide);
+    } else if (isClass(provider)) {
+      return this.isBound(provider.provide);
+    } else {
+      throw new Error(`Couldn't check provider ${provider}`);
+    }
+  }
 }
 
 function isType(v: any): v is Type<any> {

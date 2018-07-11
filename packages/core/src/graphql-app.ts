@@ -3,7 +3,7 @@ import { makeExecutableSchema, IResolvers } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule, IGraphQLContext } from './graphql-module';
+import { GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
 import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Provider, Container } from './di';
@@ -34,7 +34,9 @@ export class GraphQLApp {
   private _currentContext = null;
   private _allImplementations: { [key: string]: any; };
   private _typeDefs: string;
-  private _container = new Container();
+  private _container = new Container({
+    defaultScope: 'Singleton',
+  });
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -180,8 +182,25 @@ export class GraphQLApp {
 
       if (module && module.providers) {
         // create a child container
+        module.container = new Container({
+          defaultScope: 'Singleton',
+        });
         module.container.parent = this._container;
-        module.providers.forEach(provider => module.container.provide(provider));
+        module.providers.forEach(provider => {
+          // if global container already has the provider
+          if (this._container.has(provider)) {
+            // provide a new instance in module's container
+            module.container.provide(provider);
+          } else {
+            this._container.provide(provider);
+          }
+        });
+
+        // bind module's config
+        module.container.provide({
+          provide: ModuleConfig,
+          useValue: module.config,
+        });
 
         // assign it under a module's name
         result[module.name] = module.container;
