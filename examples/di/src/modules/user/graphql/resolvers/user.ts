@@ -4,8 +4,8 @@ export const resolvers = {
   User: {
     id: user => user._id,
     username: user => user.username,
-    posts: (user, args, { container }) => {
-      return container.get(Blog).getPostsOf(user._id);
+    posts: (user, args, { blog }) => {
+      return blog.get(Blog).getPostsOf(user._id);
     },
   },
 };

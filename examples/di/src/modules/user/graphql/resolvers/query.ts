@@ -2,11 +2,11 @@ import { Users } from '../..//implementations/users';
 
 export const resolvers = {
   Query: {
-    users: (_, args, { container }) => {
-      return container.get(Users).allUsers();
+    users: (_, args, { user }) => {
+      return user.get(Users).allUsers();
     },
-    user: (_, { id }, { container }) => {
-        return container.get(Users).getUser(id);
+    user: (_, { id }, { user }) => {
+        return user.get(Users).getUser(id);
     },
   },
 };

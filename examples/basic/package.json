@@ -1,6 +1,7 @@
 {
-  "name": "basic",
+  "name": "examples-basic",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -15,11 +16,9 @@
     "express": "4.16.3",
     "express-graphql": "0.6.12",
     "@types/express": "4.11.1",
-    "@graphql-modules/core": "file:../../packages/core/"
-  },
-  "resolutions": {
-    "@graphql-modules/epoxy": "file:../../packages/epoxy/",
-    "@graphql-modules/sonar": "file:../../packages/sonar/",
-    "@graphql-modules/logger": "file:../../packages/logger/"
+    "@graphql-modules/core": "*",
+    "@graphql-modules/epoxy": "*",
+    "@graphql-modules/sonar": "*",
+    "@graphql-modules/logger": "*"
   }
 }

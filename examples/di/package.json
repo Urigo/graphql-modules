@@ -1,6 +1,7 @@
 {
-  "name": "basic",
+  "name": "examples-di",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -10,18 +11,10 @@
     "@graphql-modules/core": "*",
     "@graphql-modules/epoxy": "*",
     "@graphql-modules/sonar": "*",
-    "@types/express": "4.11.1",
+    "apollo-server": "2.0.0-rc.7",
     "graphql": "0.13.2",
-    "express": "4.16.3",
-    "express-graphql": "0.6.12",
     "reflect-metadata": "0.1.12",
     "ts-node": "6.0.3",
     "typescript": "2.8.3"
-  },
-  "resolutions": {
-    "@graphql-modules/core": "file:../../packages/core/",
-    "@graphql-modules/epoxy": "file:../../packages/epoxy/",
-    "@graphql-modules/sonar": "file:../../packages/sonar/",
-    "@graphql-modules/logger": "file:../../packages/logger/"
   }
 }
