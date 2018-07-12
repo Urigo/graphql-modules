@@ -186,9 +186,11 @@ export class GraphQLApp {
     }
 
     if (hasDependencies) {
-      return module.dependencies.reduce(
+      return module.dependencies.reduce<Container>(
         // here we won't get container when there's a circular dependency
-        (container, mod) => Container.merge(container, mod.container),
+        (container, mod) => {
+          return Container.merge(container, mod.container);
+        },
         belongsToApp ? this._container : new Container({
           defaultScope: 'Singleton',
         }),
@@ -205,12 +207,12 @@ export class GraphQLApp {
     for (const depName of depGraph) {
       const module = this.getModule(depName);
 
+      // create a child container
+      module.container = new Container({
+        defaultScope: 'Singleton',
+      });
+
       if (module && module.providers) {
-        // create a child container
-        module.container = new Container({
-          defaultScope: 'Singleton',
-        });
-        module.container.parent = this.getParentContainer(module);
         module.providers.forEach(provider => {
           // we should use dependencies to create a parent container
           //
@@ -272,6 +274,14 @@ export class GraphQLApp {
               await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
               module.implementation;
       }
+    }
+
+    // after every module got it container and providers
+    for (const depName of depGraph) {
+      const module = this.getModule(depName);
+
+      // set parents to them
+      module.container.parent = this.getParentContainer(module);
     }
 
     return result;

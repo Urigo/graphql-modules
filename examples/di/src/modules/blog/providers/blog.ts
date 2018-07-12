@@ -21,7 +21,10 @@ const posts = [
 
 @injectable()
 export class Blog {
-  constructor(@inject(Users) private users: Users) {}
+  constructor(@inject(Users) private users: Users) {
+    // TODO: make it initialized at runtime
+    console.log(users);
+  }
 
   getPostsOf(userId: number) {
     return posts.filter(({ authorId }) => userId === authorId);

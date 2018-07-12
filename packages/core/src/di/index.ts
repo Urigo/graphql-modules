@@ -46,7 +46,6 @@ export class Container extends IContainer {
   }
 
   public static merge(container1: Container, container2: Container): Container {
-
     const container = new Container({
       defaultScope: 'Singleton',
     });

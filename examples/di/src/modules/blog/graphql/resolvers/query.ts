@@ -1,4 +1,4 @@
-import { Blog } from '../../implementations/blog';
+import { Blog } from '../../providers/blog';
 
 export const resolvers = {
     Query: {
