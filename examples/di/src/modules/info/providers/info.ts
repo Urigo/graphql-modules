@@ -1,10 +1,14 @@
-import { injectable, inject, ModuleConfig } from '@graphql-modules/core';
+import { injectable, inject, ModuleConfig, CommunicationBridge } from '@graphql-modules/core';
 
 @injectable()
 export class Info {
-    constructor(@inject(ModuleConfig) private config: any) {}
+    constructor(
+        @inject(ModuleConfig) private config: any,
+        @inject(CommunicationBridge) private communicationBridge: CommunicationBridge,
+    ) {}
 
     getVersion() {
+        this.communicationBridge.publish('ASKED_FOR_VERSION', null);
         return this.config.version;
     }
 }
