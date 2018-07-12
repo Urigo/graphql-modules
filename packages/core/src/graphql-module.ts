@@ -6,18 +6,23 @@ export interface IGraphQLContext {
   [key: string]: any;
 }
 
-export type BuildContextFn = (networkContext: any, allImplementations: any, currentContext: Context) => IGraphQLContext;
+export type BuildContextFn = (
+  networkContext: any,
+  allImplementations: any,
+  currentContext: Context,
+) => IGraphQLContext;
 export type InitFn = (initParams: any, moduleConfig: any) => any;
 
-export type Context<Impl = any> = {
-  [P in keyof Impl]: Impl[P];
-};
+export type Context<Impl = any> = { [P in keyof Impl]: Impl[P] };
 
-export type ModuleDependency = GraphQLModule;
+export type ModuleDependency = GraphQLModule | string;
 
 export interface GraphQLModuleOptions<Impl> {
   name: string;
-  typeDefs?: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
+  typeDefs?:
+    | string
+    | string[]
+    | ((initParams?: any, initResult?: any) => string | string[]);
   resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
@@ -44,8 +49,14 @@ export class GraphQLModule<Impl = any, Config = any> {
     this._options = options;
     this._name = options.name;
     this._typeDefs =
-      options.typeDefs && (typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs);
-    this._resolvers = typeof options.resolvers === 'function' ? null : (options.resolvers || {});
+      options.typeDefs &&
+      (typeof options.typeDefs === 'function'
+        ? null
+        : Array.isArray(options.typeDefs)
+          ? mergeGraphQLSchemas(options.typeDefs)
+          : options.typeDefs);
+    this._resolvers =
+      typeof options.resolvers === 'function' ? null : options.resolvers || {};
     this._impl = options.implementation || null;
     this._providers = options.providers || null;
     this._contextBuilder = options.contextBuilder || null;
@@ -59,7 +70,11 @@ export class GraphQLModule<Impl = any, Config = any> {
   }
 
   get dependencies(): ModuleDependency[] {
-    return this.options.dependencies && this.options.dependencies() || [];
+    return (
+      (typeof this.options.dependencies === 'function'
+        ? this.options.dependencies()
+        : this.options.dependencies) || []
+    );
   }
 
   get config(): Config {

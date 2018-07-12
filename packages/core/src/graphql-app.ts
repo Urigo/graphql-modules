@@ -5,7 +5,10 @@ import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
-import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
+import {
+  composeResolvers,
+  IResolversComposerMapping,
+} from './resolvers-composition';
 import { Provider, Container } from './di';
 
 export interface NonModules {
@@ -29,10 +32,10 @@ export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
   private _resolvers: IResolvers;
-  private _initModulesValue: { [key: string]: any; } = {};
-  private _resolvedInitParams: { [key: string]: any; } = {};
+  private _initModulesValue: { [key: string]: any } = {};
+  private _resolvedInitParams: { [key: string]: any } = {};
   private _currentContext = null;
-  private _allImplementations: { [key: string]: any; };
+  private _allImplementations: { [key: string]: any };
   private _typeDefs: string;
   private _container = new Container({
     defaultScope: 'Singleton',
@@ -43,13 +46,26 @@ export class GraphQLApp {
   }
 
   private buildSchema() {
-    const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
+    const allTypes = this.options.modules
+      .map<string>(m => m.typeDefs)
+      .filter(t => t);
     const nonModules = this.options.nonModules || {};
-    const mergedResolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
-    this._resolvers = this.composeResolvers(mergedResolvers, this.options.resolversComposition);
+    const mergedResolvers = mergeResolvers(
+      this._modules
+        .map(m => m.resolvers || {})
+        .concat(nonModules.resolvers || {}),
+    );
+    this._resolvers = this.composeResolvers(
+      mergedResolvers,
+      this.options.resolversComposition,
+    );
     this._typeDefs = mergeGraphQLSchemas([
       ...allTypes,
-      ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
+      ...(Array.isArray(nonModules.typeDefs)
+        ? nonModules.typeDefs
+        : nonModules.typeDefs
+          ? [nonModules.typeDefs]
+          : []),
     ]);
   }
 
@@ -68,16 +84,18 @@ export class GraphQLApp {
     }
 
     for (const module of modules) {
-      (module.dependencies || []).forEach(dep => graph.addDependency(module.name, dep.name));
+      (module.dependencies || []).forEach(dep =>
+        graph.addDependency(
+          module.name,
+          typeof dep === 'string' ? dep : dep.name,
+        ),
+      );
     }
 
     const order = graph.overallOrder() || [];
 
     if (order.length !== modules.length) {
-      return [
-        ...(modules.map(m => m.name)),
-        ...order,
-      ];
+      return [...modules.map(m => m.name), ...order];
     }
 
     return order;
@@ -87,7 +105,10 @@ export class GraphQLApp {
     return this._allImplementations;
   }
 
-  private composeResolvers(resolvers: IResolvers, composition: IResolversComposerMapping) {
+  private composeResolvers(
+    resolvers: IResolvers,
+    composition: IResolversComposerMapping,
+  ) {
     if (composition) {
       return composeResolvers(resolvers, composition);
     }
@@ -95,7 +116,9 @@ export class GraphQLApp {
     return resolvers;
   }
 
-  async init(initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>)): Promise<void> {
+  async init(
+    initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>),
+  ): Promise<void> {
     let params: InitParams = null;
     const builtResult = {};
 
@@ -109,7 +132,9 @@ export class GraphQLApp {
 
     this._resolvedInitParams = params;
 
-    const relevantModules: GraphQLModule[] = this._modules.filter(f => f.onInit);
+    const relevantModules: GraphQLModule[] = this._modules.filter(
+      f => f.onInit,
+    );
     let module;
 
     try {
@@ -129,7 +154,10 @@ export class GraphQLApp {
         }
       }
     } catch (e) {
-      logger.error(`Unable to initialized module! Module "${module.name}" failed: `, e);
+      logger.error(
+        `Unable to initialized module! Module "${module.name}" failed: `,
+        e,
+      );
 
       throw e;
     }
@@ -174,7 +202,7 @@ export class GraphQLApp {
   }
 
   private belongsToApp(module: GraphQLModule): boolean {
-    return this._modules.some(({name}) => name === module.name);
+    return this._modules.some(({ name }) => name === module.name);
   }
 
   private getParentContainer(module: GraphQLModule): Container {
@@ -186,15 +214,16 @@ export class GraphQLApp {
     }
 
     if (hasDependencies) {
-      return module.dependencies.reduce<Container>(
-        // here we won't get container when there's a circular dependency
-        (container, mod) => {
-          return Container.merge(container, mod.container);
-        },
-        belongsToApp ? this._container : new Container({
-          defaultScope: 'Singleton',
-        }),
-      );
+      return module.dependencies
+        .map(dep => (typeof dep === 'string' ? this.getModule(dep) : dep))
+        .reduce<Container>(
+          (container, mod) => Container.merge(container, mod.container),
+          belongsToApp
+            ? this._container
+            : new Container({
+                defaultScope: 'Singleton',
+              }),
+        );
     }
 
     return;
@@ -214,50 +243,7 @@ export class GraphQLApp {
 
       if (module && module.providers) {
         module.providers.forEach(provider => {
-          // we should use dependencies to create a parent container
-          //
-          // +-------------------+
-          // |       APP         |
-          // +---------+----+----+
-          // |         |    |    |
-          // +         +    |    +
-          // A         B+-------+C
-          // +             |-|
-          // +             +-+
-          // E+------------+D
-
-          // A - E
-          // B - D
-          // C - D
-          // D - E [circ dep]
-          // E - D [circ dep]
-          // APP - A
-          // APP - B
-          // APP - C
-          // APP - D
-
-          // D has two parents (APP, E)
-          // E has two parents (A, E)
-          // A, B, C has one parent (APP)
-          // APP has no parents
-
-          // APP should access A, B, C, D
-          // A should access E
-          // E should access D
-          // D should access E
-          // B should access D
-          // C should access D
-
           module.container.provide(provider);
-
-          // TODO: change that to use dependencies
-          // // if global container already has the provider
-          // if (this._container.has(provider)) {
-          //   // provide a new instance in module's container
-          //   module.container.provide(provider);
-          // } else {
-          //   this._container.provide(provider);
-          // }
         });
 
         // bind module's config
@@ -270,9 +256,14 @@ export class GraphQLApp {
         result[module.name] = module.container;
       } else if (module && module.implementation) {
         result[module.name] =
-            typeof module.implementation === 'function' ?
-              await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
-              module.implementation;
+          typeof module.implementation === 'function'
+            ? await module.implementation(
+                result,
+                module.config,
+                this.options.communicationBridge,
+                { getCurrentContext: () => this.getCurrentContext() },
+              )
+            : module.implementation;
       }
     }
 
@@ -307,7 +298,11 @@ export class GraphQLApp {
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
-    const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {}, container: this._container };
+    const builtResult = {
+      ...this._initModulesValue,
+      initParams: this._resolvedInitParams || {},
+      container: this._container,
+    };
     const result = { ...this._allImplementations };
 
     let module;
@@ -316,7 +311,11 @@ export class GraphQLApp {
         module = this.getModule(depName);
 
         if (module && module.contextBuilder) {
-          const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
+          const appendToContext: any = await module.contextBuilder(
+            networkRequest,
+            this._allImplementations,
+            result,
+          );
 
           if (appendToContext && typeof appendToContext === 'object') {
             Object.assign(builtResult, appendToContext);
@@ -324,7 +323,10 @@ export class GraphQLApp {
         }
       }
     } catch (e) {
-      logger.error(`Unable to build context! Module "${module.name}" failed: `, e);
+      logger.error(
+        `Unable to build context! Module "${module.name}" failed: `,
+        e,
+      );
 
       throw e;
     }
@@ -333,7 +335,9 @@ export class GraphQLApp {
 
     for (const key of builtKeys) {
       if (result.hasOwnProperty(key)) {
-        logger.warn(`One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`);
+        logger.warn(
+          `One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`,
+        );
       } else {
         result[key] = builtResult[key];
       }
