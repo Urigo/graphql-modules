@@ -1,8 +1,10 @@
-import { injectable } from '@graphql-modules/core';
+import { injectable, inject, ModuleConfig } from '@graphql-modules/core';
 
 @injectable()
 export class Info {
+    constructor(@inject(ModuleConfig) private config: any) {}
+
     getVersion() {
-        return 'v1.0.0';
+        return this.config.version;
     }
 }

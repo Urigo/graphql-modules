@@ -3,7 +3,12 @@ import { userModule } from './modules/user';
 import { blogModule } from './modules/blog';
 import { infoModule } from './modules/info';
 
-// TODO: check if they get .withConfig (ModuleConfig)
 export const app = new GraphQLApp({
-  modules: [infoModule, userModule, blogModule],
+  modules: [
+    infoModule.withConfig({
+      version: 'v1.0.0',
+    }),
+    userModule,
+    blogModule,
+  ],
 });
