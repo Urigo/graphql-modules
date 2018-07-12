@@ -240,6 +240,8 @@ export class GraphQLApp {
       module.container = new Container({
         defaultScope: 'Singleton',
       });
+      // assign it under a module's name
+      result[module.name] = module.container;
 
       if (module && module.providers) {
         module.providers.forEach(provider => {
@@ -251,10 +253,8 @@ export class GraphQLApp {
           provide: ModuleConfig,
           useValue: module.config,
         });
-
-        // assign it under a module's name
-        result[module.name] = module.container;
       } else if (module && module.implementation) {
+        // if module has implementation it will overwrite its container
         result[module.name] =
           typeof module.implementation === 'function'
             ? await module.implementation(
