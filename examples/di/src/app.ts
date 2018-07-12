@@ -19,3 +19,11 @@ export const app = new GraphQLApp({
 communicationBridge.subscribe('ASKED_FOR_VERSION', () => {
   console.log('someone asked for version number');
 });
+
+communicationBridge.subscribe('ASKED_FOR_POST', () => {
+  console.log('someone asked for post');
+});
+
+communicationBridge.subscribe('ASKED_FOR_USER', () => {
+  console.log('someone asked for post');
+});

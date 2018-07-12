@@ -1,4 +1,4 @@
-import { injectable, inject } from '@graphql-modules/core';
+import { injectable, inject, CommunicationBridge } from '@graphql-modules/core';
 import { Users } from '../../user/providers/users';
 
 const posts = [
@@ -21,16 +21,21 @@ const posts = [
 
 @injectable()
 export class Blog {
-  constructor(@inject(Users) private users: Users) {
+  constructor(
+    @inject(Users) private users: Users,
+    @inject(CommunicationBridge) private communicationBridge: CommunicationBridge,
+  ) {
     // TODO: make it initialized at runtime
     console.log(users);
   }
 
   getPostsOf(userId: number) {
+    this.notify();
     return posts.filter(({ authorId }) => userId === authorId);
   }
 
   allPosts() {
+    this.notify();
     return posts;
   }
 
@@ -40,5 +45,9 @@ export class Blog {
     if (post) {
       return this.users.getUser(post.authorId);
     }
+  }
+
+  notify() {
+    this.communicationBridge.publish('ASKED_FOR_POST', null);
   }
 }
