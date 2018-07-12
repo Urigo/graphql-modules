@@ -27,7 +27,7 @@ export interface GraphQLModuleOptions<Impl> {
   implementation?: Impl;
   contextBuilder?: BuildContextFn;
   onInit?: InitFn;
-  dependencies?: () => ModuleDependency[];
+  dependencies?: (() => ModuleDependency[]) | string[];
   providers?: Provider[];
 }
 

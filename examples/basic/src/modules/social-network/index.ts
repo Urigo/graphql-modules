@@ -4,5 +4,6 @@ import {resolvers, types} from './schema';
 export const socialNetworkModule = new GraphQLModule({
   name: 'socialNetwork',
   typeDefs: types,
+  dependencies: ['user'],
   resolvers,
 });
