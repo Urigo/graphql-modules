@@ -115,6 +115,36 @@ describe('Merge Schema', () => {
       );
     });
 
+    it('should append and extend directives', () => {
+      const merged = mergeGraphQLSchemas([
+        `directive @id(primitiveArg: String, arrayArg: [String]) on FIELD_DEFINITION`,
+        `type MyType { id: Int }`,
+        `type MyType { id: Int @id }`,
+        `type MyType { id: Int @id(primitiveArg: "1") }`,
+        `type MyType { id: Int @id(primitiveArg: "1", arrayArg: ["1"]) }`,
+        `type MyType { id: Int @id(arrayArg: ["2"]) }`,
+        `type Query { f1: MyType }`,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(
+        stripWhitespaces(`
+          directive @id(primitiveArg: String, arrayArg: [String]) on FIELD_DEFINITION
+          
+          type MyType {
+            id: Int @id(arrayArg: ["2", "1"], primitiveArg: "1")
+          } 
+          
+          type Query {
+            f1: MyType
+          } 
+          
+          schema {
+            query: Query
+          }
+        `),
+      );
+    });
+
     it('should fail if inputs of the same directive are different from each other', (done: jest.DoneCallback) => {
       try {
         mergeGraphQLSchemas([
