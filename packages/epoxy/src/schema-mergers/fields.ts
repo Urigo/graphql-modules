@@ -18,7 +18,7 @@ function fieldAlreadyExists(fieldsArr: ReadonlyArray<any>, otherField: any): boo
 }
 
 export function mergeFields<T>(f1: ReadonlyArray<T>, f2: ReadonlyArray<T>): T[] {
-  const result: Array<T> = [...f2];
+  const result: T[] = [...f2];
 
   for (const field of f1) {
     if (fieldAlreadyExists(result, field)) {
