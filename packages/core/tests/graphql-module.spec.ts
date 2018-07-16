@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { GraphQLModule } from '../src';
 import { stripWhitespaces } from './utils';
 
@@ -13,7 +14,7 @@ describe('GraphQLModule', () => {
   it('should create GraphQL Module correctly with basic multiple files typedef', () => {
     const module = new GraphQLModule({
       name: 'test',
-      typeDefs: [`type Test { f: String }`, `type Test2 { f: String }`]
+      typeDefs: [`type Test { f: String }`, `type Test2 { f: String }`],
     });
 
     expect(stripWhitespaces(module.typeDefs)).toEqual(stripWhitespaces(`type Test { f: String } type Test2 { f: String }`));
@@ -22,57 +23,37 @@ describe('GraphQLModule', () => {
   it('should not use typedefs when typedefs are a function', () => {
     const module = new GraphQLModule({
       name: 'test',
-      typeDefs: () => [`type Test { f: String }`, `type Test2 { f: String }`]
+      typeDefs: () => [`type Test { f: String }`, `type Test2 { f: String }`],
     });
 
     expect(module.typeDefs).toBeNull();
   });
 
-  it('should set the correct implementation module when using simple object', () => {
-    interface Impl {
-      foo: () => string;
-    }
-
-    const impl: Impl = {
+  it('should set a provider that is an object', () => {
+    const token = Symbol.for('sampleProvider');
+    const sampleProvider = {
       foo: () => 'hi',
     };
-
-    const module = new GraphQLModule<Impl>({ name: 'test', typeDefs: TEST_TYPES, implementation: impl });
-
-    expect(module.implementation).toBe(impl);
-  });
-
-  it('should set the correct implementation module when using simple object', () => {
-    interface Impl {
-      foo: () => string;
-    }
-
-    const impl: Impl = {
-      foo: () => 'hi',
+    const provider = {
+      provide: token,
+      useValue: sampleProvider,
     };
 
-    const module = new GraphQLModule<Impl>({ name: 'test', typeDefs: TEST_TYPES, implementation: impl });
+    const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, providers: [provider] });
 
-    expect(module.implementation).toBe(impl);
+    expect(module.providers[0]).toBe(provider);
   });
 
-  it('should set the correct implementation module when using class impl', () => {
-    interface Impl {
-      foo: () => string;
-    }
-
-    class MyClass implements Impl {
+  it('should set a provider that is a class', () => {
+    class MyClass {
       foo(): string {
         return 'test';
       }
     }
 
-    const instance = new MyClass();
-    const module = new GraphQLModule<MyClass>({ name: 'test', typeDefs: TEST_TYPES });
-    module.setImplementation(instance);
+    const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, providers: [MyClass] });
 
-    expect(module.implementation instanceof MyClass).toBeTruthy();
-    expect(module.implementation).toBe(instance);
+    expect(module.providers[0]).toBe(MyClass);
   });
 
   it('should set the context builder fn correctly', () => {
@@ -81,12 +62,5 @@ describe('GraphQLModule', () => {
     module.setContextBuilder(mockCallback);
 
     expect(module.contextBuilder).toBe(mockCallback);
-  });
-
-  it('should set the init fn correctly', () => {
-    const mockCallback = jest.fn();
-    const module = new GraphQLModule({ onInit: mockCallback, name: 'test', typeDefs: TEST_TYPES });
-
-    expect(module.onInit).toBe(mockCallback);
   });
 });
