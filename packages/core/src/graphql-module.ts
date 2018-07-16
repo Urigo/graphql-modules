@@ -18,7 +18,7 @@ export type Context = {
 
 export type ModuleDependency = GraphQLModule | string;
 
-export interface GraphQLModuleOptions<Impl> {
+export interface GraphQLModuleOptions {
   name: string;
   typeDefs?:
     | string
@@ -32,16 +32,16 @@ export interface GraphQLModuleOptions<Impl> {
 
 export const ModuleConfig = (name: string) => Symbol.for(`ModuleConfig.${name}`);
 
-export class GraphQLModule<Impl = any, Config = any> {
+export class GraphQLModule<Config = any> {
   private readonly _name: string;
   private _resolvers: IResolvers = {};
   private _typeDefs: string;
   private _providers: Provider[] = null;
   private _contextBuilder: BuildContextFn = null;
-  private _options: GraphQLModuleOptions<Impl>;
+  private _options: GraphQLModuleOptions;
   private _moduleConfig: Config = null;
 
-  constructor(options: GraphQLModuleOptions<Impl>) {
+  constructor(options: GraphQLModuleOptions) {
     this._options = options;
     this._name = options.name;
     this._typeDefs =
@@ -75,7 +75,7 @@ export class GraphQLModule<Impl = any, Config = any> {
     return this._moduleConfig;
   }
 
-  get options(): GraphQLModuleOptions<Impl> {
+  get options(): GraphQLModuleOptions {
     return this._options;
   }
 
