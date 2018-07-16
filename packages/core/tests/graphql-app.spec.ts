@@ -234,8 +234,9 @@ describe('GraphQLApp', () => {
       const module2 = new GraphQLModule({ name: '2', providers: [Provider2] });
       const app = new GraphQLApp({ modules: [module2, module1] });
 
-      expect(app.injector.get(Provider1).count).toBe(1);
-      expect(app.injector.get(Provider2).count).toBe(0);
+      expect(counter).toEqual(2);
+      expect(app.injector.get(Provider1).count).toEqual(1);
+      expect(app.injector.get(Provider2).count).toEqual(0);
     });
 
     it('should init modules in the right order with multiple circular dependencies', async () => {
@@ -266,8 +267,9 @@ describe('GraphQLApp', () => {
       const module3 = new GraphQLModule({ name: '3', dependencies: ['1'], providers: [Provider3] });
       const app = new GraphQLApp({ modules: [module2, module1, module3] });
 
-      expect(app.injector.get(Provider1).count).toBe(1);
-      expect(app.injector.get(Provider2).count).toBe(0);
+      expect(counter).toEqual(3);
+      expect(app.injector.get(Provider1).count).toEqual(1);
+      expect(app.injector.get(Provider2).count).toEqual(0);
     });
 
     it('should init modules in the right order with 2 circular dependencies', async () => {
@@ -290,8 +292,9 @@ describe('GraphQLApp', () => {
       const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], providers: [Provider2] });
       const app = new GraphQLApp({ modules: [module2, module1] });
 
-      expect(app.injector.get(Provider1).count).toBe(1);
-      expect(app.injector.get(Provider2).count).toBe(0);
+      expect(counter).toEqual(2);
+      expect(app.injector.get(Provider1).count).toEqual(1);
+      expect(app.injector.get(Provider2).count).toEqual(0);
     });
   });
 });
