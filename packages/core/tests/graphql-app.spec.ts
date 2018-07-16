@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLApp, GraphQLModule, injectable } from '../src';
+import { GraphQLApp, GraphQLModule, ModuleConfig, injectable, inject } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -295,6 +295,29 @@ describe('GraphQLApp', () => {
       expect(counter).toEqual(2);
       expect(app.injector.get(Provider1).count).toEqual(1);
       expect(app.injector.get(Provider2).count).toEqual(0);
+    });
+
+    it('should set config per each module', async () => {
+      @injectable()
+      class Provider1 {
+        test: number;
+        constructor(@inject(ModuleConfig('1')) config: any) {
+          this.test = config.test;
+        }
+      }
+      @injectable()
+      class Provider2 {
+        test: number;
+        constructor(@inject(ModuleConfig('2')) config: any) {
+          this.test = config.test;
+        }
+      }
+      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] }).withConfig({test: 1});
+      const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).withConfig({test: 2});
+      const app = new GraphQLApp({ modules: [module2, module1] });
+
+      expect(app.injector.get(Provider1).test).toEqual(1);
+      expect(app.injector.get(Provider2).test).toEqual(2);
     });
   });
 });
