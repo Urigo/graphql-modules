@@ -31,6 +31,18 @@ export class Injector extends Container {
       throw new Error(`Couldn't provide ${provider}`);
     }
   }
+
+  public init(provider: Provider): void {
+    if (Array.isArray(provider)) {
+      return provider.forEach(p => this.init(p));
+    }
+
+    if (isType(provider)) {
+      this.get(provider);
+    } else if (isClass(provider)) {
+      this.get(provider.provide);
+    }
+  }
 }
 
 function isType(v: any): v is Type<any> {

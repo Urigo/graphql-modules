@@ -180,6 +180,7 @@ export class GraphQLApp {
     this._initModulesValue = builtResult;
     this.buildSchema();
     this._allImplementations = await this.buildImplementationsObject();
+    this.initializeProviders();
   }
 
   get schema(): GraphQLSchema {
@@ -236,6 +237,22 @@ export class GraphQLApp {
     }
 
     return result;
+  }
+
+  private initializeProviders(): void {
+    if (this.options.providers) {
+      this.options.providers.forEach(provider => {
+        this._injector.init(provider);
+      });
+    }
+
+    this._modules.forEach(module => {
+      if (module.providers) {
+        module.providers.forEach(provider => {
+          this._injector.init(provider);
+        });
+      }
+    });
   }
 
   private getCurrentContext() {
