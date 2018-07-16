@@ -19,12 +19,12 @@ function mergeArguments(a1: ArgumentNode[], a2: ArgumentNode[]): ArgumentNode[] 
       const existingArg = result[existingIndex];
 
       if (existingArg.value.kind === 'ListValue') {
-        (existingArg.value as ListValueNode).values = [
+        (existingArg.value as any).values = [
           ...existingArg.value.values,
           ...(argument.value as ListValueNode).values,
-        ]
+        ];
       } else {
-        existingArg.value = argument.value;
+        (existingArg as any).value = argument.value;
       }
     } else {
       result.push(argument);
@@ -41,7 +41,7 @@ export function mergeDirectives(d1: ReadonlyArray<DirectiveNode>, d2: ReadonlyAr
     if (directiveAlreadyExists(result, directive)) {
       const existingDirectiveIndex = result.findIndex(d => d.name.value === directive.name.value);
       const existingDirective = result[existingDirectiveIndex];
-      result[existingDirectiveIndex].arguments = mergeArguments(existingDirective.arguments, directive.arguments);
+      (result[existingDirectiveIndex] as any).arguments = mergeArguments(existingDirective.arguments as any, directive.arguments as any);
     } else {
       result.push(directive);
     }
