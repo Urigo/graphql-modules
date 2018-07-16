@@ -246,6 +246,10 @@ export class GraphQLApp {
     return this._modules.find(module => module.name === name);
   }
 
+  public get<T>(identifier: any): T {
+    return this._injector.get(identifier);
+  }
+
   public getModuleImplementation(name) {
     const impl = this._allImplementations[name];
 
