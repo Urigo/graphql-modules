@@ -24,10 +24,7 @@ export class Blog {
   constructor(
     @inject(Users) private users: Users,
     @inject(CommunicationBridge) private communicationBridge: CommunicationBridge,
-  ) {
-    // TODO: make it initialized at runtime
-    console.log(users);
-  }
+  ) {}
 
   getPostsOf(userId: number) {
     this.notify();

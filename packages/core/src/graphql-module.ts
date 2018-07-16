@@ -1,6 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
-import { Provider } from './di/types';
+import { Provider, Injector } from './di/types';
 
 export interface IGraphQLContext {
   [key: string]: any;
@@ -8,12 +8,13 @@ export interface IGraphQLContext {
 
 export type BuildContextFn = (
   networkContext: any,
-  allImplementations: any,
   currentContext: Context,
 ) => IGraphQLContext;
-export type InitFn = (initParams: any, moduleConfig: any) => any;
 
-export type Context<Impl = any> = { [P in keyof Impl]: Impl[P] };
+export type Context = {
+  injector: Injector;
+  [key: string]: any;
+};
 
 export type ModuleDependency = GraphQLModule | string;
 
@@ -24,9 +25,7 @@ export interface GraphQLModuleOptions<Impl> {
     | string[]
     | ((initParams?: any, initResult?: any) => string | string[]);
   resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
-  implementation?: Impl;
   contextBuilder?: BuildContextFn;
-  onInit?: InitFn;
   dependencies?: (() => ModuleDependency[]) | string[];
   providers?: Provider[];
 }
@@ -35,10 +34,8 @@ export const ModuleConfig = (name: string) => Symbol.for(`ModuleConfig.${name}`)
 
 export class GraphQLModule<Impl = any, Config = any> {
   private readonly _name: string;
-  private readonly _onInit: InitFn = null;
   private _resolvers: IResolvers = {};
   private _typeDefs: string;
-  private _impl: Impl = null;
   private _providers: Provider[] = null;
   private _contextBuilder: BuildContextFn = null;
   private _options: GraphQLModuleOptions<Impl>;
@@ -56,10 +53,8 @@ export class GraphQLModule<Impl = any, Config = any> {
           : options.typeDefs);
     this._resolvers =
       typeof options.resolvers === 'function' ? null : options.resolvers || {};
-    this._impl = options.implementation || null;
     this._providers = options.providers || null;
     this._contextBuilder = options.contextBuilder || null;
-    this._onInit = options.onInit || null;
   }
 
   withConfig(config: Config): this {
@@ -84,10 +79,6 @@ export class GraphQLModule<Impl = any, Config = any> {
     return this._options;
   }
 
-  get onInit(): InitFn {
-    return this._onInit;
-  }
-
   get name(): string {
     return this._name;
   }
@@ -98,10 +89,6 @@ export class GraphQLModule<Impl = any, Config = any> {
 
   set typeDefs(value: string) {
     this._typeDefs = Array.isArray(value) ? mergeGraphQLSchemas(value) : value;
-  }
-
-  get implementation(): Impl | null {
-    return this._impl;
   }
 
   get contextBuilder(): BuildContextFn {
@@ -118,10 +105,6 @@ export class GraphQLModule<Impl = any, Config = any> {
 
   get providers() {
     return this._providers;
-  }
-
-  setImplementation(implementation: Impl): void {
-    this._impl = implementation;
   }
 
   setContextBuilder(contextBuilder: BuildContextFn) {
