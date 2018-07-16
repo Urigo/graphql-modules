@@ -1,6 +1,6 @@
 {
   "name": "examples-di",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "main": "index.js",
   "license": "MIT",
@@ -8,9 +8,9 @@
     "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
-    "@graphql-modules/core": "*",
-    "@graphql-modules/epoxy": "*",
-    "@graphql-modules/sonar": "*",
+    "@graphql-modules/core": "0.1.0",
+    "@graphql-modules/epoxy": "0.1.0",
+    "@graphql-modules/sonar": "0.1.0",
     "apollo-server": "2.0.0-rc.7",
     "graphql": "0.13.2",
     "reflect-metadata": "0.1.12",
