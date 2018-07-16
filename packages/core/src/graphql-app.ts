@@ -3,17 +3,18 @@ import { makeExecutableSchema, IResolvers } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule, IGraphQLContext } from './graphql-module';
+import { GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
-import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
+import {
+  composeResolvers,
+  IResolversComposerMapping,
+} from './resolvers-composition';
+import { Injector } from './di';
+import { Provider, Injector as SimpleInjector } from './di/types';
 
 export interface NonModules {
   typeDefs?: any;
   resolvers?: any;
-}
-
-export interface InitParams {
-  [key: string]: any;
 }
 
 export interface GraphQLAppOptions {
@@ -21,30 +22,69 @@ export interface GraphQLAppOptions {
   nonModules?: NonModules;
   communicationBridge?: CommunicationBridge;
   resolversComposition?: IResolversComposerMapping;
+  providers?: Provider[];
 }
 
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
   private _resolvers: IResolvers;
-  private _initModulesValue: { [key: string]: any; } = {};
-  private _resolvedInitParams: { [key: string]: any; } = {};
-  private _currentContext = null;
-  private _allImplementations: { [key: string]: any; };
   private _typeDefs: string;
+  private _injector = new Injector({
+    defaultScope: 'Singleton',
+    autoBindInjectable: false,
+  });
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
+
+    this.initModules();
+    this.buildSchema();
+    this.buildProviders();
+  }
+
+  private initModules() {
+    for (const module of this._modules) {
+      try {
+        if (typeof module.options.typeDefs === 'function') {
+          module.typeDefs = module.options.typeDefs(module.config) as string;
+        }
+
+        if (typeof module.options.resolvers === 'function') {
+          module.resolvers = module.options.resolvers(module.config);
+        }
+      } catch (e) {
+        logger.error(
+          `Unable to build module! Module "${module.name}" failed: `,
+          e,
+        );
+
+        throw e;
+      }
+    }
   }
 
   private buildSchema() {
-    const allTypes = this.options.modules.map<string>(m => m.typeDefs).filter(t => t);
+    const allTypes = this.options.modules
+      .map<string>(m => m.typeDefs)
+      .filter(t => t);
     const nonModules = this.options.nonModules || {};
-    const mergedResolvers = mergeResolvers(this._modules.map(m => m.resolvers || {}).concat(nonModules.resolvers || {}));
-    this._resolvers = this.composeResolvers(mergedResolvers, this.options.resolversComposition);
+    const mergedResolvers = mergeResolvers(
+      this._modules
+        .map(m => m.resolvers || {})
+        .concat(nonModules.resolvers || {}),
+    );
+    this._resolvers = this.composeResolvers(
+      mergedResolvers,
+      this.options.resolversComposition,
+    );
     this._typeDefs = mergeGraphQLSchemas([
       ...allTypes,
-      ...(Array.isArray(nonModules.typeDefs) ? nonModules.typeDefs : nonModules.typeDefs ? [nonModules.typeDefs] : []),
+      ...(Array.isArray(nonModules.typeDefs)
+        ? nonModules.typeDefs
+        : nonModules.typeDefs
+          ? [nonModules.typeDefs]
+          : []),
     ]);
   }
 
@@ -63,75 +103,32 @@ export class GraphQLApp {
     }
 
     for (const module of modules) {
-      (module.dependencies || []).forEach(dep => graph.addDependency(module.name, dep));
+      (module.dependencies || []).forEach(dep => {
+        graph.addDependency(
+          module.name,
+          typeof dep === 'string' ? dep : dep.name,
+        );
+      });
     }
 
     const order = graph.overallOrder() || [];
 
     if (order.length !== modules.length) {
-      return [
-        ...(modules.map(m => m.name)),
-        ...order,
-      ];
+      return [...order, ...modules.filter(m => !order.includes(m.name)).map(m => m.name)];
     }
 
     return order;
   }
 
-  public get implementations() {
-    return this._allImplementations;
-  }
-
-  private composeResolvers(resolvers: IResolvers, composition: IResolversComposerMapping) {
+  private composeResolvers(
+    resolvers: IResolvers,
+    composition: IResolversComposerMapping,
+  ) {
     if (composition) {
       return composeResolvers(resolvers, composition);
     }
 
     return resolvers;
-  }
-
-  async init(initParams?: InitParams | (() => InitParams) | (() => Promise<InitParams>)): Promise<void> {
-    let params: InitParams = null;
-    const builtResult = {};
-
-    if (initParams) {
-      if (typeof initParams === 'object') {
-        params = initParams;
-      } else if (typeof initParams === 'function') {
-        params = initParams();
-      }
-    }
-
-    this._resolvedInitParams = params;
-
-    const relevantModules: GraphQLModule[] = this._modules.filter(f => f.onInit);
-    let module;
-
-    try {
-      for (module of relevantModules) {
-        const appendToContext: any = await module.onInit(params, module.config);
-
-        if (typeof module.options.typeDefs === 'function') {
-          module.typeDefs = module.options.typeDefs(params, appendToContext);
-        }
-
-        if (typeof module.options.resolvers === 'function') {
-          module.resolvers = module.options.resolvers(params, appendToContext);
-        }
-
-        if (appendToContext && typeof appendToContext === 'object') {
-          Object.assign(builtResult, { [module.name]: appendToContext });
-        }
-      }
-    } catch (e) {
-      logger.error(`Unable to initialized module! Module "${module.name}" failed: `, e);
-
-      throw e;
-    }
-
-    this._initModulesValue = builtResult;
-    this.buildSchema();
-    this._allImplementations = await this.buildImplementationsObject();
   }
 
   get schema(): GraphQLSchema {
@@ -154,54 +151,81 @@ export class GraphQLApp {
     return this._typeDefs;
   }
 
-  private async buildImplementationsObject() {
-    const result = {};
-    const depGraph = this.getModulesDependencyGraph(this._modules);
+  private buildProviders() {
+    // global providers
+    if (this.options.providers) {
+      this.options.providers.forEach(provider => {
+        this._injector.provide(provider);
+      });
+    }
+    // communication birdge
+    if (this.options.communicationBridge) {
+      this._injector.provide({
+        provide: CommunicationBridge,
+        useValue: this.options.communicationBridge,
+      });
+    }
 
-    for (const depName of depGraph) {
-      const module = this.getModule(depName);
+    // module's providers
+    for (const module of this._modules) {
+      // module's config
+      this._injector.provide({
+        provide: ModuleConfig(module.name),
+        useValue: module.config,
+      });
 
-      if (module && module.implementation) {
-        result[module.name] =
-          typeof module.implementation === 'function' ?
-            await module.implementation(result, module.config, this.options.communicationBridge, { getCurrentContext: () => this.getCurrentContext() }) :
-            module.implementation;
+      // module's providers
+      if (module && module.providers) {
+        module.providers.forEach(provider => {
+          this._injector.provide(provider);
+        });
       }
     }
 
-    return result;
-  }
+    // initalize global providers
+    if (this.options.providers) {
+      this.options.providers.forEach(provider => {
+        this._injector.init(provider);
+      });
+    }
 
-  private getCurrentContext() {
-    return this._currentContext;
+    // initialize module's providers
+    this._modules.forEach(module => {
+      if (module.providers) {
+        module.providers.forEach(provider => {
+          this._injector.init(provider);
+        });
+      }
+    });
   }
 
   public getModule(name) {
     return this._modules.find(module => module.name === name);
   }
 
-  public getModuleImplementation(name) {
-    const impl = this._allImplementations[name];
-
-    if (impl !== null && impl !== undefined) {
-      return impl;
-    }
-
-    return null;
+  public get injector(): SimpleInjector {
+    return this._injector;
   }
 
   async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
-    const builtResult = { ...this._initModulesValue, initParams: this._resolvedInitParams || {} };
-    const result = { ...this._allImplementations };
+    const builtResult = {
+      injector: {
+        get: this._injector.get.bind(this._injector),
+      },
+    };
+    const result: any = {};
 
-    let module;
+    let module: GraphQLModule;
     try {
       for (const depName of depGraph) {
         module = this.getModule(depName);
 
         if (module && module.contextBuilder) {
-          const appendToContext: any = await module.contextBuilder(networkRequest, this._allImplementations, result);
+          const appendToContext: any = await module.contextBuilder(
+            networkRequest,
+            result,
+          );
 
           if (appendToContext && typeof appendToContext === 'object') {
             Object.assign(builtResult, appendToContext);
@@ -209,7 +233,10 @@ export class GraphQLApp {
         }
       }
     } catch (e) {
-      logger.error(`Unable to build context! Module "${module.name}" failed: `, e);
+      logger.error(
+        `Unable to build context! Module "${module.name}" failed: `,
+        e,
+      );
 
       throw e;
     }
@@ -218,13 +245,13 @@ export class GraphQLApp {
 
     for (const key of builtKeys) {
       if (result.hasOwnProperty(key)) {
-        logger.warn(`One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`);
+        logger.warn(
+          `One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`,
+        );
       } else {
         result[key] = builtResult[key];
       }
     }
-
-    this._currentContext = result;
 
     return result;
   }

@@ -1,9 +1,10 @@
 import {GraphQLModule} from '@graphql-modules/core';
 import {resolvers, types} from './schema';
+import {Info} from './providers/info';
 
-export const socialNetworkModule = new GraphQLModule({
-  name: 'socialNetwork',
+export const infoModule = new GraphQLModule({
+  name: 'info',
   typeDefs: types,
-  dependencies: ['user'],
   resolvers,
+  providers: [Info],
 });

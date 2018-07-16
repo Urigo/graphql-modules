@@ -1,5 +1,6 @@
 import { FieldDefinitionNode, InputValueDefinitionNode } from 'graphql/language/ast';
 import { extractType } from './utils';
+import { mergeDirectives } from './directives';
 
 function fieldAlreadyExists(fieldsArr: ReadonlyArray<any>, otherField: any): boolean {
   const result: FieldDefinitionNode | null = fieldsArr.find(field => field.name.value === otherField.name.value);
@@ -17,8 +18,16 @@ function fieldAlreadyExists(fieldsArr: ReadonlyArray<any>, otherField: any): boo
 }
 
 export function mergeFields<T>(f1: ReadonlyArray<T>, f2: ReadonlyArray<T>): T[] {
-  return [
-    ...f2,
-    ...(f1.filter(f => !fieldAlreadyExists(f2, f))),
-  ];
+  const result: T[] = [...f2];
+
+  for (const field of f1) {
+    if (fieldAlreadyExists(result, field)) {
+      const existing = result.find((f: any) => f.name.value === (field as any).name.value);
+      existing['directives'] = mergeDirectives(field['directives'], existing['directives']);
+    } else {
+      result.push(field);
+    }
+  }
+
+  return result;
 }

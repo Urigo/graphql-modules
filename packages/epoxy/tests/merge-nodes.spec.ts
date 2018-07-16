@@ -60,7 +60,7 @@ describe('Merge Nodes', () => {
       expect(type.interfaces[0].name.value).toBe('Base');
     });
 
-    it('Should merge GraphQL Types and preserve directives', () => {
+    it('Should merge GraphQL Types and preserve directives and not override', () => {
       const type1 = parse(`type A @test { f1: String }`);
       const type2 = parse(`type A { f2: Int}`);
       const merged = mergeGraphQLNodes([...type1.definitions, ...type2.definitions]);
@@ -69,6 +69,28 @@ describe('Merge Nodes', () => {
       expect(type.directives.length).toBe(1);
       expect(type.directives[0].name.value).toBe('test');
     });
+
+    it('Should merge GraphQL Types and preserve directives and merge multiple', () => {
+      const type1 = parse(`type A @test { f1: String }`);
+      const type2 = parse(`type A @other { f2: Int}`);
+      const merged = mergeGraphQLNodes([...type1.definitions, ...type2.definitions]);
+      const type: any = merged['A'];
+
+      expect(type.directives.length).toBe(2);
+      expect(type.directives[0].name.value).toBe('test');
+      expect(type.directives[1].name.value).toBe('other');
+    });
+
+    it('Should merge GraphQL Types and preserve directives', () => {
+      const type1 = parse(`type A @test { f1: String }`);
+      const type2 = parse(`type A @test { f2: Int}`);
+      const merged = mergeGraphQLNodes([...type1.definitions, ...type2.definitions]);
+      const type: any = merged['A'];
+
+      expect(type.directives.length).toBe(1);
+      expect(type.directives[0].name.value).toBe('test');
+    });
+
     it('Should merge GraphQL Types and merge directives', () => {
       const type1 = parse(`type A @test { f1: String }`);
       const type2 = parse(`type A @test2 { f2: Int}`);

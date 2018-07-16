@@ -1,48 +1,58 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
+import { Provider, Injector } from './di/types';
 
 export interface IGraphQLContext {
   [key: string]: any;
 }
 
-export type BuildContextFn = (networkContext: any, allImplementations: any, currentContext: Context) => IGraphQLContext;
-export type InitFn = (initParams: any, moduleConfig: any) => any;
+export type BuildContextFn = (
+  networkContext: any,
+  currentContext: Context,
+) => IGraphQLContext;
 
-export type Context<Impl = any> = {
-  [P in keyof Impl]: Impl[P];
+export type Context = {
+  injector: Injector;
+  [key: string]: any;
 };
 
-export type ModuleDependency = string;
+export type ModuleDependency = GraphQLModule | string;
 
-export interface GraphQLModuleOptions<Impl> {
+export interface GraphQLModuleOptions {
   name: string;
-  typeDefs?: string | string [] | ((initParams?: any, initResult?: any) => (string | string[]));
-  resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
-  implementation?: Impl;
+  typeDefs?: string | string[] | ((config: any) => string | string[]);
+  resolvers?: IResolvers | ((config: any) => IResolvers);
   contextBuilder?: BuildContextFn;
-  onInit?: InitFn;
-  dependencies?: ModuleDependency[];
+  dependencies?: (() => ModuleDependency[]) | string[];
+  providers?: Provider[];
 }
 
-export class GraphQLModule<Impl = any, Config = any> {
+export const ModuleConfig = (name: string) =>
+  Symbol.for(`ModuleConfig.${name}`);
+
+export class GraphQLModule<Config = any> {
   private readonly _name: string;
-  private readonly _onInit: InitFn = null;
   private _resolvers: IResolvers = {};
   private _typeDefs: string;
-  private _impl: Impl = null;
+  private _providers: Provider[] = null;
   private _contextBuilder: BuildContextFn = null;
-  private _options: GraphQLModuleOptions<Impl>;
+  private _options: GraphQLModuleOptions;
   private _moduleConfig: Config = null;
 
-  constructor(options: GraphQLModuleOptions<Impl>) {
+  constructor(options: GraphQLModuleOptions) {
     this._options = options;
     this._name = options.name;
     this._typeDefs =
-      options.typeDefs && (typeof options.typeDefs === 'function' ? null : Array.isArray(options.typeDefs) ? mergeGraphQLSchemas(options.typeDefs) : options.typeDefs);
-    this._resolvers = typeof options.resolvers === 'function' ? null : (options.resolvers || {});
-    this._impl = options.implementation || null;
+      options.typeDefs &&
+      (typeof options.typeDefs === 'function'
+        ? null
+        : Array.isArray(options.typeDefs)
+          ? mergeGraphQLSchemas(options.typeDefs)
+          : options.typeDefs);
+    this._resolvers =
+      typeof options.resolvers === 'function' ? null : options.resolvers || {};
+    this._providers = options.providers || null;
     this._contextBuilder = options.contextBuilder || null;
-    this._onInit = options.onInit || null;
   }
 
   withConfig(config: Config): this {
@@ -52,19 +62,19 @@ export class GraphQLModule<Impl = any, Config = any> {
   }
 
   get dependencies(): ModuleDependency[] {
-    return this.options.dependencies || [];
+    return (
+      (typeof this.options.dependencies === 'function'
+        ? this.options.dependencies()
+        : this.options.dependencies) || []
+    );
   }
 
   get config(): Config {
     return this._moduleConfig;
   }
 
-  get options(): GraphQLModuleOptions<Impl> {
+  get options(): GraphQLModuleOptions {
     return this._options;
-  }
-
-  get onInit(): InitFn {
-    return this._onInit;
   }
 
   get name(): string {
@@ -79,10 +89,6 @@ export class GraphQLModule<Impl = any, Config = any> {
     this._typeDefs = Array.isArray(value) ? mergeGraphQLSchemas(value) : value;
   }
 
-  get implementation(): Impl | null {
-    return this._impl;
-  }
-
   get contextBuilder(): BuildContextFn {
     return this._contextBuilder;
   }
@@ -95,8 +101,8 @@ export class GraphQLModule<Impl = any, Config = any> {
     this._resolvers = value;
   }
 
-  setImplementation(implementation: Impl): void {
-    this._impl = implementation;
+  get providers() {
+    return this._providers;
   }
 
   setContextBuilder(contextBuilder: BuildContextFn) {

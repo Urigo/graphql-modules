@@ -5,6 +5,6 @@ export const contextBuilder = (req: Request) => {
     authenticatedUser: {
       _id: 1,
       username: 'me',
-    }
+    },
   };
 };
