@@ -20,17 +20,15 @@ export type ModuleDependency = GraphQLModule | string;
 
 export interface GraphQLModuleOptions {
   name: string;
-  typeDefs?:
-    | string
-    | string[]
-    | ((initParams?: any, initResult?: any) => string | string[]);
-  resolvers?: IResolvers | ((initParams?: any, initResult?: any) => IResolvers);
+  typeDefs?: string | string[] | ((config: any) => string | string[]);
+  resolvers?: IResolvers | ((config: any) => IResolvers);
   contextBuilder?: BuildContextFn;
   dependencies?: (() => ModuleDependency[]) | string[];
   providers?: Provider[];
 }
 
-export const ModuleConfig = (name: string) => Symbol.for(`ModuleConfig.${name}`);
+export const ModuleConfig = (name: string) =>
+  Symbol.for(`ModuleConfig.${name}`);
 
 export class GraphQLModule<Config = any> {
   private readonly _name: string;

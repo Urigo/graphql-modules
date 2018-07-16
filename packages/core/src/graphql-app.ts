@@ -37,8 +37,31 @@ export class GraphQLApp {
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
+
+    this.initModules();
     this.buildSchema();
     this.buildProviders();
+  }
+
+  private initModules() {
+    for (const module of this._modules) {
+      try {
+        if (typeof module.options.typeDefs === 'function') {
+          module.typeDefs = module.options.typeDefs(module.config) as string;
+        }
+
+        if (typeof module.options.resolvers === 'function') {
+          module.resolvers = module.options.resolvers(module.config);
+        }
+      } catch (e) {
+        logger.error(
+          `Unable to build module! Module "${module.name}" failed: `,
+          e,
+        );
+
+        throw e;
+      }
+    }
   }
 
   private buildSchema() {
