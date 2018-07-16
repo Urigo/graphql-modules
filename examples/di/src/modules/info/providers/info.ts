@@ -3,7 +3,7 @@ import { injectable, inject, ModuleConfig, CommunicationBridge } from '@graphql-
 @injectable()
 export class Info {
     constructor(
-        @inject(ModuleConfig) private config: any,
+        @inject(ModuleConfig('info')) private config: any,
         @inject(CommunicationBridge) private communicationBridge: CommunicationBridge,
     ) {}
 

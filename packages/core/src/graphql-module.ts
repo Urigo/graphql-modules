@@ -1,6 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
-import { Container, Provider } from './di';
+import { Provider } from './di';
 
 export interface IGraphQLContext {
   [key: string]: any;
@@ -31,7 +31,7 @@ export interface GraphQLModuleOptions<Impl> {
   providers?: Provider[];
 }
 
-export const ModuleConfig = Symbol.for('ModuleConfig');
+export const ModuleConfig = (name: string) => Symbol.for(`ModuleConfig.${name}`);
 
 export class GraphQLModule<Impl = any, Config = any> {
   private readonly _name: string;
@@ -43,7 +43,6 @@ export class GraphQLModule<Impl = any, Config = any> {
   private _contextBuilder: BuildContextFn = null;
   private _options: GraphQLModuleOptions<Impl>;
   private _moduleConfig: Config = null;
-  private _container: Container;
 
   constructor(options: GraphQLModuleOptions<Impl>) {
     this._options = options;
@@ -119,14 +118,6 @@ export class GraphQLModule<Impl = any, Config = any> {
 
   get providers() {
     return this._providers;
-  }
-
-  get container() {
-    return this._container;
-  }
-
-  set container(container: Container) {
-    this._container = container;
   }
 
   setImplementation(implementation: Impl): void {

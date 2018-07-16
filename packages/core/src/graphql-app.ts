@@ -9,7 +9,7 @@ import {
   composeResolvers,
   IResolversComposerMapping,
 } from './resolvers-composition';
-import { Provider, Container } from './di';
+import { Provider, Injector } from './di';
 
 export interface NonModules {
   typeDefs?: any;
@@ -37,8 +37,9 @@ export class GraphQLApp {
   private _currentContext = null;
   private _allImplementations: { [key: string]: any };
   private _typeDefs: string;
-  private _container = new Container({
+  private _injector = new Injector({
     defaultScope: 'Singleton',
+    autoBindInjectable: false,
   });
 
   constructor(private options: GraphQLAppOptions) {
@@ -84,18 +85,18 @@ export class GraphQLApp {
     }
 
     for (const module of modules) {
-      (module.dependencies || []).forEach(dep =>
+      (module.dependencies || []).forEach(dep => {
         graph.addDependency(
           module.name,
           typeof dep === 'string' ? dep : dep.name,
-        ),
-      );
+        );
+      });
     }
 
     const order = graph.overallOrder() || [];
 
     if (order.length !== modules.length) {
-      return [...modules.map(m => m.name), ...order];
+      return [...order, ...modules.filter(m => !order.includes(m.name)).map(m => m.name)];
     }
 
     return order;
@@ -162,15 +163,15 @@ export class GraphQLApp {
       throw e;
     }
 
-    // bind blobal providers
+    // bind global providers
     if (this.options.providers) {
       this.options.providers.forEach(provider => {
-        this._container.provide(provider);
+        this._injector.provide(provider);
       });
     }
     // bind communication birdge
     if (this.options.communicationBridge) {
-      this._container.provide({
+      this._injector.provide({
         provide: CommunicationBridge,
         useValue: this.options.communicationBridge,
       });
@@ -201,34 +202,6 @@ export class GraphQLApp {
     return this._typeDefs;
   }
 
-  private belongsToApp(module: GraphQLModule): boolean {
-    return this._modules.some(({ name }) => name === module.name);
-  }
-
-  private getParentContainer(module: GraphQLModule): Container {
-    const belongsToApp = this.belongsToApp(module);
-    const hasDependencies = module.dependencies.length;
-
-    if (belongsToApp && !hasDependencies) {
-      return this._container;
-    }
-
-    if (hasDependencies) {
-      return module.dependencies
-        .map(dep => (typeof dep === 'string' ? this.getModule(dep) : dep))
-        .reduce<Container>(
-          (container, mod) => Container.merge(container, mod.container),
-          belongsToApp
-            ? this._container
-            : new Container({
-                defaultScope: 'Singleton',
-              }),
-        );
-    }
-
-    return;
-  }
-
   private async buildImplementationsObject() {
     const result = {};
     const depGraph = this.getModulesDependencyGraph(this._modules);
@@ -236,25 +209,20 @@ export class GraphQLApp {
     for (const depName of depGraph) {
       const module = this.getModule(depName);
 
-      // create a child container
-      module.container = new Container({
-        defaultScope: 'Singleton',
+      // bind module's config
+      this._injector.provide({
+        provide: ModuleConfig(module.name),
+        useValue: module.config,
       });
-      // assign it under a module's name
-      result[module.name] = module.container;
 
+      // bind module's providers
       if (module && module.providers) {
         module.providers.forEach(provider => {
-          module.container.provide(provider);
+          this._injector.provide(provider);
         });
+      }
 
-        // bind module's config
-        module.container.provide({
-          provide: ModuleConfig,
-          useValue: module.config,
-        });
-      } else if (module && module.implementation) {
-        // if module has implementation it will overwrite its container
+      if (module && module.implementation) {
         result[module.name] =
           typeof module.implementation === 'function'
             ? await module.implementation(
@@ -265,14 +233,6 @@ export class GraphQLApp {
               )
             : module.implementation;
       }
-    }
-
-    // after every module got it container and providers
-    for (const depName of depGraph) {
-      const module = this.getModule(depName);
-
-      // set parents to them
-      module.container.parent = this.getParentContainer(module);
     }
 
     return result;
@@ -301,7 +261,7 @@ export class GraphQLApp {
     const builtResult = {
       ...this._initModulesValue,
       initParams: this._resolvedInitParams || {},
-      container: this._container,
+      get: this._injector.get.bind(this._injector),
     };
     const result = { ...this._allImplementations };
 
