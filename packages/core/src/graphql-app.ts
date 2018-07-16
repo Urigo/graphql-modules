@@ -9,7 +9,8 @@ import {
   composeResolvers,
   IResolversComposerMapping,
 } from './resolvers-composition';
-import { Provider, Injector } from './di';
+import { Injector } from './di';
+import { Provider, Injector as SimpleInjector } from './di/types';
 
 export interface NonModules {
   typeDefs?: any;
@@ -263,8 +264,8 @@ export class GraphQLApp {
     return this._modules.find(module => module.name === name);
   }
 
-  public get<T>(identifier: any): T {
-    return this._injector.get(identifier);
+  public get injector(): SimpleInjector {
+    return this._injector;
   }
 
   public getModuleImplementation(name) {
@@ -282,7 +283,9 @@ export class GraphQLApp {
     const builtResult = {
       ...this._initModulesValue,
       initParams: this._resolvedInitParams || {},
-      get: this._injector.get.bind(this._injector),
+      injector: {
+        get: this._injector.get.bind(this._injector),
+      },
     };
     const result = { ...this._allImplementations };
 

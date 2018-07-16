@@ -1,6 +1,6 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
-import { Provider } from './di';
+import { Provider } from './di/types';
 
 export interface IGraphQLContext {
   [key: string]: any;

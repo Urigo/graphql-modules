@@ -4,8 +4,8 @@ export const resolvers = {
     Post: {
       id: post => post._id,
       title: post => post.title,
-      author: (post, args, { get }) => {
-        return get(Blog).getAuthor(post.authorId);
+      author: (post, args, { injector }) => {
+        return injector.get(Blog).getAuthor(post.authorId);
       },
     },
   };

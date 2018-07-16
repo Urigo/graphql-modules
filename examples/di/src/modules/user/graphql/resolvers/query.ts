@@ -5,8 +5,8 @@ export const resolvers = {
     users: (_, args, { get }) => {
       return get(Users).allUsers();
     },
-    user: (_, { id }, { get }) => {
-        return get(Users).getUser(id);
+    user: (_, { id }, { injector }) => {
+        return injector.get(Users).getUser(id);
     },
   },
 };

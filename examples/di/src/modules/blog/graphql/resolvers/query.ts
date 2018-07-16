@@ -2,8 +2,8 @@ import { Blog } from '../../providers/blog';
 
 export const resolvers = {
     Query: {
-      posts: (_, args, { get }) => {
-        return get(Blog).allPosts();
+      posts: (_, args, { injector }) => {
+        return injector.get(Blog).allPosts();
       },
     },
   };
