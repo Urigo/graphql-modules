@@ -9,7 +9,7 @@
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "devDependencies": {
-    "tslint": "5.10.0",
+    "tslint": "5.11.0",
     "typescript": "2.9.2"
   },
   "dependencies": {
