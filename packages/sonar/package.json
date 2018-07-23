@@ -31,7 +31,7 @@
     "@graphql-modules/logger": "*"
   },
   "dependencies": {
-    "@graphql-modules/logger": "0.1.2",
+    "@graphql-modules/logger": "0.1.1",
     "@types/glob": "5.0.35",
     "glob": "7.1.2"
   },
