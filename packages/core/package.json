@@ -26,7 +26,7 @@
     "reflect-metadata": "~0.1.12"
   },
   "dependencies": {
-    "@graphql-modules/epoxy": "0.1.2",
+    "@graphql-modules/epoxy": "0.1.1",
     "@graphql-modules/logger": "0.1.2",
     "@graphql-modules/sonar": "0.1.2",
     "dependency-graph": "0.7.1",
