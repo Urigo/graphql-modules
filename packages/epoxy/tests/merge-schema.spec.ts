@@ -2,6 +2,7 @@ import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/me
 import { makeExecutableSchema } from 'graphql-tools';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
+import { getDescription, DocumentNode } from 'graphql';
 
 describe('Merge Schema', () => {
   describe('mergeGraphQLTypes', () => {
@@ -73,9 +74,9 @@ describe('Merge Schema', () => {
         }`));
     });
 
-    it('should merge descriptions', () => {
+    it.only('should merge descriptions', () => {
       const merged = mergeGraphQLSchemas([
-        gql`
+        `
           # She's my type
           type MyType { field1: Int }
         `,
@@ -83,7 +84,7 @@ describe('Merge Schema', () => {
           # or she's not?
           type MyType { field2: String }
         `,
-        gql`
+        `
           # Contains f1
           type Query { f1: MyType }
         `,

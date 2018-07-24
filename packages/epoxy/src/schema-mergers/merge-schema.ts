@@ -1,4 +1,4 @@
-import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source } from 'graphql';
+import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source, getDescription } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -14,11 +14,23 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode 
     .join('\n');
 }
 
+function makeComment(definition: DefinitionNode): DefinitionNode {
+  const description = getDescription(definition, { commentDescriptions: true });
+
+  console.log(definition);
+
+  if (description) {
+    console.log('description', description);
+  }
+
+  return definition;
+}
+
 export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
-        const printedSchema = printSchema(type);
+        const printedSchema = printSchema(type, { commentDescriptions: true });
 
         return parse(printedSchema);
       } else if (isStringTypes(type) || isSourceTypes(type)) {
@@ -28,7 +40,13 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
       return type;
     })
     .map(ast => ast.definitions)
-    .reduce((defs, newDef) => [...defs, ...newDef], []);
+    .reduce((defs, newDef) => {
+      return [...defs, ...newDef];
+    }, [])
+    .map(def => {
+      makeComment(def);
+      return def;
+    });
 
   const mergedNodes: MergedResultMap = mergeGraphQLNodes(allNodes);
   const allTypes = Object.keys(mergedNodes);

@@ -1,7 +1,7 @@
 import { mergeGraphQLNodes } from '../src/schema-mergers/merge-nodes';
 import { parse } from 'graphql';
 
-describe('Merge Nodes', () => {
+describe.skip('Merge Nodes', () => {
   describe('type', () => {
     it('Should merge two GraphQL types correctly when one of them is empty', () => {
       const type1 = parse(`type A { f1: String }`);

@@ -6,7 +6,6 @@ import {
   ObjectTypeDefinitionNode,
   Source,
   UnionTypeDefinitionNode,
-  SchemaDefinitionNode,
   ScalarTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
   GraphQLSchema,
