@@ -14,18 +14,6 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode 
     .join('\n');
 }
 
-function makeComment(definition: DefinitionNode): DefinitionNode {
-  const description = getDescription(definition, { commentDescriptions: true });
-
-  console.log(definition);
-
-  if (description) {
-    console.log('description', description);
-  }
-
-  return definition;
-}
-
 export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
@@ -42,11 +30,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
     .map(ast => ast.definitions)
     .reduce((defs, newDef) => {
       return [...defs, ...newDef];
-    }, [])
-    .map(def => {
-      makeComment(def);
-      return def;
-    });
+    }, []);
 
   const mergedNodes: MergedResultMap = mergeGraphQLNodes(allNodes);
   const allTypes = Object.keys(mergedNodes);

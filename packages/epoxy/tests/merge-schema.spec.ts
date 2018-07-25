@@ -2,7 +2,6 @@ import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/me
 import { makeExecutableSchema } from 'graphql-tools';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { getDescription, DocumentNode } from 'graphql';
 
 describe('Merge Schema', () => {
   describe('mergeGraphQLTypes', () => {
@@ -77,30 +76,29 @@ describe('Merge Schema', () => {
     it.only('should merge descriptions', () => {
       const merged = mergeGraphQLSchemas([
         `
-          # She's my type
+          " She's my type "
           type MyType { field1: Int }
         `,
-        gql`
-          # or she's not?
+        `
+          " or she's not? "
           type MyType { field2: String }
         `,
         `
-          # Contains f1
+          " Contains f1 "
           type Query { f1: MyType }
         `,
       ]);
 
       expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
-        # Contains f1
-        type Query {
-          f1: MyType
-        }
-  
-        # She's my type
-        # or she's not?
+        " or she's not? "
         type MyType {
           field1: Int
           field2: String
+        }
+
+        " Contains f1 "
+        type Query {
+          f1: MyType
         }
   
         schema {
