@@ -73,7 +73,7 @@ describe('Merge Schema', () => {
         }`));
     });
 
-    it.only('should merge descriptions', () => {
+    it('should merge descriptions', () => {
       const merged = mergeGraphQLSchemas([
         `
           " She's my type "

@@ -1,4 +1,4 @@
-import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source, getDescription } from 'graphql';
+import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -28,9 +28,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
       return type;
     })
     .map(ast => ast.definitions)
-    .reduce((defs, newDef) => {
-      return [...defs, ...newDef];
-    }, []);
+    .reduce((defs, newDef) => [...defs, ...newDef], []);
 
   const mergedNodes: MergedResultMap = mergeGraphQLNodes(allNodes);
   const allTypes = Object.keys(mergedNodes);

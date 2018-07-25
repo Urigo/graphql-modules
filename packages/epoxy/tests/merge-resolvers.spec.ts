@@ -1,6 +1,6 @@
 import { mergeResolvers } from '../src';
 
-describe.skip('Merge Resolvers', () => {
+describe('Merge Resolvers', () => {
   it('should return the correct value when falsely value provided', () => {
     expect(mergeResolvers(null)).toEqual({});
   });
