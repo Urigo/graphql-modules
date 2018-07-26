@@ -18,7 +18,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
-        const printedSchema = printSchema(type);
+        const printedSchema = printSchema(type, { commentDescriptions: true });
 
         return parse(printedSchema);
       } else if (isStringTypes(type) || isSourceTypes(type)) {

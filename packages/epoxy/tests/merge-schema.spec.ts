@@ -73,6 +73,39 @@ describe('Merge Schema', () => {
         }`));
     });
 
+    it('should merge descriptions', () => {
+      const merged = mergeGraphQLSchemas([
+        `
+          " She's my type "
+          type MyType { field1: Int }
+        `,
+        `
+          " or she's not? "
+          type MyType { field2: String }
+        `,
+        `
+          " Contains f1 "
+          type Query { f1: MyType }
+        `,
+      ]);
+
+      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+        " or she's not? "
+        type MyType {
+          field1: Int
+          field2: String
+        }
+
+        " Contains f1 "
+        type Query {
+          f1: MyType
+        }
+  
+        schema {
+          query: Query
+        }`));
+    });
+
     it('should merge everything correctly', () => {
       const merged = mergeGraphQLSchemas([
         'type Query @test { f1: String }',
@@ -239,7 +272,9 @@ describe('Merge Schema', () => {
 
     it('should handle compiled gql correctly', () => {
       const merged = mergeGraphQLSchemas([
-        gql`type Query { f1: String }`,
+        gql`
+          type Query { f1: String }
+        `,
       ]);
 
       expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
@@ -254,7 +289,9 @@ describe('Merge Schema', () => {
 
     it('should handle compiled gql and strings correctly', () => {
       const merged = mergeGraphQLSchemas([
-        gql`type Query { f1: String }`,
+        gql`
+          type Query { f1: String }
+        `,
         'type Query { f2: String }',
       ]);
 
@@ -300,7 +337,9 @@ describe('Merge Schema', () => {
           allowUndefinedInResolve: true,
         }),
         'type Query { f2: String }',
-        gql`type Query { f3: String }`,
+        gql`
+          type Query { f3: String }
+        `,
       ]);
 
       expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
