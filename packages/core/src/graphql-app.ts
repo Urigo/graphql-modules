@@ -12,6 +12,20 @@ import {
 import { Injector } from './di';
 import { Provider, Injector as SimpleInjector } from './di/types';
 
+export class AppInfo {
+  request: any;
+  context: IGraphQLContext;
+
+  initialize({ request, context }: { request: any; context: IGraphQLContext }) {
+    this.request = request;
+    this.context = context;
+  }
+
+  getRequest() {
+    return this.request;
+  }
+}
+
 export interface NonModules {
   typeDefs?: any;
   resolvers?: any;
@@ -34,6 +48,7 @@ export class GraphQLApp {
     defaultScope: 'Singleton',
     autoBindInjectable: false,
   });
+  private _appInfo = new AppInfo();
 
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
@@ -114,7 +129,10 @@ export class GraphQLApp {
     const order = graph.overallOrder() || [];
 
     if (order.length !== modules.length) {
-      return [...order, ...modules.filter(m => !order.includes(m.name)).map(m => m.name)];
+      return [
+        ...order,
+        ...modules.filter(m => !order.includes(m.name)).map(m => m.name),
+      ];
     }
 
     return order;
@@ -152,12 +170,6 @@ export class GraphQLApp {
   }
 
   private buildProviders() {
-    // global providers
-    if (this.options.providers) {
-      this.options.providers.forEach(provider => {
-        this._injector.provide(provider);
-      });
-    }
     // communication birdge
     if (this.options.communicationBridge) {
       this._injector.provide({
@@ -165,6 +177,11 @@ export class GraphQLApp {
         useValue: this.options.communicationBridge,
       });
     }
+    // app info
+    this._injector.provide({
+      provide: AppInfo,
+      useValue: this._appInfo,
+    });
 
     // module's providers
     for (const module of this._modules) {
@@ -180,6 +197,13 @@ export class GraphQLApp {
           this._injector.provide(provider);
         });
       }
+    }
+
+    // global providers
+    if (this.options.providers) {
+      this.options.providers.forEach(provider => {
+        this._injector.provide(provider);
+      });
     }
 
     // initalize global providers
@@ -232,6 +256,11 @@ export class GraphQLApp {
           }
         }
       }
+
+      this._appInfo.initialize({
+        request: networkRequest,
+        context: builtResult,
+      });
     } catch (e) {
       logger.error(
         `Unable to build context! Module "${module.name}" failed: `,
@@ -243,6 +272,7 @@ export class GraphQLApp {
 
     const builtKeys = Object.keys(builtResult);
 
+    // I guess we can remove it
     for (const key of builtKeys) {
       if (result.hasOwnProperty(key)) {
         logger.warn(

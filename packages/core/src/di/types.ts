@@ -3,21 +3,24 @@ import { interfaces } from 'inversify';
 export { injectable, inject, optional } from 'inversify';
 
 export interface Type<T> extends Function {
-  new(...args: any[]): T;
+  new (...args: any[]): T;
 }
 
-export interface ValueProvider {
-  provide: any;
+export interface ValueProvider<T = any> extends BaseProvider {
+  provide: interfaces.ServiceIdentifier<T>;
   useValue: any;
 }
 
-export interface ClassProvider {
-  provide: any;
+export interface ClassProvider<T = any> extends BaseProvider {
+  provide: interfaces.ServiceIdentifier<T>;
   useClass: Type<any>;
 }
 
-export interface TypeProvider extends Type<any> {
+export interface BaseProvider {
+  overwrite?: boolean;
 }
+
+export interface TypeProvider extends Type<any> {}
 
 export type Provider = TypeProvider | ValueProvider | ClassProvider | any[];
 
