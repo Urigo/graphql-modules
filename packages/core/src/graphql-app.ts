@@ -3,7 +3,7 @@ import { makeExecutableSchema, IResolvers } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
 import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
+import { GraphQLModule, IGraphQLContext, ModuleConfig, Context } from './graphql-module';
 import { CommunicationBridge } from './communication';
 import {
   composeResolvers,
@@ -231,7 +231,7 @@ export class GraphQLApp {
     return this._injector;
   }
 
-  async buildContext(networkRequest?: any): Promise<IGraphQLContext> {
+  async buildContext(networkRequest?: any): Promise<Context> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
     const builtResult = {
       injector: {
