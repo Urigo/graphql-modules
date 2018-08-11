@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLApp, GraphQLModule, ModuleConfig, injectable, inject } from '../src';
+import { GraphQLApp, GraphQLModule, ModuleConfig, injectable, inject, AppInfo } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -109,6 +109,14 @@ describe('GraphQLApp', () => {
     });
 
     expect(result.data.b.f).toBe('1');
+  });
+
+  it('should provide network request to AppInfo', async () => {
+    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const request = {};
+    const context = await app.buildContext(request);
+
+    expect(context.injector.get(AppInfo).getRequest()).toBe(request);
   });
 
   it('should work without a GraphQL schema and set providers', async () => {
