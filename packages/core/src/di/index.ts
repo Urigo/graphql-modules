@@ -1,4 +1,4 @@
-import { Container } from 'inversify';
+import { Container, interfaces } from 'inversify';
 
 import { Provider, Type, ValueProvider, ClassProvider } from './types';
 
@@ -9,14 +9,41 @@ export class Injector extends Container {
     }
 
     if (isType(provider)) {
-      this.bind(provider).toSelf().inSingletonScope();
+      this.bind(provider)
+        .toSelf()
+        .inSingletonScope();
     } else if (isValue(provider)) {
-      this.bind(provider.provide).toConstantValue(provider.useValue);
+      this._provide(provider.provide, provider.overwrite).toConstantValue(
+        provider.useValue,
+      );
     } else if (isClass(provider)) {
-      this.bind(provider.provide).to(provider.useClass).inSingletonScope();
+      this._provide(provider.provide, provider.overwrite)
+        .to(provider.useClass)
+        .inSingletonScope();
     } else {
-      throw new Error(`Couldn't provide ${provider}`);
+      throw new Error(`Couldn't provide  ${provider}`);
     }
+  }
+
+  private _provide<T>(
+    token: interfaces.ServiceIdentifier<T>,
+    overwrite = false,
+  ) {
+    if (overwrite === true) {
+      return this.ensure(token);
+    }
+
+    return this.bind(token);
+  }
+
+  private ensure<T>(
+    token: interfaces.ServiceIdentifier<T>,
+  ): interfaces.BindingToSyntax<T> {
+    if (this.isBound(token)) {
+      return this.rebind(token);
+    }
+
+    return this.bind(token);
   }
 
   public init(provider: Provider): void {

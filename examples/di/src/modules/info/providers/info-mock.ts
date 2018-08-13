@@ -7,9 +7,8 @@ import {
 } from '@graphql-modules/core';
 
 @injectable()
-export class Info {
+export class InfoMock {
   constructor(
-    @inject(ModuleConfig('info')) private config: any,
     @inject(CommunicationBridge)
     private communicationBridge: CommunicationBridge,
     @inject(AppInfo) private app: AppInfo,
@@ -20,6 +19,6 @@ export class Info {
       'ASKED_FOR_VERSION',
       `${this.app.getRequest().method}: ${this.app.getRequest().url}`,
     );
-    return this.config.version;
+    return 'mocked';
   }
 }
