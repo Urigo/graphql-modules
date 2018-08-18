@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/sonar",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -31,7 +31,7 @@
     "@graphql-modules/logger": "*"
   },
   "dependencies": {
-    "@graphql-modules/logger": "0.1.3",
+    "@graphql-modules/logger": "0.1.4",
     "@types/glob": "5.0.35",
     "glob": "7.1.2"
   },
