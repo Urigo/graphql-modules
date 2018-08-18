@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -26,9 +26,9 @@
     "reflect-metadata": "~0.1.12"
   },
   "dependencies": {
-    "@graphql-modules/epoxy": "0.1.2",
-    "@graphql-modules/logger": "0.1.2",
-    "@graphql-modules/sonar": "0.1.2",
+    "@graphql-modules/epoxy": "0.1.3",
+    "@graphql-modules/logger": "0.1.3",
+    "@graphql-modules/sonar": "0.1.3",
     "dependency-graph": "0.7.1",
     "graphql-tools": "3.1.1",
     "inversify": "4.13.0"
