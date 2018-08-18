@@ -223,6 +223,10 @@ export class GraphQLApp {
     });
   }
 
+  get appInfo(): AppInfo {
+    return this._appInfo;
+  }
+
   public getModule(name) {
     return this._modules.find(module => module.name === name);
   }
