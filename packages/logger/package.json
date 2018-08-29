@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "tslint": "5.11.0",
-    "typescript": "3.0.1"
+    "typescript": "3.0.3"
   },
   "dependencies": {
     "moment": "2.22.2",
