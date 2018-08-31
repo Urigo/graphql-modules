@@ -10,6 +10,7 @@
     ]
   },
   "scripts": {
+    "version": "docusaurus-version",
     "postinstall": "yarn build",
     "test": "lerna run test",
     "build": "lerna run build",

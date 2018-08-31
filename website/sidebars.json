@@ -1,0 +1,5 @@
+{
+  "docs": {
+    "Introduction": ["getting-started", "your-first-module", "integrate-with-apollo-server"]
+  }
+}
