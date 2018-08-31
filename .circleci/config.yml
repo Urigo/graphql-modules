@@ -19,6 +19,12 @@ jobs:
       - run:
           name: Test
           command: yarn test
+      - run:
+          name: Deploy Website
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              yarn deploy-website
+            fi
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
