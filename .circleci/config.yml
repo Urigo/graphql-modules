@@ -4,8 +4,7 @@ jobs:
     branches:
       ignore:
       - gh-pages
-    docker:
-      - image: circleci/node:10.9.0-browsers
+    machine: true
     steps:
       - checkout
       - restore_cache:
