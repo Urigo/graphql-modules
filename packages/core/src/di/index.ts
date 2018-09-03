@@ -1,6 +1,8 @@
-import { Container, interfaces } from 'inversify';
+import { Container, interfaces, decorate } from 'inversify';
 
 import { Provider, Type, ValueProvider, ClassProvider } from './types';
+
+export { decorate };
 
 export class Injector extends Container {
   public provide(provider: Provider): void {
