@@ -29,3 +29,4 @@ const graphQlApp = new GraphQLApp({
 Great, so now you have a ready-to-use `GraphQLApp` instance.
 
 Go ahead and create your first `GraphQLModule`.
+
