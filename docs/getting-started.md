@@ -6,13 +6,13 @@ sidebar_label: Getting Started
 
 Install GraphQL Modules using Yarn:
 
-```
+```bash
 yarn add @graphql-modules/core
 ```
 
 Or Npm:
 
-```
+```bash
 npm install --save @graphql-modules/core
 ```
 
@@ -24,9 +24,6 @@ const graphQlApp = new GraphQLApp({
 });
 ```
 
-`GraphQLApp` manages your module, GraphQL schema, resolver, context building and the communication between your modules.
+`GraphQLApp` manages your module, GraphQL schema, resolvers, context building and the communication between your modules.
 
-Great, so now you have a ready-to-use `GraphQLApp` instance.
-
-Go ahead and create your first `GraphQLModule`.
-
+So now you have a ready-to-use `GraphQLApp` instance. Go ahead and create your first `GraphQLModule`.
