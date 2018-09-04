@@ -33,7 +33,8 @@
   "dependencies": {
     "@graphql-modules/logger": "0.1.6",
     "@types/glob": "5.0.35",
-    "glob": "7.1.3"
+    "glob": "7.1.3",
+    "tslib": "1.9.3"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {
