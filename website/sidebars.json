@@ -1,5 +1,27 @@
 {
   "docs": {
-    "Introduction": ["getting-started", "your-first-module", "integrate-with-apollo-server", "implement-your-resolvers"]
+    "Introduction": [
+      "introduction/getting-started",
+      "introduction/modules",
+      "introduction/your-first-module",
+      "introduction/integrate-with-apollo-server",
+      "introduction/implement-your-resolvers",
+      "introduction/dependency-injection",
+      "introduction/configuration",
+      "introduction/resolvers-composition",
+      "introduction/context"
+    ],
+    "Guides": [
+      "guides/development-environment",
+      "guides/load-your-schema",
+      "guides/communication-between-modules",
+      "guides/authentication",
+      "guides/microservices"
+    ],
+    "API Docs": [
+      "api/graphql-module",
+      "api/graphql-app",
+      "api/communication-bridge"
+    ]
   }
 }

@@ -1,18 +1,31 @@
 ---
-id: your-first-module
-title: Your First Module
-sidebar_label: Your First Module
+id: modules
+title: What's a module?
+sidebar_label: What's a module?
 ---
 
-### What's a `module`?
+GraphQL Modules approach let you separate your backend implementation to small, reusable, easy-to-implement and easy-to-test pieces.
 
-GraphQL Modules approach let you separate your backend implementation to small, reusable, easy-to-test pieces.
-
-Each module have it's own *type definitions*, *resolvers*, *implementation* and *config*.
+In GraphQL Modules,Each module have it's own GraphQL type definitions and resolvers implementation.
 
 GraphQL `type`s, `enum`s and `union`s that declared using GraphQL Modules are also extendable, so modules can re-declare types and extend them as they wish.
 
 The idea behind it to implement [Separation of Concerns](https://deviq.com/separation-of-concerns/) design pattern in GraphQL, and to allow you to write simple modules that does only what it needs. This way it's easier to write, maintain and test.
+
+## Module Structure
+
+Each GraphQL `module` is built the basics of GraphQL:
+
+- Type definitions
+- Resolvers
+
+And as your application grows, modules can have:
+
+- External configurations
+- Dependencies for other modules
+- Providers (we will elaborate about it in Dependency Injection part)
+
+## Modules Example
 
 To get a better understanding of modules structure and it's extendability, let's take for example an app with 3 modules:
 
@@ -93,46 +106,3 @@ type Mutation {
     uploadPicture(image: File!): Image
 }
 ```
-
----
-
-So now we understand the basics behind separating the schema, let's create your first module.
-
-Start by creating a `modules/my-first-module` directory under your project's root. Then, create a file called `index.ts`:
-
-Here is a quick example:
-
-`modules/my-first-module/index.ts`
-```typescript
-import { GraphQLModule } from '@graphql-modules/core';
-
-export const myFirstModule = new GraphQLModule({
-    name: 'my-first-module',
-    typeDefs: gql`
-        type Query {
-            myData: Data
-        }
-
-        type Data {
-            field: String
-        }
-    `,
-});
-```
-
-> `name` is used to set the name of your module, it will also effect other aspects of your module later (such as config, context building are more).
-
-Now let's import this module and use it as part of our `GraphQLApp`:
-
-```typescript
-import { GraphQLApp } from '@graphql-modules/core';
-import { myFirstModule } from './modules/my-first-module';
-
-const graphQlApp = new GraphQLApp({
-    modules: [
-        myFirstModule,
-    ],
-});
-```
-
-That's it, you now have a ready-to-use `GraphQLModule` and `GraphQLApp`, our next step is to expose it using `ApolloServer`.
