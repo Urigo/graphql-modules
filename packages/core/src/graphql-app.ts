@@ -39,6 +39,14 @@ export interface GraphQLAppOptions {
   providers?: Provider[];
 }
 
+export type ContextFn<Context> = (reqContext: any) => Promise<Context>;
+export interface ServerConfiguration<Context = any> {
+  schema?: GraphQLSchema;
+  typeDefs?: any;
+  resolvers?: IResolvers;
+  context?: ContextFn<Context>;
+}
+
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
@@ -165,7 +173,7 @@ export class GraphQLApp {
     return this._resolvers;
   }
 
-  get typeDefs(): any {
+  get typeDefs(): string {
     return this._typeDefs;
   }
 
@@ -235,10 +243,6 @@ export class GraphQLApp {
     return this._injector;
   }
 
-  context = async (context: Context) => {
-    return this.buildContext(context.req);
-  }
-
   async buildContext(networkRequest?: any): Promise<Context> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
     const builtResult = {
@@ -292,5 +296,13 @@ export class GraphQLApp {
     }
 
     return result;
+  }
+  generateServerConfig<T extends ServerConfiguration = any>(extraConfig?: T): T {
+    return Object.assign({
+      schema: this.schema,
+      typeDefs: this.typeDefs,
+      resolvers: this.resolvers,
+      context: reqContext => this.buildContext(reqContext.req),
+    }, extraConfig);
   }
 }
