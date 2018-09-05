@@ -165,7 +165,7 @@ export class GraphQLApp {
     return this._resolvers;
   }
 
-  get typeDefs(): string {
+  get typeDefs(): any {
     return this._typeDefs;
   }
 
@@ -233,6 +233,10 @@ export class GraphQLApp {
 
   public get injector(): SimpleInjector {
     return this._injector;
+  }
+
+  context = async (context: Context) => {
+    return this.buildContext(context.req);
   }
 
   async buildContext(networkRequest?: any): Promise<Context> {
