@@ -7,6 +7,7 @@
       "introduction/integrate-with-apollo-server",
       "introduction/implement-your-resolvers",
       "introduction/dependency-injection",
+      "introduction/test-your-module",
       "introduction/configuration",
       "introduction/resolvers-composition",
       "introduction/context"
@@ -16,6 +17,7 @@
       "guides/load-your-schema",
       "guides/communication-between-modules",
       "guides/authentication",
+      "guides/testing-and-mocking",
       "guides/microservices"
     ],
     "API Docs": [
