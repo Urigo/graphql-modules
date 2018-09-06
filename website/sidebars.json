@@ -9,8 +9,8 @@
       "introduction/dependency-injection",
       "introduction/test-your-module",
       "introduction/configuration",
-      "introduction/resolvers-composition",
-      "introduction/context"
+      "introduction/context",
+      "introduction/resolvers-composition"
     ],
     "Guides": [
       "guides/development-environment",
