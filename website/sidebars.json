@@ -6,6 +6,7 @@
       "introduction/your-first-module",
       "introduction/integrate-with-apollo-server",
       "introduction/implement-your-resolvers",
+      "introduction/dependencies",
       "introduction/dependency-injection",
       "introduction/test-your-module",
       "introduction/configuration",
