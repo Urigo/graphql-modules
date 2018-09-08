@@ -9,6 +9,7 @@ export interface IGraphQLContext {
 export type BuildContextFn = (
   networkContext: any,
   currentContext: Context,
+  injector: Injector,
 ) => IGraphQLContext;
 
 export type Context = {

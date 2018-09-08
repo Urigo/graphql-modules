@@ -1,16 +1,13 @@
 import { GraphQLSchema } from 'graphql';
-import { makeExecutableSchema, IResolvers } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
-import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
+import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule, IGraphQLContext, ModuleConfig, Context } from './graphql-module';
+import { Context, GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
-import {
-  composeResolvers,
-  IResolversComposerMapping,
-} from './resolvers-composition';
+import { composeResolvers, IResolversComposerMapping, } from './resolvers-composition';
 import { Injector } from './di';
-import { Provider, Injector as SimpleInjector } from './di/types';
+import { Injector as SimpleInjector, Provider } from './di/types';
 
 export class AppInfo {
   private request: any;
@@ -247,10 +244,11 @@ export class GraphQLApp {
 
   async buildContext(networkRequest?: any): Promise<Context> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
+    const injector = {
+      get: this._injector.get.bind(this._injector),
+    };
     const builtResult = {
-      injector: {
-        get: this._injector.get.bind(this._injector),
-      },
+      injector,
     };
     const result: any = {};
 
@@ -263,6 +261,7 @@ export class GraphQLApp {
           const appendToContext: any = await module.contextBuilder(
             networkRequest,
             result,
+            injector,
           );
 
           if (appendToContext && typeof appendToContext === 'object') {
