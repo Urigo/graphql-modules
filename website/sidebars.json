@@ -8,10 +8,10 @@
       "introduction/implement-your-resolvers",
       "introduction/dependencies",
       "introduction/dependency-injection",
-      "introduction/test-your-module",
       "introduction/configuration",
       "introduction/context",
-      "introduction/resolvers-composition"
+      "introduction/resolvers-composition",
+      "introduction/test-your-module"
     ],
     "Guides": [
       "guides/development-environment",

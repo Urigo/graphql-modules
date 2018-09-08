@@ -95,6 +95,7 @@ To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
 import { injectable, inject } from '@graphql-modules/core';
+import { OtherProvider } from '../my-other-module/other.provider';
 
 @injectable()
 export class MyProvider {
@@ -105,6 +106,40 @@ export class MyProvider {
 ```
 
 > We added `private` on the argument declaration because it's just a TypeScript trick to declare a class member and set it at the same time, so now `this.otherProvider` will be available to use.
+
+## Injection Tokens
+
+If you wish to decouple the actual class implementation and the dependency injection token, you can create your own DI token, and declare it this way:
+
+```typescript
+const MY_CLASS_TOKEN = 'myAwesomeClassIdentifier';
+
+export const myModule = new GraphQLModule({
+    name: 'my-module',
+    providers: [
+        { provide: MY_CLASS_TOKEN, useClass: MyProvider },
+    ],
+});
+```
+
+This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
+
+```typescript
+import { injectable, inject } from '@graphql-modules/core';
+
+interface IOtherProviderSignature {
+    doSomething: () => void;
+}
+
+@injectable()
+export class MyProvider {
+    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+
+    }
+}
+```
+
+> This is a very common and useful design-pattern related to dependency injection, and with the power of TypeScript interfaces, you can easily use it.
 
 ## App-Level Providers
 
@@ -137,40 +172,100 @@ export const myModule = new GraphQLModule({
 
 > Class providers lifecycle are singleton - which means they are created only once, and you are using the same instance for all GraphQL executions.
 
-If you wish to decouple the actual class implementation and the dependency injection token, you can create your own DI token, and declare it this way:
+### Value
+
+Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@inject`.
+
+You can use any value, and attach it to a dependency injection token.
 
 ```typescript
-const MY_CLASS_TOKEN = 'myAwesomeClassIdentifier';
+const MY_VALUE = 'myUsefulVal8e';
 
 export const myModule = new GraphQLModule({
     name: 'my-module',
     providers: [
-        { provide: MY_CLASS_TOKEN, useClass: MyProvider },
+        { provide: MY_VALUE, useValue: 'Hello!' },
     ],
 });
 ```
 
-This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
+> You can use Value injectables to inject instances and global injectables, such as `Logger` instance, database connection/collections, secret tokens and more.
+
+## Built-in Injectables
+
+GraphQL Modules give you some built-in injectables, and you can inject them into your providers/resolvers and use them according to your need.
+
+### `AppInfo`
+
+With this injectable, you can get access to useful information: the current `GraphQLApp`, GraphQL Context, and the network request.
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
-
-interface IOtherProviderSignature {
-    doSomething: () => void;
-}
+import { injectable, AppInfo, inject } from '@graphql-modules/core';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+    constructor(@inject(AppInfo) private appInfo: AppInfo) {
+
+    }
+
+    doSomething() {
+        const networkRequest = this.appInfo.getRequest();
+        const currentContext = this.appInfo.getContext();
+        const graphQlApp = this.appInfo.getApp();
+
+        // ...do your magic...
+    }
+}
+```
+
+`AppInfo` [API is available here](/TODO)
+
+### `ModuleConfig(moduleName: string)`
+
+This injectable will fetch the a module's configuration object that passed via `withConfig`.
+
+You can read more about [module configuration here](/TODO).
+
+```typescript
+import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
+
+@injectable()
+export class MyProvider {
+    constructor(@inject(ModuleConfig('my-module')) private config) {
 
     }
 }
 ```
 
-### Value
+### `CommunicationBridge`
 
-Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to pass.
+GraphQL Module has a built-in Pub/Sub mechanism you can use to dispatch messages between modules, called `CommunicationBridge`.
 
-Think about it as a way to get values from outside the module, which usually shared across modules like `Logger`.
+The messages are built in a form of `string => any` - so the key of each message must be a `string`, and you can basically dispatch anything that you can send over network.
 
-To
+It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications).
+
+```typescript
+import { injectable, CommunicationBridge, inject } from '@graphql-modules/core';
+
+@injectable()
+export class MyProvider {
+    constructor(@inject(CommunicationBridge) private pubsub) {
+        // Listen to messages and handle them
+        pubsub.subscribe('NOTIFY_USER', payload => {
+            // Do something
+        });
+    }
+
+    doSomething() {
+        // Publish messages
+        pubsub.publish('DO_SOMETHING_ELSE', {
+            foo: 'bar',
+        });
+    }
+}
+```
+
+You can read more about [communication between modules here](/TODO) and [microservices support here](/TODO).
+
+`CommunicationBridge` [API is available here](/TODO)

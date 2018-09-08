@@ -13,16 +13,26 @@ import { Injector } from './di';
 import { Provider, Injector as SimpleInjector } from './di/types';
 
 export class AppInfo {
-  request: any;
-  context: IGraphQLContext;
+  private request: any;
+  private context: IGraphQLContext;
+  private app: GraphQLApp;
 
-  initialize({ request, context }: { request: any; context: IGraphQLContext }) {
+  initialize({ request, context, app }: { request: any; context: IGraphQLContext, app: GraphQLApp }) {
     this.request = request;
     this.context = context;
+    this.app = app;
   }
 
-  getRequest() {
+  public getRequest(): any {
     return this.request;
+  }
+
+  public getContext(): IGraphQLContext {
+    return this.request;
+  }
+
+  public getApp(): GraphQLApp {
+    return this.app;
   }
 }
 
@@ -264,6 +274,7 @@ export class GraphQLApp {
       this._appInfo.initialize({
         request: networkRequest,
         context: builtResult,
+        app: this,
       });
     } catch (e) {
       logger.error(

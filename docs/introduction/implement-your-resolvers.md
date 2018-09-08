@@ -61,7 +61,7 @@ export const myModule = new GraphQLModule({
 });
 ```
 
-> We can import from `schema.graphql` because we are doing some bundling tricks, if you need help with it, refer to [Development Environment](/) Section.
+> We can import from `schema.graphql` because we are doing some bundling tricks, if you need help with it, refer to [Development Environment](/TODO) Section.
 
 ## With Providers
 
