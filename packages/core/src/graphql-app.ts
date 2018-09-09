@@ -5,7 +5,7 @@ import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
 import { Context, GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
-import { composeResolvers, IResolversComposerMapping, } from './resolvers-composition';
+import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Injector } from './di';
 import { Injector as SimpleInjector, Provider } from './di/types';
 
