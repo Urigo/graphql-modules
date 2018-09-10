@@ -243,7 +243,7 @@ GraphQL Module has a built-in Pub/Sub mechanism you can use to dispatch messages
 
 The messages are built in a form of `string => any` - so the key of each message must be a `string`, and you can basically dispatch anything that you can send over network.
 
-It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications).
+It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
 import { injectable, CommunicationBridge, inject } from '@graphql-modules/core';

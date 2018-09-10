@@ -8,6 +8,5 @@ export async function run(app: GraphQLApp) {
   });
 
   const { url } = await server.listen();
-
   console.log(`Server ready at ${url}`);
 }

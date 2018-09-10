@@ -1,5 +1,4 @@
 type User {
     id: String
     username: String
-    posts: [Post]
 }

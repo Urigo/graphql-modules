@@ -1,0 +1,40 @@
+{
+  "name": "examples-di",
+  "version": "0.1.6",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@graphql-modules/core": "0.1.6",
+    "@graphql-modules/epoxy": "0.1.6",
+    "@graphql-modules/sonar": "0.1.6",
+    "apollo-server": "2.0.0",
+    "graphql": "0.13.2",
+    "reflect-metadata": "0.1.12",
+    "ts-node": "6.0.3",
+    "typescript": "3.0.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "23.3.2",
+    "jest": "23.5.0",
+    "ts-jest": "23.1.4"
+  }
+}

@@ -101,7 +101,7 @@ export function loadResolversFiles(basePath: string, options: LoadResolversFiles
 
       return extractExports(fileExports);
     } catch (e) {
-      logger.error(`Unable to load resolver file: ${path}`, e);
+      logger.error(`Unable to load resolver file: ${path}, error: ${e}`);
 
       return null;
     }
