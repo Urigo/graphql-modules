@@ -18,7 +18,7 @@ export class AppInfo {
   }
 
   public getContext(): IGraphQLContext {
-    return this.request;
+    return this.context;
   }
 
   public getApp(): GraphQLApp {

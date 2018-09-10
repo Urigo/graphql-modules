@@ -26,7 +26,7 @@ const graphQlApp = new GraphQLApp({
 });
 
 const serverConfig = graphQlApp.generateServerConfig();
-const server = new ApolloServer(graphQlApp);
+const server = new ApolloServer(serverConfig);
 
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
