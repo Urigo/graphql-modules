@@ -3,35 +3,12 @@ import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { Context, GraphQLModule, IGraphQLContext, ModuleConfig } from './graphql-module';
+import { Context, GraphQLModule, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
 import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Injector } from './di';
 import { Injector as SimpleInjector, Provider } from './di/types';
-
-export class AppInfo {
-  private request: any;
-  private context: IGraphQLContext;
-  private app: GraphQLApp;
-
-  initialize({ request, context, app }: { request: any; context: IGraphQLContext, app: GraphQLApp }) {
-    this.request = request;
-    this.context = context;
-    this.app = app;
-  }
-
-  public getRequest(): any {
-    return this.request;
-  }
-
-  public getContext(): IGraphQLContext {
-    return this.request;
-  }
-
-  public getApp(): GraphQLApp {
-    return this.app;
-  }
-}
+import { AppInfo } from './app-info';
 
 export interface NonModules {
   typeDefs?: any;
@@ -47,6 +24,7 @@ export interface GraphQLAppOptions {
 }
 
 export type ContextFn<Context> = (reqContext: any) => Promise<Context>;
+
 export interface ServerConfiguration<Context = any> {
   schema?: GraphQLSchema;
   typeDefs?: any;
@@ -54,6 +32,7 @@ export interface ServerConfiguration<Context = any> {
   context?: ContextFn<Context>;
 }
 
+/** Manages and handles your application, in charge of managing modules, dependency injection, building your GraphQL Context, control the flow of the app and connect to your GraphQL external endpoint */
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
@@ -307,6 +286,7 @@ export class GraphQLApp {
 
     return result;
   }
+
   generateServerConfig<T extends ServerConfiguration = any>(extraConfig?: T): T {
     return Object.assign({
       schema: this.schema,

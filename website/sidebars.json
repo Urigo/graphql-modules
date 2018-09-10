@@ -1,4 +1,11 @@
 {
+  "api": {
+    "@graphql-modules/core": [
+      "api/core/graphql-module",
+      "api/core/graphql-app",
+      "api/core/communication-bridge"
+    ]
+  },
   "docs": {
     "Introduction": [
       "introduction/getting-started",
@@ -20,11 +27,6 @@
       "guides/authentication",
       "guides/testing-and-mocking",
       "guides/microservices"
-    ],
-    "API Docs": [
-      "api/graphql-module",
-      "api/graphql-app",
-      "api/communication-bridge"
     ]
   }
 }
