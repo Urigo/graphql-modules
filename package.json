@@ -13,7 +13,7 @@
     "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
-    "build:api-docs": "typedoc --module commonjs --ignoreCompilerErrors --mode file --theme markdown --out ./docs/api/ ./packages",
+    "build:api-docs": "typedoc --module commonjs --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api' 'packages'",
     "lint": "lerna run lint",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "release": "lerna publish --exact --force-publish=\"*\"",
