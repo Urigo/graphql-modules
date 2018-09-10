@@ -1,3 +1,0 @@
-type User {
-    posts: [Post]
-}

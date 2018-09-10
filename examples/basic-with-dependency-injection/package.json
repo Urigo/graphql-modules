@@ -9,14 +9,14 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.1.6",
-    "@graphql-modules/epoxy": "0.1.6",
-    "@graphql-modules/sonar": "0.1.6",
-    "apollo-server": "2.0.0",
-    "graphql": "0.13.2",
+    "@graphql-modules/core": "file:../../packages/core",
+    "@graphql-modules/epoxy": "file:../../packages/epoxy",
+    "@graphql-modules/sonar": "file:../../packages/sonar",
+    "apollo-server": "2.0.7",
+    "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
-    "ts-node": "6.0.3",
-    "typescript": "3.0.1"
+    "ts-node": "7.0.1",
+    "typescript": "3.0.3"
   },
   "jest": {
     "transform": {

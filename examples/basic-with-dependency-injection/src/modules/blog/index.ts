@@ -1,12 +1,26 @@
 import {GraphQLModule} from '@graphql-modules/core';
-import {resolvers, types} from './schema';
 import {Blog} from './providers/blog';
-import {userModule} from '../user';
+import gql from 'graphql-tag';
+import resolvers from './resolvers';
 
 export const blogModule = new GraphQLModule({
   name: 'blog',
-  typeDefs: types,
-  resolvers,
-  dependencies: () => [userModule],
+  dependencies: ['user'],
   providers: [Blog],
+  resolvers,
+  typeDefs: gql`
+    type Query {
+      posts: [Post]
+    }
+    
+    type Post {
+      id: String
+      title: String
+      author: User
+    }
+
+    type User {
+      posts: [Post]
+    }
+  `,
 });
