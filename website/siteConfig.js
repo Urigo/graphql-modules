@@ -39,7 +39,7 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     { doc: 'introduction/getting-started', label: 'Docs' },
-    { doc: 'api/core/graphql-app', label: 'API' },
+    { doc: 'api/api-readme', label: 'API' },
     { page: 'help', label: 'Help' },
   ],
 

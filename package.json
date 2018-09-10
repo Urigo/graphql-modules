@@ -13,12 +13,12 @@
     "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
-    "build:api-docs": "node generate-api-docs.js",
+    "build:api-docs": "typedoc --module commonjs --ignoreCompilerErrors --mode file --theme markdown --out docs/api/ \"./packages/\"",
     "lint": "lerna run lint",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "release": "lerna publish --exact --force-publish=\"*\"",
     "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
-    "deploy-website": "cd website && yarn && yarn build && yarn publish-gh-pages"
+    "deploy-website": "cd website && yarn && yarn build"
   },
   "devDependencies": {
     "@types/graphql": "0.13.4",
@@ -28,14 +28,8 @@
     "lerna": "3.2.1",
     "rimraf": "2.6.2",
     "ts-jest": "22.4.6",
-    "@babel/cli": "7.0.0",
-    "@babel/core": "7.0.0",
-    "@babel/plugin-proposal-class-properties": "7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
-    "@babel/preset-env": "7.0.0",
-    "@babel/preset-typescript": "7.0.0",
-    "jsdoc-babel": "0.5.0",
-    "jsdoc-to-markdown": "4.0.1"
+    "typedoc": "0.12.0",
+    "typedoc-plugin-docusaurus": "1.0.14"
   },
   "publishConfig": {
     "access": "public"

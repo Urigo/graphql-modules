@@ -15,6 +15,10 @@ export interface NonModules {
   resolvers?: any;
 }
 
+/**
+ * Type
+ * @interface GraphQLAppOptions
+ * */
 export interface GraphQLAppOptions {
   modules: GraphQLModule[];
   nonModules?: NonModules;
@@ -32,7 +36,11 @@ export interface ServerConfiguration<Context = any> {
   context?: ContextFn<Context>;
 }
 
-/** Manages and handles your application, in charge of managing modules, dependency injection, building your GraphQL Context, control the flow of the app and connect to your GraphQL external endpoint */
+/**
+ * Manages and handles your application, in charge of managing modules, dependency injection,
+ * building your GraphQL Context, control the flow of the app and connect
+ * to your GraphQL external endpoint
+ * */
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
@@ -44,6 +52,9 @@ export class GraphQLApp {
   });
   private _appInfo = new AppInfo();
 
+  /**
+   * @param {GraphQLAppOptions} options
+   */
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
 
