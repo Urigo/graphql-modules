@@ -1,10 +1,7 @@
 {
   "scripts": {
-    "generate-api-docs": "cd .. && yarn build:api-docs",
     "examples": "docusaurus-examples",
-    "prestart": "yarn generate-api-docs",
     "start": "docusaurus-start",
-    "prebuild": "yarn generate-api-docs",
     "build": "docusaurus-build",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
