@@ -1,4 +1,12 @@
 {
+  "api": {
+    "API Docs": [
+      "api/core/api-readme",
+      "api/sonar/api-readme",
+      "api/epoxy/api-readme",
+      "api/logger/api-readme"
+    ]
+  },
   "docs": {
     "Introduction": [
       "introduction/getting-started",
