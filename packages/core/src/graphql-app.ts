@@ -46,17 +46,17 @@ export interface GraphQLAppOptions {
  * Signature for `context` function as we need to pass it to GraphQL
  * servers such as Apollo-Server.
  */
-export type ContextFn<Context> = (reqContext: any) => Promise<Context>;
+export type ContextBuilder = (reqContext: any) => Promise<AppContext>;
 
 /**
  * Default GraphQL server configuration object, should match most
  * of the popular servers
  */
-export interface ServerConfiguration<Context = any> {
-  schema?: GraphQLSchema;
-  typeDefs?: any;
-  resolvers?: IResolvers;
-  context?: ContextFn<Context>;
+export interface BaseServerConfiguration {
+  schema: GraphQLSchema;
+  typeDefs: any;
+  resolvers: IResolvers;
+  context: ContextBuilder;
 }
 
 /**
@@ -390,8 +390,11 @@ export class GraphQLApp {
    *
    * @param extraConfig - extra configuration to add to the object.
    */
-  generateServerConfig<T extends ServerConfiguration = any>(extraConfig?: T): T {
-    return Object.assign({
+  generateServerConfig<
+    ServerConfiguration extends Partial<BaseServerConfiguration> & IExtraConfig,
+    IExtraConfig = Pick<ServerConfiguration, Exclude<keyof ServerConfiguration, keyof BaseServerConfiguration>>
+  >(extraConfig?: IExtraConfig): ServerConfiguration {
+    return Object.assign({} as ServerConfiguration, {
       schema: this.schema,
       typeDefs: this.typeDefs,
       resolvers: this.resolvers,
