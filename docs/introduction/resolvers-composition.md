@@ -67,15 +67,15 @@ export const isAuthenticated = next => async (root, args, context, info) => {
         throw new Error('You are not authenticated!');
     }
 
-    return func(root, args, context, info);
+    return next(root, args, context, info);
 };
 
-export const hasRole = (role: string) => func => async (root, args, context, info) => {
+export const hasRole = (role: string) => next => async (root, args, context, info) => {
     if (!context.currentUser.roles || context.currentUser.roles.includes(role)) {
         throw new Error('You are not authorized!');
     }
 
-    return func(root, args, context, info);
+    return next(root, args, context, info);
 };
 ```
 
