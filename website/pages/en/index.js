@@ -9,7 +9,8 @@ const React = require('react');
 
 const CompLibrary = require('../../core/CompLibrary.js');
 
-const MarkdownBlock = CompLibrary.MarkdownBlock; /* Used to read markdown */
+const MarkdownBlock = CompLibrary.MarkdownBlock;
+/* Used to read markdown */
 const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
 
@@ -53,15 +54,24 @@ const SplashContainer = props => (
 
 const Logo = props => (
   <div className="projectLogo">
-    <img src={props.img_src} alt="Project Logo" />
+    <img src={props.img_src} alt="Project Logo"/>
   </div>
 );
 
 const ProjectTitle = () => (
-  <h2 className="projectTitle">
-    {siteConfig.title}
-    <small>{siteConfig.tagline}</small>
-  </h2>
+  <React.Fragment>
+    <h2 className="projectTitle">
+      {siteConfig.title}
+      <small>{siteConfig.tagline}</small>
+    </h2>
+    <div>
+      GraphQL Modules is a set of extra tools, structure and guidelines for your GraphQL server.
+    </div>
+    <div>
+      Use it to get reusable, maintainable, testable and extendable GraphQL servers.
+    </div>
+    <br />
+  </React.Fragment>
 );
 
 const PromoSection = props => (
@@ -77,13 +87,13 @@ class HomeSplash extends React.Component {
     const language = this.props.language || '';
     return (
       <SplashContainer>
-        <Logo img_src={imgUrl('docusaurus.svg')} />
         <div className="inner">
-          <ProjectTitle />
+          <Logo img_src={imgUrl('logo.svg')}/>
+          <ProjectTitle/>
           <PromoSection>
-            <Button href="#try">Try It Out</Button>
-            <Button href={docUrl('doc1.html', language)}>Example Link</Button>
-            <Button href={docUrl('doc2.html', language)}>Example Link 2</Button>
+            <Button href={docUrl('introduction/getting-started', language)}>Getting Started</Button>
+            <Button href={docUrl('introduction/modules', language)}>Documentation</Button>
+            <Button href={docUrl('api/core/api-readme', language)}>API Reference</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -96,7 +106,7 @@ const Block = props => (
     padding={['bottom', 'top']}
     id={props.id}
     background={props.background}>
-    <GridBlock align="center" contents={props.children} layout={props.layout} />
+    <GridBlock align="center" contents={props.children} layout={props.layout}/>
   </Container>
 );
 
@@ -104,16 +114,28 @@ const Features = () => (
   <Block layout="fourColumn">
     {[
       {
-        content: 'This is the content of my feature',
-        image: imgUrl('docusaurus.svg'),
+        content: 'Each GraphQL Module does only what it needs, without the application overheads',
+        image: imgUrl('logo.svg'),
         imageAlign: 'top',
-        title: 'Feature One',
+        title: 'Separation Of Concerns',
       },
       {
-        content: 'The content of my second feature',
-        image: imgUrl('docusaurus.svg'),
+        content: 'You can reuse your written module and share them across multiple applications',
+        image: imgUrl('logo.svg'),
         imageAlign: 'top',
-        title: 'Feature Two',
+        title: 'Reusable Module',
+      },
+      {
+        content: 'You can easily extend your GraphQL types with new features',
+        image: imgUrl('logo.svg'),
+        imageAlign: 'top',
+        title: 'Extendable Schema',
+      },
+      {
+        content: 'GraphQL Modules comes with a built-in dependency-injection support, which makes it easier to test and mock',
+        image: imgUrl('logo.svg'),
+        imageAlign: 'top',
+        title: 'Easy To Test',
       },
     ]}
   </Block>
@@ -122,9 +144,24 @@ const Features = () => (
 const FeatureCallout = () => (
   <div
     className="productShowcaseSection paddingBottom"
-    style={{textAlign: 'center'}}>
-    <h2>Feature Callout</h2>
-    <MarkdownBlock>These are features of this project</MarkdownBlock>
+    style={{ textAlign: 'center' }}>
+    <h2>Another framework? well, kind of.</h2>
+    <div>
+      <div>
+        GraphQL Modules is more a set of extra tools, structure and guidelines around the amazing Apollo Server 2.0 (and
+        other servers).
+      </div>
+      <div>
+        Those are the tools you start to feel the need for, once you created your GraphQL server and start to grow it.
+      </div>
+      <br />
+      <div>
+        <strong>
+          The basic concept behind GraphQL modules is to separate your GraphQL server into smaller and reusable pieces,
+          based on your app/organization features.
+        </strong>
+      </div>
+    </div>
   </div>
 );
 
@@ -133,22 +170,9 @@ const LearnHow = () => (
     {[
       {
         content: 'Talk about learning how to use this',
-        image: imgUrl('docusaurus.svg'),
+        image: imgUrl('logo.svg'),
         imageAlign: 'right',
         title: 'Learn How',
-      },
-    ]}
-  </Block>
-);
-
-const TryOut = () => (
-  <Block id="try">
-    {[
-      {
-        content: 'Talk about trying this out',
-        image: imgUrl('docusaurus.svg'),
-        imageAlign: 'left',
-        title: 'Try it Out',
       },
     ]}
   </Block>
@@ -159,7 +183,7 @@ const Description = () => (
     {[
       {
         content: 'This is another description of how this project is useful',
-        image: imgUrl('docusaurus.svg'),
+        image: imgUrl('logo.svg'),
         imageAlign: 'right',
         title: 'Description',
       },
@@ -174,7 +198,7 @@ const Showcase = props => {
 
   const showcase = siteConfig.users.filter(user => user.pinned).map(user => (
     <a href={user.infoLink} key={user.infoLink}>
-      <img src={user.image} alt={user.caption} title={user.caption} />
+      <img src={user.image} alt={user.caption} title={user.caption}/>
     </a>
   ));
 
@@ -198,14 +222,13 @@ class Index extends React.Component {
 
     return (
       <div>
-        <HomeSplash language={language} />
+        <HomeSplash language={language}/>
         <div className="mainContainer">
-          <Features />
-          <FeatureCallout />
-          <LearnHow />
-          <TryOut />
-          <Description />
-          <Showcase language={language} />
+          <Features/>
+          <FeatureCallout/>
+          <LearnHow/>
+          <Description/>
+          <Showcase language={language}/>
         </div>
       </div>
     );

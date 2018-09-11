@@ -14,3 +14,13 @@
 
 @media only screen and (min-width: 1500px) {
 }
+
+.homeContainer .homeWrapper .projectLogo img {
+    height: 100%;
+    max-height: 120px;
+}
+
+.homeContainer .homeWrapper .projectLogo {
+    position: relative;
+    justify-content: center;
+}
