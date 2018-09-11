@@ -21,11 +21,11 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "@types/graphql": "0.13.4",
+    "@types/graphql": "14.0.0",
     "@types/jest": "23.3.2",
-    "graphql": "14.0.0",
-    "jest": "23.5.0",
-    "lerna": "3.2.1",
+    "graphql": "14.0.2",
+    "jest": "23.6.0",
+    "lerna": "3.3.0",
     "rimraf": "2.6.2",
     "ts-jest": "22.4.6",
     "typedoc": "0.12.0",
