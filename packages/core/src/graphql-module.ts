@@ -1,7 +1,7 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
 import { Provider, Injector, AppContext } from './di/types';
-import { DocumentNode } from 'graphql';
+import { DocumentNode, print } from 'graphql';
 
 /**
  * Object defining the structure of GraphQL context object
@@ -106,7 +106,7 @@ export class GraphQLModule<Config = any> {
         ? null
         : Array.isArray(options.typeDefs)
           ? mergeGraphQLSchemas(options.typeDefs)
-          : String(options.typeDefs));
+          : typeof options.typeDefs === 'string' ? options.typeDefs : print(options.typeDefs));
     this._resolvers =
       typeof options.resolvers === 'function' ? null : options.resolvers || {};
     this._providers = options.providers || null;
