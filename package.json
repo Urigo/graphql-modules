@@ -20,9 +20,9 @@
     "deploy-website": "cd website && yarn && yarn build && yarn publish-gh-pages"
   },
   "devDependencies": {
-    "@types/graphql": "0.13.4",
+    "@types/graphql": "14.0.0",
     "@types/jest": "23.3.2",
-    "graphql": "14.0.0",
+    "graphql": "14.0.2",
     "jest": "23.6.0",
     "lerna": "3.3.0",
     "rimraf": "2.6.2",
