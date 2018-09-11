@@ -394,11 +394,11 @@ export class GraphQLApp {
     ServerConfiguration extends Partial<BaseServerConfiguration> & IExtraConfig,
     IExtraConfig = Pick<ServerConfiguration, Exclude<keyof ServerConfiguration, keyof BaseServerConfiguration>>
   >(extraConfig?: IExtraConfig): ServerConfiguration {
-    return Object.assign({} as ServerConfiguration, {
+    return Object.assign({} as ServerConfiguration, extraConfig, {
       schema: this.schema,
       typeDefs: this.typeDefs,
       resolvers: this.resolvers,
       context: reqContext => this.buildContext(reqContext.req),
-    }, extraConfig);
+    });
   }
 }
