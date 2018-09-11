@@ -3,11 +3,11 @@ import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { Context, GraphQLModule, ModuleConfig } from './graphql-module';
+import { GraphQLModule, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
 import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Injector } from './di';
-import { Injector as SimpleInjector, Provider } from './di/types';
+import { AppContext, Injector as SimpleInjector, Provider } from './di/types';
 import { AppInfo } from './app-info';
 
 export interface NonModules {
@@ -15,15 +15,16 @@ export interface NonModules {
   resolvers?: any;
 }
 
-/**
- * Type
- * @interface GraphQLAppOptions
- */
 export interface GraphQLAppOptions {
+  /** a list of `GraphQLModule` you wish to load to your app */
   modules: GraphQLModule[];
+  /** Specify non-module schema and resolvers */
   nonModules?: NonModules;
+  /** `CommunicationBridge` object that will handle the pub/sub messages between your modules */
   communicationBridge?: CommunicationBridge;
+  /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping;
+  /** List of external providers to load into the injector */
   providers?: Provider[];
 }
 
@@ -237,7 +238,7 @@ export class GraphQLApp {
     return this._injector;
   }
 
-  async buildContext(networkRequest?: any): Promise<Context> {
+  async buildContext(networkRequest?: any): Promise<AppContext> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
     const injector = {
       get: this._injector.get.bind(this._injector),

@@ -13,7 +13,7 @@
     "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
-    "build:api-docs": "typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api' 'packages'",
+    "build:api-docs": "typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api' 'packages/core/src'",
     "postbuild:api-docs": "replace-in-file '/\\.md\\)/g' ')' './docs/api/*.md' --isRegex && replace-in-file '/\\.md\\#/g' '#' './docs/api/*.md' --isRegex",
     "lint": "lerna run lint",
     "clean": "lerna clean --yes && rm -rf node_modules",

@@ -1,21 +1,16 @@
 import { IResolvers } from 'graphql-tools';
 import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
-import { Provider, Injector } from './di/types';
+import { Provider, Injector, AppContext } from './di/types';
 
 export interface IGraphQLContext {
   [key: string]: any;
 }
 
 export type BuildContextFn = (
-  networkContext: any,
-  currentContext: Context,
+  networkRequest: any,
+  currentContext: AppContext,
   injector: Injector,
 ) => IGraphQLContext;
-
-export type Context = {
-  injector: Injector;
-  [key: string]: any;
-};
 
 export type ModuleDependency = GraphQLModule | string;
 

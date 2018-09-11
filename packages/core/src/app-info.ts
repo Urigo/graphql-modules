@@ -7,6 +7,10 @@ export class AppInfo {
   private context: IGraphQLContext;
   private app: GraphQLApp;
 
+  /**
+   * The method is used internally be `GraphQLApp` to set the request, context and app each
+   * a context object has built.
+   * @hidden */
   initialize({ request, context, app }: { request: any; context: IGraphQLContext, app: GraphQLApp }) {
     this.request = request;
     this.context = context;

@@ -30,4 +30,5 @@ export interface Injector {
 
 export interface AppContext {
   injector: Injector;
+  [key: string]: any;
 }
