@@ -13,11 +13,12 @@
     "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
+    "build:api-docs": "./generate-api-docs.sh",
     "lint": "lerna run lint",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "release": "lerna publish --exact --force-publish=\"*\"",
     "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
-    "deploy-website": "cd website && yarn && yarn build && yarn publish-gh-pages"
+    "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
     "@types/graphql": "14.0.0",
@@ -26,7 +27,10 @@
     "jest": "23.6.0",
     "lerna": "3.3.0",
     "rimraf": "2.6.2",
-    "ts-jest": "22.4.6"
+    "ts-jest": "22.4.6",
+    "typedoc": "0.12.0",
+    "typedoc-plugin-docusaurus": "1.0.14",
+    "replace-in-file": "3.4.2"
   },
   "publishConfig": {
     "access": "public"

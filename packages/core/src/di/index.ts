@@ -1,9 +1,11 @@
 import { Container, interfaces, decorate } from 'inversify';
-
 import { Provider, Type, ValueProvider, ClassProvider } from './types';
 
 export { decorate };
 
+/**
+ * @hidden
+ */
 export class Injector extends Container {
   public provide(provider: Provider): void {
     if (Array.isArray(provider)) {

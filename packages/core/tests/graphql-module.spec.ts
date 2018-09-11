@@ -59,7 +59,7 @@ describe('GraphQLModule', () => {
   it('should set the context builder fn correctly', () => {
     const mockCallback = jest.fn();
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES });
-    module.setContextBuilder(mockCallback);
+    module.contextBuilder = mockCallback;
 
     expect(module.contextBuilder).toBe(mockCallback);
   });

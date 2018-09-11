@@ -1,5 +1,0 @@
-type Post {
-    id: String
-    title: String
-    author: User
-}

@@ -1,45 +1,57 @@
-import { GraphQLSchema } from 'graphql';
-import { makeExecutableSchema, IResolvers } from 'graphql-tools';
+import { DocumentNode, GraphQLSchema } from 'graphql';
+import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { DepGraph } from 'dependency-graph';
-import { mergeResolvers, mergeGraphQLSchemas } from '@graphql-modules/epoxy';
+import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import logger from '@graphql-modules/logger';
-import { GraphQLModule, IGraphQLContext, ModuleConfig, Context } from './graphql-module';
+import { GraphQLModule, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
-import {
-  composeResolvers,
-  IResolversComposerMapping,
-} from './resolvers-composition';
+import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Injector } from './di';
-import { Provider, Injector as SimpleInjector } from './di/types';
+import { AppContext, Injector as SimpleInjector, Provider } from './di/types';
+import { AppInfo } from './app-info';
 
-export class AppInfo {
-  request: any;
-  context: IGraphQLContext;
-
-  initialize({ request, context }: { request: any; context: IGraphQLContext }) {
-    this.request = request;
-    this.context = context;
-  }
-
-  getRequest() {
-    return this.request;
-  }
-}
-
+/**
+ * Object that defined a structure with GraphQL type definitions and resolvers object.
+ * You can use this to pass a legacy GraphQL type definitions and resolver that are not written
+ * as modules.
+ */
 export interface NonModules {
-  typeDefs?: any;
-  resolvers?: any;
+  /**
+   * GraphQL type definitions
+   */
+  typeDefs?: string | string[] | DocumentNode | DocumentNode[];
+  /**
+   * GraphQL resolvers object
+   */
+  resolvers?: IResolvers;
 }
 
+/**
+ * This interface defines the options you need to pass to `GraphQLApp`
+ */
 export interface GraphQLAppOptions {
+  /** a list of `GraphQLModule` you wish to load to your app */
   modules: GraphQLModule[];
+  /** Specify non-module schema and resolvers */
   nonModules?: NonModules;
+  /** `CommunicationBridge` object that will handle the pub/sub messages between your modules */
   communicationBridge?: CommunicationBridge;
+  /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping;
+  /** List of external providers to load into the injector */
   providers?: Provider[];
 }
 
+/**
+ * Signature for `context` function as we need to pass it to GraphQL
+ * servers such as Apollo-Server.
+ */
 export type ContextFn<Context> = (reqContext: any) => Promise<Context>;
+
+/**
+ * Default GraphQL server configuration object, should match most
+ * of the popular servers
+ */
 export interface ServerConfiguration<Context = any> {
   schema?: GraphQLSchema;
   typeDefs?: any;
@@ -47,6 +59,11 @@ export interface ServerConfiguration<Context = any> {
   context?: ContextFn<Context>;
 }
 
+/**
+ * Manages and handles your application, in charge of managing modules, dependency injection,
+ * building your GraphQL Context, control the flow of the app and connect
+ * to your GraphQL external endpoint
+ */
 export class GraphQLApp {
   private readonly _modules: GraphQLModule[];
   private _schema: GraphQLSchema;
@@ -58,6 +75,10 @@ export class GraphQLApp {
   });
   private _appInfo = new AppInfo();
 
+  /**
+   * Creates your GraphQLApp instance
+   * @param options - configuration object
+   */
   constructor(private options: GraphQLAppOptions) {
     this._modules = options.modules;
 
@@ -66,6 +87,9 @@ export class GraphQLApp {
     this.buildProviders();
   }
 
+  /**
+   * In charge of initialzing the modules - get their `typeDefs` and `resolvers` if it's a function
+   */
   private initModules() {
     for (const module of this._modules) {
       try {
@@ -87,6 +111,9 @@ export class GraphQLApp {
     }
   }
 
+  /**
+   * Build the GraphQLSchema from all modules together and from the non-modules types and resolvers.
+   */
   private buildSchema() {
     const allTypes = this.options.modules
       .map<string>(m => m.typeDefs)
@@ -111,6 +138,9 @@ export class GraphQLApp {
     ]);
   }
 
+  /**
+   * Build a `GraphQLSchema` object from all `typeDefs` and `resolvers`
+   */
   private buildSchemaObject() {
     this._schema = makeExecutableSchema({
       typeDefs: this._typeDefs,
@@ -118,7 +148,13 @@ export class GraphQLApp {
     });
   }
 
-  public getModulesDependencyGraph(modules: GraphQLModule[]) {
+  /**
+   * Build a dependency graph and order it according to the init order.
+   * It also handles circular dependencies.
+   *
+   * @param modules - list of GraphQLModule
+   */
+  private getModulesDependencyGraph(modules: GraphQLModule[]): string[] {
     const graph = new DepGraph({ circular: true });
 
     for (const module of modules) {
@@ -146,10 +182,12 @@ export class GraphQLApp {
     return order;
   }
 
-  private composeResolvers(
-    resolvers: IResolvers,
-    composition: IResolversComposerMapping,
-  ) {
+  /**
+   * Applies resolvers composition over an object of resolvers.
+   * @param resolvers - base resolvers
+   * @param composition - map between `Type.field` and wrapping function(s)
+   */
+  private composeResolvers(resolvers: IResolvers, composition: IResolversComposerMapping): IResolvers {
     if (composition) {
       return composeResolvers(resolvers, composition);
     }
@@ -157,6 +195,11 @@ export class GraphQLApp {
     return resolvers;
   }
 
+  /**
+   * Gets the application `GraphQLSchema` object.
+   * If the schema object is not built yet, it compiles
+   * the `typeDefs` and `resolvers` into `GraphQLSchema`
+   */
   get schema(): GraphQLSchema {
     if (!this._schema) {
       this.buildSchemaObject();
@@ -165,18 +208,30 @@ export class GraphQLApp {
     return this._schema;
   }
 
+  /**
+   * Gets the array modules in the app
+   */
   get modules(): GraphQLModule[] {
     return this._modules;
   }
 
+  /**
+   * Gets the merged resolvers object
+   */
   get resolvers(): IResolvers {
     return this._resolvers;
   }
 
+  /**
+   * Gets the merged GraphQL type definitions as one string
+   */
   get typeDefs(): string {
     return this._typeDefs;
   }
 
+  /**
+   * Builds the application built-in providers, and the module's providers.
+   */
   private buildProviders() {
     // communication birdge
     if (this.options.communicationBridge) {
@@ -231,24 +286,49 @@ export class GraphQLApp {
     });
   }
 
+  /**
+   * Get the current application info if it's during execution
+   * of a GraphQL document.
+   */
   get appInfo(): AppInfo {
     return this._appInfo;
   }
 
-  public getModule(name) {
-    return this._modules.find(module => module.name === name);
+  /**
+   * Gets a module by it's name
+   * @param name - the name of the requested module
+   */
+  public getModule(name: string): GraphQLModule | null {
+    return this._modules.find(module => module.name === name) || null;
   }
 
+  /**
+   * Gets the application dependency-injection injector
+   */
   public get injector(): SimpleInjector {
     return this._injector;
   }
 
-  async buildContext(networkRequest?: any): Promise<Context> {
+  /**
+   * Build a GraphQL `context` object based on a network request.
+   * It iterates over all modules by their dependency-based order, and executes
+   * `contextBuilder` method.
+   * It also in charge of injecting a reference to the application `Injector` to
+   * the `context`.
+   * The network request is passed to each `contextBuilder` method, and the return
+   * value of each `contextBuilder` is merged into a unified `context` object.
+   *
+   * This method should be in use with your GraphQL manager, such as Apollo-Server.
+   *
+   * @param networkRequest - the network request from `connect`, `express`, etc...
+   */
+  async buildContext(networkRequest?: any): Promise<AppContext> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
+    const injector = {
+      get: this._injector.get.bind(this._injector),
+    };
     const builtResult = {
-      injector: {
-        get: this._injector.get.bind(this._injector),
-      },
+      injector,
     };
     const result: any = {};
 
@@ -261,6 +341,7 @@ export class GraphQLApp {
           const appendToContext: any = await module.contextBuilder(
             networkRequest,
             result,
+            injector,
           );
 
           if (appendToContext && typeof appendToContext === 'object') {
@@ -272,6 +353,7 @@ export class GraphQLApp {
       this._appInfo.initialize({
         request: networkRequest,
         context: builtResult,
+        app: this,
       });
     } catch (e) {
       logger.error(
@@ -297,6 +379,17 @@ export class GraphQLApp {
 
     return result;
   }
+
+  /**
+   * Utility function that build `config` object to use with your GraphQL server manager,
+   * such as Apollo-Server or GraphQL Yoga.
+   * It will build an object with the following fields: `schema`, `typeDefs`, `resolvers` and `context`.
+   *
+   * You can also pass `extraConfig` in order to add more fields to the config
+   * object (for example, fields from `Config` of `apollo-server`).
+   *
+   * @param extraConfig - extra configuration to add to the object.
+   */
   generateServerConfig<T extends ServerConfiguration = any>(extraConfig?: T): T {
     return Object.assign({
       schema: this.schema,

@@ -1,5 +1,4 @@
 import { interfaces } from 'inversify';
-
 export { injectable, inject, optional } from 'inversify';
 
 export interface Type<T> extends Function {
@@ -30,4 +29,5 @@ export interface Injector {
 
 export interface AppContext {
   injector: Injector;
+  [key: string]: any;
 }

@@ -1,5 +1,33 @@
 {
+  "api": {
+    "API Docs": [
+      "api/core/api-readme",
+      "api/sonar/api-readme",
+      "api/epoxy/api-readme",
+      "api/logger/api-readme"
+    ]
+  },
   "docs": {
-    "Introduction": ["getting-started", "your-first-module", "integrate-with-apollo-server"]
+    "Introduction": [
+      "introduction/getting-started",
+      "introduction/modules",
+      "introduction/your-first-module",
+      "introduction/integrate-with-apollo-server",
+      "introduction/implement-your-resolvers",
+      "introduction/dependencies",
+      "introduction/dependency-injection",
+      "introduction/configuration",
+      "introduction/context",
+      "introduction/resolvers-composition",
+      "introduction/test-your-module"
+    ],
+    "Guides": [
+      "guides/development-environment",
+      "guides/load-your-schema",
+      "guides/communication-between-modules",
+      "guides/authentication",
+      "guides/testing-and-mocking",
+      "guides/microservices"
+    ]
   }
 }
