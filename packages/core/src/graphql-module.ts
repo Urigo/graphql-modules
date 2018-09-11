@@ -67,7 +67,8 @@ export interface GraphQLModuleOptions {
 }
 
 /**
- * Returns a dependency token for getting a module's configuration object by the module's name.
+ * Returns a dependency injection token for getting a module's configuration object by
+ * the module's name.
  * You can use this later with `@inject` in your `Provider`s.
  *
  * @param name - the name of the module

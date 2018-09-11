@@ -1,5 +1,4 @@
 import { interfaces } from 'inversify';
-
 export { injectable, inject, optional } from 'inversify';
 
 export interface Type<T> extends Function {

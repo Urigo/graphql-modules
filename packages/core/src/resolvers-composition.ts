@@ -34,6 +34,14 @@ function chainFunctions(funcs: any[]) {
   return funcs.reduce((a, b) => (...args: any[]) => a(b(...args)));
 }
 
+/**
+ * Wraps the resolvers object with the resolvers composition objects.
+ * Implemented as a simple and basic middleware mechanism.
+ *
+ * @param resolvers - resolvers object
+ * @param mapping - resolvers composition mapping
+ * @hidden
+ */
 export function composeResolvers(resolvers: any, mapping: IResolversComposerMapping = {}): any {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
@@ -46,8 +54,4 @@ export function composeResolvers(resolvers: any, mapping: IResolversComposerMapp
   });
 
   return resolvers;
-}
-
-export function allow(fn: any) {
-  return fn;
 }
