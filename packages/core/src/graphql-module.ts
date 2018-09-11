@@ -106,7 +106,7 @@ export class GraphQLModule<Config = any> {
         ? null
         : Array.isArray(options.typeDefs)
           ? mergeGraphQLSchemas(options.typeDefs)
-          : options.typeDefs);
+          : String(options.typeDefs));
     this._resolvers =
       typeof options.resolvers === 'function' ? null : options.resolvers || {};
     this._providers = options.providers || null;
