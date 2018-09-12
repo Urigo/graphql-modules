@@ -126,13 +126,95 @@ import * as UserType from './user.graphql';
 
 ## Webpack
 
+If you are using Webpack, we recommend to use [ts-loader](https://github.com/TypeStrong/ts-loader) or [awesome-typescript-loader](https://github.com/s-panferov/awesome-typescript-loader) to load your TypeScript files.
+
+To load `.graphql` files, you can use [graphql-tag/loader](https://github.com/apollographql/graphql-tag#webpack-preprocessing-with-graphql-tagloader).
+
+Here is a simple `webpack.config.js` that should do the job:
+
+```js
+module.exports = {
+  mode: 'development,
+  devtool: 'inline-source-map,
+  entry: './src/index.ts',
+  output: {
+    filename: 'dist/server.js'
+  },
+  resolve: {
+    // Add `.ts` and `.tsx` as a resolvable extension.
+    extensions: ['.ts', '.tsx', '.js', '.graphql'],
+    plugins: [new TsconfigPathsPlugin()],
+  },
+  module: {
+    rules: [
+      { test: /\.tsx?$/, loader: 'ts-loader' },
+      { test: /\.(graphql|gql)$/, exclude: /node_modules/, loader: 'graphql-tag/loader' },
+    ],
+  },
+};
+```
+
 ## JavaScript Usage
+
+If you are using JavaScript project and not TypeScript, you can either add support to TypeScript, or use GraphQL Modules with it's JavaScript API.
+
+### With Babel
+
+If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@injectable` and `@inject` in a regular way.
+
+### Without decorators
+
+You can use `inject` and `injectable` as regular functions to wrap your arguments and classes, you can read more about it [in Inversify documentation](https://github.com/inversify/InversifyJS/blob/master/wiki/basic_js_example.md).
 
 ## Testing Environment
 
+We recommend Jest as your test runner - it has simple API, it's super fast and you can integrate with any CI tools.
+
 ### Jest
 
-### Jest with TypeScript
+To test your GraphQL Modules server with Jest, start by adding support for TypeScript to your Jest instance, by adding:
+
+```bash
+yarn add -D jest @types/jest ts-jest
+```
+
+Then, add the following section to your `package.json`:
+
+```json
+{
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
+```
+
+And add a script to your `package.json`:
+
+```json
+{
+    "scripts": {
+        "test": "jest"
+    }
+}
+```
+
+Also, make sure that each one of your spec files starts with:
+
+```typescript
+import 'reflect-metadata';
+```
 
 ### Other Test Runners
 
+You can use any other test runner you prefer, just figure out how to use it with TypeScript and make sure you can import CommonJS easily.
