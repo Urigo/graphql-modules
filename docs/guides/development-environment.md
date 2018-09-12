@@ -156,7 +156,7 @@ module.exports = {
 
 ## JavaScript Usage
 
-If you are using JavaScript project and not TypeScript, you can either add support to TypeScript, or use GraphQL Modules with it's JavaScript API.
+If you are using JavaScript in your project and not TypeScript, you can either [add support for TypeScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html), or use GraphQL Modules with it's JavaScript API.
 
 ### With Babel
 

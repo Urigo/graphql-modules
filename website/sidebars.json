@@ -25,7 +25,6 @@
       "guides/development-environment",
       "guides/load-your-schema",
       "guides/communication-between-modules",
-      "guides/authentication",
       "guides/testing-and-mocking",
       "guides/microservices"
     ]
