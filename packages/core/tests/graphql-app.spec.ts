@@ -119,6 +119,14 @@ describe('GraphQLApp', () => {
     expect(context.injector.get(AppInfo).getRequest()).toBe(request);
   });
 
+  it('should provide network request to Context', async () => {
+    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const request = {};
+    const context = await app.buildContext(request);
+
+    expect(context.request).toBe(request);
+  });
+
   it('should work without a GraphQL schema and set providers', async () => {
     const provider = {};
     const token = Symbol.for('provider');
