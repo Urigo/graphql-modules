@@ -398,7 +398,7 @@ export class GraphQLApp {
       schema: this.schema,
       typeDefs: this.typeDefs,
       resolvers: this.resolvers,
-      context: reqContext => this.buildContext(reqContext.req),
+      context: (reqContext: any) => this.buildContext(reqContext.req),
     });
   }
 }

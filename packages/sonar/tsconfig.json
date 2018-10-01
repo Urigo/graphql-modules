@@ -12,7 +12,13 @@
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "importHelpers": true
+    "importHelpers": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "files": ["src/index.ts"],
   "exclude": ["node_modules"]
