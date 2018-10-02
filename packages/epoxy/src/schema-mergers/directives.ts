@@ -1,5 +1,5 @@
 import { ArgumentNode, DirectiveNode } from 'graphql/language/ast';
-import { DirectiveDefinitionNode, ListValueNode, NameNode, ObjectValueNode, print } from 'graphql';
+import { DirectiveDefinitionNode, ListValueNode, NameNode, print } from 'graphql';
 
 function directiveAlreadyExists(directivesArr: ReadonlyArray<DirectiveNode>, otherDirective: DirectiveNode): boolean {
   return !!directivesArr.find(directive => directive.name.value === otherDirective.name.value);

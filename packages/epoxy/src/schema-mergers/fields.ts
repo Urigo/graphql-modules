@@ -1,4 +1,4 @@
-import { FieldDefinitionNode, InputValueDefinitionNode } from 'graphql/language/ast';
+import { FieldDefinitionNode } from 'graphql/language/ast';
 import { extractType } from './utils';
 import { mergeDirectives } from './directives';
 
