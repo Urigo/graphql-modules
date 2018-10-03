@@ -10,7 +10,6 @@
     ]
   },
   "scripts": {
-    "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
     "build:api-docs": "./generate-api-docs.sh",
