@@ -9,5 +9,9 @@
   },
   "devDependencies": {
     "docusaurus": "1.4.0"
+  },
+  "dependencies": {
+    "styled-components": "4.0.0",
+    "sweetalert2": "7.28.5"
   }
 }
