@@ -31,7 +31,7 @@
     "@graphql-modules/sonar": "0.1.8",
     "dependency-graph": "0.7.2",
     "graphql-tools": "4.0.0",
-    "inversify": "4.13.0",
+    "inversify": "4.14.0",
     "tslib": "1.9.3"
   },
   "devDependencies": {
