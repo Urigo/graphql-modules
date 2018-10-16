@@ -1,0 +1,813 @@
+/**
+ * 1) Compile with https://www.sassmeister.com/
+ * 2) Copy-paste to ./custom.css
+ */
+
+/* source: https://fonts.googleapis.com/css?family=Montserrat:400,600,700 */
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v12/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v12/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v12/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v12/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v12/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_bZF3gTD_u50.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_bZF3g3D_u50.woff2) format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_bZF3gbD_u50.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_bZF3gfD_u50.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Montserrat SemiBold'), local('Montserrat-SemiBold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_bZF3gnD_g.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_dJE3gTD_u50.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_dJE3g3D_u50.woff2) format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_dJE3gbD_u50.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_dJE3gfD_u50.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v12/JTURjIg1_i6t8kCHKm45_dJE3gnD_g.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@mixin device($media) {
+  @if $media == desktop {
+    @media only screen and (max-width: 62em) and (orientation: portrait) { @content; }
+    @media only screen and (max-width: 62em) and (orientation: landscape) { @content; }
+  }
+  @else if $media == mobile {
+    @media only screen and (max-width: 36em) and (orientation: portrait) { @content; }
+    @media only screen and (max-width: 36em) and (orientation: portrait) { @content; }
+  }
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+textarea, input {
+  font: inherit;
+}
+
+.Button {
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.Hamburmenu {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: solid 3px #ffffff;
+
+  > ._hamburger {
+    cursor: pointer;
+    color: white;
+    width: 100%;
+    height: 100%;
+  }
+
+  > ._menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+
+    > ._menu-header {
+      padding: 15px 30px;
+      background-color: #e8e8ed;
+
+      > ._logo {
+        float: left;
+        height: 20px;
+      }
+
+      > ._close-btn {
+        float: right;
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        border: solid 3px #ffffff;
+      }
+
+      > ._links {
+        display: flex;
+        flex-direction: column;
+        clear: both;
+
+        > ._link {
+          padding: 15px 0px;
+          width: 100%;
+          font-size: 15px;
+          text-transform: uppercase;
+          text-align: center;
+          font-weight: 600;
+          font-color: #243265;
+        }
+      }
+    }
+  }
+}
+
+.Hyperlink {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.List {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ListItem {
+
+}
+
+.ListGreedyItem {
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.TextArea {
+  > ._label {
+    display: inline-block;
+    margin-left: 10px;
+    transform: translateY(14px);
+    padding: 0 10px;
+    width: fit-content;
+    font-size: 14px;
+    font-style: normal;
+    font-stretch: normal;
+    color: #afbed1;
+    background-color: white;
+  }
+
+  > ._input {
+    width: 100%;
+    height: 100%;
+    display: block;
+    padding: 10px;
+    resize: none;
+    border: solid 1px rgba(120, 151, 188, 0.3);
+  }
+}
+
+.TextInput {
+  > ._label {
+    display: inline-block;
+    margin-left: 10px;
+    transform: translateY(14px);
+    padding: 0 10px;
+    width: fit-content;
+    font-size: 14px;
+    font-style: normal;
+    font-stretch: normal;
+    color: #afbed1;
+    background-color: white;
+  }
+
+  > ._input {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    resize: none;
+    border: solid 1px rgba(120, 151, 188, 0.3);
+  }
+}
+
+.Companies {
+  padding: 0 50px;
+
+  @include device(mobile) {
+    padding: 0;
+  }
+
+  > ._companies-list {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: solid 1px #d4dde9;
+
+    @include device(mobile) {
+      flex-wrap: wrap;
+      height: 150px;
+    }
+
+    > ._company > img {
+      vertical-align: middle;
+      margin: 0;
+
+      @include device(mobile) {
+        width: calc(100% - 20px);
+        padding: 10px 0;
+      }
+    }
+  }
+
+  > ._slogan {
+    float: right;
+    margin-top: 25px;
+    margin-right: 150px;
+    font-size: 20px;
+    font-style: italic;
+    color: #7897bc;
+
+    @include device(mobile) {
+      text-align: center;
+      margin: 0;
+      margin-top: 15px;
+      padding: 20px 50px;
+      font-size: 16px;
+      float: unset;
+    }
+  }
+}
+
+.ContactForm {
+  margin-top: 150px;
+  margin-left: 50px;
+  margin-right: 50px;
+  border-top: solid 1px #d4dde9;
+
+  @include device(mobile) {
+    margin: 0 15px;
+    margin-top: 50px;
+    margin-bottom: 150px;
+
+    br {
+      display: none;
+    }
+  }
+
+  > ._title {
+    width: fit-content;
+    padding: 0 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -18px;
+    text-transform: uppercase;
+    font-size: 24px;
+    text-align: center;
+    color: #243265;
+    background-color: white;
+  }
+
+  > ._form {
+    width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+
+    @include device(mobile) {
+      width: 100%;
+    }
+
+    > ._name {
+      width: calc(50% - 10px);
+      margin-right: 10px;
+      float: left;
+
+      @include device(mobile) {
+        width: 100%;
+        float: unset;
+      }
+    }
+
+    > ._email {
+      width: calc(50% - 10px);
+      margin-left: 10px;
+      float: left;
+
+      @include device(mobile) {
+        width: 100%;
+        float: unset;
+        margin: 0;
+      }
+    }
+
+    > ._details {
+      height: 200px;
+    }
+
+    > ._bottom {
+      width: 100%;
+      margin-top: 90px;
+
+      @include device(mobile) {
+        margin-top: 50px;
+      }
+
+      > ._channel {
+        float: left;
+        width: 26px;
+        height: 100%;
+        margin-right: 20px;
+
+        > img {
+          margin: 0;
+        }
+      }
+
+      > ._send-button {
+        width: 180px;
+        height: 45px;
+        float: right;
+        text-transform: uppercase;
+        border-radius: 4px;
+        background-color: #115ee1;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+
+        &._sending {
+          color: gray;
+          background-color: silver;
+          cursor: default;
+        }
+      }
+    }
+
+    > ._error-message {
+      width: 100%;
+      margin-top: 15px;
+      float: left;
+      color: red;
+    }
+  }
+}
+
+.Features {
+  padding: 0 50px;
+  margin-top: 150px;
+
+  @include device(mobile) {
+    padding: 0 20px;
+    margin-top: 10px;
+  }
+
+  > ._features-list {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    @include device(mobile) {
+      flex-wrap: wrap;
+    }
+
+    > ._feature {
+      width: 210px;
+      padding-top: 50px;
+      margin-left: 15px;
+      margin-right: 15px;
+      border: solid 1px rgba(120, 151, 188, 0.3);
+
+      @include device(mobile) {
+        width: 100%;
+        padding: 15px;
+      }
+
+      > img {
+        margin: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        height: 100px;
+      }
+
+      > ._title {
+        width: 100%;
+        height: 50px;
+        margin-top: 20px;
+        font-size: 17px;
+        font-weight: 900;
+        text-align: center;
+        color: #115ee1;
+        text-transform: uppercase;
+      }
+
+      > ._description {
+        width: 100%;
+        padding-top: 5px;
+        font-size: 15px;
+        text-align: center;
+        color: #677897;
+      }
+    }
+  }
+}
+
+.FrameworkDetails {
+  padding: 0 50px;
+  margin-top: 200px;
+  padding-bottom: 200px;
+  position: relative;
+
+  @include device(mobile) {
+    margin-top: 50px;
+    padding: 0 20px;
+    padding-bottom: 300px;
+  }
+
+  > ._details {
+    width: 530px;
+
+    @include device(mobile) {
+      width: 100%;
+    }
+
+    > ._title {
+      font-size: 36px;
+      color: #243265;
+      line-height: 45px;
+
+      @include device(mobile) {
+        font-size: 25px;
+        line-height: normal;
+      }
+    }
+
+    > ._subtitle {
+      margin-top: 25px;
+      font-size: 16px;
+      text-align: justify;
+      color: #677897;
+    }
+  }
+
+  > ._bg-workers {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.GQLQuote {
+  background-color: #115ee1;
+  padding-top: 100px;
+  padding-bottom: 100px;
+
+  @include device(mobile) {
+    padding: 50px 50px;
+  }
+
+  > ._body {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include device(mobile) {
+      width: 100%;
+    }
+
+    > ._subtitle {
+      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      color: #022f7c;
+    }
+
+    > ._title {
+      margin-top: 30px;
+      font-size: 34px;
+      font-weight: 600;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.87);
+
+      @include device(mobile) {
+        font-size: 25px;
+        line-height: 1.2;
+      }
+    }
+
+    > ._quote {
+      position: relative;
+      margin-top: 35px;
+      font-size: 16px;
+      font-style: italic;
+      text-align: center;
+      color: #ffffff;
+
+      @include device(mobile) {
+        font-size: 14px;
+      }
+
+      > ._open-quote {
+        position: absolute;
+        top: -50px;
+        left: -50px;
+      }
+
+      > ._close-quote {
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+      }
+    }
+  }
+}
+
+.Intro {
+  width: 100%;
+  height: 730px;
+  background-color: #13114a;
+  position: relative;
+  padding: 25px 50px;
+
+  @include device(mobile) {
+    padding: 15px 30px;
+  }
+
+  > ._start-section {
+    width: 530px;
+    padding-top: 230px;
+
+    @include device(mobile) {
+      width: 100%;
+      padding-top: 100px;
+    }
+
+    > ._title {
+      font-size: 40px;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      line-height: 1.25;
+
+      @include device(mobile) {
+        font-size: 30px;
+      }
+    }
+
+    > ._subtitle {
+      padding-top: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #c1caff;
+
+      @include device(mobile) {
+        font-size: 14px;
+      }
+    }
+
+    > ._start-button {
+      width: 180px;
+      height: 45px;
+      transform: translateY(0);
+      margin-top: 60px;
+      border-radius: 4px;
+      box-shadow: 10px 12px 24px 0 rgba(17, 94, 225, 0.37);
+      background-color: #115ee1;
+      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+  }
+
+  > ._bg-rocket {
+    position: absolute;
+    margin: 0;
+    bottom: 0;
+    right: 0;
+  }
+}
+
+.LearnSection {
+  text-align: center;
+  justify-content: center;
+
+  @include device(mobile) {
+    padding: 0 15px;
+  }
+
+  > ._capabilities {
+    margin-top: 150px;
+
+    @include device(mobile) {
+      margin-top: 50px;
+    }
+
+    > ._title {
+      font-size: 34px;
+      color: #243265;
+
+      @include device(mobile) {
+        font-size: 25px;
+        line-height: normal;
+      }
+    }
+
+    > ._subtitle {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #677897;
+
+      @include device(mobile) {
+        font-size: 14px;
+        line-height: 1.4;
+      }
+    }
+
+    > ._features {
+      margin-top: 100px;
+      display: flex;
+      justify-content: space-around;
+
+      @include device(mobile) {
+        flex-direction: column;
+        margin-top: 50px;
+      }
+
+      > ._feature {
+        width: 290px;
+
+        @include device(mobile) {
+          width: 100%;
+          margin-bottom: 50px;
+        }
+
+        > ._box {
+          margin-left: auto;
+          margin-right: auto;
+          background-color: white;
+          width: 110px;
+          height: 110px;
+          border: solid 4px #115ee1;
+          background-color: #ffffff;
+          color: #115ee1;
+
+          > ._icon {
+            margin: 0;
+            margin-top: 5px;
+            height: 35px;
+            object-fit: contain;
+          }
+
+          > ._title {
+            font-size: 20px;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+          }
+        }
+
+        > ._description {
+          margin-top: 20px;
+          font-size: 16px;
+          text-align: center;
+          color: #677897;
+        }
+      }
+    }
+  }
+
+  > ._learn {
+    margin-top: 150px;
+
+    @include device(mobile) {
+      margin-top: 50px;
+    }
+
+    > ._title {
+      font-size: 34px;
+      color: #243265;
+
+      @include device(mobile) {
+        font-size: 25px;
+        line-height: normal;
+      }
+    }
+
+    > ._subtitle {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #677897;
+
+      @include device(mobile) {
+        font-size: 14px;
+        line-height: 1.4;
+      }
+    }
+
+    > ._video {
+      margin-top: 100px;
+      margin-left: auto;
+      margin-right: auto;
+
+      @include device(mobile) {
+        margin-top: 50px;
+        width: calc(100vw - 30px);
+        height: calc(57vw - 17px);
+      }
+    }
+  }
+}

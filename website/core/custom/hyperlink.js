@@ -1,8 +1,3 @@
-const styled = require('styled-components').default
+const React = require('react')
 
-const Hyperlink = styled.a `
-  cursor: pointer;
-  text-decoration: none;
-`
-
-module.exports = Hyperlink
+module.exports = props => <a {...props} className={`Hyperlink ${props.className || ''}`} />

@@ -1,27 +1,17 @@
-const { css } = require('styled-components')
-
 let outerWidth
 let outerHeight
 const internals = Symbol('device')
 const layoutChangeCallbacks = new Set()
+
 const sizes = {
   desktop: 992,
   mobile: 576,
 }
 
-const device = Object.keys(sizes).reduce((acc, label) => {
-  acc[label] = (...args) => css`
-    @media only screen and (max-width: ${sizes[label] / 16}em) and (orientation: portrait) {
-      ${css(...args)}
-    }
-
-    @media only screen and (max-height: ${sizes[label] / 16}em) and (orientation: landscape) {
-      ${css(...args)}
-    }
-  `
-
-  return acc
-}, {})
+const device = {
+  desktop: {},
+  mobile: {},
+}
 
 device.onLayoutChange = (callback) => {
   layoutChangeCallbacks.add(callback)

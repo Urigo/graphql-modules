@@ -1,6 +1,5 @@
 const React = require('react')
 const ReactDOM = require('react-dom')
-const styled = require('styled-components').default
 const swal = require('sweetalert2')
 
 const siteConfig = require('../../../siteConfig')
@@ -11,117 +10,9 @@ const Hyperlink = require('../hyperlink')
 const TextArea = require('../text-area')
 const TextInput = require('../text-input')
 
-const githubIcon = `${siteConfig.baseUrl}/img/home/github-icon.svg`
-const mediumIcon = `${siteConfig.baseUrl}/img/home/medium-icon.svg`
-const stackIcon = `${siteConfig.baseUrl}/img/home/stack-icon.svg`
-
-const ContactForm = styled.div `
-  margin-top: 150px;
-  margin-left: 50px;
-  margin-right: 50px;
-  border-top: solid 1px #d4dde9;
-
-  ${device.mobile `
-    margin: 0 15px;
-    margin-top: 50px;
-  `}
-
-  > ._title {
-    width: fit-content;
-    padding: 0 10px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: -12px;
-    text-transform: uppercase;
-    font-size: 24px;
-    text-align: center;
-    color: #243265;
-    background-color: white;
-  }
-
-  > ._form {
-    width: 580px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 30px;
-
-    ${device.mobile `
-      width: 100%;
-    `}
-
-    > ._name {
-      width: calc(50% - 10px);
-      margin-right: 10px;
-      float: left;
-
-      ${device.mobile `
-        width: 100%;
-        float: unset;
-      `}
-    }
-
-    > ._email {
-      width: calc(50% - 10px);
-      margin-left: 10px;
-      float: left;
-
-      ${device.mobile `
-        width: 100%;
-        float: unset;
-        margin: 0;
-      `}
-    }
-
-    > ._details {
-      height: 200px;
-    }
-
-    > ._bottom {
-      width: 100%;
-      margin-top: 100px;
-
-      ${device.mobile `
-        margin-top: 50px;
-      `}
-
-      > ._channel {
-        float: left;
-        width: 26px;
-        height: 100%;
-        margin-right: 20px;
-
-        > img {
-          margin: 0;
-        }
-      }
-
-      > ._send-button {
-        width: 180px;
-        height: 45px;
-        float: right;
-        text-transform: uppercase;
-        border-radius: 4px;
-        background-color: #115ee1;
-        color: white;
-        font-size: 14px;
-        font-weight: 600;
-
-        &._sending {
-          color: gray;
-          background-color: silver;
-          cursor: default;
-        }
-      }
-    }
-
-    > ._error-message {
-      width: 100%;
-      margin-top: 15px;
-      float: left;
-      color: red;
-    }
-  }
-`
+const githubIcon = `${siteConfig.baseUrl}img/home/github-icon.svg`
+const mediumIcon = `${siteConfig.baseUrl}img/home/medium-icon.svg`
+const stackIcon = `${siteConfig.baseUrl}img/home/stack-icon.svg`
 
 module.exports = class extends React.Component {
   state = {
@@ -132,7 +23,7 @@ module.exports = class extends React.Component {
 
   render() {
     return (
-      <ContactForm>
+      <div {...this.props} className={`ContactForm ${this.props.className || ''}`}>
         <div className="_title">Get in touch</div>
         <div className="_form">
           <TextInput className="_name">
@@ -160,7 +51,7 @@ module.exports = class extends React.Component {
           </div>
           <div className="_error-message">{this.state.errorMessage}</div>
         </div>
-      </ContactForm>
+      </div>
     )
   }
 

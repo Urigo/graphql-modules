@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "sendmail": "1.4.1",
-    "styled-components": "4.0.0",
     "sweetalert2": "7.28.5"
   }
 }

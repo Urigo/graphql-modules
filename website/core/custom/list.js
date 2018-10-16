@@ -1,17 +1,7 @@
-const styled = require('styled-components').default
+const React = require('react')
 
-const List = styled.ul `
-  list-style: none;
-  margin: 0;
-`
-
-List.Item = styled.li `
-`
-
-List.GreedyItem = styled.button `
-  background-color: transparent;
-  border: none;
-  outline: none;
-`
+const List = props => <ul {...props} className={`List ${props.className || ''}`} />
+List.Item = props => <li {...props} className={`ListItem ${props.className || ''}`} />
+List.GreedyItem = props => <button {...props} className={`ListGreedyItem ${props.className || ''}`} />
 
 module.exports = List
