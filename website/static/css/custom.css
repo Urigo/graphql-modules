@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /**
  * 1) Compile with https://www.sassmeister.com/
  * 2) Copy-paste to ./custom.css
@@ -959,4 +960,57 @@ textarea, input {
     width: calc(100vw - 30px);
     height: calc(57vw - 17px);
   }
+}
+
+#docsNav {
+  border-right: solid 1px #b4bcd9;
+}
+#docsNav .navGroupCategoryTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #243265;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-bottom: solid 1px #e6ecf4;
+  padding-left: 10px;
+  margin-left: -10px;
+  line-height: 2.5;
+}
+#docsNav .navGroup ul {
+  border-left: solid 1px #e6ecf4;
+  padding-bottom: 0;
+  transform: translateY(-15px);
+  clip-path: inset(15px 0 -999px -999px);
+}
+#docsNav .navListItem {
+  padding: 5px 0;
+  transform: translateY(20px);
+}
+#docsNav .navListItem a {
+  font-size: 16px;
+  color: #677897;
+  padding-left: 5px;
+}
+#docsNav .navListItem a::before {
+  height: 8px;
+  transform: translateY(-1px) translateX(-5px);
+  background-color: white;
+  content: "○";
+  display: inline-block;
+  margin-left: -13px;
+  margin-right: 4px;
+  line-height: 0.5;
+}
+#docsNav .navListItem.navListItemActive a {
+  color: #115ee1;
+  font-weight: 600;
+  padding-left: 9px;
+}
+#docsNav .navListItem.navListItemActive a::before {
+  margin-right: 8px;
+  transform-origin: center;
+  transform: translateY(-2px) translateX(-7px) scale(2);
+  background-color: transparent;
+  content: "•";
 }
