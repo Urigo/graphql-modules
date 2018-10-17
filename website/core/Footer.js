@@ -45,7 +45,8 @@ class Footer extends React.Component {
           </a>
         </div>
         <div className="navCopyright">
-          All rights reserved © 2018 The Guild
+          <span>All rights reserved </span>
+          <span>© 2018 The Guild</span>
         </div>
       </footer>
     );

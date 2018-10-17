@@ -17,6 +17,7 @@ const LearnSection = require(`${process.cwd()}/core/custom/home/learn-section`)
 
 const Index = () => (
   <React.Fragment>
+    <div className="backgroundTop"></div>
     <Intro />
     <Companies />
     <Features />

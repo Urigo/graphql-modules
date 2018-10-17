@@ -696,6 +696,12 @@ textarea, input {
   background-color: #13114a;
   position: relative;
   padding: 25px 50px;
+
+  background-color: #13114a;
+  background-image: url(/img/hexagonal.svg);
+  background-repeat: no-repeat;
+  background-size: 800px auto;
+  background-position: left -370px bottom -310px;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Intro {
@@ -774,6 +780,7 @@ textarea, input {
   margin: 0;
   bottom: 0;
   right: 0;
+  z-index: 101;
 }
 
 .LearnSection {
@@ -1023,7 +1030,6 @@ textarea, input {
 }
 
 .navPusher {
-  pointer-events: none;
   padding-top: 0;
   position: static;
 }
@@ -1059,7 +1065,60 @@ footer .navMenu {
   display: flex;
 }
 footer .navMenu > * {
+  margin-left: 25px;
   font-family: "Montserrat";
-  font-size: 14px;
-  color: #b0b7dd;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.64;
+  color: #ffffff;
+}
+
+.backgroundTop {
+  pointer-events: none;
+  background-size: 800px auto;
+  background: url(/img/hexagonal.svg) no-repeat right -245px top -80px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+}
+
+@media only screen and (max-width: 1023px) {
+  footer .navMenu {
+    display: none;
+  }
+
+  footer .navCopyright > span:first-child {
+    display: none;
+  }
+
+  header {
+    position: static !important;
+  }
+
+  header .navigationSlider {
+    position: static;
+  }
+
+  header .slidingNav {
+    position: absolute !important;
+  }
+
+  .backgroundTop {
+    background: none;
+  }
+
+  .Intro {
+    background-image: none;
+  }
+
+  .Intro > ._start-section {
+    padding-top: 50px;
+  }
+
+  .docsNavContainer {
+    position: absolute;
+  }
 }
