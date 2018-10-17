@@ -871,3 +871,56 @@ textarea, input {
     content: "•";
   }
 }
+
+.fixedHeaderContainer {
+  padding-top: 25px;
+  padding-bottom: 25px;
+  z-index: 99;
+  position: relative;
+}
+
+.navPusher {
+  pointer-events: none;
+  padding-top: 0;
+  position: static;
+}
+
+.headerTitleWithLogo {
+  display: none !important;
+}
+
+.projectTitle {
+  font-family: "Montserrat";
+  font-size: 40px;
+  font-weight: bold;
+  line-height: 1.23;
+  color: #ffffff;
+}
+
+footer {
+  pointer-events: auto;
+  padding-top: 16px !important;
+  padding-bottom: 8px !important;
+  display: flex;
+  justify-content: space-around;
+
+  .nav-footer {
+    background-color: #13114a;
+  }
+
+  .navCopyright {
+    font-family: "Montserrat";
+    font-size: 14px;
+    color: #b0b7dd;
+  }
+
+  .navMenu {
+    display: flex;
+  }
+
+  .navMenu > * {
+    font-family: "Montserrat";
+    font-size: 14px;
+    color: #b0b7dd;
+  }
+}
