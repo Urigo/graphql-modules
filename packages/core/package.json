@@ -30,7 +30,7 @@
     "@graphql-modules/logger": "0.1.8",
     "@graphql-modules/sonar": "0.1.8",
     "dependency-graph": "0.7.2",
-    "graphql-tools": "4.0.0",
+    "graphql-tools": "4.0.2",
     "inversify": "5.0.1",
     "tslib": "1.9.3"
   },
