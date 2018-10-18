@@ -1,0 +1,22 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Every file
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_size = 2
+indent_style = space
+
+[*.{md,markdown}]
+indent_style = ignore
+insert_final_newline = ignore
+trim_trailing_whitespace = false
+
+[{*.json}]
+indent_size = 2
+indent_style = space
