@@ -9,6 +9,6 @@ export function mergeResolvers(resolvers: | Array<IResolvers<any, any>>): IResol
   if (resolvers.length === 1) {
     return resolvers[0];
   }
-
+  // @ts-ignore
   return deepMerge.all(resolvers);
 }
