@@ -22,12 +22,10 @@ export const authModule = new GraphQLModule({
       me: (root, args, context) => context.authenticatedUser,
     },
   },
-  contextBuilder: (req: Request) => {
-    return {
-      authenticatedUser: {
-        _id: 1,
-        username: 'me',
-      },
-    };
-  }
+  contextBuilder: (req: Request) => ({
+    authenticatedUser: {
+      _id: 1,
+      username: 'me',
+    },
+  }),
 });

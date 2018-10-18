@@ -4,30 +4,23 @@ import { Provider, Injector, AppContext } from './di/types';
 import { DocumentNode, print } from 'graphql';
 
 /**
- * Object defining the structure of GraphQL context object
- */
-export interface IGraphQLContext {
-  [key: string]: any;
-}
-
-/**
  * A context builder method signature for `contextBuilder`.
  */
-export type BuildContextFn = (
-  networkRequest: any,
-  currentContext: AppContext,
+export type BuildContextFn<Request, Context> = (
+  networkRequest: Request,
+  currentContext: AppContext<Context>,
   injector: Injector,
-) => IGraphQLContext;
+) => Context;
 
 /**
  * Defines the structure of a dependency as it declared in each module's `dependencies` field.
  */
-export type ModuleDependency = GraphQLModule | string;
+export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, Request, Context> | string;
 
 /**
  * Defined the structure of GraphQL module options object.
  */
-export interface GraphQLModuleOptions {
+export interface GraphQLModuleOptions<Request, Context> {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
@@ -49,14 +42,14 @@ export interface GraphQLModuleOptions {
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  contextBuilder?: BuildContextFn;
+  contextBuilder?: BuildContextFn<Request, Context>;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  dependencies?: (() => ModuleDependency[] | string[]) | string[] | ModuleDependency[];
+  dependencies?: (() => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
@@ -84,20 +77,20 @@ export const ModuleConfig = (name: string) =>
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `withConfig`
  */
-export class GraphQLModule<Config = any> {
+export class GraphQLModule<Config, Request, Context> {
   private readonly _name: string;
   private _resolvers: IResolvers = {};
   private _typeDefs: string;
   private _providers: Provider[] = null;
-  private _contextBuilder: BuildContextFn = null;
-  private _options: GraphQLModuleOptions;
+  private _contextBuilder: BuildContextFn<Request, Context> = null;
+  private _options: GraphQLModuleOptions<Request, Context>;
   private _moduleConfig: Config = null;
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(options: GraphQLModuleOptions) {
+  constructor(options: GraphQLModuleOptions<Request, Context>) {
     this._options = options;
     this._name = options.name;
     this._typeDefs =
@@ -126,7 +119,7 @@ export class GraphQLModule<Config = any> {
   /**
    * Returns a list of the module's dependencies.
    */
-  get dependencies(): ModuleDependency[] {
+  get dependencies(): Array<ModuleDependency<any, Request, Context>> {
     return (
       (typeof this.options.dependencies === 'function'
         ? this.options.dependencies()
@@ -145,7 +138,7 @@ export class GraphQLModule<Config = any> {
   /**
    * Return the options object that module was created with.
    */
-  get options(): GraphQLModuleOptions {
+  get options(): GraphQLModuleOptions<Request, Context> {
     return this._options;
   }
 
@@ -175,7 +168,7 @@ export class GraphQLModule<Config = any> {
   /**
    * Returns the `buildContext` method of the module
    */
-  get contextBuilder(): BuildContextFn {
+  get contextBuilder(): BuildContextFn<Request, Context> {
     return this._contextBuilder;
   }
 
@@ -183,7 +176,7 @@ export class GraphQLModule<Config = any> {
    * Sets the context builder of the module
    * @param contextBuilder - the new context builder
    */
-  set contextBuilder(contextBuilder: BuildContextFn) {
+  set contextBuilder(contextBuilder: BuildContextFn<Request, Context>) {
     this._contextBuilder = contextBuilder;
   }
 
