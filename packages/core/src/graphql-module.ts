@@ -1,7 +1,12 @@
-import { IResolvers } from 'graphql-tools';
-import { mergeGraphQLSchemas } from '@graphql-modules/epoxy';
-import { Provider, Injector, AppContext } from './di/types';
+import { IResolvers, makeExecutableSchema } from 'graphql-tools';
+import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
+import { Provider, AppContext } from './di/types';
 import { DocumentNode, print } from 'graphql';
+import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
+import { Injector } from './di';
+import { AppInfo } from './app-info';
+import { DepGraph } from 'dependency-graph';
+import logger from '@graphql-modules/logger';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -25,7 +30,7 @@ export interface GraphQLModuleOptions<Request, Context> {
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
    */
-  name: string;
+  name?: string;
   /**
    * A definition of GraphQL type definitions, as string or `DocumentNode`.
    * Arrays are also accepted, and they will get merged.
@@ -57,6 +62,10 @@ export interface GraphQLModuleOptions<Request, Context> {
    * shared across all GraphQL executions.
    */
   providers?: Provider[];
+  /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
+  resolversComposition?: IResolversComposerMapping;
+  /** a list of `GraphQLModule` you wish to load to your app */
+  modules?: (() => Array<GraphQLModule<any, Request, Context>>) | Array<GraphQLModule<any, Request, Context>>;
 }
 
 /**
@@ -78,32 +87,51 @@ export const ModuleConfig = (name: string) =>
  * configuration object to use later with `withConfig`
  */
 export class GraphQLModule<Config, Request, Context> {
-  private readonly _name: string;
-  private _resolvers: IResolvers = {};
-  private _typeDefs: string;
-  private _providers: Provider[] = null;
-  private _contextBuilder: BuildContextFn<Request, Context> = null;
-  private _options: GraphQLModuleOptions<Request, Context>;
   private _moduleConfig: Config = null;
+  private _appInfo = new AppInfo<Config, Request, Context>();
+  private _injector: Injector;
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(options: GraphQLModuleOptions<Request, Context>) {
-    this._options = options;
-    this._name = options.name;
-    this._typeDefs =
-      options.typeDefs &&
-      (typeof options.typeDefs === 'function'
-        ? null
-        : Array.isArray(options.typeDefs)
-          ? mergeGraphQLSchemas(options.typeDefs)
-          : typeof options.typeDefs === 'string' ? options.typeDefs : print(options.typeDefs));
-    this._resolvers =
-      typeof options.resolvers === 'function' ? null : options.resolvers || {};
-    this._providers = options.providers || null;
-    this._contextBuilder = options.contextBuilder || null;
+  constructor(private _options: GraphQLModuleOptions<Request, Context>) {}
+
+  get _typeDefs(): any {
+    return this._options.typeDefs &&
+    (typeof this._options.typeDefs === 'function'
+      ? this._options.typeDefs(this._moduleConfig) as string
+      : Array.isArray(this._options.typeDefs)
+        ? mergeGraphQLSchemas(this._options.typeDefs)
+        : typeof this._options.typeDefs === 'string' ? this._options.typeDefs : print(this._options.typeDefs));
+  }
+
+  get _resolvers(): IResolvers {
+    return typeof this._options.resolvers === 'function' ? this._options.resolvers(this._moduleConfig) : this._options.resolvers || {};
+  }
+
+  get _providers(): Provider[] {
+    return this._options.providers || [];
+  }
+
+  get _contextBuilder(): BuildContextFn<Request, Context> {
+    return this._options.contextBuilder;
+  }
+
+  get _resolversComposition(): IResolversComposerMapping {
+    return this._options.resolversComposition || {};
+  }
+
+  get _dependencies(): Array<ModuleDependency<any, Request, Context>> {
+    return (typeof this._options.dependencies === 'function'
+    ? this._options.dependencies()
+    : this._options.dependencies) || [];
+  }
+
+  get _modules(): Array<GraphQLModule<any, Request, Context>> {
+    return (typeof this._options.modules === 'function'
+    ? this._options.modules()
+    : this._options.modules) || [];
   }
 
   /**
@@ -120,11 +148,7 @@ export class GraphQLModule<Config, Request, Context> {
    * Returns a list of the module's dependencies.
    */
   get dependencies(): Array<ModuleDependency<any, Request, Context>> {
-    return (
-      (typeof this.options.dependencies === 'function'
-        ? this.options.dependencies()
-        : this.options.dependencies) || []
-    );
+    return this._dependencies || [];
   }
 
   /**
@@ -132,37 +156,25 @@ export class GraphQLModule<Config, Request, Context> {
    * of the module
    */
   get config(): Config {
-    return this._moduleConfig;
-  }
-
-  /**
-   * Return the options object that module was created with.
-   */
-  get options(): GraphQLModuleOptions<Request, Context> {
-    return this._options;
+    return this._moduleConfig || {} as Config;
   }
 
   /**
    * Returns the module's name
    */
   get name(): string {
-    return this._name;
+    return this._options.name || 'name';
   }
 
   /**
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
    */
-  get typeDefs(): any {
-    return this._typeDefs;
-  }
-
-  /**
-   * Sets the type definitions of the module
-   * @param value - the new type definitions
-   */
-  set typeDefs(value: any) {
-    this._typeDefs = Array.isArray(value) ? mergeGraphQLSchemas(value) : value;
+  get typeDefs(): string {
+    return mergeGraphQLSchemas([
+      ...this._modules.map(module => module.typeDefs),
+      ...(this._typeDefs ? [this._typeDefs] : []),
+    ]);
   }
 
   /**
@@ -173,32 +185,188 @@ export class GraphQLModule<Config, Request, Context> {
   }
 
   /**
-   * Sets the context builder of the module
-   * @param contextBuilder - the new context builder
-   */
-  set contextBuilder(contextBuilder: BuildContextFn<Request, Context>) {
-    this._contextBuilder = contextBuilder;
-  }
-
-  /**
    * Returns the resolvers object of the module
    */
   get resolvers(): IResolvers {
-    return this._resolvers;
-  }
-
-  /**
-   * Sets the resolvers object of the module
-   * @param value
-   */
-  set resolvers(value: IResolvers) {
-    this._resolvers = value;
+    const mergedResolvers = mergeResolvers([
+      ...this._modules.map(module => module.resolvers),
+      ...(this._resolvers ? [this._resolvers] : []),
+    ]);
+    return composeResolvers(mergedResolvers, this._resolversComposition);
   }
 
   /**
    * Returns the list of providers of the module
    */
   get providers(): Provider[] {
-    return this._providers;
+    return [
+      ...this._modules.map(module => module.providers),
+      ...this._providers,
+    ];
   }
-}
+
+  get schema() {
+    return makeExecutableSchema({
+      typeDefs: this.typeDefs,
+      resolvers: this.resolvers,
+    });
+  }
+
+  private buildInjector(): void {
+    const injector = new Injector({
+      defaultScope: 'Singleton',
+      autoBindInjectable: false,
+    });
+
+    // app info
+    injector.provide({
+      provide: AppInfo,
+      useValue: this._appInfo,
+    });
+
+    // module's providers
+    for (const module of this._modules) {
+      // module's config
+      injector.provide({
+        provide: ModuleConfig(module.name),
+        useValue: module.config,
+      });
+
+      // module's providers
+      if (module && module.providers) {
+        module.providers.forEach(provider => {
+          injector.provide(provider);
+        });
+      }
+    }
+
+    // initialize module's providers
+    this._modules.forEach(module => {
+      if (module && module.providers) {
+        module.providers.forEach(provider => {
+          injector.init(provider);
+        });
+      }
+    });
+
+    this._injector = injector;
+  }
+
+  get injector() {
+    if (!this._injector) {
+      this.buildInjector();
+    }
+    return this._injector;
+  }
+
+  /**
+   * Gets a module by it's name
+   * @param name - the name of the requested module
+   */
+  public getModule(name: string): GraphQLModule<any, Request, Context> | null {
+    return this._modules.find(module => module.name === name) || null;
+  }
+
+  /**
+   * Build a dependency graph and order it according to the init order.
+   * It also handles circular dependencies.
+   *
+   * @param modules - list of GraphQLModule
+   */
+  private getModulesDependencyGraph(modules: Array<GraphQLModule<any, Request, Context>>): string[] {
+    const graph = new DepGraph({ circular: true });
+
+    for (const module of modules) {
+      graph.addNode(module.name);
+    }
+
+    for (const module of modules) {
+      (module.dependencies || []).forEach(dep => {
+        graph.addDependency(
+          module.name,
+          typeof dep === 'string' ? dep : dep.name,
+        );
+      });
+    }
+
+    const order = graph.overallOrder() || [];
+
+    if (order.length !== modules.length) {
+      return [
+        ...order,
+        ...modules.filter(m => !order.includes(m.name)).map(m => m.name),
+      ];
+    }
+
+    return order;
+  }
+
+  /**
+   * Build a GraphQL `context` object based on a network request.
+   * It iterates over all modules by their dependency-based order, and executes
+   * `contextBuilder` method.
+   * It also in charge of injecting a reference to the application `Injector` to
+   * the `context`.
+   * The network request is passed to each `contextBuilder` method, and the return
+   * value of each `contextBuilder` is merged into a unified `context` object.
+   *
+   * This method should be in use with your GraphQL manager, such as Apollo-Server.
+   *
+   * @param networkRequest - the network request from `connect`, `express`, etc...
+   */
+  context = async (request: Request): Promise<AppContext<Context>> => {
+      const injector = this.injector;
+      const depGraph = this.getModulesDependencyGraph(this._modules);
+      const builtResult: any = {
+        injector,
+      };
+      const result: any = {};
+
+      let module: GraphQLModule<any, Request, Context>;
+      try {
+        for (const depName of depGraph) {
+          module = this.getModule(depName);
+
+          if (module && module.contextBuilder) {
+            const appendToContext: any = await module.contextBuilder(
+              request,
+              result,
+              injector,
+            );
+
+            if (appendToContext && typeof appendToContext === 'object') {
+              Object.assign(builtResult, appendToContext);
+            }
+          }
+        }
+
+        this._appInfo.initialize({
+          request,
+          context: builtResult,
+          appModule: this,
+        });
+      } catch (e) {
+        logger.error(
+          `Unable to build context! Module "${module.name}" failed: `,
+          e,
+        );
+
+        throw e;
+      }
+
+      const builtKeys = Object.keys(builtResult);
+
+      // I guess we can remove it
+      for (const key of builtKeys) {
+        if (result.hasOwnProperty(key)) {
+          logger.warn(
+            `One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`,
+          );
+        } else {
+          result[key] = builtResult[key];
+        }
+      }
+
+      return result;
+    }
+  }

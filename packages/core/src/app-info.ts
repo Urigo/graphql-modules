@@ -1,21 +1,21 @@
-import { GraphQLApp } from './graphql-app';
 import { AppContext } from '@graphql-modules/core/src/di/types';
+import { GraphQLModule } from './graphql-module';
 
 /** Current application info, includes information such as the current network request, the current execution context and the GraphQLApp */
-export class AppInfo<Request, Context> {
+export class AppInfo<Config, Request, Context> {
   private request: any;
   private context: AppContext<Context>;
-  private app: GraphQLApp<Request, Context>;
+  private appModule: GraphQLModule<Config, Request, Context>;
 
   /**
    * The method is used internally be `GraphQLApp` to set the request, context and app each
    * a context object has built.
    * @hidden
    */
-  initialize({ request, context, app }: { request: Request; context: AppContext<Context>, app: GraphQLApp<Request, Context> }) {
+  initialize({ request, context, appModule }: { request: Request; context: AppContext<Context>, appModule: GraphQLModule<Config, Request, Context> }) {
     this.request = request;
     this.context = context;
-    this.app = app;
+    this.appModule = appModule;
   }
 
   /** Returns the current network request. The request object comes from your network
@@ -34,7 +34,7 @@ export class AppInfo<Request, Context> {
 
   /** Returns the current `GraphQLApp` your are running it.
    */
-  public getApp(): GraphQLApp<Request, Context> {
-    return this.app;
+  public getAppModule(): GraphQLModule<Config, Request, Context> {
+    return this.appModule;
   }
 }

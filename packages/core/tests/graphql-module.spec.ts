@@ -8,7 +8,7 @@ describe('GraphQLModule', () => {
   it('should create GraphQL Module correctly with basic single file typedef', () => {
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES });
 
-    expect(module.typeDefs).toEqual(`type Test { f: String }`);
+    expect(stripWhitespaces(module.typeDefs)).toEqual(`type Test { f: String }`);
   });
 
   it('should create GraphQL Module correctly with basic multiple files typedef', () => {
@@ -18,15 +18,6 @@ describe('GraphQLModule', () => {
     });
 
     expect(stripWhitespaces(module.typeDefs)).toEqual(stripWhitespaces(`type Test { f: String } type Test2 { f: String }`));
-  });
-
-  it('should not use typedefs when typedefs are a function', () => {
-    const module = new GraphQLModule({
-      name: 'test',
-      typeDefs: () => [`type Test { f: String }`, `type Test2 { f: String }`],
-    });
-
-    expect(module.typeDefs).toBeNull();
   });
 
   it('should set a provider that is an object', () => {
@@ -58,8 +49,7 @@ describe('GraphQLModule', () => {
 
   it('should set the context builder fn correctly', () => {
     const mockCallback = jest.fn();
-    const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES });
-    module.contextBuilder = mockCallback;
+    const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, contextBuilder: mockCallback });
 
     expect(module.contextBuilder).toBe(mockCallback);
   });

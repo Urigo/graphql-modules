@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { GraphQLApp, GraphQLModule, ModuleConfig, injectable, inject, AppInfo } from '../src';
+import { GraphQLModule, ModuleConfig, injectable, inject, AppInfo } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 
-describe('GraphQLApp', () => {
+describe('GraphQLAppModule', () => {
   // A
   @injectable()
   class ProviderA {
@@ -77,7 +77,7 @@ describe('GraphQLApp', () => {
   const testQuery = gql`query { b { f }}`;
 
   it('should return the correct GraphQLSchema', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB] });
+    const app = new GraphQLModule({ modules: [moduleA, moduleB] });
     const schema = app.schema;
 
     expect(schema).toBeDefined();
@@ -86,11 +86,11 @@ describe('GraphQLApp', () => {
       type A {
         f: String
       }
-      
+
       type B {
         f: String
       }
-      
+
       type Query {
         a: A
         b: B
@@ -98,9 +98,9 @@ describe('GraphQLApp', () => {
   });
 
   it('should trigger the correct GraphQL context builders and build the correct context', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
     const schema = app.schema;
-    const context = await app.buildContext();
+    const context = await app.context();
 
     const result = await execute({
       schema,
@@ -112,9 +112,9 @@ describe('GraphQLApp', () => {
   });
 
   it('should provide network request to AppInfo', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
     const request = {};
-    const context = await app.buildContext(request);
+    const context = await app.context(request);
 
     expect(context.injector.get(AppInfo).getRequest()).toBe(request);
   });
@@ -122,23 +122,23 @@ describe('GraphQLApp', () => {
   it('should work without a GraphQL schema and set providers', async () => {
     const provider = {};
     const token = Symbol.for('provider');
-    const module = new GraphQLModule<any>({
+    const module = new GraphQLModule({
       name: 'module',
       providers: [{
         provide: token,
         useValue: provider,
       }],
     });
-    const app = new GraphQLApp({ modules: [module] });
-    const context = await app.buildContext();
+    const app = new GraphQLModule({ modules: [module] });
+    const context = await app.context();
 
     expect(context.injector.get(token)).toBe(provider);
   });
 
   it('should inject implementation object into the context using the module name', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
     const schema = app.schema;
-    const context = await app.buildContext();
+    const context = await app.context();
 
     const result = await execute({
       schema,
@@ -150,27 +150,27 @@ describe('GraphQLApp', () => {
   });
 
   it('should throw an exception when a contextFn throws an exception', async () => {
-    const app = new GraphQLApp({ modules: [moduleD] });
+    const app = new GraphQLModule({ modules: [moduleD] });
     const spy = jest.fn();
 
-    await app.buildContext().catch(spy).then(() => expect(spy).toHaveBeenCalled());
+    await app.context().catch(spy).then(() => expect(spy).toHaveBeenCalled());
   });
 
   it('should put the correct providers to the injector', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
-    const { injector } = await app.buildContext();
+    const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
+    const { injector } = await app.context();
 
     expect(injector.get(ProviderA) instanceof ProviderA).toBe(true);
   });
 
   it('should allow to get resolvers', async () => {
-    const app = new GraphQLApp({ modules: [moduleA, moduleB, moduleC] });
+    const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
 
     expect(app.resolvers).toBeDefined();
   });
 
   it('should accept non modules schema and resovlers', async () => {
-    const app = new GraphQLApp({ modules: [moduleA], nonModules: { typeDefs: typesB, resolvers: resolversB } });
+    const app = new GraphQLModule({ modules: [moduleA], typeDefs: typesB, resolvers: resolversB });
     const schema = app.schema;
 
     expect(schema).toBeDefined();
@@ -179,11 +179,11 @@ describe('GraphQLApp', () => {
       type A {
         f: String
       }
-      
+
       type B {
         f: String
       }
-      
+
       type Query {
         a: A
         b: B
@@ -211,7 +211,7 @@ describe('GraphQLApp', () => {
         ],
       });
 
-      const app = new GraphQLApp({
+      const app = new GraphQLModule({
         modules: [m1, m2],
       });
 
@@ -240,11 +240,11 @@ describe('GraphQLApp', () => {
       }
       const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
       const module2 = new GraphQLModule({ name: '2', providers: [Provider2] });
-      const app = new GraphQLApp({ modules: [module2, module1] });
+      const app = new GraphQLModule({ modules: [module2, module1] });
 
-      expect(counter).toEqual(2);
       expect(app.injector.get(Provider1).count).toEqual(1);
       expect(app.injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(2);
     });
 
     it('should init modules in the right order with multiple circular dependencies', async () => {
@@ -273,11 +273,11 @@ describe('GraphQLApp', () => {
       const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
       const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], providers: [Provider2] });
       const module3 = new GraphQLModule({ name: '3', dependencies: ['1'], providers: [Provider3] });
-      const app = new GraphQLApp({ modules: [module2, module1, module3] });
+      const app = new GraphQLModule({ modules: [module2, module1, module3] });
 
-      expect(counter).toEqual(3);
       expect(app.injector.get(Provider1).count).toEqual(1);
       expect(app.injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(3);
     });
 
     it('should init modules in the right order with 2 circular dependencies', async () => {
@@ -298,11 +298,11 @@ describe('GraphQLApp', () => {
       }
       const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
       const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], providers: [Provider2] });
-      const app = new GraphQLApp({ modules: [module2, module1] });
+      const app = new GraphQLModule({ modules: [module2, module1] });
 
-      expect(counter).toEqual(2);
       expect(app.injector.get(Provider1).count).toEqual(1);
       expect(app.injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(2);
     });
 
     it('should set config per each module', async () => {
@@ -322,7 +322,7 @@ describe('GraphQLApp', () => {
       }
       const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] }).withConfig({test: 1});
       const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).withConfig({test: 2});
-      const app = new GraphQLApp({ modules: [module2, module1] });
+      const app = new GraphQLModule({ modules: [module2, module1] });
 
       expect(app.injector.get(Provider1).test).toEqual(1);
       expect(app.injector.get(Provider2).test).toEqual(2);
