@@ -85,7 +85,7 @@ That's also means that we can use `UserProvider` from other modules, and use `ge
 
 ## Import providers from other modules
 
-To use `Provider` from other module, you just need to use `@inject` and specify the injection token you wish to get.
+To use `Provider` from other module, you can just inject it using .
 
 Injection token are just a way to identify your value and fetch it from the poll of the available injectables.
 
@@ -99,7 +99,7 @@ import { OtherProvider } from '../my-other-module/other.provider';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(OtherProvider) private otherProvider: OtherProvider) {
+    constructor(private otherProvider: OtherProvider) {
 
     }
 }
@@ -204,7 +204,7 @@ import { injectable, AppInfo, inject } from '@graphql-modules/core';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(AppInfo) private appInfo: AppInfo) {
+    constructor(private appInfo: AppInfo) {
 
     }
 
@@ -246,11 +246,11 @@ The messages are built in a form of `string => any` - so the key of each message
 It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
-import { injectable, CommunicationBridge, inject } from '@graphql-modules/core';
+import { injectable, CommunicationBridge } from '@graphql-modules/core';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(CommunicationBridge) private pubsub) {
+    constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them
         pubsub.subscribe('NOTIFY_USER', payload => {
             // Do something

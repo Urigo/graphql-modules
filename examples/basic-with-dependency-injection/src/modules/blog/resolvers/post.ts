@@ -5,6 +5,6 @@ export default {
   Post: {
     id: post => post._id,
     title: post => post.title,
-    author: (post, args, { injector }: AppContext) => injector.get<Blog>(Blog).getAuthor(post.authorId),
+    author: (post, args, { injector }: AppContext) => injector.get(Blog).getAuthor(post.authorId),
   },
 };

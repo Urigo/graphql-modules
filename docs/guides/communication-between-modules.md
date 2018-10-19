@@ -14,15 +14,13 @@ GraphQL Modules provide multiple ways of doing it, and you should pick the right
 
 If your modules are coupled and you they should know each other because their logic and combined with each user, you cam use direct dependency injection.
 
-To do it, just use `@inject` to get other `Provider`s from other modules:
-
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { injectable } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(OtherProvider) private otherProvider: OtherProvider) {
+    constructor(private otherProvider: OtherProvider) {
 
     }
 }
@@ -49,7 +47,7 @@ export class MyProvider {
 
 Then, your app or other modules can use the following to implement it:
 
-```
+```typescript
 class MyImplementation implements IOtherProviderSignature {
     doSomething() {
         // ... some code ...
@@ -59,7 +57,7 @@ class MyImplementation implements IOtherProviderSignature {
 
 And provide it using `providers`:
 
-```
+```typescript
 { provide: MY_CLASS_TOKEN, useClass: MyImplementation }
 ```
 
@@ -87,11 +85,11 @@ const graphQlApp = new GraphQLApp({
 Then, to use `CommunicationBridge`, you can do the following:
 
 ```typescript
-import { injectable, inject, CommunicationBridge } from '@graphql-modules/core';
+import { injectable, CommunicationBridge } from '@graphql-modules/core';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(CommunicationBridge) private pubsub) {
+    constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them
         pubsub.subscribe('NOTIFY_USER', payload => {
             // Do something

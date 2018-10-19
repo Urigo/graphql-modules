@@ -1,4 +1,4 @@
-import { injectable, inject } from '@graphql-modules/core';
+import { injectable } from '@graphql-modules/core';
 import { Users } from '../../user/providers/users';
 
 const posts = [
@@ -22,7 +22,7 @@ const posts = [
 @injectable()
 export class Blog {
   constructor(
-    @inject(Users) private users: Users,
+    private users: Users,
   ) {}
 
   getPostsOf(userId: number) {

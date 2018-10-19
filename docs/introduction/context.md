@@ -73,7 +73,7 @@ interface MyExtendedContext extends AppContext {
 
 export default {
     Query: {
-        myQuery: (_, args, { myField }: AppContext MyExtendedContext) =>
+        myQuery: (_, args, { myField }: MyExtendedContext) =>
             injector.get(MyProvider).doSomething(myField),
     },
 };
