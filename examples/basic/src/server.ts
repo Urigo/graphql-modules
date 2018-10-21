@@ -1,7 +1,7 @@
 import { GraphQLModule } from '@graphql-modules/core';
-import { ApolloServer, Config } from 'apollo-server';
+import { ApolloServer } from 'apollo-server';
 
-export async function run(app: GraphQLModule<any, any, any>) {
+export async function run(app: GraphQLModule) {
   const { typeDefs, resolvers, schema } = app;
   const server = new ApolloServer({
     typeDefs,

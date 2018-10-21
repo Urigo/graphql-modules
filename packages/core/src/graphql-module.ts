@@ -86,7 +86,7 @@ export const ModuleConfig = (name: string) =>
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `withConfig`
  */
-export class GraphQLModule<Config, Request, Context> {
+export class GraphQLModule<Config = any, Request = any, Context = any> {
   private _moduleConfig: Config = null;
   private _appInfo = new AppInfo<Config, Request, Context>();
   private _injector: Injector;
@@ -170,7 +170,7 @@ export class GraphQLModule<Config, Request, Context> {
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
    */
-  get typeDefs(): string {
+  get typeDefs(): any {
     return mergeGraphQLSchemas([
       ...this._modules.map(module => module.typeDefs),
       ...(this._typeDefs ? [this._typeDefs] : []),
