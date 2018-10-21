@@ -1,8 +1,8 @@
-import { GraphQLApp, } from '@graphql-modules/core';
+import { GraphQLModule, } from '@graphql-modules/core';
 import { userModule } from './modules/user';
 import { blogModule } from './modules/blog';
 
-export const app = new GraphQLApp({
+export const app = new GraphQLModule({
   modules: [
     userModule,
     blogModule,
