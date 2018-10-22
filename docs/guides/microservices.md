@@ -38,14 +38,14 @@ export class MyCommunicationBridge implements CommunicationBridge {
 }
 ```
 
-Then, make sure to use it in your `GraphQLApp` declaration:
+Then, make sure to use it in your `GraphQLModule` declaration:
 
 ```typescript
-import { GraphQLApp, EventEmitterCommunicationBridge } from '@graphql-modules/core';
+import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
+const graphQLModule = new GraphQLModule({
     communicationBridge: new MyCommunicationBridge(),
-    modules: [ /* ... */],
+    /* ... */
 });
 ```
 

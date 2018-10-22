@@ -80,16 +80,13 @@ export const hasRole = (role: string) => next => async (root, args, context, inf
 ```
 
 
-Now, on our `GraphQLApp` declaration, let's add `resolversComposition` and add a map between `Type.field` to the function (or functions) we wish to wrap the resolver with:
+Now, on our `GraphQLModule` declaration, let's add `resolversComposition` and add a map between `Type.field` to the function (or functions) we wish to wrap the resolver with:
 
 ```typescript
-import { GraphQLApp } from '@graphql-modules/core';
-import { myModule } from './modules/my-module';
+import { GraphQLModule } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
-    modules: [
-        myModule,
-    ],
+const graphQlModule = new GraphQLModule({
+    /*...*/
     resolversComposition: {
         'Query.myQuery': [isAuthenticated, hasRole('EDITOR')],
     },

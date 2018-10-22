@@ -32,7 +32,7 @@ describe('GraphQLModule', () => {
 
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, providers: [provider] });
 
-    expect(module.providers[0]).toBe(provider);
+    expect(module.providers.includes(provider)).toBeTruthy();
   });
 
   it('should set a provider that is a class', () => {
@@ -44,7 +44,7 @@ describe('GraphQLModule', () => {
 
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, providers: [MyClass] });
 
-    expect(module.providers[0]).toBe(MyClass);
+    expect(module.providers.includes(MyClass)).toBeTruthy();
   });
 
   it('should set the context builder fn correctly', () => {

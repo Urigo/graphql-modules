@@ -69,15 +69,21 @@ It's useful when you want to notify other module about something, without knowin
 
 `CommunicationBridge` is implemented as a simple Pub/Sub mechanism, with the ability to publish and subscribe to messages.
 
-First, you need to tell `GraphQLApp` how do you wish to transmit your messages. GraphQL Modules provides a simple `CommunicationBridge` implementation based on `EventEmitter`.
+First, you need to tell `GraphQLModule` how do you wish to transmit your messages. GraphQL Modules provides a simple `CommunicationBridge` implementation based on `EventEmitter`.
 
-To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to your `GraphQLApp` instance:
+To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to your `GraphQLModule` instance:
 
 ```typescript
-import { GraphQLApp, EventEmitterCommunicationBridge } from '@graphql-modules/core';
+import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
-    communicationBridge: new EventEmitterCommunicationBridge(),
+const graphQlModule = new GraphQLModule({
+    providers: [
+      {
+        provide: CommunicationBridge,
+        useClass: EventEmitterCommunicationBridge
+      }
+      /* ... */
+    ]
     modules: [ /* ... */],
 });
 ```

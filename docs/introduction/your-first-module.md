@@ -28,19 +28,4 @@ export const myFirstModule = new GraphQLModule({
 });
 ```
 
-> `name` is used to set the name of your module, it will also effect other aspects of your module later (such as config, context building and more)
-
-Now let's import this module and use it as part of our `GraphQLApp`:
-
-```typescript
-import { GraphQLApp } from '@graphql-modules/core';
-import { myFirstModule } from './modules/my-first-module';
-
-const graphQlApp = new GraphQLApp({
-    modules: [
-        myFirstModule,
-    ],
-});
-```
-
-That's it, you now have a ready-to-use `GraphQLModule` and `GraphQLApp`, our next step is to expose it using `ApolloServer`.
+That's it, you now have a ready-to-use `GraphQLModule`, our next step is to expose it using `ApolloServer`.

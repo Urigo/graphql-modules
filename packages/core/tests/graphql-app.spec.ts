@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, injectable, inject, AppInfo } from '../src';
+import { GraphQLModule, ModuleConfig, injectable, inject, AppInfo, CommunicationBridge, EventEmitterCommunicationBridge } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -100,7 +100,7 @@ describe('GraphQLAppModule', () => {
   it('should trigger the correct GraphQL context builders and build the correct context', async () => {
     const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
     const schema = app.schema;
-    const context = await app.context();
+    const context = await app.context({ req: {} });
 
     const result = await execute({
       schema,
@@ -130,7 +130,7 @@ describe('GraphQLAppModule', () => {
       }],
     });
     const app = new GraphQLModule({ modules: [module] });
-    const context = await app.context();
+    const context = await app.context({ req: {} });
 
     expect(context.injector.get(token)).toBe(provider);
   });
@@ -138,7 +138,7 @@ describe('GraphQLAppModule', () => {
   it('should inject implementation object into the context using the module name', async () => {
     const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
     const schema = app.schema;
-    const context = await app.context();
+    const context = await app.context({ req: {} });
 
     const result = await execute({
       schema,
@@ -153,12 +153,12 @@ describe('GraphQLAppModule', () => {
     const app = new GraphQLModule({ modules: [moduleD] });
     const spy = jest.fn();
 
-    await app.context().catch(spy).then(() => expect(spy).toHaveBeenCalled());
+    await app.context({ req: {} }).catch(spy).then(() => expect(spy).toHaveBeenCalled());
   });
 
   it('should put the correct providers to the injector', async () => {
     const app = new GraphQLModule({ modules: [moduleA, moduleB, moduleC] });
-    const { injector } = await app.context();
+    const { injector } = await app.context({ req: {} });
 
     expect(injector.get(ProviderA) instanceof ProviderA).toBe(true);
   });
@@ -326,6 +326,17 @@ describe('GraphQLAppModule', () => {
 
       expect(app.injector.get(Provider1).test).toEqual(1);
       expect(app.injector.get(Provider2).test).toEqual(2);
+    });
+    it('should set CommunicationBridge correctly', async () => {
+      const app = new GraphQLModule({
+        providers: [
+          {
+            provide: CommunicationBridge,
+            useClass: EventEmitterCommunicationBridge,
+          },
+        ],
+      });
+      expect(app.injector.get(CommunicationBridge) instanceof EventEmitterCommunicationBridge).toBeTruthy();
     });
   });
 });

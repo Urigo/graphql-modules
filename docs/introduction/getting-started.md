@@ -16,18 +16,20 @@ Or Npm:
 npm install --save graphql @graphql-modules/core
 ```
 
-Then, create your `GraphQLApp` instance:
+Then, create your `GraphQLModule` instance:
 
 ```typescript
-import { GraphQLApp } from '@graphql-modules/core';
+import { GraphQLModule } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
+const graphQlModule = new GraphQLModule({
+    typeDefs: [],
+    resolvers: {},
     modules: [],
 });
 ```
 
-`GraphQLApp` manages your module, GraphQL schema, resolvers, context building and the communication between your modules.
+`GraphQLModule` manages your submodules, GraphQL schema, resolvers, context building and the communication between your modules.
 
-So now you have a ready-to-use `GraphQLApp` instance. Go ahead and create your first `GraphQLModule`.
+So now you have a ready-to-use `GraphQLModule` instance. Go ahead and create your first `GraphQLModule`.
 
 Now it's time to implement the schema resolvers and connect it to some data.

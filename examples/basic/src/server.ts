@@ -2,11 +2,10 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
 export async function run(app: GraphQLModule) {
-  const { typeDefs, resolvers, schema } = app;
+  const { schema, context } = app;
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
     schema,
+    context,
     introspection: true,
   });
   const { url } = await server.listen();

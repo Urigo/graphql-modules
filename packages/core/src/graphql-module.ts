@@ -200,6 +200,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get providers(): Provider[] {
     return [
+      {
+        provide: ModuleConfig(this.name),
+        useValue: this.config,
+      },
       ...this._modules.map(module => module.providers),
       ...this._providers,
     ];
@@ -213,43 +217,26 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   private buildInjector(): void {
-    const injector = new Injector({
+    this._injector = new Injector({
       defaultScope: 'Singleton',
       autoBindInjectable: false,
     });
 
     // app info
-    injector.provide({
+    this._injector.provide({
       provide: AppInfo,
       useValue: this._appInfo,
     });
 
-    // module's providers
-    for (const module of this._modules) {
-      // module's config
-      injector.provide({
-        provide: ModuleConfig(module.name),
-        useValue: module.config,
+    if (this.providers) {
+      this.providers.forEach(provider => {
+        this._injector.provide(provider);
       });
 
-      // module's providers
-      if (module && module.providers) {
-        module.providers.forEach(provider => {
-          injector.provide(provider);
-        });
-      }
+      this.providers.forEach(provider => {
+        this._injector.init(provider);
+      });
     }
-
-    // initialize module's providers
-    this._modules.forEach(module => {
-      if (module && module.providers) {
-        module.providers.forEach(provider => {
-          injector.init(provider);
-        });
-      }
-    });
-
-    this._injector = injector;
   }
 
   get injector() {

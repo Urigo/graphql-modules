@@ -1,6 +1,8 @@
 import { CommunicationBridge } from './communication-bridge';
 import { EventEmitter } from 'events';
+import { injectable } from 'inversify';
 
+@injectable()
 export class EventEmitterCommunicationBridge implements CommunicationBridge {
   private readonly _ee: EventEmitter;
 
