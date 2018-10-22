@@ -1,6 +1,7 @@
-export interface CommunicationBridge {
-  subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void };
-  publish<T = any>(event: string, payload: T): void;
-}
+import { injectable } from 'inversify';
 
-export const CommunicationBridge = Symbol.for('CommunicationBridge');
+@injectable()
+export abstract class CommunicationBridge {
+  abstract subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void };
+  abstract publish<T = any>(event: string, payload: T): void;
+}

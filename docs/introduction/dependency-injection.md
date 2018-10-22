@@ -141,14 +141,6 @@ export class MyProvider {
 
 > This is a very common and useful design-pattern related to dependency injection, and with the power of TypeScript interfaces, you can easily use it.
 
-## App-Level Providers
-
-Besides adding providers to each module, you can declare and add modules to your `GraphQLApp`.
-
-Add `providers: [...]` to your `GraphQLApp` declaration, and add there the list of `Provider`s you wish to expose.
-
-App-level providers are useful when you need to provide global instances and utils, such as logger, database instance, remote service connection and so on.
-
 ## Custom Injectables
 
 You can also create custom `Provider`s, which are non-classes, with dependency injection tokens.
@@ -197,7 +189,7 @@ GraphQL Modules give you some built-in injectables, and you can inject them into
 
 ### `AppInfo`
 
-With this injectable, you can get access to useful information: the current `GraphQLApp`, GraphQL Context, and the network request.
+With this injectable, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
 
 ```typescript
 import { injectable, AppInfo, inject } from '@graphql-modules/core';
@@ -211,7 +203,7 @@ export class MyProvider {
     doSomething() {
         const networkRequest = this.appInfo.getRequest();
         const currentContext = this.appInfo.getContext();
-        const graphQlApp = this.appInfo.getApp();
+        const graphQlAppModule = this.appInfo.getAppModule();
 
         // ...do your magic...
     }

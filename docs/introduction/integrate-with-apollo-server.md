@@ -12,32 +12,24 @@ To get started, add `apollo-server` to your app:
 yarn add apollo-server
 ```
 
-Then, create a new instance of `ApolloServer`, and use your `GraphQLApp` instance to generate the config to pass to `ApolloServer` constructor:
+Then, create a new instance of `ApolloServer`, and use your `GraphQLModule` instance to generate the config to pass to `ApolloServer` constructor:
 
 ```typescript
-import { GraphQLApp } from '@graphql-modules/core';
-import { myFirstModule } from './modules/my-first-module';
+import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
-const graphQlApp = new GraphQLApp({
-    modules: [
-        myFirstModule,
-    ],
+const { schema, context } = new GraphQLModule({
+    /*...*/
 });
 
-const serverConfig = graphQlApp.generateServerConfig();
-const server = new ApolloServer(serverConfig);
+const server = new ApolloServer({
+  schema,
+  context,
+  /*...*/
+});
 
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
-});
-```
-
-You can also use `generateServerConfig` method to add additional config fields that you wish to pass to `ApolloServer`:
-
-```typescript
-const serverConfig = graphQlApp.generateServerConfig<ApolloServer.Config>({
-    introspection: true,
 });
 ```
 
