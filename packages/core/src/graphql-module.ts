@@ -85,30 +85,22 @@ export const ModuleConfig = (name: string) =>
  * configuration object to use later with `withConfig`
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
-  private _moduleConfig: Config = null;
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(private _options: GraphQLModuleOptions<Config, Request, Context>) {}
-
-  get contextBuilder(): BuildContextFn<Request, Context> {
-    return this._options.contextBuilder;
-  }
-
-  get resolversComposition(): IResolversComposerMapping {
-    return this._options.resolversComposition || {};
-  }
+  constructor(
+    private _options: GraphQLModuleOptions<Config, Request, Context>,
+    private _moduleConfig?: Config,
+    ) {}
 
   /**
-   * Sets the module configuration object
+   * Creates another instance of the module using a configuration
    * @param config - the config object
    */
-  withConfig(config: Config): this {
-    this._moduleConfig = config;
-
-    return this;
+  withConfig(config: Config): GraphQLModule<Config, Request, Context> {
+    return new GraphQLModule<Config, Request, Context>(this._options, config);
   }
 
   /**
@@ -120,13 +112,41 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   /**
+   * Sets the module configuration object
+   * @param config - the config object
+   */
+  set config(config: Config) {
+    this._moduleConfig = config;
+  }
+
+  get contextBuilder(): BuildContextFn<Request, Context> {
+    return this._options.contextBuilder;
+  }
+
+  set contextBuilder(contextBuilder) {
+    this._options.contextBuilder = contextBuilder;
+  }
+
+  get resolversComposition(): IResolversComposerMapping {
+    return this._options.resolversComposition || {};
+  }
+
+  set resolversComposition(resolversComposition) {
+    this._options.resolversComposition = resolversComposition;
+  }
+
+  /**
    * Returns the module's name
    */
   get name(): string {
     return this._options.name || 'app';
   }
 
-  private get subModules() {
+  set name(name) {
+    this._options.name = name;
+  }
+
+  get subModules() {
     let subModules = new Array<ModuleDependency<any, Request, any>>();
     if (this._options.modules) {
       if (typeof this._options.modules === 'function') {
@@ -192,6 +212,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return modules;
   }
 
+  set modules(modules) {
+    this._options.modules = modules;
+  }
+
   /**
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
@@ -214,6 +238,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }));
   }
 
+  set typeDefs(typeDefs) {
+    this._options.typeDefs = typeDefs;
+  }
+
   /**
    * Returns the resolvers object of the module
    */
@@ -234,6 +262,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }));
   }
 
+  set resolvers(resolvers) {
+    this._options.resolvers = resolvers;
+  }
+
   /**
    * Returns the list of providers of the module
    */
@@ -249,6 +281,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       );
     }
     return providers;
+  }
+
+  set providers(providers) {
+    this._options.providers = providers;
   }
 
   get schema() {

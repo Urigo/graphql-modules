@@ -1,4 +1,5 @@
 import { get, set } from 'lodash';
+import { IResolvers } from 'graphql-tools';
 
 export interface IResolversComposerMapping {
   [resolverPath: string]: any | any[];
@@ -42,7 +43,7 @@ function chainFunctions(funcs: any[]) {
  * @param mapping - resolvers composition mapping
  * @hidden
  */
-export function composeResolvers(resolvers: any, mapping: IResolversComposerMapping = {}): any {
+export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): any {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
     const relevantFields = resolveRelevantMappings(resolvers, resolverPath, mapping);

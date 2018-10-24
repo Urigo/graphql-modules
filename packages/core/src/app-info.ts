@@ -3,7 +3,7 @@ import { GraphQLModule } from './graphql-module';
 
 /** Current application info, includes information such as the current network request, the current execution context and the top GraphQLModule */
 export class AppInfo<Config, Request, Context> {
-  private request: any;
+  private request: Request;
   private context: AppContext<Context>;
   private appModule: GraphQLModule<Config, Request, Context>;
 
@@ -22,7 +22,7 @@ export class AppInfo<Config, Request, Context> {
    * library (such as `connect` or `express`).
    * @return network request object
    */
-  public getRequest(): any {
+  public getRequest(): Request {
     return this.request;
   }
 
