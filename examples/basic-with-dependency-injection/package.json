@@ -1,6 +1,6 @@
 {
   "name": "examples-di",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "private": true,
   "main": "index.js",
   "license": "MIT",

@@ -10,7 +10,6 @@
     ]
   },
   "scripts": {
-    "version": "docusaurus-version",
     "test": "lerna run test",
     "build": "lerna run build",
     "build:api-docs": "./generate-api-docs.sh",
@@ -21,14 +20,14 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "@types/graphql": "14.0.0",
-    "@types/jest": "23.3.2",
+    "@types/graphql": "14.0.3",
+    "@types/jest": "23.3.5",
     "graphql": "14.0.2",
     "jest": "23.6.0",
-    "lerna": "3.3.1",
+    "lerna": "3.4.1",
     "rimraf": "2.6.2",
     "ts-jest": "22.4.6",
-    "typedoc": "0.12.0",
+    "typedoc": "0.13.0",
     "typedoc-plugin-docusaurus": "1.0.14",
     "replace-in-file": "3.4.2"
   },

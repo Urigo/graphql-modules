@@ -7,7 +7,7 @@ import { GraphQLModule, ModuleConfig } from './graphql-module';
 import { CommunicationBridge } from './communication';
 import { composeResolvers, IResolversComposerMapping } from './resolvers-composition';
 import { Injector } from './di';
-import { AppContext, Injector as SimpleInjector, Provider } from './di/types';
+import { Injector as SimpleInjector, Provider, AppContext } from './di/types';
 import { AppInfo } from './app-info';
 
 /**
@@ -29,9 +29,9 @@ export interface NonModules {
 /**
  * This interface defines the options you need to pass to `GraphQLApp`
  */
-export interface GraphQLAppOptions {
+export interface GraphQLAppOptions<Request, Context> {
   /** a list of `GraphQLModule` you wish to load to your app */
-  modules: GraphQLModule[];
+  modules: Array<GraphQLModule<any, Request, Context>>;
   /** Specify non-module schema and resolvers */
   nonModules?: NonModules;
   /** `CommunicationBridge` object that will handle the pub/sub messages between your modules */
@@ -46,17 +46,17 @@ export interface GraphQLAppOptions {
  * Signature for `context` function as we need to pass it to GraphQL
  * servers such as Apollo-Server.
  */
-export type ContextBuilder = (reqContext: any) => Promise<AppContext>;
+export type ContextBuilder<Request, Context> = (reqContext: Request) => Promise<AppContext<Context>>;
 
 /**
  * Default GraphQL server configuration object, should match most
  * of the popular servers
  */
-export interface BaseServerConfiguration {
+export interface BaseServerConfiguration<Request, Context> {
   schema: GraphQLSchema;
   typeDefs: any;
   resolvers: IResolvers;
-  context: ContextBuilder;
+  context: ContextBuilder<Request, Context>;
 }
 
 /**
@@ -64,8 +64,8 @@ export interface BaseServerConfiguration {
  * building your GraphQL Context, control the flow of the app and connect
  * to your GraphQL external endpoint
  */
-export class GraphQLApp {
-  private readonly _modules: GraphQLModule[];
+export class GraphQLApp<Request = any, Context = { [key: string]: any }> {
+  private readonly _modules: Array<GraphQLModule<any, Request, Context>>;
   private _schema: GraphQLSchema;
   private _resolvers: IResolvers;
   private _typeDefs: string;
@@ -73,13 +73,13 @@ export class GraphQLApp {
     defaultScope: 'Singleton',
     autoBindInjectable: false,
   });
-  private _appInfo = new AppInfo();
+  private _appInfo = new AppInfo<Request, Context>();
 
   /**
    * Creates your GraphQLApp instance
    * @param options - configuration object
    */
-  constructor(private options: GraphQLAppOptions) {
+  constructor(private options: GraphQLAppOptions<Request, Context>) {
     this._modules = options.modules;
 
     this.initModules();
@@ -154,7 +154,7 @@ export class GraphQLApp {
    *
    * @param modules - list of GraphQLModule
    */
-  private getModulesDependencyGraph(modules: GraphQLModule[]): string[] {
+  private getModulesDependencyGraph(modules: Array<GraphQLModule<any, Request, Context>>): string[] {
     const graph = new DepGraph({ circular: true });
 
     for (const module of modules) {
@@ -211,7 +211,7 @@ export class GraphQLApp {
   /**
    * Gets the array modules in the app
    */
-  get modules(): GraphQLModule[] {
+  get modules(): Array<GraphQLModule<any, Request, Context>> {
     return this._modules;
   }
 
@@ -290,7 +290,7 @@ export class GraphQLApp {
    * Get the current application info if it's during execution
    * of a GraphQL document.
    */
-  get appInfo(): AppInfo {
+  get appInfo(): AppInfo<Request, Context> {
     return this._appInfo;
   }
 
@@ -298,7 +298,7 @@ export class GraphQLApp {
    * Gets a module by it's name
    * @param name - the name of the requested module
    */
-  public getModule(name: string): GraphQLModule | null {
+  public getModule(name: string): GraphQLModule<any, Request, Context> | null {
     return this._modules.find(module => module.name === name) || null;
   }
 
@@ -322,17 +322,17 @@ export class GraphQLApp {
    *
    * @param networkRequest - the network request from `connect`, `express`, etc...
    */
-  async buildContext(networkRequest?: any): Promise<AppContext> {
+  async buildContext(networkRequest?: Request): Promise<AppContext<Context>> {
     const depGraph = this.getModulesDependencyGraph(this._modules);
     const injector = {
       get: this._injector.get.bind(this._injector),
     };
-    const builtResult = {
+    const builtResult: any = {
       injector,
     };
     const result: any = {};
 
-    let module: GraphQLModule;
+    let module: GraphQLModule<any, Request, Context>;
     try {
       for (const depName of depGraph) {
         module = this.getModule(depName);
@@ -391,14 +391,14 @@ export class GraphQLApp {
    * @param extraConfig - extra configuration to add to the object.
    */
   generateServerConfig<
-    ServerConfiguration extends Partial<BaseServerConfiguration> & IExtraConfig,
-    IExtraConfig = Pick<ServerConfiguration, Exclude<keyof ServerConfiguration, keyof BaseServerConfiguration>>
+    ServerConfiguration extends Partial<BaseServerConfiguration<Request, Context>> & IExtraConfig,
+    IExtraConfig = Pick<ServerConfiguration, Exclude<keyof ServerConfiguration, keyof BaseServerConfiguration<Request, Context>>>
   >(extraConfig?: IExtraConfig): ServerConfiguration {
     return Object.assign({} as ServerConfiguration, extraConfig, {
       schema: this.schema,
       typeDefs: this.typeDefs,
       resolvers: this.resolvers,
-      context: reqContext => this.buildContext(reqContext.req),
+      context: <T extends { req: Request }>(reqContext: T) => this.buildContext(reqContext.req),
     });
   }
 }

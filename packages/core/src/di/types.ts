@@ -27,7 +27,4 @@ export interface Injector {
   get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T;
 }
 
-export interface AppContext {
-  injector: Injector;
-  [key: string]: any;
-}
+export type AppContext<Context = { [key: string]: any }> = Context & { injector: Injector };

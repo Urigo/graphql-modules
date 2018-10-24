@@ -1,7 +1,6 @@
-import { InputObjectTypeDefinitionNode, ObjectTypeDefinitionNode } from 'graphql';
+import { InputObjectTypeDefinitionNode } from 'graphql';
 import { mergeFields } from './fields';
 import { mergeDirectives } from './directives';
-import { mergeNamedTypeArray } from './merge-named-type-array';
 import { InputValueDefinitionNode } from 'graphql/language/ast';
 
 export function mergeInputType(node: InputObjectTypeDefinitionNode, existingNode: InputObjectTypeDefinitionNode): InputObjectTypeDefinitionNode {

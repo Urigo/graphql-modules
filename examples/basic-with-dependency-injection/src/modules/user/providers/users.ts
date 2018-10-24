@@ -1,4 +1,4 @@
-import { inject, injectable } from '@graphql-modules/core';
+import { injectable } from '@graphql-modules/core';
 
 const users = [{
   _id: 0,
