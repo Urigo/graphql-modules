@@ -61,7 +61,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * All loaded class will be loaded as Singletons, and the instance will be
    * shared across all GraphQL executions.
    */
-  providers?: Provider[];
+  providers?: Provider[] | ((config: Config) => Provider[]);
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping;
   }
@@ -277,8 +277,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           provide: ModuleConfig(module.name),
           useValue: module.config,
         },
-      ...(module._options.providers || []),
       );
+      if (module._options.providers) {
+        if (typeof module._options.providers === 'function') {
+          providers.push(
+            ...module._options.providers(this.config),
+          );
+        } else {
+          providers.push(
+            ...module._options.providers,
+          );
+        }
+      }
     }
     return providers;
   }

@@ -43,7 +43,7 @@ function chainFunctions(funcs: any[]) {
  * @param mapping - resolvers composition mapping
  * @hidden
  */
-export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): any {
+export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): IResolvers {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
     const relevantFields = resolveRelevantMappings(resolvers, resolverPath, mapping);
