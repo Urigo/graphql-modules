@@ -196,7 +196,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
    */
-  get typeDefs(): any {
+  get typeDefs() {
     return mergeGraphQLSchemas(this.modules.map(module => {
       if (module._options.typeDefs) {
         if (typeof module._options.typeDefs === 'function') {
