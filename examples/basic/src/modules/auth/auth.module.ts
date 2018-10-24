@@ -1,10 +1,11 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import { Request } from 'express';
 import gql from 'graphql-tag';
+import { userModule } from '../user/user.module';
 
 export const authModule = new GraphQLModule({
   name: 'auth',
-  dependencies: ['user'],
+  modules: ['user'],
   typeDefs: gql`
     type Query {
       me: User

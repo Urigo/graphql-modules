@@ -25,7 +25,7 @@ export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, R
 /**
  * Defined the structure of GraphQL module options object.
  */
-export interface GraphQLModuleOptions<Request, Context> {
+export interface GraphQLModuleOptions<Config, Request, Context> {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
@@ -37,12 +37,12 @@ export interface GraphQLModuleOptions<Request, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: string | string[] | DocumentNode | DocumentNode[] | ((config: any) => string | string[] | DocumentNode | DocumentNode[]);
+  typeDefs?: string | string[] | DocumentNode | DocumentNode[] | ((config: Config) => string | string[] | DocumentNode | DocumentNode[]);
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: IResolvers | ((config: any) => IResolvers);
+  resolvers?: IResolvers | ((config: Config) => IResolvers);
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -54,7 +54,7 @@ export interface GraphQLModuleOptions<Request, Context> {
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  dependencies?: (() => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
+  modules?: ((config: Config) => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
@@ -64,9 +64,7 @@ export interface GraphQLModuleOptions<Request, Context> {
   providers?: Provider[];
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping;
-  /** a list of `GraphQLModule` you wish to load to your app */
-  modules?: (() => Array<GraphQLModule<any, Request, Context>>) | Array<GraphQLModule<any, Request, Context>>;
-}
+  }
 
 /**
  * Returns a dependency injection token for getting a module's configuration object by
@@ -88,50 +86,19 @@ export const ModuleConfig = (name: string) =>
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
   private _moduleConfig: Config = null;
-  private _appInfo = new AppInfo<Config, Request, Context>();
-  private _injector: Injector;
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(private _options: GraphQLModuleOptions<Request, Context>) {}
+  constructor(private _options: GraphQLModuleOptions<Config, Request, Context>) {}
 
-  get _typeDefs(): any {
-    return this._options.typeDefs &&
-    (typeof this._options.typeDefs === 'function'
-      ? this._options.typeDefs(this._moduleConfig) as string
-      : Array.isArray(this._options.typeDefs)
-        ? mergeGraphQLSchemas(this._options.typeDefs)
-        : typeof this._options.typeDefs === 'string' ? this._options.typeDefs : print(this._options.typeDefs));
-  }
-
-  get _resolvers(): IResolvers {
-    return typeof this._options.resolvers === 'function' ? this._options.resolvers(this._moduleConfig) : this._options.resolvers || {};
-  }
-
-  get _providers(): Provider[] {
-    return this._options.providers || [];
-  }
-
-  get _contextBuilder(): BuildContextFn<Request, Context> {
+  get contextBuilder(): BuildContextFn<Request, Context> {
     return this._options.contextBuilder;
   }
 
-  get _resolversComposition(): IResolversComposerMapping {
+  get resolversComposition(): IResolversComposerMapping {
     return this._options.resolversComposition || {};
-  }
-
-  get _dependencies(): Array<ModuleDependency<any, Request, Context>> {
-    return (typeof this._options.dependencies === 'function'
-    ? this._options.dependencies()
-    : this._options.dependencies) || [];
-  }
-
-  get _modules(): Array<GraphQLModule<any, Request, Context>> {
-    return (typeof this._options.modules === 'function'
-    ? this._options.modules()
-    : this._options.modules) || [];
   }
 
   /**
@@ -142,13 +109,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._moduleConfig = config;
 
     return this;
-  }
-
-  /**
-   * Returns a list of the module's dependencies.
-   */
-  get dependencies(): Array<ModuleDependency<any, Request, Context>> {
-    return this._dependencies || [];
   }
 
   /**
@@ -163,7 +123,73 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Returns the module's name
    */
   get name(): string {
-    return this._options.name || 'name';
+    return this._options.name || 'app';
+  }
+
+  private get subModules() {
+    let subModules = new Array<ModuleDependency<any, Request, any>>();
+    if (this._options.modules) {
+      if (typeof this._options.modules === 'function') {
+        subModules = this._options.modules(this.config);
+      } else {
+        subModules = this._options.modules;
+      }
+    }
+    return subModules;
+  }
+
+  /**
+   * Build a dependency graph and order it according to the init order.
+   * It also handles circular dependencies.
+   *
+   */
+  get dependencyGraph(): DepGraph<GraphQLModule<any, Request, any>> {
+    const graph = new DepGraph<GraphQLModule<any, Request, any>>({ circular: true });
+
+    function visitModuleToAddNode(module: GraphQLModule<any, Request, any>) {
+      if (!graph.hasNode(module.name)) {
+        graph.addNode(module.name, module);
+        for (const subModule of module.subModules) {
+          if (typeof subModule !== 'string') {
+            visitModuleToAddNode(subModule);
+          }
+        }
+      }
+    }
+
+    function visitModuleToAddDependency(module: GraphQLModule<any, Request, any>, top = false) {
+      for (const subModule of module.subModules) {
+        if (top) {
+          graph.addDependency(
+              module.name,
+              typeof subModule === 'string' ? subModule : subModule.name,
+          );
+        }
+        if (typeof subModule !== 'string') {
+          visitModuleToAddDependency(subModule);
+        }
+      }
+    }
+
+    visitModuleToAddNode(this);
+    visitModuleToAddDependency(this, true);
+    return graph;
+  }
+
+  /**
+   * Build a dependency graph and order it according to the init order.
+   * It also handles circular dependencies.
+   *
+   */
+  get modules() {
+    const graph = this.dependencyGraph;
+    const modules = graph.overallOrder().map(moduleName => graph.getNodeData(moduleName));
+    for (const subModule of this.subModules) {
+      if (typeof subModule !== 'string' && !modules.includes(subModule)) {
+        modules.push(subModule);
+      }
+    }
+    return modules;
   }
 
   /**
@@ -171,42 +197,58 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @return a `string` with the merged type definitions
    */
   get typeDefs(): any {
-    return mergeGraphQLSchemas([
-      ...this._modules.map(module => module.typeDefs),
-      ...(this._typeDefs ? [this._typeDefs] : []),
-    ]);
-  }
-
-  /**
-   * Returns the `buildContext` method of the module
-   */
-  get contextBuilder(): BuildContextFn<Request, Context> {
-    return this._contextBuilder;
+    return mergeGraphQLSchemas(this.modules.map(module => {
+      if (module._options.typeDefs) {
+        if (typeof module._options.typeDefs === 'function') {
+          return module._options.typeDefs(module._moduleConfig);
+        } else if (Array.isArray(module._options.typeDefs)) {
+          return mergeGraphQLSchemas(module._options.typeDefs);
+        } else if (typeof module._options.typeDefs === 'string') {
+          return module._options.typeDefs as any;
+        } else {
+          return print(module._options.typeDefs);
+        }
+      } else {
+        return [];
+      }
+    }));
   }
 
   /**
    * Returns the resolvers object of the module
    */
   get resolvers(): IResolvers {
-    const mergedResolvers = mergeResolvers([
-      ...this._modules.map(module => module.resolvers),
-      ...(this._resolvers ? [this._resolvers] : []),
-    ]);
-    return composeResolvers(mergedResolvers, this._resolversComposition);
+    return mergeResolvers(this.modules.map(module => {
+      let resolvers = {};
+      if (module._options.resolvers) {
+        if (typeof module._options.resolvers === 'function') {
+          resolvers = module._options.resolvers(module._moduleConfig);
+        } else {
+          resolvers = module._options.resolvers;
+        }
+      }
+      return composeResolvers(
+        resolvers,
+        module.resolversComposition || {},
+      );
+    }));
   }
 
   /**
    * Returns the list of providers of the module
    */
   get providers(): Provider[] {
-    return [
-      {
-        provide: ModuleConfig(this.name),
-        useValue: this.config,
-      },
-      ...this._modules.map(module => module.providers),
-      ...this._providers,
-    ];
+    const providers = new Array<Provider>();
+    for (const module of this.modules) {
+      providers.push(
+        {
+          provide: ModuleConfig(module.name),
+          useValue: module.config,
+        },
+      ...(module._options.providers || []),
+      );
+    }
+    return providers;
   }
 
   get schema() {
@@ -216,76 +258,29 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     });
   }
 
-  private buildInjector(): void {
-    this._injector = new Injector({
+  get injector(): SimpleInjector {
+    const injector = new Injector({
       defaultScope: 'Singleton',
       autoBindInjectable: false,
     });
 
     // app info
-    this._injector.provide({
+    injector.provide({
       provide: AppInfo,
-      useValue: this._appInfo,
+      useValue: new AppInfo<Config, Request, Context>(),
     });
 
-    if (this.providers) {
-      this.providers.forEach(provider => {
-        this._injector.provide(provider);
-      });
+    const providers = this.providers;
 
-      this.providers.forEach(provider => {
-        this._injector.init(provider);
-      });
-    }
-  }
-
-  get injector(): SimpleInjector {
-    if (!this._injector) {
-      this.buildInjector();
-    }
-    return this._injector;
-  }
-
-  /**
-   * Gets a module by it's name
-   * @param name - the name of the requested module
-   */
-  public getModule(name: string): GraphQLModule<any, Request, Context> | null {
-    return this._modules.find(module => module.name === name) || null;
-  }
-
-  /**
-   * Build a dependency graph and order it according to the init order.
-   * It also handles circular dependencies.
-   *
-   * @param modules - list of GraphQLModule
-   */
-  private getModulesDependencyGraph(modules: Array<GraphQLModule<any, Request, Context>>): string[] {
-    const graph = new DepGraph({ circular: true });
-
-    for (const module of modules) {
-      graph.addNode(module.name);
+    for (const provider of providers) {
+      injector.provide(provider);
     }
 
-    for (const module of modules) {
-      (module.dependencies || []).forEach(dep => {
-        graph.addDependency(
-          module.name,
-          typeof dep === 'string' ? dep : dep.name,
-        );
-      });
+    for (const provider of providers) {
+      injector.init(provider);
     }
 
-    const order = graph.overallOrder() || [];
-
-    if (order.length !== modules.length) {
-      return [
-        ...order,
-        ...modules.filter(m => !order.includes(m.name)).map(m => m.name),
-      ];
-    }
-
-    return order;
+    return injector;
   }
 
   /**
@@ -303,21 +298,16 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   context = async (request: Request): Promise<AppContext<Context>> => {
       const injector = this.injector;
-      const depGraph = this.getModulesDependencyGraph(this._modules);
-      const builtResult: any = {
+      const builtResult: AppContext<any> = {
         injector,
       };
-      const result: any = {};
 
-      let module: GraphQLModule<any, Request, Context>;
-      try {
-        for (const depName of depGraph) {
-          module = this.getModule(depName);
-
+      for (const module of this.modules) {
+        try {
           if (module && module.contextBuilder) {
-            const appendToContext: any = await module.contextBuilder(
+            const appendToContext = await module.contextBuilder(
               request,
-              result,
+              builtResult,
               injector,
             );
 
@@ -325,35 +315,22 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
               Object.assign(builtResult, appendToContext);
             }
           }
-        }
-
-        this._appInfo.initialize({
-          request,
-          context: builtResult,
-          appModule: this,
-        });
-      } catch (e) {
-        logger.error(
-          `Unable to build context! Module "${module.name}" failed: `,
-          e,
-        );
-
-        throw e;
-      }
-
-      const builtKeys = Object.keys(builtResult);
-
-      // I guess we can remove it
-      for (const key of builtKeys) {
-        if (result.hasOwnProperty(key)) {
-          logger.warn(
-            `One of you context builders returned a key named ${key}, and it's conflicting with a root module name! Ignoring...`,
+        } catch (e) {
+          logger.error(
+            `Unable to build context! Module "${module.name}" failed: `,
+            e,
           );
-        } else {
-          result[key] = builtResult[key];
+
+          throw e;
         }
       }
 
-      return result;
+      injector.get(AppInfo).initialize({
+        request,
+        context: builtResult,
+        appModule: this,
+      });
+
+      return builtResult;
     }
   }

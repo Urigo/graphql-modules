@@ -40,7 +40,7 @@ export const myModule = new GraphQLModule({
     providers: [
         UserProvider,
     ],
-    dependencies: [
+    modules: [
         mySecondModule,
     ],
 });
@@ -49,7 +49,7 @@ export const myModule = new GraphQLModule({
 Or, you can add a dependency by using only the name of the module as string:
 
 ```typescript
-dependencies: [
+modules: [
     'my-second-module',
 ],
 ```

@@ -1,5 +1,6 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
+import { userModule } from '../user/user.module';
 
 export const socialNetworkModule = new GraphQLModule({
   name: 'socialNetwork',
@@ -8,7 +9,7 @@ export const socialNetworkModule = new GraphQLModule({
       friends: [User]
     }
   `,
-  dependencies: ['user'],
+  modules: ['user'],
   resolvers: {
     User: {
       friends: user => user.friends,

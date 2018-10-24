@@ -238,12 +238,11 @@ describe('GraphQLAppModule', () => {
           this.count = counter++;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
+      const module1 = new GraphQLModule({ name: '1', modules: ['2'], providers: [Provider1] });
       const module2 = new GraphQLModule({ name: '2', providers: [Provider2] });
-      const app = new GraphQLModule({ modules: [module2, module1] });
-
-      expect(app.injector.get(Provider1).count).toEqual(1);
-      expect(app.injector.get(Provider2).count).toEqual(0);
+      const { injector } = new GraphQLModule({ modules: [module2, module1] });
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(2);
     });
 
@@ -270,13 +269,12 @@ describe('GraphQLAppModule', () => {
           this.count = counter++;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
-      const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], providers: [Provider2] });
-      const module3 = new GraphQLModule({ name: '3', dependencies: ['1'], providers: [Provider3] });
-      const app = new GraphQLModule({ modules: [module2, module1, module3] });
-
-      expect(app.injector.get(Provider1).count).toEqual(1);
-      expect(app.injector.get(Provider2).count).toEqual(0);
+      const module1 = new GraphQLModule({ name: '1', modules: ['2'], providers: [Provider1] });
+      const module2 = new GraphQLModule({ name: '2', modules: ['1'], providers: [Provider2] });
+      const module3 = new GraphQLModule({ name: '3', modules: ['1'], providers: [Provider3] });
+      const {injector} = new GraphQLModule({ modules: [module2, module1, module3] });
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(3);
     });
 
@@ -296,12 +294,12 @@ describe('GraphQLAppModule', () => {
           this.count = counter++;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] });
-      const module2 = new GraphQLModule({ name: '2', dependencies: ['1'], providers: [Provider2] });
-      const app = new GraphQLModule({ modules: [module2, module1] });
+      const module1 = new GraphQLModule({ name: '1', modules: ['2'], providers: [Provider1] });
+      const module2 = new GraphQLModule({ name: '2', modules: ['1'], providers: [Provider2] });
+      const {injector} = new GraphQLModule({ modules: [module2, module1] });
 
-      expect(app.injector.get(Provider1).count).toEqual(1);
-      expect(app.injector.get(Provider2).count).toEqual(0);
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(2);
     });
 
@@ -320,15 +318,15 @@ describe('GraphQLAppModule', () => {
           this.test = config.test;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', dependencies: ['2'], providers: [Provider1] }).withConfig({test: 1});
+      const module1 = new GraphQLModule({ name: '1', modules: ['2'], providers: [Provider1] }).withConfig({test: 1});
       const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).withConfig({test: 2});
-      const app = new GraphQLModule({ modules: [module2, module1] });
+      const {injector} = new GraphQLModule({ modules: [module2, module1] });
 
-      expect(app.injector.get(Provider1).test).toEqual(1);
-      expect(app.injector.get(Provider2).test).toEqual(2);
+      expect(injector.get(Provider1).test).toEqual(1);
+      expect(injector.get(Provider2).test).toEqual(2);
     });
     it('should set CommunicationBridge correctly', async () => {
-      const app = new GraphQLModule({
+      const {injector} = new GraphQLModule({
         providers: [
           {
             provide: CommunicationBridge,
@@ -336,7 +334,7 @@ describe('GraphQLAppModule', () => {
           },
         ],
       });
-      expect(app.injector.get(CommunicationBridge) instanceof EventEmitterCommunicationBridge).toBeTruthy();
+      expect(injector.get(CommunicationBridge) instanceof EventEmitterCommunicationBridge).toBeTruthy();
     });
   });
 });
