@@ -326,15 +326,16 @@ describe('GraphQLAppModule', () => {
       expect(injector.get(Provider2).test).toEqual(2);
     });
     it('should set CommunicationBridge correctly', async () => {
+      const communicationBridge = new EventEmitterCommunicationBridge();
       const {injector} = new GraphQLModule({
         providers: [
           {
             provide: CommunicationBridge,
-            useClass: EventEmitterCommunicationBridge,
+            useValue: communicationBridge,
           },
         ],
       });
-      expect(injector.get(CommunicationBridge) instanceof EventEmitterCommunicationBridge).toBeTruthy();
+      expect(injector.get(CommunicationBridge) === communicationBridge).toBeTruthy();
     });
   });
 });

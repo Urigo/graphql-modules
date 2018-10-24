@@ -76,11 +76,13 @@ To use it, create an instance of `EventEmitterCommunicationBridge` and pass to t
 ```typescript
 import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
 
+const communicationBridge = new EventEmitterCommunicationBridge();
+
 const graphQlModule = new GraphQLModule({
     providers: [
       {
         provide: CommunicationBridge,
-        useClass: EventEmitterCommunicationBridge
+        useValue: communicationBridge
       }
       /* ... */
     ]
