@@ -9,9 +9,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "file:../../packages/core",
-    "@graphql-modules/epoxy": "file:../../packages/epoxy",
-    "@graphql-modules/sonar": "file:../../packages/sonar",
+    "@graphql-modules/core": "*",
+    "@graphql-modules/epoxy": "*",
+    "@graphql-modules/sonar": "*",
     "apollo-server": "2.0.7",
     "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
