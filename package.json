@@ -5,8 +5,8 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*/",
-      "examples/*/"
+      "packages/*",
+      "examples/*"
     ]
   },
   "scripts": {
