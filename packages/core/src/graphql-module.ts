@@ -1,6 +1,6 @@
 import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, AppContext } from './di/types';
+import { Provider, AppContext, Injector as SimpleInjector } from './di/types';
 import { DocumentNode, print } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { Injector } from './di';
@@ -14,7 +14,7 @@ import logger from '@graphql-modules/logger';
 export type BuildContextFn<Request, Context> = (
   networkRequest: Request,
   currentContext: AppContext<Context>,
-  injector: Injector,
+  injector: SimpleInjector,
 ) => Context;
 
 /**
@@ -239,7 +239,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
   }
 
-  get injector() {
+  get injector(): SimpleInjector {
     if (!this._injector) {
       this.buildInjector();
     }
