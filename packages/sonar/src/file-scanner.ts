@@ -5,14 +5,15 @@ import { logger } from '@graphql-modules/logger';
 import { print } from 'graphql';
 
 const DEFAULT_SCHEMA_EXTENSIONS = ['gql', 'graphql', 'graphqls', 'ts', 'js'];
+const DEFAULT_IGNORED_RESOLVERS_EXTENSIONS = ['spec', 'test'];
 const DEFAULT_RESOLVERS_EXTENSIONS = ['ts', 'js'];
 
 function scanForFiles(globStr: string, globOptions: IOptions = {}): string[] {
   return sync(globStr, { absolute: true, ...globOptions });
 }
 
-function buildGlob(basePath: string, extensions: string[]): string {
-  return `${basePath}/**/*.${extensions.length === 1 ? extensions[0] : '{' + extensions.join(',') + '}'}`;
+function buildGlob(basePath: string, extensions: string[], ignoredExtensions: string[] = []): string {
+  return `${basePath}/**/${ignoredExtensions.length > 0 ? `!(${ignoredExtensions.map(e => '*.' + e).join('|')})` : '*'}+(${extensions.map(e => '*.' + e).join('|')})`;
 }
 
 function extractExports(fileExport: any): any | null {
@@ -59,7 +60,7 @@ const LoadSchemaFilesDefaultOptions: LoadSchemaFilesOptions = {
 
 export function loadSchemaFiles(basePath: string, options: LoadSchemaFilesOptions = LoadSchemaFilesDefaultOptions): string[] {
   const execOptions = { ...LoadSchemaFilesDefaultOptions, ...options };
-  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions), options.globOptions);
+  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions, []), options.globOptions);
 
   return relevantPaths.map(path => {
     const extension = extname(path);
@@ -80,12 +81,14 @@ export function loadSchemaFiles(basePath: string, options: LoadSchemaFilesOption
 }
 
 export interface LoadResolversFilesOptions {
+  ignoredExtensions?: string[];
   extensions?: string[];
   requireMethod?: any;
   globOptions?: IOptions;
 }
 
 const LoadResolversFilesDefaultOptions: LoadResolversFilesOptions = {
+  ignoredExtensions: DEFAULT_IGNORED_RESOLVERS_EXTENSIONS,
   extensions: DEFAULT_RESOLVERS_EXTENSIONS,
   requireMethod: null,
   globOptions: {},
@@ -93,8 +96,8 @@ const LoadResolversFilesDefaultOptions: LoadResolversFilesOptions = {
 
 export function loadResolversFiles(basePath: string, options: LoadResolversFilesOptions = LoadResolversFilesDefaultOptions): any[] {
   const execOptions = { ...LoadResolversFilesDefaultOptions, ...options };
-  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions), execOptions.globOptions);
-
+  const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions, execOptions.ignoredExtensions), execOptions.globOptions);
+  
   return relevantPaths.map(path => {
     try {
       const fileExports = (execOptions.requireMethod ? execOptions.requireMethod : require)(path);
