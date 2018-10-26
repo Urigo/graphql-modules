@@ -79,6 +79,7 @@ import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules
 const communicationBridge = new EventEmitterCommunicationBridge();
 
 const graphQlModule = new GraphQLModule({
+    name: 'my-module',
     providers: [
       {
         provide: CommunicationBridge,

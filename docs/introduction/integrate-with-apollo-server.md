@@ -19,6 +19,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
 const { schema, context } = new GraphQLModule({
+    name: 'app',
     /*...*/
 });
 

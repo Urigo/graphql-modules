@@ -238,7 +238,7 @@ The messages are built in a form of `string => any` - so the key of each message
 It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
-import { injectable, CommunicationBridge } from '@graphql-modules/core';
+import { Injectable, CommunicationBridge } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider {

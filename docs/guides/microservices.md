@@ -44,6 +44,7 @@ Then, make sure to use it in your `GraphQLModule` declaration:
 import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
 
 const graphQLModule = new GraphQLModule({
+    name: 'my-module',
     communicationBridge: new MyCommunicationBridge(),
     /* ... */
 });

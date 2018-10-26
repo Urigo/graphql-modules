@@ -30,7 +30,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
    */
-  name?: string;
+  name: string;
   /**
    * A definition of GraphQL type definitions, as string or `DocumentNode`.
    * Arrays are also accepted, and they will get merged.
@@ -146,7 +146,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Returns the module's name
    */
   get name(): string {
-    return this._options.name || 'app';
+    return this._options.name;
   }
 
   set name(name) {

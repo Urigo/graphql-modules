@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { SocialNetworkModule } from './social-network/social-network.module';
 
 export const AppModule = new GraphQLModule({
+  name: 'app',
   imports: [
     AuthModule,
     UserModule,

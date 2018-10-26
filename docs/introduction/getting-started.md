@@ -22,6 +22,7 @@ Then, create your `GraphQLModule` instance:
 import { GraphQLModule } from '@graphql-modules/core';
 
 const graphQlModule = new GraphQLModule({
+    name: 'my-module',
     typeDefs: [],
     resolvers: {},
     imports: [],

@@ -61,7 +61,7 @@ And let's create util functions in a different file, with the logic we removed.
 
 We will need to implement it just like a resolver, so let's create the same signature as GraphQL resolver, and we also need a way to tell GraphQL Modules that everything is okay (`next` function).
 
-```
+```typescript
 export const isAuthenticated = next => async (root, args, context, info) => {
     if (!context.currentUser) {
         throw new Error('You are not authenticated!');
@@ -86,6 +86,7 @@ Now, on our `GraphQLModule` declaration, let's add `resolversComposition` and ad
 import { GraphQLModule } from '@graphql-modules/core';
 
 const graphQlModule = new GraphQLModule({
+    name: 'my-module',
     /*...*/
     resolversComposition: {
         'Query.myQuery': [isAuthenticated, hasRole('EDITOR')],

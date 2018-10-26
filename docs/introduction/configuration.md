@@ -27,6 +27,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { myModule } from './modules/my-module';
 
 const anotherModule = new GraphQLModule({
+  name: 'another-module',
   imports: [
     myModule.withConfig({
           secretKey: '123',
