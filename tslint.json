@@ -21,7 +21,7 @@
     "label-position": true,
     "max-line-length": [
       true,
-      180
+      220
     ],
     "arrow-parens": false,
     "interface-over-type-literal": false,

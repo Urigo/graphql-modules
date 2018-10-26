@@ -9,12 +9,15 @@ function testSchemaDir(path, expectedResult, note, extensions?: string[]) {
   });
 }
 
-function testResolversDir(path, expectedResult, note, extensions?) {
+function testResolversDir(path, expectedResult, note, extensions = null, compareValue = true) {
   it(`should return the correct resolvers results for path: ${path} (${note})`, () => {
     const result = loadResolversFiles(path, extensions ? { extensions } : {});
 
     expect(result.length).toBe(expectedResult.length);
-    expect(result).toEqual(expectedResult);
+
+    if (compareValue) {
+      expect(result).toEqual(expectedResult);
+    }
   });
 }
 
@@ -38,5 +41,6 @@ describe('file scanner', function () {
     testResolversDir('./tests/test-assets/7', [{ MyType: { f: 1 }}, { MyType: { f: 2 }}], 'multiple files');
     testResolversDir('./tests/test-assets/8', [{ MyType: { f: 1 }}], 'default export');
     testResolversDir('./tests/test-assets/9', [{ MyType: { f: 1 }}, { MyType: { f: 2 }}], 'named exports');
+    testResolversDir('./tests/test-assets/11', (new Array(2)).fill(''), 'ignored extensions', null, false);
   });
 });
