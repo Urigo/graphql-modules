@@ -171,6 +171,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get dependencyGraph(): DepGraph<GraphQLModule<any, Request, any>> {
     const graph = new DepGraph<GraphQLModule<any, Request, any>>({ circular: true });
+    const visitedModulesToAddDependency = new Set<string>();
 
     function visitModuleToAddNode(module: GraphQLModule<any, Request, any>) {
       if (!graph.hasNode(module.name)) {
@@ -185,13 +186,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     function visitModuleToAddDependency(module: GraphQLModule<any, Request, any>, top = false) {
       for (const subModule of module.subModules) {
-        if (top) {
-          graph.addDependency(
-              module.name,
-              typeof subModule === 'string' ? subModule : subModule.name,
-          );
+        if (!top) {
+          try {
+            graph.addDependency(
+                module.name,
+                typeof subModule === 'string' ? subModule : subModule.name,
+            );
+          } catch (e) {
+            throw new Error(`Module ${subModule} is not defined, which is trying to be imported by ${module.name}!`);
+          }
         }
-        if (typeof subModule !== 'string') {
+        // prevent infinite loop in case of circular dependency
+        if (typeof subModule !== 'string' && !visitedModulesToAddDependency.has(subModule.name)) {
           visitModuleToAddDependency(subModule);
         }
       }

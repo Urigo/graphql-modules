@@ -169,27 +169,6 @@ describe('GraphQLAppModule', () => {
     expect(app.resolvers).toBeDefined();
   });
 
-  it('should accept non modules schema and resovlers', async () => {
-    const app = new GraphQLModule({ name: 'app', imports:  [moduleA], typeDefs: typesB, resolvers: resolversB });
-    const schema = app.schema;
-
-    expect(schema).toBeDefined();
-    expect((schema as any) instanceof GraphQLSchema).toBeTruthy();
-    expect(stripWhitespaces(printSchema(schema))).toBe(stripWhitespaces(`
-      type A {
-        f: String
-      }
-
-      type B {
-        f: String
-      }
-
-      type Query {
-        a: A
-        b: B
-      }`));
-  });
-
   describe('Schema merging', () => {
     it('should merge types and directives correctly', async () => {
       const m1 = new GraphQLModule({
