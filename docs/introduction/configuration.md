@@ -9,6 +9,8 @@ Each module can have it's own configuration, and you can specify it in your `Gra
 Start by creating a TypeScript interface the specifies the structure of your configuration object, and pass it as the first generic argument to your `GraphQLModule`:
 
 ```typescript
+export const MyModuleConfig = ModuleConfig('my-module');
+
 export interface MyModuleConfig {
     secretKey: string;
     remoteEndpoint: string;
@@ -35,14 +37,14 @@ const anotherModule = new GraphQLModule({
 });
 ```
 
-To get access to your configuration in your `Provider`s, inject `ModuleConfig` and pass your module's name as `string`:
+To get access to your configuration in your `Provider`s, inject `MyModuleConfig` and pass your module's name as `string`:
 
 ```typescript
 import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
 
 @injectable()
 export class MyProvider {
-    constructor(@inject(ModuleConfig('my-module')) private config: MyModuleConfig) {
+    constructor(private config: MyModuleConfig) {
 
     }
 

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, injectable, inject, AppInfo, CommunicationBridge, EventEmitterCommunicationBridge } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, AppInfo, CommunicationBridge, EventEmitterCommunicationBridge } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 
 describe('GraphQLAppModule', () => {
   // A
-  @injectable()
+  @Injectable()
   class ProviderA {
     doSomething() {
       return 'Test';
@@ -224,14 +224,14 @@ describe('GraphQLAppModule', () => {
   describe('Module Dependencies', () => {
     it('should init modules in the right order', async () => {
       let counter = 0;
-      @injectable()
+      @Injectable()
       class Provider1 {
         count: number;
         constructor() {
           this.count = counter++;
         }
       }
-      @injectable()
+      @Injectable()
       class Provider2 {
         count: number;
         constructor() {
@@ -248,21 +248,21 @@ describe('GraphQLAppModule', () => {
 
     it('should init modules in the right order with multiple circular dependencies', async () => {
       let counter = 0;
-      @injectable()
+      @Injectable()
       class Provider1 {
         count: number;
         constructor() {
           this.count = counter++;
         }
       }
-      @injectable()
+      @Injectable()
       class Provider2 {
         count: number;
         constructor() {
           this.count = counter++;
         }
       }
-      @injectable()
+      @Injectable()
       class Provider3 {
         count: number;
         constructor() {
@@ -280,14 +280,14 @@ describe('GraphQLAppModule', () => {
 
     it('should init modules in the right order with 2 circular dependencies', async () => {
       let counter = 0;
-      @injectable()
+      @Injectable()
       class Provider1 {
         count: number;
         constructor() {
           this.count = counter++;
         }
       }
-      @injectable()
+      @Injectable()
       class Provider2 {
         count: number;
         constructor() {
@@ -304,17 +304,30 @@ describe('GraphQLAppModule', () => {
     });
 
     it('should set config per each module', async () => {
-      @injectable()
+
+      const ModuleConfig1 = ModuleConfig('1');
+
+      interface ModuleConfig1 {
+        test: number;
+      }
+
+      const ModuleConfig2 = ModuleConfig('1');
+
+      interface ModuleConfig2 {
+        test: number;
+      }
+
+      @Injectable()
       class Provider1 {
         test: number;
-        constructor(@inject(ModuleConfig('1')) config: any) {
+        constructor(config: ModuleConfig1) {
           this.test = config.test;
         }
       }
-      @injectable()
+      @Injectable()
       class Provider2 {
         test: number;
-        constructor(@inject(ModuleConfig('2')) config: any) {
+        constructor(config: ModuleConfig2) {
           this.test = config.test;
         }
       }
