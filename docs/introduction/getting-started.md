@@ -24,7 +24,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 const graphQlModule = new GraphQLModule({
     typeDefs: [],
     resolvers: {},
-    modules: [],
+    imports: [],
 });
 ```
 

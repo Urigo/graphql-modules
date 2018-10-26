@@ -86,7 +86,7 @@ const graphQlModule = new GraphQLModule({
       }
       /* ... */
     ]
-    modules: [ /* ... */],
+    imports: [ /* ... */],
 });
 ```
 

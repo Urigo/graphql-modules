@@ -26,7 +26,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { myModule } from './modules/my-module';
 
 const anotherModule = new GraphQLModule({
-  modules: [
+  imports: [
     myModule.withConfig({
           secretKey: '123',
           remoteEndpoint: 'http://my-other-service.com',

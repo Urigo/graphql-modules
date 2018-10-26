@@ -3,8 +3,8 @@ import { Users } from './providers/users';
 import resolvers from './resolvers';
 import gql from 'graphql-tag';
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
+  name: 'User',
   providers: [Users],
   resolvers,
   typeDefs: gql`
@@ -12,7 +12,7 @@ export const userModule = new GraphQLModule({
       id: String
       username: String
     }
-    
+
     type Query {
       users: [User]
       user(id: Int!): User

@@ -54,7 +54,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  modules?: ((config: Config) => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
+  imports?: ((config: Config) => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
@@ -119,10 +119,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._moduleConfig = config;
   }
 
+  /**
+   * Returns the `buildContext` method of the module
+   */
   get contextBuilder(): BuildContextFn<Request, Context> {
     return this._options.contextBuilder;
   }
 
+  /**
+   * Sets the context builder of the module
+   * @param contextBuilder - the new context builder
+   */
   set contextBuilder(contextBuilder) {
     this._options.contextBuilder = contextBuilder;
   }
@@ -148,11 +155,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get subModules() {
     let subModules = new Array<ModuleDependency<any, Request, any>>();
-    if (this._options.modules) {
-      if (typeof this._options.modules === 'function') {
-        subModules = this._options.modules(this.config);
+    if (this._options.imports) {
+      if (typeof this._options.imports === 'function') {
+        subModules = this._options.imports(this.config);
       } else {
-        subModules = this._options.modules;
+        subModules = this._options.imports;
       }
     }
     return subModules;
@@ -161,7 +168,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   /**
    * Build a dependency graph and order it according to the init order.
    * It also handles circular dependencies.
-   *
    */
   get dependencyGraph(): DepGraph<GraphQLModule<any, Request, any>> {
     const graph = new DepGraph<GraphQLModule<any, Request, any>>({ circular: true });
@@ -197,11 +203,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   /**
-   * Build a dependency graph and order it according to the init order.
-   * It also handles circular dependencies.
-   *
+   * Gets a module by it's name
+   * @param name - the name of the requested module
    */
-  get modules() {
+  getModule(name: string) {
+    return this.dependencyGraph.getNodeData(name);
+  }
+
+  /**
+   * Gets the array modules in the app
+   */
+  get imports() {
     const graph = this.dependencyGraph;
     const modules = graph.overallOrder().map(moduleName => graph.getNodeData(moduleName));
     for (const subModule of this.subModules) {
@@ -212,8 +224,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return modules;
   }
 
-  set modules(modules) {
-    this._options.modules = modules;
+  set imports(imports) {
+    this._options.imports = imports;
   }
 
   /**
@@ -221,7 +233,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @return a `string` with the merged type definitions
    */
   get typeDefs() {
-    return mergeGraphQLSchemas(this.modules.map(module => {
+    return mergeGraphQLSchemas(this.imports.map(module => {
       if (module._options.typeDefs) {
         if (typeof module._options.typeDefs === 'function') {
           return module._options.typeDefs(module._moduleConfig);
@@ -238,6 +250,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }));
   }
 
+  /**
+   * Sets the type definitions of the module
+   * @param value - the new type definitions
+   */
   set typeDefs(typeDefs) {
     this._options.typeDefs = typeDefs;
   }
@@ -246,7 +262,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Returns the resolvers object of the module
    */
   get resolvers(): IResolvers {
-    return mergeResolvers(this.modules.map(module => {
+    return mergeResolvers(this.imports.map(module => {
       let resolvers = {};
       if (module._options.resolvers) {
         if (typeof module._options.resolvers === 'function') {
@@ -262,6 +278,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }));
   }
 
+  /**
+   * Sets the resolvers object of the module
+   * @param value
+   */
   set resolvers(resolvers) {
     this._options.resolvers = resolvers;
   }
@@ -271,7 +291,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get providers(): Provider[] {
     const providers = new Array<Provider>();
-    for (const module of this.modules) {
+    for (const module of this.imports) {
       providers.push(
         {
           provide: ModuleConfig(module.name),
@@ -297,6 +317,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._options.providers = providers;
   }
 
+  /**
+   * Gets the application `GraphQLSchema` object.
+   * If the schema object is not built yet, it compiles
+   * the `typeDefs` and `resolvers` into `GraphQLSchema`
+   */
   get schema() {
     return makeExecutableSchema({
       typeDefs: this.typeDefs,
@@ -304,6 +329,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     });
   }
 
+  /**
+   * Gets the application dependency-injection injector
+   */
   get injector(): SimpleInjector {
     const injector = new Injector({
       defaultScope: 'Singleton',
@@ -340,7 +368,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    *
    * This method should be in use with your GraphQL manager, such as Apollo-Server.
    *
-   * @param networkRequest - the network request from `connect`, `express`, etc...
+   * @param request - the network request from `connect`, `express`, etc...
    */
   context = async (request: Request): Promise<AppContext<Context>> => {
       const injector = this.injector;
@@ -348,7 +376,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         injector,
       };
 
-      for (const module of this.modules) {
+      for (const module of this.imports) {
         try {
           if (module && module.contextBuilder) {
             const appendToContext = await module.contextBuilder(

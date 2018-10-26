@@ -1,8 +1,8 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
+  name: 'User',
   typeDefs: gql`
     type User {
       id: String

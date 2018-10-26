@@ -40,34 +40,6 @@
     core-js "^2.5.7"
     regenerator-runtime "^0.12.0"
 
-"@graphql-modules/core@file:packages/core":
-  version "0.1.8"
-  dependencies:
-    "@graphql-modules/epoxy" "0.1.8"
-    "@graphql-modules/logger" "0.1.8"
-    "@graphql-modules/sonar" "0.1.8"
-    dependency-graph "0.7.2"
-    graphql-tools "4.0.2"
-    inversify "5.0.1"
-    tslib "1.9.3"
-
-"@graphql-modules/epoxy@file:packages/epoxy":
-  version "0.1.8"
-  dependencies:
-    "@graphql-modules/logger" "0.1.8"
-    "@types/deepmerge" "2.1.0"
-    deepmerge "2.2.1"
-    graphql-tools "4.0.2"
-    tslib "1.9.3"
-
-"@graphql-modules/sonar@file:packages/sonar":
-  version "0.1.8"
-  dependencies:
-    "@graphql-modules/logger" "0.1.8"
-    "@types/glob" "7.1.1"
-    glob "7.1.3"
-    tslib "1.9.3"
-
 "@lerna/add@^3.4.1":
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/@lerna/add/-/add-3.4.1.tgz#d41068317e30f530df48220d256b5e79690b1877"

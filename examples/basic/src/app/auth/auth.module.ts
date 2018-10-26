@@ -1,11 +1,10 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import { Request } from 'express';
 import gql from 'graphql-tag';
-import { userModule } from '../user/user.module';
+import { UserModule } from '../user/user.module';
 
-export const authModule = new GraphQLModule({
-  name: 'auth',
-  modules: ['user'],
+export const AuthModule = new GraphQLModule({
+  name: 'Auth',
   typeDefs: gql`
     type Query {
       me: User
@@ -23,7 +22,10 @@ export const authModule = new GraphQLModule({
       me: (root, args, context) => context.authenticatedUser,
     },
   },
-  contextBuilder: (req: Request) => ({
+  imports: [
+    UserModule,
+  ],
+  contextBuilder: (networkRequest: { req: Request }) => ({
     authenticatedUser: {
       _id: 1,
       username: 'me',
