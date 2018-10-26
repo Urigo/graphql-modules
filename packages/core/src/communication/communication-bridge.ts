@@ -1,6 +1,6 @@
-import { injectable } from 'inversify';
+import { Injectable } from '../di/types';
 
-@injectable()
+@Injectable()
 export abstract class CommunicationBridge {
   abstract subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void };
   abstract publish<T = any>(event: string, payload: T): void;

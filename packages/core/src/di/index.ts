@@ -67,10 +67,10 @@ function isType(v: any): v is Type<any> {
   return typeof v === 'function';
 }
 
-function isValue(v: any): v is ValueProvider {
+function isValue<T>(v: any): v is ValueProvider<T> {
   return typeof v.useValue !== 'undefined';
 }
 
-function isClass(v: any): v is ClassProvider {
+function isClass<T>(v: any): v is ClassProvider<T> {
   return typeof v.useClass !== 'undefined';
 }

@@ -15,7 +15,7 @@ So let's start with a basic module definition:
 import { GraphQLModule, AppContext, injectable } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
-@injectable()
+@Injectable()
 export class UsersProvider {
   
 }

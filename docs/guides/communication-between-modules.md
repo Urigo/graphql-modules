@@ -15,10 +15,10 @@ GraphQL Modules provide multiple ways of doing it, and you should pick the right
 If your modules are coupled and you they should know each other because their logic and combined with each user, you cam use direct dependency injection.
 
 ```typescript
-import { injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -31,15 +31,15 @@ export class MyProvider {
 If you wish to communicate other module with importing directly from it, you can use dependency-injection tokens:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Injectable, Inject } from '@graphql-modules/core';
 
 export interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+    constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
     }
 }
@@ -95,7 +95,7 @@ Then, to use `CommunicationBridge`, you can do the following:
 ```typescript
 import { injectable, CommunicationBridge } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them

@@ -14,13 +14,13 @@ GraphQL Modules let you choose whether to use dependency injection or not.
 
 ## Providers
 
-Let's start by creating a simple class called `UserProvider`. We are also decorating it with a special decorator called `@injectable` - this mark the class as available to use using dependency injection.
+Let's start by creating a simple class called `UserProvider`. We are also decorating it with a special decorator called `@Injectable` - this mark the class as available to use using dependency injection.
 
 `modules/my-module/user.provider.ts`
 ```typescript
-import { injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class UserProvider {
 
 }
@@ -47,9 +47,9 @@ export const myModule = new GraphQLModule({
 Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
-import { injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class UserProvider {
     getUserById(id: string) {
         return {
@@ -94,10 +94,10 @@ It could be either `class`, `string` or `Symbol`.
 To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Injectable, Inject } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -125,15 +125,15 @@ export const myModule = new GraphQLModule({
 This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Injectable, Inject } from '@graphql-modules/core';
 
 interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+    constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
     }
 }
@@ -166,7 +166,7 @@ export const myModule = new GraphQLModule({
 
 ### Value
 
-Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@inject`.
+Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@Inject`.
 
 You can use any value, and attach it to a dependency injection token.
 
@@ -194,7 +194,7 @@ With this injectable, you can get access to useful information: the top `GraphQL
 ```typescript
 import { injectable, AppInfo, inject } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private appInfo: AppInfo) {
 
@@ -221,9 +221,9 @@ You can read more about [module configuration here](/TODO).
 ```typescript
 import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(ModuleConfig('my-module')) private config) {
+    constructor(@Inject(ModuleConfig('my-module')) private config) {
 
     }
 }
@@ -240,7 +240,7 @@ It's useful to dispatch messages between modules without knowing who will handle
 ```typescript
 import { injectable, CommunicationBridge } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them

@@ -42,7 +42,7 @@ To get access to your configuration in your `Provider`s, inject `MyModuleConfig`
 ```typescript
 import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private config: MyModuleConfig) {
 
