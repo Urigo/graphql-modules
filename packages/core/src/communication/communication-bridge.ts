@@ -1,7 +1,7 @@
 import { Injectable } from '../di/types';
 
 @Injectable()
-export abstract class CommunicationBridge {
-  abstract subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void };
-  abstract publish<T = any>(event: string, payload: T): void;
+export abstract class CommunicationBridge<EventMap = any> {
+  abstract subscribe<Event extends keyof EventMap, Payload = EventMap[Event]>(event: Event, handler: (payload: Payload) => void): { unsubscribe: () => void };
+  abstract publish<Event extends keyof EventMap, Payload = EventMap[Event]>(event: Event, payload: Payload): void;
 }

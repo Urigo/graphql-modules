@@ -7,17 +7,17 @@ export { decorate };
  * @hidden
  */
 export class Injector extends Container {
-  public provide(provider: Provider): void {
+  public provide<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
       return provider.forEach(p => this.provide(p));
     }
 
     if (isType(provider)) {
-      this.bind(provider)
+      this.bind<T>(provider)
         .toSelf()
         .inSingletonScope();
     } else if (isValue(provider)) {
-      this._provide(provider.provide, provider.overwrite).toConstantValue(
+      this._provide<T>(provider.provide, provider.overwrite).toConstantValue(
         provider.useValue,
       );
     } else if (isClass(provider)) {
@@ -47,30 +47,30 @@ export class Injector extends Container {
       return this.rebind(token);
     }
 
-    return this.bind(token);
+    return this.bind<T>(token);
   }
 
-  public init(provider: Provider): void {
+  public init<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
       return provider.forEach(p => this.init(p));
     }
 
-    if (isType(provider)) {
-      this.get(provider);
-    } else if (isClass(provider)) {
-      this.get(provider.provide);
+    if (isType<T>(provider)) {
+      this.get<T>(provider);
+    } else if (isClass<T>(provider)) {
+      this.get<T>(provider.provide);
     }
   }
 }
 
-function isType(v: any): v is Type<any> {
+function isType<T>(v: Provider<T>): v is Type<T> {
   return typeof v === 'function';
 }
 
-function isValue<T>(v: any): v is ValueProvider<T> {
-  return typeof v.useValue !== 'undefined';
+function isValue<T>(v: Provider<T>): v is ValueProvider<T> {
+  return 'useValue' in v;
 }
 
-function isClass<T>(v: any): v is ClassProvider<T> {
-  return typeof v.useClass !== 'undefined';
+function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
+  return 'useClass' in v;
 }
