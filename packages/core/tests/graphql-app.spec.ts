@@ -305,29 +305,21 @@ describe('GraphQLAppModule', () => {
 
     it('should set config per each module', async () => {
 
-      const ModuleConfig1 = ModuleConfig('1');
-
-      interface ModuleConfig1 {
-        test: number;
-      }
-
-      const ModuleConfig2 = ModuleConfig('1');
-
-      interface ModuleConfig2 {
+      interface IModuleConfig {
         test: number;
       }
 
       @Injectable()
       class Provider1 {
         test: number;
-        constructor(config: ModuleConfig1) {
+        constructor(@Inject(ModuleConfig('1')) config: IModuleConfig) {
           this.test = config.test;
         }
       }
       @Injectable()
       class Provider2 {
         test: number;
-        constructor(config: ModuleConfig2) {
+        constructor(@Inject(ModuleConfig('2'))config: IModuleConfig) {
           this.test = config.test;
         }
       }

@@ -219,7 +219,7 @@ This injectable will fetch the a module's configuration object that passed via `
 You can read more about [module configuration here](/TODO).
 
 ```typescript
-import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
+import { Injectable, ModuleConfig, Inject } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider {
