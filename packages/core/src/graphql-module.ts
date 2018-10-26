@@ -74,8 +74,8 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
  * @param name - the name of the module
  * @constructor
  */
-export const ModuleConfig = (name: string) =>
-  Symbol.for(`ModuleConfig.${name}`);
+export const ModuleConfig = (module: string | GraphQLModule) =>
+  Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
 /**
  * Represents a GraphQL module that has it's own types, resolvers, context and business logic.
