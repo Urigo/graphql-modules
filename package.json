@@ -5,8 +5,8 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*/",
-      "examples/*/"
+      "packages/*",
+      "examples/*"
     ]
   },
   "scripts": {
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/graphql": "14.0.3",
-    "@types/jest": "23.3.5",
+    "@types/jest": "23.3.7",
     "graphql": "14.0.2",
     "jest": "23.6.0",
     "lerna": "3.4.1",
