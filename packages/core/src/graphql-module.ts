@@ -205,6 +205,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
         // prevent infinite loop in case of circular dependency
         if (typeof subModule !== 'string' && !visitedModulesToAddDependency.has(subModule.name)) {
+          visitedModulesToAddDependency.add(subModule.name);
           visitModuleToAddDependency(subModule);
         }
       }
@@ -252,8 +253,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     if (!this._appCache.modules) {
       const graph = this.dependencyGraph;
       const modules = graph.overallOrder().map(moduleName => graph.getNodeData(moduleName));
+      const moduleNames = modules.map(module => module.name);
       for (const subModule of this.imports) {
-        if (typeof subModule !== 'string' && !modules.includes(subModule)) {
+        if (typeof subModule !== 'string' && !moduleNames.includes(subModule.name)) {
           modules.push(subModule);
         }
       }
