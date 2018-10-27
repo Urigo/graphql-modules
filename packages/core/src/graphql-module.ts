@@ -86,6 +86,8 @@ export const ModuleConfig = (module: string | GraphQLModule) =>
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
 
+  private _injector: Injector;
+
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
@@ -339,28 +341,34 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Gets the application dependency-injection injector
    */
   get injector(): SimpleInjector {
-    const injector = new Injector({
-      defaultScope: 'Singleton',
-      autoBindInjectable: false,
-    });
 
-    // app info
-    injector.provide({
-      provide: AppInfo,
-      useValue: new AppInfo<Config, Request, Context>(),
-    });
+    if (!this._injector) {
+      const injector = new Injector({
+        defaultScope: 'Singleton',
+        autoBindInjectable: false,
+      });
 
-    const providers = this.providers;
+      // app info
+      injector.provide({
+        provide: AppInfo,
+        useValue: new AppInfo<Config, Request, Context>(),
+      });
 
-    for (const provider of providers) {
-      injector.provide(provider);
+      const providers = this.providers;
+
+      for (const provider of providers) {
+        injector.provide(provider);
+      }
+
+      for (const provider of providers) {
+        injector.init(provider);
+      }
+
+      this._injector = injector;
     }
 
-    for (const provider of providers) {
-      injector.init(provider);
-    }
+    return this._injector;
 
-    return injector;
   }
 
   /**
