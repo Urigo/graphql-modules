@@ -214,7 +214,7 @@ export class MyProvider {
 
 ### `ModuleConfig(moduleName: string)`
 
-This injectable will fetch the a module's configuration object that passed via `withConfig`.
+This injectable will fetch the a module's configuration object that passed via `forRoot`.
 
 You can read more about [module configuration here](/TODO).
 

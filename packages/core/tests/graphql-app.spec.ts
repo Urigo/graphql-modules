@@ -303,8 +303,8 @@ describe('GraphQLAppModule', () => {
           this.test = config.test;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] }).withConfig({test: 1});
-      const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).withConfig({test: 2});
+      const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] }).forRoot({test: 1});
+      const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).forRoot({test: 2});
       const {injector} = new GraphQLModule({ name: 'app', imports:  [module2, module1] });
 
       expect(injector.get(Provider1).test).toEqual(1);

@@ -20,7 +20,7 @@ export const myModule = new GraphQLModule<MyModuleConfig>({
 });
 ```
 
-Now, to provide the configuration values, add `.withConfig` to your module while loading it:
+Now, to provide the configuration values, add `.forRoot` to your module while loading it:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
@@ -29,7 +29,7 @@ import { myModule } from './modules/my-module';
 const anotherModule = new GraphQLModule({
   name: 'another-module',
   imports: [
-    myModule.withConfig({
+    myModule.forRoot({
           secretKey: '123',
           remoteEndpoint: 'http://my-other-service.com',
       })

@@ -91,7 +91,7 @@ export interface AppCache {
  * You can read more about it in the Documentation section. TODO: Add link
  *
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
- * configuration object to use later with `withConfig`
+ * configuration object to use later with `forRoot`
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
 
@@ -117,8 +117,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Creates another instance of the module using a configuration
    * @param config - the config object
    */
-  withConfig(config: Config): GraphQLModule<Config, Request, Context> {
+  forRoot(config: Config): GraphQLModule<Config, Request, Context> {
     return new GraphQLModule<Config, Request, Context>(this._options, config);
+  }
+
+  forChild(): string {
+    return this.name;
   }
 
   /**
