@@ -1,7 +1,7 @@
 import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, AppContext, Injector as SimpleInjector } from './di/types';
-import { DocumentNode, print } from 'graphql';
+import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { Injector } from './di';
 import { AppInfo } from './app-info';
@@ -77,6 +77,15 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
 export const ModuleConfig = (module: string | GraphQLModule) =>
   Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
+export interface AppCache {
+  injector: Injector;
+  modules: GraphQLModule[];
+  typeDefs: string;
+  resolvers: IResolvers;
+  providers: Provider[];
+  schema: GraphQLSchema;
+}
+
 /**
  * Represents a GraphQL module that has it's own types, resolvers, context and business logic.
  * You can read more about it in the Documentation section. TODO: Add link
@@ -86,7 +95,14 @@ export const ModuleConfig = (module: string | GraphQLModule) =>
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
 
-  private _injector: Injector;
+  private _appCache: AppCache = {
+    injector: null,
+    modules: null,
+    typeDefs: null,
+    resolvers: null,
+    providers: null,
+    schema: null,
+  };
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
@@ -155,18 +171,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._options.name = name;
   }
 
-  get subModules() {
-    let subModules = new Array<ModuleDependency<any, Request, any>>();
-    if (this._options.imports) {
-      if (typeof this._options.imports === 'function') {
-        subModules = this._options.imports(this.config);
-      } else {
-        subModules = this._options.imports;
-      }
-    }
-    return subModules;
-  }
-
   /**
    * Build a dependency graph and order it according to the init order.
    * It also handles circular dependencies.
@@ -175,19 +179,20 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const graph = new DepGraph<GraphQLModule<any, Request, any>>({ circular: true });
     const visitedModulesToAddDependency = new Set<string>();
 
-    function visitModuleToAddNode(module: GraphQLModule<any, Request, any>) {
+    const visitModuleToAddNode = (module: GraphQLModule<any, Request, any>) => {
+      module._appCache = this._appCache;
       if (!graph.hasNode(module.name)) {
         graph.addNode(module.name, module);
-        for (const subModule of module.subModules) {
+        for (const subModule of module.imports) {
           if (typeof subModule !== 'string') {
             visitModuleToAddNode(subModule);
           }
         }
       }
-    }
+    };
 
-    function visitModuleToAddDependency(module: GraphQLModule<any, Request, any>, top = false) {
-      for (const subModule of module.subModules) {
+    const visitModuleToAddDependency = (module: GraphQLModule<any, Request, any>, top = false) =>  {
+      for (const subModule of module.imports) {
         if (!top) {
           try {
             graph.addDependency(
@@ -203,7 +208,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           visitModuleToAddDependency(subModule);
         }
       }
-    }
+    };
 
     visitModuleToAddNode(this);
     visitModuleToAddDependency(this, true);
@@ -218,22 +223,43 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return this.dependencyGraph.getNodeData(name);
   }
 
-  /**
-   * Gets the array modules in the app
-   */
   get imports() {
-    const graph = this.dependencyGraph;
-    const modules = graph.overallOrder().map(moduleName => graph.getNodeData(moduleName));
-    for (const subModule of this.subModules) {
-      if (typeof subModule !== 'string' && !modules.includes(subModule)) {
-        modules.push(subModule);
+    let imports = new Array<ModuleDependency<any, Request, any>>();
+    if (this._options.imports) {
+      if (typeof this._options.imports === 'function') {
+        imports = this._options.imports(this.config);
+      } else {
+        imports = this._options.imports;
       }
     }
-    return modules;
+    return imports;
   }
 
   set imports(imports) {
     this._options.imports = imports;
+    this._appCache.injector = null;
+    this._appCache.modules = null;
+    this._appCache.providers = null;
+    this._appCache.resolvers = null;
+    this._appCache.schema = null;
+    this._appCache.typeDefs = null;
+  }
+
+  /**
+   * Gets the array modules in the app
+   */
+  get modules() {
+    if (!this._appCache.modules) {
+      const graph = this.dependencyGraph;
+      const modules = graph.overallOrder().map(moduleName => graph.getNodeData(moduleName));
+      for (const subModule of this.imports) {
+        if (typeof subModule !== 'string' && !modules.includes(subModule)) {
+          modules.push(subModule);
+        }
+      }
+      this._appCache.modules = modules;
+    }
+    return this._appCache.modules;
   }
 
   /**
@@ -241,21 +267,24 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @return a `string` with the merged type definitions
    */
   get typeDefs() {
-    return mergeGraphQLSchemas(this.imports.map(module => {
-      if (module._options.typeDefs) {
-        if (typeof module._options.typeDefs === 'function') {
-          return module._options.typeDefs(module._moduleConfig);
-        } else if (Array.isArray(module._options.typeDefs)) {
-          return mergeGraphQLSchemas(module._options.typeDefs);
-        } else if (typeof module._options.typeDefs === 'string') {
-          return module._options.typeDefs as any;
+    if (!this._appCache.typeDefs) {
+      this._appCache.typeDefs = mergeGraphQLSchemas(this.modules.map(module => {
+        if (module._options.typeDefs) {
+          if (typeof module._options.typeDefs === 'function') {
+            return module._options.typeDefs(module._moduleConfig);
+          } else if (Array.isArray(module._options.typeDefs)) {
+            return mergeGraphQLSchemas(module._options.typeDefs);
+          } else if (typeof module._options.typeDefs === 'string') {
+            return module._options.typeDefs as any;
+          } else {
+            return print(module._options.typeDefs);
+          }
         } else {
-          return print(module._options.typeDefs);
+          return [];
         }
-      } else {
-        return [];
-      }
-    }));
+      }));
+    }
+    return this._appCache.typeDefs;
   }
 
   /**
@@ -264,26 +293,31 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   set typeDefs(typeDefs) {
     this._options.typeDefs = typeDefs;
+    this._appCache.schema = null;
+    this._appCache.typeDefs = null;
   }
 
   /**
    * Returns the resolvers object of the module
    */
   get resolvers(): IResolvers {
-    return mergeResolvers(this.imports.map(module => {
-      let resolvers = {};
-      if (module._options.resolvers) {
-        if (typeof module._options.resolvers === 'function') {
-          resolvers = module._options.resolvers(module._moduleConfig);
-        } else {
-          resolvers = module._options.resolvers;
+    if (!this._appCache.resolvers) {
+      this._appCache.resolvers = mergeResolvers(this.modules.map(module => {
+        let resolvers = {};
+        if (module._options.resolvers) {
+          if (typeof module._options.resolvers === 'function') {
+            resolvers = module._options.resolvers(module._moduleConfig);
+          } else {
+            resolvers = module._options.resolvers;
+          }
         }
-      }
-      return composeResolvers(
-        resolvers,
-        module.resolversComposition || {},
-      );
-    }));
+        return composeResolvers(
+          resolvers,
+          module.resolversComposition || {},
+        );
+      }));
+    }
+    return this._appCache.resolvers;
   }
 
   /**
@@ -292,37 +326,44 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   set resolvers(resolvers) {
     this._options.resolvers = resolvers;
+    this._appCache.schema = null;
+    this._appCache.resolvers = null;
   }
 
   /**
    * Returns the list of providers of the module
    */
   get providers(): Provider[] {
-    const providers = new Array<Provider>();
-    for (const module of this.imports) {
-      providers.push(
-        {
-          provide: ModuleConfig(module.name),
-          useValue: module.config,
-        },
-      );
-      if (module._options.providers) {
-        if (typeof module._options.providers === 'function') {
-          providers.push(
-            ...module._options.providers(this.config),
-          );
-        } else {
-          providers.push(
-            ...module._options.providers,
-          );
+    if (!this._appCache.providers) {
+      const providers = new Array<Provider>();
+      for (const module of this.modules) {
+        providers.push(
+          {
+            provide: ModuleConfig(module.name),
+            useValue: module.config,
+          },
+        );
+        if (module._options.providers) {
+          if (typeof module._options.providers === 'function') {
+            providers.push(
+              ...module._options.providers(this.config),
+            );
+          } else {
+            providers.push(
+              ...module._options.providers,
+            );
+          }
         }
       }
+      this._appCache.providers = providers;
     }
-    return providers;
+    return this._appCache.providers;
   }
 
   set providers(providers) {
     this._options.providers = providers;
+    this._appCache.injector = null;
+    this._appCache.providers = null;
   }
 
   /**
@@ -331,10 +372,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * the `typeDefs` and `resolvers` into `GraphQLSchema`
    */
   get schema() {
-    return makeExecutableSchema({
-      typeDefs: this.typeDefs,
-      resolvers: this.resolvers,
-    });
+    if (!this._appCache.schema) {
+      this._appCache.schema = makeExecutableSchema({
+        typeDefs: this.typeDefs,
+        resolvers: this.resolvers,
+      });
+    }
+    return this._appCache.schema;
   }
 
   /**
@@ -342,7 +386,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get injector(): SimpleInjector {
 
-    if (!this._injector) {
+    if (!this._appCache.injector) {
       const injector = new Injector({
         defaultScope: 'Singleton',
         autoBindInjectable: false,
@@ -364,10 +408,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         injector.init(provider);
       }
 
-      this._injector = injector;
+      this._appCache.injector = injector;
     }
 
-    return this._injector;
+    return this._appCache.injector;
 
   }
 
@@ -390,7 +434,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         injector,
       };
 
-      for (const module of this.imports) {
+      for (const module of this.modules) {
         try {
           if (module && module.contextBuilder) {
             const appendToContext = await module.contextBuilder(
