@@ -17,9 +17,5 @@ module.exports = (props) => (
       <List.GreedyItem className="_company"><img style={{ height: '90px' }} src={msjLogo} alt="msj" /></List.GreedyItem>
       <List.GreedyItem className="_company"><img style={{ height: '70px' }} src={schneiderLogo} alt="schneider" /></List.GreedyItem>
     </List>
-
-    <div className="_slogan">
-      Trusted by the world's best companies
-    </div>
   </div>
 )
