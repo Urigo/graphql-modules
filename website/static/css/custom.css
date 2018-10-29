@@ -762,7 +762,7 @@ textarea, input {
     font-size: 14px;
   }
 }
-.Intro > ._start-section > ._start-button {
+.Intro > ._start-section > a > ._start-button {
   width: 180px;
   height: 45px;
   transform: translateY(0);

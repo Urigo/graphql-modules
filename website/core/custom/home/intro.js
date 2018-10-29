@@ -18,9 +18,13 @@ module.exports = (props) => (
       <div className="_subtitle">
         GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server.
       </div>
-      <Button className="_start-button">
-        Get started
-      </Button>
+      <Hyperlink>
+      </Hyperlink>
+      <Hyperlink href={`${siteConfig.baseUrl}docs/introduction/getting-started`}>
+        <Button className="_start-button">
+          Get started
+        </Button>
+      </Hyperlink>
     </div>
   </div>
 )
