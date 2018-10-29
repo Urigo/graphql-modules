@@ -23,7 +23,7 @@ const Index = () => (
     <Features />
     <FrameworkDetails />
     <GQLQuote />
-    <LearnSection />
+    {/*<LearnSection />*/}
     <ContactForm />
   </React.Fragment>
 )

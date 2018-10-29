@@ -593,6 +593,22 @@ textarea, input {
     line-height: normal;
   }
 }
+.FrameworkDetails > ._details > ._title > ._apollo-logo {
+  width: 190px;
+  transform: translateY(23px);
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .FrameworkDetails > ._details > ._title > ._apollo-logo {
+    width: 150px;
+    transform: translateY(20px);
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .FrameworkDetails > ._details > ._title > ._apollo-logo {
+    width: 150px;
+    transform: translateY(20px);
+  }
+}
 .FrameworkDetails > ._details > ._subtitle {
   margin-top: 25px;
   font-size: 16px;
