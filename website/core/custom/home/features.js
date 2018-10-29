@@ -20,10 +20,10 @@ const Feature = (props) => (
 module.exports = (props) => (
   <div {...props} className={`Features ${props.className || ''}`}>
     <List className="_features-list">
-      <Feature src={apiFeat} title="Separation of Concerns" description="Each GraphQL Module does only what it needs, without the application overheads." />
-      <Feature src={reuseFeat} title="Reusable Modules" description="You can reuse your written module and share them across multiple applications." />
-      <Feature src={extendFeat} title="Extensible Schema" description="You can easily extend your GraphQL types with new features." />
-      <Feature src={easyFeat} title="Easy to Test" description="GraphQL Modules comes with a built-in dependency-injection support, which makes it easier to test and mock." />
+      <Feature src={apiFeat} title="Reusable Feature Modules" description="Modules are defined by their GraphQL schema (Schema first design). They're completely independent and can be shared between apps." />
+      <Feature src={reuseFeat} title="Scalable Structure" description="Manage multiple teams and features, multiple micro-services and servers." />
+      <Feature src={extendFeat} title="Gradual Growth" description="A clear, gradual path from a very simple and fast, single-file modules, to scalable multi-file, multi-teams, multi-repo, multi-server modules." />
+      <Feature src={easyFeat} title="Testable" description="A rich toolset around testing, mocking and separation" />
     </List>
   </div>
 )
