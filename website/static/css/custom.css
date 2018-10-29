@@ -273,13 +273,13 @@ textarea, input {
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Companies > ._companies-list {
     flex-wrap: wrap;
-    height: 150px;
+    height: 250px;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Companies > ._companies-list {
     flex-wrap: wrap;
-    height: 150px;
+    height: 250px;
   }
 }
 .Companies > ._companies-list > ._company > img {
@@ -287,14 +287,24 @@ textarea, input {
   margin: 0;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
+  .Companies > ._companies-list > ._company {
+    width: calc(50% - 12px);
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .Companies > ._companies-list > ._company {
+    width: calc(50% - 12px);
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
   .Companies > ._companies-list > ._company > img {
-    width: calc(100% - 20px);
+    width: auto;
     padding: 10px 0;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Companies > ._companies-list > ._company > img {
-    width: calc(100% - 20px);
+    width: auto;
     padding: 10px 0;
   }
 }
