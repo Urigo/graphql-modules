@@ -20,34 +20,18 @@ function docUrl(doc, language) {
 
 class Help extends React.Component {
   render() {
-    const language = this.props.language || '';
-    const supportLinks = [
-      {
-        content: `Learn more using the [documentation on this site.](${docUrl(
-          'doc1.html',
-          language
-        )})`,
-        title: 'Browse Docs',
-      },
-      {
-        content: 'Ask questions about the documentation and project',
-        title: 'Join the community',
-      },
-      {
-        content: "Find out what's new with this project",
-        title: 'Stay up to date',
-      },
-    ];
-
     return (
       <div className="docMainWrapper wrapper">
         <Container className="mainContainer documentContainer postContainer">
           <div className="post">
             <header className="postHeader">
-              <h1>Need help?</h1>
+              <h2>Need help?</h2>
+              <h1 style={{ marginTop: 0 }}>We've got you covered!</h1>
             </header>
-            <p>This project is maintained by a dedicated group of people.</p>
-            <GridBlock contents={supportLinks} layout="threeColumn" />
+          </div>
+          <div className="HelpSection">
+            <div className="_title">Expert Support</div>
+            <div className="_subtitle">Get our team's help with Apollo, GraphQL and GraphQL Modules. Whether you’re just getting started or rolling out GraphQL across your whole organization, we can help with architectural design, implementation and education.</div>
           </div>
         </Container>
       </div>

@@ -994,6 +994,58 @@ textarea, input {
     height: calc(57vw - 17px);
   }
 }
+.HelpSection {
+  margin-top: 50px;
+  width: 500px;
+  text-align: justify;
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection {
+    margin-top: 50px;
+    width: 100%;
+    font-size: 25px;
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection {
+    margin-top: 50px;
+    width: 100%;
+    font-size: 14px;
+  }
+}
+.HelpSection > ._title {
+  font-size: 34px;
+  color: #243265;
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection > ._title {
+    font-size: 25px;
+    line-height: normal;
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection > ._title {
+    font-size: 25px;
+    line-height: normal;
+  }
+}
+.HelpSection > ._subtitle {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #677897;
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection > ._subtitle {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+@media only screen and (max-width: 36em) and (orientation: portrait) {
+  .HelpSection > ._subtitle {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
 
 #docsNav {
   border-right: solid 1px #b4bcd9;
