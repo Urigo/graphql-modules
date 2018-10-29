@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, AppInfo, CommunicationBridge, EventEmitterCommunicationBridge } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -109,14 +109,6 @@ describe('GraphQLAppModule', () => {
     });
 
     expect(result.data.b.f).toBe('1');
-  });
-
-  it('should provide network request to AppInfo', async () => {
-    const app = new GraphQLModule({ name: 'app', imports:  [moduleA, moduleB, moduleC] });
-    const request = {};
-    const context = await app.context(request);
-
-    expect(context.injector.get(AppInfo).getRequest()).toBe(request);
   });
 
   it('should work without a GraphQL schema and set providers', async () => {
@@ -322,6 +314,42 @@ describe('GraphQLAppModule', () => {
         ],
       });
       expect(injector.get(CommunicationBridge) === communicationBridge).toBeTruthy();
+    });
+    it('should call onRequest hook on each request', async () => {
+      let counter = 0;
+      @Injectable()
+      class FooProvider implements OnRequest {
+        onRequest() {
+          counter++;
+        }
+      }
+      const { context } = new GraphQLModule({
+        name: 'app',
+        providers: [
+          FooProvider,
+        ],
+      });
+      await context({});
+      expect(counter).toEqual(1);
+      await context({});
+      expect(counter).toEqual(2);
+    });
+
+    it('should pass network request to onRequest hook', async () => {
+      const fooRequest = {};
+      @Injectable()
+      class FooProvider implements OnRequest {
+        onRequest(request) {
+          expect(request).toBe(fooRequest);
+        }
+      }
+      const { context } = new GraphQLModule({
+        name: 'app',
+        providers: [
+          FooProvider,
+        ],
+      });
+      await context(fooRequest);
     });
   });
 });

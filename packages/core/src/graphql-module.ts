@@ -4,7 +4,6 @@ import { Provider, AppContext, Injector as SimpleInjector } from './di/types';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { Injector } from './di';
-import { AppInfo } from './app-info';
 import { DepGraph } from 'dependency-graph';
 import logger from '@graphql-modules/logger';
 
@@ -399,16 +398,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   get injector(): SimpleInjector {
 
     if (!this._appCache.injector) {
-      const injector = new Injector({
-        defaultScope: 'Singleton',
-        autoBindInjectable: false,
-      });
 
-      // app info
-      injector.provide({
-        provide: AppInfo,
-        useValue: new AppInfo<Config, Request, Context>(),
-      });
+      const injector = new Injector();
 
       const providers = this.providers;
 
@@ -421,6 +412,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
 
       this._appCache.injector = injector;
+
     }
 
     return this._appCache.injector;
@@ -469,11 +461,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
       }
 
-      injector.get(AppInfo).initialize({
-        request,
-        context: builtResult,
-        appModule: this,
-      });
+      // Asyncronously call request hooks not to block context.
+      const requestHooks$ = this.providers.map(provider =>
+      (injector as Injector).callRequestHook(
+          provider,
+          request,
+          builtResult,
+          this,
+        ),
+      );
+
+      await Promise.all(requestHooks$);
 
       return builtResult;
     }

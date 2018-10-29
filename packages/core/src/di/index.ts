@@ -1,5 +1,6 @@
 import { Container, interfaces, decorate } from 'inversify';
-import { Provider, Type, ValueProvider, ClassProvider } from './types';
+import { Provider, Type, ValueProvider, ClassProvider, OnRequest } from './types';
+import { GraphQLModule } from '../graphql-module';
 
 export { decorate };
 
@@ -7,13 +8,21 @@ export { decorate };
  * @hidden
  */
 export class Injector extends Container {
+
+  constructor() {
+    super({
+      defaultScope: 'Singleton',
+      autoBindInjectable: false,
+    });
+  }
+
   public provide<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
       return provider.forEach(p => this.provide(p));
     }
 
     if (isType(provider)) {
-      this.bind<T>(provider)
+      super.bind<T>(provider)
         .toSelf()
         .inSingletonScope();
     } else if (isValue(provider)) {
@@ -37,17 +46,17 @@ export class Injector extends Container {
       return this.ensure(token);
     }
 
-    return this.bind(token);
+    return super.bind(token);
   }
 
   private ensure<T>(
     token: interfaces.ServiceIdentifier<T>,
   ): interfaces.BindingToSyntax<T> {
     if (this.isBound(token)) {
-      return this.rebind(token);
+      return super.rebind(token);
     }
 
-    return this.bind<T>(token);
+    return super.bind<T>(token);
   }
 
   public init<T>(provider: Provider<T>): void {
@@ -56,9 +65,28 @@ export class Injector extends Container {
     }
 
     if (isType<T>(provider)) {
-      this.get<T>(provider);
+      super.get<T>(provider);
     } else if (isClass<T>(provider)) {
-      this.get<T>(provider.provide);
+      super.get<T>(provider.provide);
+    }
+  }
+
+  public async callRequestHook<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
+    provider: Provider<T>,
+    request: Request,
+    context: Context,
+    appModule: GraphQLModule<Config, Request, Context>,
+    ): Promise<void> {
+
+    let instance;
+    if (isType<T>(provider)) {
+      instance = super.get<T>(provider);
+    } else if (isClass<T>(provider)) {
+      instance = super.get<T>(provider.provide);
+    }
+
+    if (instance && 'onRequest' in instance) {
+      return instance.onRequest(request, context, appModule);
     }
   }
 }

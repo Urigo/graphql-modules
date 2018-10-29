@@ -187,30 +187,23 @@ export const myModule = new GraphQLModule({
 
 GraphQL Modules give you some built-in injectables, and you can inject them into your providers/resolvers and use them according to your need.
 
-### `AppInfo`
+### `OnRequest hook`
 
-With this injectable, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
+With this, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
 
 ```typescript
-import { injectable, AppInfo, inject } from '@graphql-modules/core';
+import { injectable, OnRequest, inject } from '@graphql-modules/core';
 
 @Injectable()
-export class MyProvider {
-    constructor(private appInfo: AppInfo) {
+export class MyProvider implements OnRequest {
 
-    }
-
-    doSomething() {
-        const networkRequest = this.appInfo.getRequest();
-        const currentContext = this.appInfo.getContext();
-        const graphQlAppModule = this.appInfo.getAppModule();
-
+    onRequest(networkRequest, currentContext, graphQlAppModule) {
         // ...do your magic...
     }
 }
 ```
 
-`AppInfo` [API is available here](/TODO)
+`onRequest` [API is available here](/TODO)
 
 ### `ModuleConfig(moduleName: string)`
 

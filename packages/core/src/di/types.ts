@@ -1,4 +1,5 @@
 import { interfaces } from 'inversify';
+import { GraphQLModule } from '../graphql-module';
 export { injectable as Injectable, inject as Inject, optional as Optional } from 'inversify';
 
 export interface Type<T> extends Function {
@@ -28,3 +29,7 @@ export interface Injector {
 }
 
 export type AppContext<Context = { [key: string]: any }> = Context & { injector: Injector };
+
+export interface OnRequest<Config = any, Request = any, Context = any> {
+  onRequest(request: Request, context: Context, appModule: GraphQLModule<Config, Request, Context>): Promise<void> | void;
+}
