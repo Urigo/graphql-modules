@@ -15,7 +15,7 @@ export type BuildContextFn<Request, Context> = (
   networkRequest: Request,
   currentContext: AppContext<Context>,
   injector: SimpleInjector,
-) => Context;
+) => Promise<Context>;
 
 /**
  * Defines the structure of a dependency as it declared in each module's `dependencies` field.
@@ -139,6 +139,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   set config(config: Config) {
     this._moduleConfig = config;
+    this._appCache.injector = null;
+    this._appCache.modules = null;
+    this._appCache.providers = null;
+    this._appCache.resolvers = null;
+    this._appCache.schema = null;
+    this._appCache.typeDefs = null;
   }
 
   /**

@@ -25,7 +25,7 @@ export const AuthModule = new GraphQLModule({
   imports: [
     UserModule,
   ],
-  contextBuilder: (networkRequest: { req: Request }) => ({
+  contextBuilder: async (networkRequest: { req: Request }) => ({
     authenticatedUser: {
       _id: 1,
       username: 'me',
