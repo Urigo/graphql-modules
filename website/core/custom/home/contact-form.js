@@ -12,7 +12,6 @@ const TextInput = require('../text-input')
 
 const githubIcon = `${siteConfig.baseUrl}img/home/github-icon.svg`
 const mediumIcon = `${siteConfig.baseUrl}img/home/medium-icon.svg`
-const stackIcon = `${siteConfig.baseUrl}img/home/stack-icon.svg`
 
 module.exports = class extends React.Component {
   state = {
@@ -40,9 +39,8 @@ module.exports = class extends React.Component {
             <input onChange={this.setDetails} value={this.state.details} />
           </TextArea>
           <div className="_bottom">
-            <Hyperlink className="_channel"><img src={githubIcon} alt="github" /></Hyperlink>
-            <Hyperlink className="_channel"><img src={mediumIcon} alt="medium" /></Hyperlink>
-            <Hyperlink className="_channel"><img src={stackIcon} alt="stackoverflow" /></Hyperlink>
+            <Hyperlink className="_channel" href={siteConfig.githubUrl}><img src={githubIcon} alt="github" /></Hyperlink>
+            <Hyperlink className="_channel" href={siteConfig.mediumUrl}><img src={mediumIcon} alt="medium" /></Hyperlink>
             {this.state.sending ? (
               <Button className="_send-button _sending">Sending...</Button>
             ) : (

@@ -21,7 +21,9 @@ const siteConfig = {
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
-
+  // Custom URLs which are used by the views
+  githubUrl: 'https://github.com/Urigo/graphql-modules',
+  mediumUrl: 'https://medium.com/the-guild',
   // Used for publishing and more
   projectName: 'graphql-modules',
   organizationName: 'urigo',
