@@ -3,12 +3,16 @@ import {Blog} from './providers/blog';
 import gql from 'graphql-tag';
 import resolvers from './resolvers';
 import { UserModule } from '../user';
+import { PostResolver } from './resolversHandlers/post';
 
 export const BlogModule = new GraphQLModule({
   name: 'Blog',
   imports: [UserModule],
   providers: [Blog],
   resolvers,
+  resolverHandlers: [
+    PostResolver,
+  ],
   typeDefs: gql`
     type Query {
       posts: [Post]

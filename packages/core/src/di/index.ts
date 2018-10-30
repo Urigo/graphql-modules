@@ -1,4 +1,4 @@
-import { Container, interfaces, decorate } from 'inversify';
+import { Container, interfaces, decorate, injectable } from 'inversify';
 import { Provider, Type, ValueProvider, ClassProvider, OnRequest } from './types';
 import { GraphQLModule } from '../graphql-module';
 
@@ -103,7 +103,14 @@ function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
   return 'useClass' in v;
 }
 
-export function injectFn<Fn, Dependency>(fn: Fn, ...dependencies: Dependency[]): Fn {
+export function InjectFn<Fn, Dependency>(fn: Fn, ...dependencies: Dependency[]): Fn {
   fn['dependencies'] = dependencies;
   return fn;
+}
+
+export function ResolversHandler(resolversType: string) {
+  return (target: any): any => {
+    target['resolversType'] = resolversType;
+    return injectable()(target);
+  };
 }

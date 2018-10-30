@@ -63,7 +63,9 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   providers?: Provider[] | ((config: Config) => Provider[]);
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping | ((config: Config) => IResolversComposerMapping);
-  }
+  /** Resolver Handlers */
+  resolverHandlers?: any[] | ((config: Config) => any[]);
+}
 
 /**
  * Returns a dependency injection token for getting a module's configuration object by
@@ -310,6 +312,31 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
       }
       typeDefsArr.push(typeDefs);
+
+      let resolversHandlers = [];
+      const resolversHandlersDefinitions = module._options.resolverHandlers;
+
+      if (resolversHandlersDefinitions) {
+        if (typeof resolversHandlersDefinitions === 'function') {
+          resolversHandlers = resolversHandlersDefinitions(module._moduleConfig);
+        } else {
+          resolversHandlers = resolversHandlersDefinitions;
+        }
+      }
+
+      for ( const resolversHandler of resolversHandlers ) {
+        injector.provide(resolversHandler);
+        const resolversHandlerInstance = injector.get(resolversHandler);
+        const resolvers = {};
+        for ( const prop of Object.getOwnPropertyNames(Object.getPrototypeOf(resolversHandlerInstance))) {
+          if (prop !== 'constructor') {
+            resolvers[prop] = resolversHandlerInstance[prop].bind(resolversHandlerInstance);
+          }
+        }
+        resolversArr.push({
+          [resolversHandler['resolversType']]: resolvers,
+        });
+      }
     }
 
     const mergedComposedResolvers = composeResolvers(

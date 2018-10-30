@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, injectFn } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, InjectFn } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -18,7 +18,7 @@ describe('GraphQLAppModule', () => {
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
-      A: { f: injectFn((providerA: ProviderA) => providerA.doSomething(), ProviderA) },
+      A: { f: InjectFn((providerA: ProviderA) => providerA.doSomething(), ProviderA) },
     },
     providers: [ProviderA],
   });
