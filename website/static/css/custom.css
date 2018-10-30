@@ -338,7 +338,7 @@ textarea, input {
 }
 
 .ContactForm {
-  margin-top: 150px;
+  margin-top: 100px;
   margin-left: 50px;
   margin-right: 50px;
   border-top: solid 1px #d4dde9;
@@ -996,14 +996,24 @@ textarea, input {
 }
 .HelpSection {
   margin-top: 50px;
-  width: 500px;
   text-align: justify;
+  position: relative;
+}
+.HelpSection > ._workers {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 500px;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .HelpSection {
     margin-top: 50px;
     width: 100%;
     font-size: 25px;
+    height: 400px
+  }
+  .HelpSection > ._workers {
+    width: 100%;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
@@ -1011,6 +1021,10 @@ textarea, input {
     margin-top: 50px;
     width: 100%;
     font-size: 14px;
+    height: 400px
+  }
+  .HelpSection > ._workers {
+    width: 100%;
   }
 }
 .HelpSection > ._title {
@@ -1033,18 +1047,45 @@ textarea, input {
   margin-top: 20px;
   font-size: 16px;
   color: #677897;
+  width: 500px;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .HelpSection > ._subtitle {
     font-size: 14px;
     line-height: 1.4;
+    width: 100%;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .HelpSection > ._subtitle {
     font-size: 14px;
     line-height: 1.4;
+    width: 100%;
   }
+}
+#home-to-help {
+  display: block;
+  width: 180px;
+  height: 45px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 60px;
+  margin-bottom: 60px;
+  border-radius: 4px;
+  box-shadow: 10px 12px 24px 0 rgba(17, 94, 225, 0.37);
+  background-color: #115ee1;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+#home-to-help > button {
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  width: 180px;
+  height: 45px;
 }
 
 #docsNav {
