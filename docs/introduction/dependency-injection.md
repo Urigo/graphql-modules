@@ -203,7 +203,7 @@ export class MyProvider implements OnRequest {
 }
 ```
 
-`onRequest` [API is available here](/TODO)
+`onRequest` hook [API is available here](/TODO)
 
 ### `ModuleConfig(moduleName: string)`
 

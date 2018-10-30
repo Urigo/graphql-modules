@@ -63,9 +63,59 @@ export const myModule = new GraphQLModule({
 
 > We can import from `schema.graphql` because we are doing some bundling tricks, if you need help with it, refer to [Development Environment](/TODO) Section.
 
-## With Providers
+## Resolvers Handlers
 
-You can also use `class`es to implement your resolvers. It makes it easier to implement and test, and as your app grows, it's easier to separate your modules to small pieces.
+You can also use handler `class`es to implement your resolvers. It makes it easier to implement and test, and as your app grows, it's easier to separate your modules to small pieces.
+
+`modules/my-module/index.ts`
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+import * as typeDefs from './schema.graphql';
+import { QueryResolvers } from './resolvers-handlers/query';
+import { UserResolvers } from './resolvers-handlers/user';
+
+export const myModule = new GraphQLModule({
+    name: 'my-module',
+    typeDefs,
+    resolversHandlers: [
+      QueryResolvers,
+      UserResolvers
+    ],
+});
+```
+
+`modules/my-module/resolvers-handlers/query.ts`
+
+```typescript
+import { ResolversHandler } from '@graphql-modules/core';
+
+@ResolversHandler('Query')
+export class QueryResolvers {
+  user(root, { id }){
+    return {
+      _id: id,
+      username: 'jhon',
+    };
+  }
+}
+```
+
+```typescript
+import { ResolversHandler } from '@graphql-modules/core';
+
+@ResolversHandler('User')
+export class UserResolvers {
+  id(user){
+    return user._id;
+  }
+  username(user){
+    return user.username;
+  }
+}
+```
+
+## With Providers
 
 `Provider`s are first-class citizen in GraphQL Modules - they can interact easily with other modules, access the module's configuration, manage it's lifecycle easily and more.
 

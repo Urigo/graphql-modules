@@ -57,9 +57,10 @@ Another useful trick is to use an external PubSub services, such as [Redis PubSu
 You can easily create a `RedisCommunicationBridge` this way:
 
 ```typescript
-import { CommunicationBridge } from '@graphql-modules/core';
+import { Injectable, CommunicationBridge } from '@graphql-modules/core';
 import * as redis from 'redis';
 
+@Injectable()
 export class MyCommunicationBridge implements CommunicationBridge {
   _client = null;
 
