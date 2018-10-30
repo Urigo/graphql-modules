@@ -483,13 +483,13 @@ textarea, input {
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features {
     padding: 0 20px;
-    margin-top: 10px;
+    margin-top: 50px;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features {
     padding: 0 20px;
-    margin-top: 10px;
+    margin-top: 50px;
   }
 }
 .Features > ._features-list {
@@ -520,12 +520,16 @@ textarea, input {
   .Features > ._features-list > ._feature {
     width: 100%;
     padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 10px;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features > ._features-list > ._feature {
     width: 100%;
     padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 10px;
   }
 }
 .Features > ._features-list > ._feature > img {
@@ -555,7 +559,7 @@ textarea, input {
 
 .FrameworkDetails {
   padding: 0 50px;
-  margin-top: 200px;
+  margin-top: 100px;
   padding-bottom: 200px;
   position: relative;
 }
