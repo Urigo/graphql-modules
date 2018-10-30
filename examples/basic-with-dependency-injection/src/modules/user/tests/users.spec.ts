@@ -7,6 +7,7 @@ describe('Users Module', () => {
 
   beforeEach(() => {
     app = new GraphQLModule({
+      name: 'app',
       imports: [
         UserModule,
       ],

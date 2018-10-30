@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule } from '../src';
+import { GraphQLModule, Injectable } from '../src';
 import { stripWhitespaces } from './utils';
 
 describe('GraphQLModule', () => {
@@ -8,16 +8,7 @@ describe('GraphQLModule', () => {
   it('should create GraphQL Module correctly with basic single file typedef', () => {
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES });
 
-    expect(stripWhitespaces(module.typeDefs)).toEqual(`type Test { f: String }`);
-  });
-
-  it('should create GraphQL Module correctly with basic multiple files typedef', () => {
-    const module = new GraphQLModule({
-      name: 'test',
-      typeDefs: [`type Test { f: String }`, `type Test2 { f: String }`],
-    });
-
-    expect(stripWhitespaces(module.typeDefs)).toEqual(stripWhitespaces(`type Test { f: String } type Test2 { f: String }`));
+    expect(stripWhitespaces(module._options.typeDefs as string)).toEqual(`type Test { f: String }`);
   });
 
   it('should set a provider that is an object', () => {
@@ -36,6 +27,7 @@ describe('GraphQLModule', () => {
   });
 
   it('should set a provider that is a class', () => {
+    @Injectable()
     class MyClass {
       foo(): string {
         return 'test';
@@ -51,6 +43,6 @@ describe('GraphQLModule', () => {
     const mockCallback = jest.fn();
     const module = new GraphQLModule({ name: 'test', typeDefs: TEST_TYPES, contextBuilder: mockCallback });
 
-    expect(module.contextBuilder).toBe(mockCallback);
+    expect(module._options.contextBuilder).toBe(mockCallback);
   });
 });

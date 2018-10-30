@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, injectFn } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -18,7 +18,7 @@ describe('GraphQLAppModule', () => {
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
-      A: { f: (root, args, context) => context.injector.get(ProviderA).doSomething() },
+      A: { f: injectFn((providerA: ProviderA) => providerA.doSomething(), ProviderA) },
     },
     providers: [ProviderA],
   });
@@ -149,16 +149,15 @@ describe('GraphQLAppModule', () => {
   });
 
   it('should put the correct providers to the injector', async () => {
-    const app = new GraphQLModule({ name: 'app', imports:  [moduleA, moduleB, moduleC] });
-    const { injector } = await app.context({ req: {} });
+    const { injector } = new GraphQLModule({ name: 'app', imports:  [moduleA, moduleB, moduleC] });
 
     expect(injector.get(ProviderA) instanceof ProviderA).toBe(true);
   });
 
-  it('should allow to get resolvers', async () => {
+  it('should allow to get schema', async () => {
     const app = new GraphQLModule({ name: 'app', imports:  [moduleA, moduleB, moduleC] });
 
-    expect(app.resolvers).toBeDefined();
+    expect(app.schema).toBeDefined();
   });
 
   describe('Schema merging', () => {

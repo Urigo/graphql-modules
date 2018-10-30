@@ -62,15 +62,15 @@ export class UserProvider {
 
 > `Provider` lifecycle is by default as singleton, so you can use the implemented functions as util functions, but still use `this` to save global variables.
 
-And to use this function from our `Provider` in the actual resolver implementation, we need to access the GraphQL `context`, and get `injector` out of it:
+And to use this function from our `Provider` in the actual resolver implementation, we need to user `injectFn` decorator the GraphQL `context`:
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { injectFn } from '@graphql-modules/core';
 
 export default {
     Query: {
-        user: (_, { id }: { id: string }, { injector }: AppContext) =>
-            injector.get(UserProvider).getUserById(id),
+        user: injectFn((userProvider: UserProvider, _, { id }: { id: string }) =>
+            userProvider.getUserById(id), UserProvider),
     },
     User: {
         id: user => user._id,

@@ -102,3 +102,8 @@ function isValue<T>(v: Provider<T>): v is ValueProvider<T> {
 function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
   return 'useClass' in v;
 }
+
+export function injectFn<Fn, Dependency>(fn: Fn, ...dependencies: Dependency[]): Fn {
+  fn['dependencies'] = dependencies;
+  return fn;
+}

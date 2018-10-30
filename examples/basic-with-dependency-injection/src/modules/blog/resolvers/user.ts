@@ -1,9 +1,8 @@
 import { Blog } from '../providers/blog';
-import { AppContext } from '@graphql-modules/core';
+import { injectFn } from '@graphql-modules/core';
 
 export default {
   User: {
-    posts: (user, args, { injector }: AppContext) =>
-      injector.get(Blog).getPostsOf(user._id),
+    posts: injectFn((blog: Blog, user) => blog.getPostsOf(user._id), Blog),
   },
 };
