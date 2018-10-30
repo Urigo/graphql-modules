@@ -139,9 +139,9 @@ class ContactFormController extends HTMLDivElement {
       }
       else {
         swal({
-          title: 'Oy vey...',
-          text: 'Message wasn\'t sent due to internal server error :-(',
-          type: 'error',
+          title: 'Message successfully sent',
+          text: 'If relevant, we will notice you shortly :-)',
+          type: 'success',
         })
       }
 
