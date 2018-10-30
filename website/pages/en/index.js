@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const React = require('react');
+const React = require('react')
 
 const Companies = require(`${process.cwd()}/core/custom/home/companies`)
 const Features = require(`${process.cwd()}/core/custom/home/features`)
@@ -34,4 +34,4 @@ const Index = () => (
   </React.Fragment>
 )
 
-module.exports = Index;
+module.exports = Index
