@@ -488,7 +488,7 @@ textarea, input {
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features {
-    padding: 0 20px;
+    padding: 0;
     margin-top: 50px;
   }
 }
@@ -511,7 +511,7 @@ textarea, input {
 }
 .Features > ._features-list > ._feature {
   width: 210px;
-  padding-top: 50px;
+  padding: 15px;
   margin-left: 15px;
   margin-right: 15px;
   border: solid 1px rgba(120, 151, 188, 0.3);
@@ -519,7 +519,6 @@ textarea, input {
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features > ._features-list > ._feature {
     width: 100%;
-    padding: 15px;
     margin-top: 5px;
     margin-bottom: 10px;
   }
@@ -527,7 +526,6 @@ textarea, input {
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .Features > ._features-list > ._feature {
     width: 100%;
-    padding: 15px;
     margin-top: 5px;
     margin-bottom: 10px;
   }
@@ -1073,7 +1071,7 @@ textarea, input {
   height: 45px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 60px;
+  margin-top: 100px;
   margin-bottom: 60px;
   border-radius: 4px;
   box-shadow: 10px 12px 24px 0 rgba(17, 94, 225, 0.37);
@@ -1251,5 +1249,9 @@ footer .navMenu > * {
 
   .navBreadcrumb.wrapper {
     z-index: 1;
+  }
+
+  #home-to-help {
+    margin-top: 60px;
   }
 }
