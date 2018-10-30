@@ -139,8 +139,8 @@ class ContactFormController extends HTMLDivElement {
       }
       else {
         swal({
-          title: 'Message successfully sent',
-          text: 'If relevant, we will notice you shortly :-)',
+          title: 'Thank you for getting in touch!',
+          text: 'We\'ll contact you shortly :-)',
           type: 'success',
         })
       }
