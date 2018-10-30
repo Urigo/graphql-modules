@@ -5,7 +5,6 @@ const ReactDOM = require('react-dom')
 
 const siteConfig = require('../../../siteConfig')
 const device = require('../../../utils/device')
-const { validateEmail, validateLength } = require('../../../utils/validations')
 const Button = require('../button')
 const Hyperlink = require('../hyperlink')
 const TextArea = require('../text-area')

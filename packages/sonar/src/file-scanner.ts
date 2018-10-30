@@ -97,7 +97,7 @@ const LoadResolversFilesDefaultOptions: LoadResolversFilesOptions = {
 export function loadResolversFiles(basePath: string, options: LoadResolversFilesOptions = LoadResolversFilesDefaultOptions): any[] {
   const execOptions = { ...LoadResolversFilesDefaultOptions, ...options };
   const relevantPaths = scanForFiles(buildGlob(basePath, execOptions.extensions, execOptions.ignoredExtensions), execOptions.globOptions);
-  
+
   return relevantPaths.map(path => {
     try {
       const fileExports = (execOptions.requireMethod ? execOptions.requireMethod : require)(path);
