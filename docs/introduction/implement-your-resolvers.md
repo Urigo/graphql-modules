@@ -67,31 +67,13 @@ export const myModule = new GraphQLModule({
 
 You can also use handler `class`es to implement your resolvers. It makes it easier to implement and test, and as your app grows, it's easier to separate your modules to small pieces.
 
-`modules/my-module/index.ts`
-
-```typescript
-import { GraphQLModule } from '@graphql-modules/core';
-import * as typeDefs from './schema.graphql';
-import { QueryResolvers } from './resolvers-handlers/query';
-import { UserResolvers } from './resolvers-handlers/user';
-
-export const myModule = new GraphQLModule({
-    name: 'my-module',
-    typeDefs,
-    resolversHandlers: [
-      QueryResolvers,
-      UserResolvers
-    ],
-});
-```
-
 `modules/my-module/resolvers-handlers/query.ts`
 
 ```typescript
 import { ResolversHandler } from '@graphql-modules/core';
 
 @ResolversHandler('Query')
-export class QueryResolvers {
+export class QueryResolversHandler {
   user(root, { id }){
     return {
       _id: id,
@@ -105,7 +87,7 @@ export class QueryResolvers {
 import { ResolversHandler } from '@graphql-modules/core';
 
 @ResolversHandler('User')
-export class UserResolvers {
+export class UserResolversHandler {
   id(user){
     return user._id;
   }
@@ -113,6 +95,24 @@ export class UserResolvers {
     return user.username;
   }
 }
+```
+
+`modules/my-module/index.ts`
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+import * as typeDefs from './schema.graphql';
+import { QueryResolvers } from './resolvers-handlers/query';
+import { UserResolvers } from './resolvers-handlers/user';
+
+export const myModule = new GraphQLModule({
+    name: 'my-module',
+    typeDefs,
+    resolversHandlers: [
+      QueryResolversHandler,
+      UserResolversHandler
+    ],
+});
 ```
 
 ## With Providers
