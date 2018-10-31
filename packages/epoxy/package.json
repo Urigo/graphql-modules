@@ -26,7 +26,7 @@
     "@graphql-modules/logger": "0.1.9",
     "@types/deepmerge": "2.1.0",
     "deepmerge": "2.2.1",
-    "graphql-tools": "4.0.2",
+    "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
   },
   "devDependencies": {
