@@ -35,7 +35,6 @@ const siteConfig = {
   headerLinks: [
     { doc: 'introduction/getting-started', label: 'DOCUMENTATION' },
     { doc: 'api/core/api-readme', label: 'API REFERENCE' },
-    { page: 'help', label: 'SUPPORT' },
     { href: 'https://github.com/Urigo/graphql-modules', label: 'GITHUB' },
   ],
 

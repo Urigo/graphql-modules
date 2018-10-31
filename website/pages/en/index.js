@@ -12,11 +12,11 @@ const Companies = require(`${process.cwd()}/core/custom/home/companies`)
 const Features = require(`${process.cwd()}/core/custom/home/features`)
 const FrameworkDetails = require(`${process.cwd()}/core/custom/home/framework-details`)
 const ContactUs = require(`${process.cwd()}/core/custom/home/contact-us`)
-// const GQLQuote = require(`${process.cwd()}/core/custom/home/gql-quote`)
 const Intro = require(`${process.cwd()}/core/custom/home/intro`)
 const Button = require(`${process.cwd()}/core/custom/button`)
 const Hyperlink = require(`${process.cwd()}/core/custom/hyperlink`)
 const siteConfig = require(`${process.cwd()}/siteConfig.js`)
+// const GQLQuote = require(`${process.cwd()}/core/custom/home/gql-quote`)
 // const LearnSection = require(`${process.cwd()}/core/custom/home/learn-section`)
 
 const Index = () => (
