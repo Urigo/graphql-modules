@@ -2,7 +2,6 @@ const React = require('react')
 const ReactDOM = require('react-dom')
 
 const siteConfig = require('../../../siteConfig')
-const device = require('../../../utils/device')
 const Button = require('../button')
 const Hyperlink = require('../hyperlink')
 const TextArea = require('../text-area')
@@ -25,7 +24,7 @@ module.exports = class extends React.Component {
             <label>Your Email</label>
             <input />
           </TextInput>
-          {device.desktop.active && <br />}
+          <br />
           <TextArea className="_details">
             <label>Your Message</label>
             <input />
@@ -33,7 +32,7 @@ module.exports = class extends React.Component {
           <div className="_bottom">
             <Hyperlink className="_channel" href={siteConfig.githubUrl}><img src={githubIcon} alt="github" /></Hyperlink>
             <Hyperlink className="_channel" href={siteConfig.mediumUrl}><img src={mediumIcon} alt="medium" /></Hyperlink>
-            <Button className="_send-button" />
+            <Button className="_send-button">Send</Button>
           </div>
           <div className="_error-message" />
         </div>

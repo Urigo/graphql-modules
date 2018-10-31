@@ -7,9 +7,11 @@
 
 const React = require('react')
 
+const { toInlineScript } = require(`${process.cwd()}/utils`)
 const Companies = require(`${process.cwd()}/core/custom/home/companies`)
 const Features = require(`${process.cwd()}/core/custom/home/features`)
 const FrameworkDetails = require(`${process.cwd()}/core/custom/home/framework-details`)
+const ContactUs = require(`${process.cwd()}/core/custom/home/contact-us`)
 // const GQLQuote = require(`${process.cwd()}/core/custom/home/gql-quote`)
 const Intro = require(`${process.cwd()}/core/custom/home/intro`)
 const Button = require(`${process.cwd()}/core/custom/button`)
@@ -24,13 +26,19 @@ const Index = () => (
     <Companies />
     <Features />
     <FrameworkDetails />
+    <ContactUs />
     {/*<GQLQuote />*/}
     {/*<LearnSection />*/}
-    <Hyperlink id="home-to-help" href={`${siteConfig.baseUrl}help`}>
-      <Button>
-        Contact Us
-      </Button>
-    </Hyperlink>
+    <script src={`${siteConfig.baseUrl}lib/sweetalert2.all.min.js`} />
+    {toInlineScript('./utils/validations')}
+    {toInlineScript('./core/custom/home/contact-form-controller')}
+    {toInlineScript(function () {
+      const ContactFormController = require('./core/custom/home/contact-form-controller')
+
+      document.querySelectorAll('.ContactForm').forEach((contactForm) => {
+        ContactFormController.inject(contactForm)
+      })
+    })}
   </React.Fragment>
 )
 

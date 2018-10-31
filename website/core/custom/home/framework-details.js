@@ -3,7 +3,7 @@ const React = require('react')
 const siteConfig = require('../../../siteConfig')
 const device = require('../../../utils/device')
 
-const workers = `${siteConfig.baseUrl}img/home/workers.svg`
+const workers = `${siteConfig.baseUrl}img/home/workers-full.svg`
 const apolloLogo = `${siteConfig.baseUrl}img/home/companies/apollo-logo.png`
 
 module.exports = (props) => (
