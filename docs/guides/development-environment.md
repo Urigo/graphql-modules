@@ -134,8 +134,8 @@ Here is a simple `webpack.config.js` that should do the job:
 
 ```js
 module.exports = {
-  mode: 'development,
-  devtool: 'inline-source-map,
+  mode: 'development',
+  devtool: 'inline-source-map',
   entry: './src/index.ts',
   output: {
     filename: 'dist/server.js'
