@@ -1,3 +1,5 @@
+const React = require('react')
+
 const device = exports.device = require('./device')
 const validations = exports.validations = require('./validations')
 
@@ -57,3 +59,42 @@ const pluckChildProps = exports.pluckChildProps = (children, whitelist) => {
 
   return childProps
 }
+
+const toInlineScript = exports.toInlineScript = (relativeScriptPath) => {
+  const babel = require('@babel/core')
+  const fs = require('fs')
+  const path = require('path')
+
+  let script
+
+  if (relativeScriptPath instanceof Function) {
+    script = babel.transform(`(${relativeScriptPath})()`, {
+      presets: ['@babel/preset-env', 'babel-preset-minify'],
+      code: true,
+      ast: false,
+    }).code
+
+    return React.createElement('script', { dangerouslySetInnerHTML: {
+      __html: `(function(){if(!window.GQLCodegen)window.GQLCodegen={};var require=function(path){return window.GQLCodegen[path]};${script}})()`
+    } })
+  }
+
+  const scriptPath = path.resolve(process.cwd(), relativeScriptPath) + '.js'
+  script = toInlineScript.cache[scriptPath]
+
+  if (!toInlineScript.cache[scriptPath]) {
+    script = fs.readFileSync(scriptPath).toString()
+    script = babel.transform(script, {
+      presets: ['@babel/preset-env', 'babel-preset-minify'],
+      code: true,
+      ast: false,
+    }).code
+
+    toInlineScript.cache[scriptPath] = script
+  }
+
+  return React.createElement('script', { dangerouslySetInnerHTML: {
+    __html: `(function(){if(!window.GQLCodegen)window.GQLCodegen={};if(!window.GQLCodegen['${relativeScriptPath}'])window.GQLCodegen['${relativeScriptPath}']={};var exports=window.GQLCodegen['${relativeScriptPath}'];var module=Object.defineProperties({},{exports:{get(){return exports},set(v){return exports=window.GQLCodegen['${relativeScriptPath}']=v}}});var require=function(path){return window.GQLCodegen[path]};${script}})()`
+  } })
+}
+toInlineScript.cache = {}

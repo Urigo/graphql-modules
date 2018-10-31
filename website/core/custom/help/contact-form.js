@@ -1,5 +1,3 @@
-const babel = require('@babel/core')
-const fs = require('fs')
 const React = require('react')
 const ReactDOM = require('react-dom')
 
@@ -12,13 +10,6 @@ const TextInput = require('../text-input')
 
 const githubIcon = `${siteConfig.baseUrl}img/home/github-icon.svg`
 const mediumIcon = `${siteConfig.baseUrl}img/home/medium-icon.svg`
-
-let registerContactForms = fs.readFileSync(`${__dirname}/register-contact-forms.js`).toString()
-registerContactForms = babel.transform(registerContactForms, {
-  presets: ['@babel/preset-env'],
-  code: true,
-  ast: false,
-}).code
 
 module.exports = class extends React.Component {
   render() {
@@ -46,8 +37,6 @@ module.exports = class extends React.Component {
           </div>
           <div className="_error-message" />
         </div>
-        <script src={`${siteConfig.baseUrl}lib/sweetalert2.all.min.js`} />
-        <script dangerouslySetInnerHTML={{ __html: `(function () {${registerContactForms}})()` }} />
       </div>
     )
   }

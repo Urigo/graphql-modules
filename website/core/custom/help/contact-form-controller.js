@@ -1,49 +1,5 @@
-// Utils taken directly for the utils module to save the hustle
-const validateEmail = (ctx, str) => {
-  if (
-    typeof str !== 'string' &&
-    !(str instanceof String)
-  ) {
-    throw TypeError(`${ctx} must be a string`)
-  }
+const { validateEmail, validateLength } = require('./utils/validations')
 
-  validateLength(ctx, str, 5, 30)
-
-  if (!/^[\w.-]+@[\w.-]+\.\w+$/.test(str)) {
-    throw TypeError(`${ctx} is not an email address`)
-  }
-}
-
-const validateLength = (ctx, str, ...args) => {
-  let min, max
-
-  if (args.length === 1) {
-    min = 0
-    max = args[0]
-  }
-  else {
-    min = args[0]
-    max = args[1]
-  }
-
-  if (
-    typeof str !== 'string' &&
-    !(str instanceof String)
-  ) {
-    throw TypeError(`${ctx} must be a string`)
-  }
-
-  if (str.length < min) {
-    throw TypeError(`${ctx} must be at least ${min} chars long`)
-  }
-
-  if (str.length > max) {
-    throw TypeError(`${ctx} must contain ${max} chars at most`)
-  }
-}
-
-// Since Docosaurus uses SSR to render static HTML, we'll need to use native events
-// unless we wanna load React and wrap that goddamn thing
 class ContactFormController extends HTMLDivElement {
   static inject(self) {
     self.__proto__ = ContactFormController.prototype
@@ -155,6 +111,4 @@ class ContactFormController extends HTMLDivElement {
   }
 }
 
-document.querySelectorAll('.ContactForm').forEach((contactForm) => {
-  ContactFormController.inject(contactForm)
-})
+module.exports = ContactFormController

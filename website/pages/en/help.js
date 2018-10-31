@@ -8,8 +8,9 @@
 const React = require('react')
 
 const CompLibrary = require('../../core/CompLibrary.js')
+
 const ContactForm = require(`${process.cwd()}/core/custom/help/contact-form`)
-const device = require(`${process.cwd()}/utils/device`)
+const { toInlineScript } = require(`${process.cwd()}/utils`)
 
 const Container = CompLibrary.Container
 const GridBlock = CompLibrary.GridBlock
@@ -39,6 +40,16 @@ class Help extends React.Component {
             <img className="_workers" src={workers} />
           </div>
           <ContactForm />
+          <script src={`${siteConfig.baseUrl}lib/sweetalert2.all.min.js`} />
+          {toInlineScript('./utils/validations')}
+          {toInlineScript('./core/custom/help/contact-form-controller')}
+          {toInlineScript(function () {
+            const ContactFormController = require('./core/custom/help/contact-form-controller')
+
+            document.querySelectorAll('.ContactForm').forEach((contactForm) => {
+              ContactFormController.inject(contactForm)
+            })
+          })}
         </Container>
       </div>
     )
