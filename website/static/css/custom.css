@@ -608,6 +608,7 @@ textarea, input {
 .FrameworkDetails > ._details > ._title > ._apollo-logo {
   width: 190px;
   transform: translateY(23px);
+  margin-left: -13px;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
   .FrameworkDetails > ._details > ._title > ._apollo-logo {
@@ -629,6 +630,7 @@ textarea, input {
 }
 .FrameworkDetails > ._bg-workers {
   position: absolute;
+  z-index: -1;
   right: 50px;
   bottom: 50px;
   width: 500px;
