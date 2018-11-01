@@ -1,69 +1,78 @@
-import { Container, interfaces, decorate, injectable } from 'inversify';
+import { decorate, injectable, interfaces } from 'inversify';
 import { Provider, Type, ValueProvider, ClassProvider, OnRequest } from './types';
 import { GraphQLModule } from '../graphql-module';
 
 export { decorate };
 
+const PARAM_TYPES = 'inversify:paramtypes';
+
+declare var Reflect: any;
 /**
  * @hidden
  */
 export class Injector {
-
   children: Injector[];
-
-  constructor(public container = new Container({
-    defaultScope: 'Singleton',
-    autoBindInjectable: false,
-  })) {}
-
+  types = new Array<any>();
+  valueMap = new Map();
+  classMap = new Map();
+  instanceMap = new Map();
   public provide<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
       return provider.forEach(p => this.provide(p));
     }
-
     if (isType(provider)) {
-      this.container.bind<T>(provider)
-        .toSelf()
-        .inSingletonScope();
+      this.types.push(provider);
     } else if (isValue(provider)) {
-      this._provide<T>(provider.provide, provider.overwrite).toConstantValue(
-        provider.useValue,
-      );
+      this.valueMap.set(provider.provide, provider.useValue);
     } else if (isClass(provider)) {
-      this._provide(provider.provide, provider.overwrite)
-        .to(provider.useClass)
-        .inSingletonScope();
+      this.classMap.set(provider.provide, provider.useClass);
     } else {
       throw new Error(`Couldn't provide  ${provider}`);
     }
   }
-
-  private _provide<T>(
-    token: interfaces.ServiceIdentifier<T>,
-    overwrite = false,
-  ) {
-    if (overwrite === true) {
-      return this.ensure(token);
+  public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
+    if (this.types.includes(serviceIdentifier)) {
+      if (!this.instanceMap.has(serviceIdentifier)) {
+        this.instanceMap.set(serviceIdentifier, this.instantiate(serviceIdentifier));
+      }
+      return this.instanceMap.get(serviceIdentifier);
+    } else if (this.valueMap.has(serviceIdentifier)) {
+      return this.valueMap.get(serviceIdentifier);
+    } else if (this.classMap.has(serviceIdentifier)) {
+      const realClazz = this.classMap.get(serviceIdentifier);
+      if (!this.instanceMap.has(realClazz)) {
+        this.instanceMap.set(realClazz, this.instantiate(realClazz));
+      }
+      return this.instanceMap.get(realClazz);
+    } else {
+      for (const child of this.children) {
+        try {
+          return child.get(serviceIdentifier);
+        } catch (e) {}
+      }
+      throw new Error((serviceIdentifier['name'] || serviceIdentifier.toString()) + 'not found!');
     }
+}
 
-    return this.container.bind(token);
+  public instantiate<T>(clazz: any): T {
+    const dependencies = Reflect.getMetadata(PARAM_TYPES, clazz) || [];
+    const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
+    const instance = new clazz(...dependencyInstances);
+    return instance;
   }
 
-  private ensure<T>(
-    token: interfaces.ServiceIdentifier<T>,
-  ): interfaces.BindingToSyntax<T> {
-    if (this.container.isBound(token)) {
-      return this.container.rebind(token);
+  public getByProvider<T>(provider: Provider<T>) {
+    if (isType<T>(provider)) {
+      return this.get<T>(provider);
+    } else {
+      return this.get<T>(provider.provide);
     }
-
-    return this.container.bind<T>(token);
   }
 
   public init<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
       return provider.forEach(p => this.init(p));
     }
-
     this.getByProvider(provider);
   }
 
@@ -78,40 +87,6 @@ export class Injector {
 
     if (instance && 'onRequest' in instance) {
       return instance.onRequest(request, context, appModule);
-    }
-  }
-
-  public isBound<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): boolean {
-    if (this.container.isBound(serviceIdentifier)) {
-      return true;
-    } else {
-      for (const child of this.children) {
-        if (child.isBound(serviceIdentifier)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
-    if (this.container.isBound(serviceIdentifier)) {
-      return this.container.get(serviceIdentifier);
-    } else {
-      for (const child of this.children) {
-        if (child.isBound(serviceIdentifier)) {
-          return child.get(serviceIdentifier);
-        }
-      }
-    }
-    throw new Error(`No matching bindings found for serviceIdentifier: ${String(serviceIdentifier)}`);
-  }
-
-  public getByProvider<T>(provider: Provider<T>) {
-    if (isType<T>(provider)) {
-      return this.get<T>(provider);
-    } else {
-      return this.get<T>(provider.provide);
     }
   }
 }

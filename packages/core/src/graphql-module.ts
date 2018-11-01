@@ -185,6 +185,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     for (let module of selfImports) {
       const moduleName = typeof module === 'string' ? module : module.options.name;
       module = modulesMap.get(moduleName);
+      module.buildTypeDefs(modulesMap);
       const moduleTypeDefs = module.typeDefs;
       if (moduleTypeDefs) {
         typeDefsArr.push(moduleTypeDefs);
@@ -328,11 +329,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     for (const provider of providers) {
-      try {
-        injector.init(provider);
-      } catch (e) {
-        throw new Error(`Module: ${this._options.name} ` + e.message);
-      }
+      injector.init(provider);
     }
 
     const resolvers = this.selfResolvers;
@@ -499,7 +496,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
                 subModule.options.name,
             );
           } catch (e) {
-            console.log(e);
             throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.options.name}!`);
           }
           // prevent infinite loop in case of circular dependency
