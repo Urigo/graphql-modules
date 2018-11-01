@@ -605,21 +605,17 @@ textarea, input {
     line-height: normal;
   }
 }
-.FrameworkDetails > ._details > ._title > ._apollo-logo {
-  width: 190px;
-  transform: translateY(23px);
-  margin-left: -13px;
+.FrameworkDetails > ._details > ._title > ._powered-by {
+  width: 350px;
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
-  .FrameworkDetails > ._details > ._title > ._apollo-logo {
-    width: 150px;
-    transform: translateY(20px);
+  .FrameworkDetails > ._details > ._title > ._powered-by {
+    width: 100%;
   }
 }
 @media only screen and (max-width: 36em) and (orientation: portrait) {
-  .FrameworkDetails > ._details > ._title > ._apollo-logo {
-    width: 150px;
-    transform: translateY(20px);
+  .FrameworkDetails > ._details > ._title > ._powered-by {
+    width: 100%;
   }
 }
 .FrameworkDetails > ._details > ._subtitle {
