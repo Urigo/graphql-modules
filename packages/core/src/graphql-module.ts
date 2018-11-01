@@ -485,7 +485,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.options.name;
           subModule = modulesMap.get(subModuleOrigName);
           if (!subModule) {
-            modulesMap.forEach((module) => console.log(module.options.name + 'asdsad'));
             throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.options.name}!`);
           }
           try {
@@ -494,6 +493,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
                 subModule.options.name,
             );
           } catch (e) {
+            console.log(e);
             throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.options.name}!`);
           }
           // prevent infinite loop in case of circular dependency
