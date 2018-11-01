@@ -338,10 +338,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       // tslint:disable-next-line:forin
       for (const prop in resolvers[type]) {
         const resolver = typeResolvers[prop];
-        const dependencies = resolver['dependencies'];
-        if (dependencies) {
-          const injections = dependencies.map((dependency: any) => injector.get(dependency));
-          typeResolvers[prop] = resolver.bind(resolver, ...injections);
+        if (resolver) {
+          const dependencies = resolver['dependencies'];
+          if (dependencies) {
+            const injections = dependencies.map((dependency: any) => injector.get(dependency));
+            typeResolvers[prop] = resolver.bind(resolver, ...injections);
+          }
         }
       }
     }
