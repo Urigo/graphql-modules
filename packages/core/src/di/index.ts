@@ -7,14 +7,14 @@ export { decorate };
 /**
  * @hidden
  */
-export class Injector extends Container {
+export class Injector {
 
-  constructor() {
-    super({
-      defaultScope: 'Singleton',
-      autoBindInjectable: false,
-    });
-  }
+  children: Injector[];
+
+  constructor(public container = new Container({
+    defaultScope: 'Singleton',
+    autoBindInjectable: false,
+  })) {}
 
   public provide<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
@@ -22,7 +22,7 @@ export class Injector extends Container {
     }
 
     if (isType(provider)) {
-      super.bind<T>(provider)
+      this.container.bind<T>(provider)
         .toSelf()
         .inSingletonScope();
     } else if (isValue(provider)) {
@@ -46,17 +46,17 @@ export class Injector extends Container {
       return this.ensure(token);
     }
 
-    return super.bind(token);
+    return this.container.bind(token);
   }
 
   private ensure<T>(
     token: interfaces.ServiceIdentifier<T>,
   ): interfaces.BindingToSyntax<T> {
-    if (this.isBound(token)) {
-      return super.rebind(token);
+    if (this.container.isBound(token)) {
+      return this.container.rebind(token);
     }
 
-    return super.bind<T>(token);
+    return this.container.bind<T>(token);
   }
 
   public init<T>(provider: Provider<T>): void {
@@ -64,29 +64,49 @@ export class Injector extends Container {
       return provider.forEach(p => this.init(p));
     }
 
+    this.getByProvider(provider);
+  }
+
+  public isProvided<T>(provider: Provider<T>): boolean {
     if (isType<T>(provider)) {
-      super.get<T>(provider);
-    } else if (isClass<T>(provider)) {
-      super.get<T>(provider.provide);
+      return this.container.isBound(provider);
+    } else {
+      return this.container.isBound(provider.provide);
     }
   }
 
-  public async callRequestHook<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
+  public async callRequestHookByProvider<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
     provider: Provider<T>,
     request: Request,
     context: Context,
     appModule: GraphQLModule<Config, Request, Context>,
     ): Promise<void> {
 
-    let instance;
-    if (isType<T>(provider)) {
-      instance = super.get<T>(provider);
-    } else if (isClass<T>(provider)) {
-      instance = super.get<T>(provider.provide);
-    }
+    const instance = this.getByProvider(provider);
 
     if (instance && 'onRequest' in instance) {
       return instance.onRequest(request, context, appModule);
+    }
+  }
+
+  public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
+    try {
+      return this.container.get(serviceIdentifier);
+    } catch (e) {
+      for (const child of this.children) {
+        try {
+          return child.get(serviceIdentifier);
+        } catch (e) {}
+      }
+      throw e;
+    }
+  }
+
+  public getByProvider<T>(provider: Provider<T>) {
+    if (isType<T>(provider)) {
+      return this.container.get<T>(provider);
+    } else {
+      return this.container.get<T>(provider.provide);
     }
   }
 }
