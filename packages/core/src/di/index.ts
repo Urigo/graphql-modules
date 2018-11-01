@@ -104,9 +104,9 @@ export class Injector {
 
   public getByProvider<T>(provider: Provider<T>) {
     if (isType<T>(provider)) {
-      return this.container.get<T>(provider);
+      return this.get<T>(provider);
     } else {
-      return this.container.get<T>(provider.provide);
+      return this.get<T>(provider.provide);
     }
   }
 }
