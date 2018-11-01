@@ -847,6 +847,15 @@ textarea, input {
   }
 }
 
+.mainContainer .docs-next {
+  float: right !important;
+  clear: right !important;
+}
+
+.mainContainer .docs-prev {
+  float: left !important;
+}
+
 #docsNav {
   border-right: solid 1px #b4bcd9;
 }
