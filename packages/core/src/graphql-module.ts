@@ -328,7 +328,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     for (const provider of providers) {
-      injector.init(provider);
+      try {
+        injector.init(provider);
+      } catch (e) {
+        throw new Error(`Module: ${this._options.name} ` + e.message);
+      }
     }
 
     const resolvers = this.selfResolvers;
@@ -373,7 +377,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     const selfTypeDefs = this.selfTypeDefs;
     if (selfTypeDefs && selfTypeDefs) {
-      allTypeDefs.push(this.selfTypeDefs);
+      allTypeDefs.push(selfTypeDefs);
     }
 
     this._cache.schema = {} as GraphQLSchema;

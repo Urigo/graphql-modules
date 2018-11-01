@@ -67,14 +67,6 @@ export class Injector {
     this.getByProvider(provider);
   }
 
-  public isProvided<T>(provider: Provider<T>): boolean {
-    if (isType<T>(provider)) {
-      return this.container.isBound(provider);
-    } else {
-      return this.container.isBound(provider.provide);
-    }
-  }
-
   public async callRequestHookByProvider<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
     provider: Provider<T>,
     request: Request,
@@ -89,17 +81,30 @@ export class Injector {
     }
   }
 
-  public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
-    try {
-      return this.container.get(serviceIdentifier);
-    } catch (e) {
+  public isBound<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): boolean {
+    if (this.container.isBound(serviceIdentifier)) {
+      return true;
+    } else {
       for (const child of this.children) {
-        try {
-          return child.get(serviceIdentifier);
-        } catch (e) {}
+        if (child.isBound(serviceIdentifier)) {
+          return true;
+        }
       }
-      throw e;
     }
+    return false;
+  }
+
+  public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
+    if (this.container.isBound(serviceIdentifier)) {
+      return this.container.get(serviceIdentifier);
+    } else {
+      for (const child of this.children) {
+        if (child.isBound(serviceIdentifier)) {
+          return child.get(serviceIdentifier);
+        }
+      }
+    }
+    throw new Error(`No matching bindings found for serviceIdentifier: ${String(serviceIdentifier)}`);
   }
 
   public getByProvider<T>(provider: Provider<T>) {
