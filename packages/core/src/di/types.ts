@@ -1,18 +1,25 @@
-import { interfaces } from 'inversify';
 import { GraphQLModule } from '../graphql-module';
 export { Inject } from './index';
+
+interface Newable<T> {
+  new (...args: any[]): T;
+}
+interface Abstract<T> {
+  prototype: T;
+}
+export type ServiceIdentifier<T> = (string | symbol | Newable<T> | Abstract<T>);
 
 export interface Type<T> extends Function {
   new (...args: any[]): T;
 }
 
 export interface ValueProvider<T> extends BaseProvider {
-  provide: interfaces.ServiceIdentifier<T>;
+  provide: ServiceIdentifier<T>;
   useValue: T;
 }
 
 export interface ClassProvider<T> extends BaseProvider {
-  provide: interfaces.ServiceIdentifier<T>;
+  provide: ServiceIdentifier<T>;
   useClass: Type<T>;
 }
 
