@@ -160,7 +160,7 @@ If you are using JavaScript in your project and not TypeScript, you can either [
 
 ### With Babel
 
-If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@Injectable` and `@Inject` in a regular way.
+If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@Inject` in a regular way.
 
 ### Without decorators
 

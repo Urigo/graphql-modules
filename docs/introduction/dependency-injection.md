@@ -14,14 +14,11 @@ GraphQL Modules let you choose whether to use dependency injection or not.
 
 ## Providers
 
-Let's start by creating a simple class called `UserProvider`. We are also decorating it with a special decorator called `@Injectable` - this mark the class as available to use using dependency injection.
+Let's start by creating a simple class called `UserProvider`.
 
 `modules/my-module/user.provider.ts`
 
 ```typescript
-import { Injectable } from '@graphql-modules/core';
-
-@Injectable()
 export class UserProvider {
 
 }
@@ -48,9 +45,6 @@ export const myModule = new GraphQLModule({
 Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
-import { Injectable } from '@graphql-modules/core';
-
-@Injectable()
 export class UserProvider {
     getUserById(id: string) {
         return {
@@ -95,10 +89,8 @@ It could be either `class`, `string` or `Symbol`.
 To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
-import { Injectable, Inject } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
-@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -126,13 +118,12 @@ export const myModule = new GraphQLModule({
 This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
 
 ```typescript
-import { Injectable, Inject } from '@graphql-modules/core';
+import { Inject } from '@graphql-modules/core';
 
 interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
-@Injectable()
 export class MyProvider {
     constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
@@ -195,7 +186,6 @@ With this, you can get access to useful information: the top `GraphQLModule` ins
 ```typescript
 import { injectable, OnRequest, inject } from '@graphql-modules/core';
 
-@Injectable()
 export class MyProvider implements OnRequest {
 
     onRequest(networkRequest, currentContext, graphQlAppModule) {
@@ -213,9 +203,8 @@ This injectable will fetch the a module's configuration object that passed via `
 You can read more about [module configuration here](/TODO).
 
 ```typescript
-import { Injectable, ModuleConfig, Inject } from '@graphql-modules/core';
+import { ModuleConfig, Inject } from '@graphql-modules/core';
 
-@Injectable()
 export class MyProvider {
     constructor(@Inject(ModuleConfig('my-module')) private config) {
 
@@ -232,9 +221,8 @@ The messages are built in a form of `string => any` - so the key of each message
 It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
-import { Injectable, CommunicationBridge } from '@graphql-modules/core';
+import { CommunicationBridge } from '@graphql-modules/core';
 
-@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them
