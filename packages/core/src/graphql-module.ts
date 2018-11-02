@@ -1,4 +1,4 @@
-import { IResolvers, makeExecutableSchema } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema, IResolversParameter } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, AppContext, Injector as SimpleInjector } from './di/types';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
@@ -80,7 +80,7 @@ export interface ModuleCache<Request, Context> {
   schema: GraphQLSchema;
   typeDefs: string;
   resolvers: IResolvers;
-  contextBuilder: BuildContextFn<Request, Context>;
+  contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: Map<string, GraphQLModule<any, Request, any>>;
 }
 
@@ -279,7 +279,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const importsTypeDefs = new Array<string>();
     const importsResolvers = new Array<IResolvers>();
     const importsInjectors = new Array<Injector>();
-    const importsContextBuilders = new Array<BuildContextFn<Request, Context>>();
+    const importsContextBuilders = new Array<(req: Request) => Promise<Context>>();
     resolversComposition = {...resolversComposition, ...this.selfResolversComposition};
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.options.name;
@@ -324,11 +324,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const prop in resolvers[type]) {
         const resolver = typeResolvers[prop];
         if (resolver) {
-          const dependencies = resolver['dependencies'];
-          if (dependencies) {
-            const injections = dependencies.map((dependency: any) => injector.get(dependency));
-            typeResolvers[prop] = resolver.bind(resolver, ...injections);
-          }
+          typeResolvers[prop] = (root: any, args: any, context: any) => {
+            return resolver.call(typeResolvers, root, args, { injector, ...context });
+          };
         }
       }
     }
@@ -362,11 +360,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     this._cache.injector = injector;
 
-    this._cache.contextBuilder = async (networkRequest, currentContext, injector) => {
-      const importsContextArr$ = importsContextBuilders.map(contextBuilder => contextBuilder(networkRequest, currentContext, injector));
+    this._cache.contextBuilder = async networkRequest => {
+      const importsContextArr$ = importsContextBuilders.map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
       const importsContext = importsContextArr.reduce((acc, curr) => ({...acc, ...curr as any}), {});
-      const moduleContext = await (this.options.contextBuilder ? this.options.contextBuilder(networkRequest, currentContext, injector) : async () => ({}));
+      const moduleContext = await (this.options.contextBuilder ? this.options.contextBuilder(networkRequest, importsContext, this._cache.injector) : async () => ({}));
       const builtResult = {
         ...importsContext,
         ...moduleContext as any,
@@ -384,7 +382,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     };
   }
 
-  get contextBuilder() {
+  get contextBuilder(): (req: Request) => Promise<Context> {
     if (!this._cache.contextBuilder) {
       this.buildSchemaAndInjector(this.modulesMap, {});
     }
@@ -405,14 +403,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @param request - the network request from `connect`, `express`, etc...
    */
   context = async (request: Request): Promise<AppContext<Context>> => {
-      const injector = this.injector as Injector;
-      const builtResult: AppContext<any> = {
-        injector,
-      };
-      const moduleContext = await this.contextBuilder(request, builtResult, injector);
+      const moduleContext = await this.contextBuilder(request);
       return {
         ...moduleContext as any,
-        injector,
       };
     }
 

@@ -1,4 +1,4 @@
-import { decorate, injectable, interfaces } from 'inversify';
+import { decorate, interfaces } from 'inversify';
 import { Provider, Type, ValueProvider, ClassProvider, OnRequest } from './types';
 import { GraphQLModule } from '../graphql-module';
 
@@ -101,9 +101,4 @@ function isValue<T>(v: Provider<T>): v is ValueProvider<T> {
 
 function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
   return 'useClass' in v;
-}
-
-export function InjectFn<Fn, Dependency>(fn: Fn, ...dependencies: Dependency[]): Fn {
-  fn['dependencies'] = dependencies;
-  return fn;
 }

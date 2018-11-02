@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, InjectFn } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, AppContext } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -18,7 +18,7 @@ describe('GraphQLAppModule', () => {
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
-      A: { f: InjectFn((providerA: ProviderA) => providerA.doSomething(), ProviderA) },
+      A: { f: (_root, _args, {injector}: AppContext) => injector.get(ProviderA).doSomething() },
     },
     providers: [ProviderA],
   });
@@ -123,10 +123,9 @@ describe('GraphQLAppModule', () => {
         useValue: provider,
       }],
     });
-    const app = new GraphQLModule({ name: 'app', imports:  [module] });
-    const context = await app.context({ req: {} });
+    const {injector} = new GraphQLModule({ name: 'app', imports:  [module] });
 
-    expect(context.injector.get(token)).toBe(provider);
+    expect(injector.get(token)).toBe(provider);
   });
 
   it('should inject implementation object into the context using the module name', async () => {
