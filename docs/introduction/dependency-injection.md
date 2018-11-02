@@ -66,11 +66,11 @@ export class UserProvider {
 And to use this function from our Provider in the actual resolver implementation, we need to access the GraphQL context, and get injector out of it:
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 
 export default {
     Query: {
-        user: (_, { id }: { id: string }, { injector }: AppContext) =>
+        user: (_, { id }: { id: string }, { injector }: ModuleContext) =>
             injector.get(UserProvider).getUserById(id),
     },
     User: {

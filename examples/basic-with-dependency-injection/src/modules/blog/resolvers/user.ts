@@ -1,10 +1,10 @@
 import { Blog } from '../providers/blog';
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 
 // Example with injector in context
 
 export default {
   User: {
-    posts: (user, args, { injector }: AppContext) => injector.get(Blog).getPostsOf(user._id),
+    posts: (user, args, { injector }: ModuleContext) => injector.get(Blog).getPostsOf(user._id),
   },
 };

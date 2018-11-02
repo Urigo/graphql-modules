@@ -1,12 +1,11 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, ModuleContext } from '../src';
+import { GraphQLModule, ModuleConfig, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, ModuleContext } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 
 describe('GraphQLAppModule', () => {
   // A
-  @Injectable()
   class ProviderA {
     doSomething() {
       return 'Test';
@@ -193,14 +192,12 @@ describe('GraphQLAppModule', () => {
   describe('Module Dependencies', () => {
     it('should init modules in the right order', async () => {
       let counter = 0;
-      @Injectable()
       class Provider1 {
         count: number;
         constructor() {
           this.count = counter++;
         }
       }
-      @Injectable()
       class Provider2 {
         count: number;
         constructor() {
@@ -278,14 +275,12 @@ describe('GraphQLAppModule', () => {
         test: number;
       }
 
-      @Injectable()
       class Provider1 {
         test: number;
         constructor(@Inject(ModuleConfig('1')) config: IModuleConfig) {
           this.test = config.test;
         }
       }
-      @Injectable()
       class Provider2 {
         test: number;
         constructor(@Inject(ModuleConfig('2')) config: IModuleConfig) {
@@ -314,7 +309,6 @@ describe('GraphQLAppModule', () => {
     });
     it('should call onRequest hook on each request', async () => {
       let counter = 0;
-      @Injectable()
       class FooProvider implements OnRequest {
         onRequest() {
           counter++;
@@ -334,7 +328,6 @@ describe('GraphQLAppModule', () => {
 
     it('should pass network request to onRequest hook', async () => {
       const fooRequest = {};
-      @Injectable()
       class FooProvider implements OnRequest {
         onRequest(request) {
           expect(request).toBe(fooRequest);

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, Injectable } from '../src';
+import { GraphQLModule } from '../src';
 import { stripWhitespaces } from './utils';
 
 describe('GraphQLModule', () => {

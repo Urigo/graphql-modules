@@ -25,11 +25,11 @@ GraphQL Modules also uses the `context`, and it add to the context a field calle
 You can use the `injector` from any resolver like that:
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 
 export default {
     Query: {
-        myQuery: (_, args, { injector }: AppContext) =>
+        myQuery: (_, args, { injector }: ModuleContext) =>
             injector.get(MyProvider).doSomething(),
     },
 };
@@ -65,9 +65,9 @@ export const myModule = new GraphQLModule({
 Then, in any of your resolvers, you can access it this way:
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 
-interface MyExtendedContext extends AppContext {
+interface MyExtendedContext extends ModuleContext {
     myField: string;
 }
 

@@ -1,11 +1,9 @@
 import { decorate, interfaces } from 'inversify';
 import { Provider, Type, ValueProvider, ClassProvider, OnRequest } from './types';
 import { GraphQLModule } from '../graphql-module';
-
 export { decorate };
 
-const PARAM_TYPES = 'inversify:paramtypes';
-
+const DESIGN_PARAM_TYPES = 'design:paramtypes';
 declare var Reflect: any;
 /**
  * @hidden
@@ -55,7 +53,7 @@ export class Injector {
 }
 
   public instantiate<T>(clazz: any): T {
-    const dependencies = Reflect.getMetadata(PARAM_TYPES, clazz) || [];
+    const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz) || [];
     const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
     const instance = new clazz(...dependencyInstances);
     return instance;
@@ -101,4 +99,13 @@ function isValue<T>(v: Provider<T>): v is ValueProvider<T> {
 
 function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
   return 'useClass' in v;
+}
+
+export function Inject(serviceIdentifier: interfaces.ServiceIdentifier<any>) {
+  return (target: any, _targetKey: any, index: any) => {
+    const types = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
+    types[index] = serviceIdentifier;
+    Reflect.defineMetadata(DESIGN_PARAM_TYPES, types, target);
+    return target;
+  };
 }

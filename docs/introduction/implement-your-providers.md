@@ -49,11 +49,11 @@ And inject it using `injector` inside of your application's `context` in your re
 `modules/my-module/resolvers.ts`
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 import { UserProvider } from './user.provider';
 export default {
     Query: {
-        user: (root, { id }, { injector }: AppContext) => injector.get(UserProvider).getUserById(id), UserProvider),
+        user: (root, { id }, { injector }: ModuleContext) => injector.get(UserProvider).getUserById(id), UserProvider),
     },
     User: {
         id: user => user._id,

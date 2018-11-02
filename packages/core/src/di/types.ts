@@ -1,17 +1,6 @@
 import { interfaces } from 'inversify';
 import { GraphQLModule } from '../graphql-module';
-export { injectable as Injectable } from 'inversify';
-
-const DESIGN_PARAM_TYPES = 'design:paramtypes';
-declare var Reflect: any;
-export function Inject(serviceIdentifier: interfaces.ServiceIdentifier<any>) {
-  return (target: any, _targetKey: any, index: any) => {
-    const types = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
-    types[index] = serviceIdentifier;
-    Reflect.defineMetadata(DESIGN_PARAM_TYPES, types, target);
-    return target;
-  };
-}
+export { Inject } from './index';
 
 export interface Type<T> extends Function {
   new (...args: any[]): T;

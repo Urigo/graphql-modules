@@ -1,8 +1,6 @@
 import { CommunicationBridge } from './communication-bridge';
 import { EventEmitter } from 'events';
-import { Injectable } from '../di/types';
 
-@Injectable()
 export class EventEmitterCommunicationBridge<EventMap = any> implements CommunicationBridge<EventMap> {
   private readonly _ee = new EventEmitter();
 
