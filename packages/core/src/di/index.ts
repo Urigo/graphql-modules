@@ -1,4 +1,4 @@
-import { Provider, Type, ValueProvider, ClassProvider, OnRequest, ServiceIdentifier } from './types';
+import { Provider, Type, ValueProvider, ClassProvider, OnRequest, ServiceIdentifier, FactoryProvider, Factory } from './types';
 import { GraphQLModule } from '../graphql-module';
 export { __decorate as decorate } from 'tslib';
 
@@ -12,6 +12,7 @@ export class Injector {
   types = new Array<any>();
   valueMap = new Map();
   classMap = new Map();
+  factoryMap = new Map();
   instanceMap = new Map();
   public provide<T>(provider: Provider<T>): void {
     if (Array.isArray(provider)) {
@@ -23,6 +24,8 @@ export class Injector {
       this.valueMap.set(provider.provide, provider.useValue);
     } else if (isClass(provider)) {
       this.classMap.set(provider.provide, provider.useClass);
+    } else if (isFactory(provider)) {
+      this.factoryMap.set(provider.provide, provider.useFactory);
     } else {
       throw new Error(`Couldn't provide  ${provider}`);
     }
@@ -41,6 +44,12 @@ export class Injector {
         this.instanceMap.set(realClazz, this.instantiate(realClazz));
       }
       return this.instanceMap.get(realClazz);
+    } else if (this.factoryMap.has(serviceIdentifier)) {
+      if (!this.instanceMap.has(serviceIdentifier)) {
+        const factory = this.factoryMap.get(serviceIdentifier);
+        this.instanceMap.set(serviceIdentifier, this.callFactory(factory));
+      }
+      return this.instanceMap.get(serviceIdentifier);
     } else {
       for (const child of this.children) {
         try {
@@ -56,6 +65,10 @@ export class Injector {
     const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
     const instance = new clazz(...dependencyInstances);
     return instance;
+  }
+
+  public callFactory<T>(factory: Factory<T>) {
+    return factory(this);
   }
 
   public getByProvider<T>(provider: Provider<T>) {
@@ -98,6 +111,10 @@ function isValue<T>(v: Provider<T>): v is ValueProvider<T> {
 
 function isClass<T>(v: Provider<T>): v is ClassProvider<T> {
   return 'useClass' in v;
+}
+
+function isFactory<T>(v: Provider<T>): v is FactoryProvider<T> {
+  return 'useFactory' in v;
 }
 
 export function Inject(serviceIdentifier: ServiceIdentifier<any>) {
