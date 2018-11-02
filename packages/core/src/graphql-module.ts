@@ -506,7 +506,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
       };
 
-      visitModuleToAddDependency(this);
+      visitModuleToAddDependency(modulesMap.get(this.options.name));
 
       try {
         graph.overallOrder();
@@ -515,11 +515,32 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         const { message } = e as Error;
         const currentPathStr = message.replace('Dependency Cycle Found: ', '');
         const currentPath = currentPathStr.split(' -> ');
-        const circularModules = Array.from(new Set(currentPath)).map(moduleName => modulesMap.get(moduleName));
+        const moduleIndexMap = new Map<string, number>();
+        let start = 0;
+        let end = currentPath.length;
+        currentPath.forEach((moduleName, index) => {
+         if (moduleIndexMap.has(moduleName)) {
+           start = moduleIndexMap.get(moduleName);
+           end = index;
+         } else {
+           moduleIndexMap.set(moduleName, index);
+         }
+        });
+        const realPath = currentPath.slice(start, end);
+        const circularModules = Array.from(new Set(realPath)).map(moduleName => {
+            // if it is merged module, get one module, it will be enough to get merged one.
+            return modulesMap.get(moduleName);
+        });
         const mergedModule = GraphQLModule.mergeModules(...circularModules);
-        for (const moduleName of currentPath) {
+        for (const moduleName of realPath) {
           modulesMap.set(moduleName, mergedModule);
+          for (const subModuleName of moduleName.split('+')) {
+            if (modulesMap.has(subModuleName)) {
+              modulesMap.set(subModuleName, mergedModule);
+            }
+          }
         }
+        modulesMap.set(mergedModule.options.name, mergedModule);
         (mergedModule.options.imports as Array<ModuleDependency<any, Request, any>>)
           = (mergedModule.options.imports as Array<ModuleDependency<any, Request, any>>).filter(
           module => {
@@ -544,13 +565,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         resolversHandlers: [],
       };
       for (const module of modules) {
-        mergedOptions.name += '+' + module.options.name;
+        mergedOptions.name += module.options.name + '+';
         (mergedOptions.typeDefs as string[]).push(module.selfTypeDefs as string);
         mergedOptions.resolvers = mergeResolvers([mergedOptions.resolvers as IResolvers, module.selfResolvers]);
         const accContextBuilder = mergedOptions.contextBuilder;
         mergedOptions.contextBuilder = async (networkRequest, currentContext, injector) => {
           const accContext = await accContextBuilder(networkRequest, currentContext, injector);
-          const moduleContext = await module.options.contextBuilder(networkRequest, currentContext, injector);
+          const moduleContext = module.options.contextBuilder ? await module.options.contextBuilder(networkRequest, currentContext, injector) : {};
           return Object.assign({}, accContext, moduleContext);
         };
         mergedOptions.imports = [
