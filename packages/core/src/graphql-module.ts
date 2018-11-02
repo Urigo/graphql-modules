@@ -1,6 +1,6 @@
-import { IResolvers, makeExecutableSchema, IResolversParameter } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, AppContext, Injector as SimpleInjector } from './di/types';
+import { Provider, ModuleContext, Injector as SimpleInjector } from './di/types';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { Injector } from './di';
@@ -11,7 +11,7 @@ import { DepGraph } from 'dependency-graph';
  */
 export type BuildContextFn<Request, Context> = (
   networkRequest: Request,
-  currentContext: AppContext<Context>,
+  currentContext: ModuleContext<Context>,
   injector: SimpleInjector,
 ) => Promise<Context>;
 
@@ -402,7 +402,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    *
    * @param request - the network request from `connect`, `express`, etc...
    */
-  context = async (request: Request): Promise<AppContext<Context>> => {
+  context = async (request: Request): Promise<ModuleContext<Context>> => {
       const moduleContext = await this.contextBuilder(request);
       return {
         ...moduleContext as any,

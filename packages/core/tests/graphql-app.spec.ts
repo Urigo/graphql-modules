@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, AppContext } from '../src';
+import { GraphQLModule, ModuleConfig, Injectable, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, ModuleContext } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -18,7 +18,7 @@ describe('GraphQLAppModule', () => {
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
-      A: { f: (_root, _args, {injector}: AppContext) => injector.get(ProviderA).doSomething() },
+      A: { f: (_root, _args, {injector}: ModuleContext) => injector.get(ProviderA).doSomething() },
     },
     providers: [ProviderA],
   });
