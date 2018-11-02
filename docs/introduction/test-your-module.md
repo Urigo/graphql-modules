@@ -12,7 +12,7 @@ So let's start with a basic module definition:
 
 `modules/my-module/index.ts`
 ```typescript
-import { GraphQLModule, InjectFn, Injectable } from '@graphql-modules/core';
+import { GraphQLModule, Injectable } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
 @Injectable()
@@ -40,8 +40,9 @@ export const userModule = new GraphQLModule({
       username: user => user.username,
     },
     Query: {
-      me: (root, args, { currentUser }) => currentUser,
-      userById: InjectFn((usersProvider: UsersProvider, root, { id }) => usersProvider.getUserById(id), UsersProvider),
+      me: (root, args, { injector, currentUser }) => currentUser,
+      userById: (root, { id }, { injector }) => 
+        injector.get<UsersProvider>(UsersProvider).getUserById(id),
     },
   },
 });

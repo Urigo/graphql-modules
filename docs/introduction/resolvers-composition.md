@@ -103,27 +103,3 @@ Now before each execution of the `myQuery` resolver, GraphQL Modules will make s
 The great thing about resolvers composition is that our resolver just does it's basic job without other logic, and the app can extend it later to it's internal rules.
 
 This way it's easier to re-use module - you can implement the logic once, but wrap it with different rules later.
-
-## With Resolvers Handlers
-
-It is very simple to use Resolvers Composition with Resolvers Handlers; because we can benefit decorators in there.
-
-```typescript
-import { ResolversHandler } from '@graphql-modules/core';
-import { isAuthenticated, hasRole } from './resolvers-composition';
-
-@ResolversHandler('Query')
-export class QueryResolversHandler {
-
-  @isAuthenticated()
-  @hasRole('EDITOR')
-  myQuery(root, args){
-      if (args.something === '1') {
-          return true;
-      }
-
-      return false;
-  }
-  
-}
-```

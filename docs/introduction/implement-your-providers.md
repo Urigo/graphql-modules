@@ -44,16 +44,16 @@ type User {
 }
 ```
 
-And inject it using `InjectFn` decorator in your resolvers.
+And inject it using `injector` inside of your application's `context` in your resolvers.
 
 `modules/my-module/resolvers.ts`
 
 ```typescript
-import { InjectFn } from '@graphql-modules/core';
+import { AppContext } from '@graphql-modules/core';
 import { UserProvider } from './user.provider';
 export default {
     Query: {
-        user: InjectFn((userProvider: UserProvider, root, { id }) => userProvider.getUserById(id), UserProvider),
+        user: (root, { id }, { injector }: AppContext) => injector.get(UserProvider).getUserById(id), UserProvider),
     },
     User: {
         id: user => user._id,
@@ -76,47 +76,6 @@ export const myModule = new GraphQLModule({
     name: 'my-module',
     typeDefs,
     resolvers,
-    providers: [
-      UserProvider
-    ],
-});
-```
-
-### With Resolvers Handlers
-
-If you implement handler `class`es for your resolvers in GraphQLModule. You can inject **Providers** like you do in other **Providers**.
-
-`modules/my-module/query.handler.ts`
-
-```typescript
-import { ResolversHandler } from '@graphql-modules/core';
-import { UserProvider } from './user.provider';
-
-@ResolversHandler('Query')
-export class QueryResolvers {
-  constructor(private userProvider: UserProvider){}
-  user(root, { id }){
-    return this.userProvider.getUserById(id);
-  }
-}
-```
-
-Then use those resolvers handler in your module definition
-
-`modules/my-module/index.ts`
-
-```typescript
-import { GraphQLModule } from '@graphql-modules/core';
-import * as typeDefs from './schema.graphql';
-import { QueryResolvers } from './query.handler';
-import { UserProvider } from './user.provider';
-
-export const myModule = new GraphQLModule({
-    name: 'my-module',
-    typeDefs,
-    resolversHandlers: [
-      QueryResolvers
-    ],
     providers: [
       UserProvider
     ],

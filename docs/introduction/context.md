@@ -20,17 +20,17 @@ const resolvers = {
 
 > You can read more about resolver in [Apollo Server documentation](https://www.apollographql.com/docs/graphql-tools/resolvers#Resolver-function-signature).
 
-GraphQL Modules also uses the `InjectFn`, which you can use to get access to the dependency injection container of your `GraphQLModule`.
+GraphQL Modules also uses the `context`, and it add to the context a field called `injector`, which you can use to get access to the dependency injection container of your `GraphQLModule`.
 
-You can use the `InjectFn` from any resolver like that:
+You can use the `injector` from any resolver like that:
 
 ```typescript
 import { AppContext } from '@graphql-modules/core';
 
 export default {
     Query: {
-        myQuery: InjectFn((myProvider1: MyProvider) =>
-            injector.get(MyProvider).doSomething(), MyProvider),
+        myQuery: (_, args, { injector }: AppContext) =>
+            injector.get(MyProvider).doSomething(),
     },
 };
 ```
