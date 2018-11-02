@@ -17,6 +17,7 @@
     "clean": "lerna clean --yes && rm -rf node_modules",
     "release": "lerna publish --exact --force-publish=\"*\"",
     "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
+    "ci:release:canary": "lerna publish --force-publish=\"*\" --canary --exact --yes",
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
