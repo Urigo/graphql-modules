@@ -86,7 +86,6 @@ type User {
 }
 ```
 
-
 #### Gallery Module
 
 The gallery module is similar to `profile` module, and it only declares the parts of the schema that required by the gallery feature:

@@ -8,6 +8,8 @@ GraphQL Modules has another powerful feature called Resolvers Composition.
 
 With this feature, you can easily make sure each one of your modules only does what it needs (it's business logic) and does not need to do things that are not related to it.
 
+## With Basic Resolvers
+
 For example - if you have a simple server with authentication, and you wish to make sure that one of your queries is protected and only allowed for authenticated user and for users that has `EDITOR` role set, it means that your resolver need to verify these rules as well:
 
 ```typescript
@@ -62,7 +64,7 @@ And let's create util functions in a different file, with the logic we removed.
 We will need to implement it just like a resolver, so let's create the same signature as GraphQL resolver, and we also need a way to tell GraphQL Modules that everything is okay (`next` function).
 
 ```typescript
-export const isAuthenticated = next => async (root, args, context, info) => {
+export const isAuthenticated = () => next => async (root, args, context, info) => {
     if (!context.currentUser) {
         throw new Error('You are not authenticated!');
     }
@@ -89,7 +91,7 @@ const graphQlModule = new GraphQLModule({
     name: 'my-module',
     /*...*/
     resolversComposition: {
-        'Query.myQuery': [isAuthenticated, hasRole('EDITOR')],
+        'Query.myQuery': [isAuthenticated(), hasRole('EDITOR')],
     },
 });
 ```
@@ -101,3 +103,27 @@ Now before each execution of the `myQuery` resolver, GraphQL Modules will make s
 The great thing about resolvers composition is that our resolver just does it's basic job without other logic, and the app can extend it later to it's internal rules.
 
 This way it's easier to re-use module - you can implement the logic once, but wrap it with different rules later.
+
+## With Resolvers Handlers
+
+It is very simple to use Resolvers Composition with Resolvers Handlers; because we can benefit decorators in there.
+
+```typescript
+import { ResolversHandler } from '@graphql-modules/core';
+import { isAuthenticated, hasRole } from './resolvers-composition';
+
+@ResolversHandler('Query')
+export class QueryResolversHandler {
+
+  @isAuthenticated()
+  @hasRole('EDITOR')
+  myQuery(root, args){
+      if (args.something === '1') {
+          return true;
+      }
+
+      return false;
+  }
+  
+}
+```

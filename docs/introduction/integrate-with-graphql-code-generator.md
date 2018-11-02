@@ -13,13 +13,17 @@ yarn add graphql-code-generator graphql-codegen-typescript-template
 ```
 
 And create `schema.ts` to expose merged `typeDefs` of your GraphQL Modules application.
+Note that, GraphQL Modules won't load any other things such as injector, resolvers and providers when you just try to get `typeDefs` from your top module; because GraphQL Modules loads every part of module lazily.
+
+So, that
 
 ```typescript
+import 'reflect-metadata';
 import { AppModule } from './modules/app.module';
 import { makeExecutableSchema } from 'graphql-tools';
 
-const { typeDefs } = AppModule;
-export const schema = makeExecutableSchema({ typeDefs });
+// Get typeDefs from top module, and create a schema without resolvers and other business logic
+export default makeExecutableSchema({ typeDefs: AppModule.typeDefs });
 ```
 
 Then, add a script in `package.json` to generate types easily.
@@ -29,7 +33,7 @@ Then, add a script in `package.json` to generate types easily.
   //...
   "scripts": {
     //...
-    "generate-types": "gql-gen --template graphql-codegen-typescript-template --schema src/schema.ts --out src/generated-types.ts",
+    "generate-types": "gql-gen --template graphql-codegen-typescript-template -r ts-node/register/transpile-only --schema src/schema.ts --out src/generated-types.ts",
     //...
   }
   //...

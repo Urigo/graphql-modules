@@ -17,6 +17,7 @@ GraphQL Modules let you choose whether to use dependency injection or not.
 Let's start by creating a simple class called `UserProvider`. We are also decorating it with a special decorator called `@Injectable` - this mark the class as available to use using dependency injection.
 
 `modules/my-module/user.provider.ts`
+
 ```typescript
 import { Injectable } from '@graphql-modules/core';
 
