@@ -107,10 +107,3 @@ export function InjectFn<Fn, Dependency>(fn: Fn, ...dependencies: Dependency[]):
   fn['dependencies'] = dependencies;
   return fn;
 }
-
-export function ResolversHandler(resolversType: string) {
-  return (target: any): any => {
-    target['resolversType'] = resolversType;
-    return injectable()(target);
-  };
-}

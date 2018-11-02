@@ -62,8 +62,6 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   providers?: Provider[] | ((config: Config) => Provider[]);
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping | ((config: Config) => IResolversComposerMapping);
-  /** Resolver Handlers */
-  resolversHandlers?: any[] | ((config: Config) => any[]);
 }
 
 /**
@@ -276,20 +274,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return resolversComposition;
   }
 
-  get selfResolversHandlers() {
-    let resolversHandlers = [];
-    const resolversHandlersDefinitions = this.options.resolversHandlers;
-
-    if (resolversHandlersDefinitions) {
-      if (typeof resolversHandlersDefinitions === 'function') {
-        resolversHandlers = resolversHandlersDefinitions(this._moduleConfig);
-      } else {
-        resolversHandlers = resolversHandlersDefinitions;
-      }
-    }
-    return resolversHandlers;
-  }
-
   private buildSchemaAndInjector(modulesMap: Map<string, GraphQLModule<any, Request, any>>, resolversComposition: IResolversComposerMapping) {
     const imports = this.selfImports;
     const importsTypeDefs = new Array<string>();
@@ -347,20 +331,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           }
         }
       }
-    }
-
-    const resolversHandlers = this.selfResolversHandlers;
-
-    for ( const resolversHandler of resolversHandlers ) {
-      injector.provide(resolversHandler);
-      const resolversHandlerInstance = injector.get(resolversHandler);
-      const resolvers = {};
-      for ( const prop of Object.getOwnPropertyNames(Object.getPrototypeOf(resolversHandlerInstance))) {
-        if (prop !== 'constructor') {
-          resolvers[prop] = resolversHandlerInstance[prop].bind(resolversHandlerInstance);
-        }
-      }
-      resolvers[resolversHandler['resolversType']] = resolvers;
     }
 
     const composedResolvers = composeResolvers(
@@ -562,7 +532,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         imports: [],
         providers: [],
         resolversComposition: {},
-        resolversHandlers: [],
       };
       for (const module of modules) {
         mergedOptions.name += module.options.name + '+';
@@ -586,10 +555,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           ...mergedOptions.resolversComposition as IResolversComposerMapping,
           ...module.selfResolversComposition,
         };
-        mergedOptions.resolversHandlers = [
-          ...mergedOptions.resolversHandlers as any[],
-          ...module.selfResolversHandlers,
-        ];
       }
       return new GraphQLModule(mergedOptions);
     }
