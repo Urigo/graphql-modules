@@ -28,7 +28,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
    */
-  name: string;
+  name?: string;
   /**
    * A definition of GraphQL type definitions, as string or `DocumentNode`.
    * Arrays are also accepted, and they will get merged.
@@ -98,13 +98,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
-   * @param options - module configuration
+   * @param optionsDefinition - module configuration
    */
   constructor(
-    options: GraphQLModuleOptions<Config, Request, Context>,
+    optionsDefinition: GraphQLModuleOptions<Config, Request, Context> | ((config: Config) => GraphQLModuleOptions<Config, Request, Context>),
     private _moduleConfig: Config = {} as Config,
     ) {
-      this.options = options;
+      if (typeof optionsDefinition === 'function') {
+        this.options = optionsDefinition(_moduleConfig);
+      } else {
+        this.options = optionsDefinition;
+      }
     }
 
   /**
@@ -123,8 +127,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return this._options;
   }
 
-  set options(options: Partial<GraphQLModuleOptions<Config, Request, Context>>) {
-    this._options = Object.assign({}, this._options, options);
+  set options(options: GraphQLModuleOptions<Config, Request, Context>) {
+    if (!options.name) {
+      options.name = Math.random().toString();
+    }
+    this._options = options;
     this._cache = {
       injector: null,
       schema: null,

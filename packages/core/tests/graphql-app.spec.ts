@@ -13,7 +13,6 @@ describe('GraphQLAppModule', () => {
   }
   const typesA = [`type A { f: String}`, `type Query { a: A }`];
   const moduleA = new GraphQLModule({
-    name: 'moduleA',
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
@@ -29,7 +28,6 @@ describe('GraphQLAppModule', () => {
     B: { f: (root, args, context) => context.user.id },
   };
   const moduleB = new GraphQLModule({
-    name: 'moduleB',
     typeDefs: typesB,
     resolvers: resolversB,
   });
@@ -38,14 +36,12 @@ describe('GraphQLAppModule', () => {
   const cContextBuilder = jest.fn(() => ({ user: { id: 1 } }));
   const typesC = [`type C { f: String}`, `type Query { c: C }`];
   const moduleC = new GraphQLModule({
-    name: 'moduleC',
     typeDefs: typesC,
     contextBuilder: cContextBuilder,
   });
 
   // D
   const moduleD = new GraphQLModule({
-    name: 'moduleD',
     typeDefs: typesC,
     contextBuilder: () => {
       throw new Error('oops');
@@ -54,7 +50,6 @@ describe('GraphQLAppModule', () => {
 
   // E
   const moduleE = new GraphQLModule({
-    name: 'moduleE',
     typeDefs: typesC,
   });
 
@@ -62,7 +57,6 @@ describe('GraphQLAppModule', () => {
   const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
   const resolversFnMock = jest.fn().mockReturnValue({ C: {} });
   const moduleF = new GraphQLModule({
-    name: 'moduleF',
     typeDefs: typeDefsFnMock,
     resolvers: resolversFnMock,
   });
@@ -74,7 +68,7 @@ describe('GraphQLAppModule', () => {
 
   // Queries
   const testQuery = gql`query { b { f }}`;
-  const app = new GraphQLModule({ name: 'app', imports:  [moduleA, moduleB, moduleC] });
+  const app = new GraphQLModule({ imports:  [moduleA, moduleB, moduleC] });
 
   it('should return the correct GraphQLSchema', async () => {
     const schema = app.schema;
@@ -116,13 +110,12 @@ describe('GraphQLAppModule', () => {
     const provider = {};
     const token = Symbol.for('provider');
     const module = new GraphQLModule({
-      name: 'module',
       providers: [{
         provide: token,
         useValue: provider,
       }],
     });
-    const {injector} = new GraphQLModule({ name: 'app', imports:  [module] });
+    const {injector} = new GraphQLModule({ imports:  [module] });
 
     expect(injector.get(token)).toBe(provider);
   });
@@ -141,7 +134,7 @@ describe('GraphQLAppModule', () => {
   });
 
   it('should throw an exception when a contextFn throws an exception', async () => {
-    const app = new GraphQLModule({ name: 'app', imports:  [moduleD] });
+    const app = new GraphQLModule({  imports:  [moduleD] });
     const spy = jest.fn();
 
     await app.context({ req: {} }).catch(spy).then(() => expect(spy).toHaveBeenCalled());
@@ -160,7 +153,6 @@ describe('GraphQLAppModule', () => {
   describe('Schema merging', () => {
     it('should merge types and directives correctly', async () => {
       const m1 = new GraphQLModule({
-        name: 'm1',
         typeDefs: [
           `directive @entity on OBJECT`,
           `directive @field on FIELD_DEFINITION`,
@@ -169,7 +161,6 @@ describe('GraphQLAppModule', () => {
         ],
       });
       const m2 = new GraphQLModule({
-        name: 'm2',
         typeDefs: [
           `directive @entity on OBJECT`,
           `directive @field on FIELD_DEFINITION`,
@@ -179,7 +170,6 @@ describe('GraphQLAppModule', () => {
       });
 
       const app = new GraphQLModule({
-        name: 'app',
         imports:  [m1, m2],
       });
 
@@ -204,9 +194,9 @@ describe('GraphQLAppModule', () => {
           this.count = counter++;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] });
-      const module2 = new GraphQLModule({ name: '2', providers: [Provider2] });
-      const { injector } = new GraphQLModule({ name: 'app', imports:  [module2, module1] });
+      const module1 = new GraphQLModule({ imports:  () => [module2], providers: [Provider1] });
+      const module2 = new GraphQLModule({ providers: [Provider2] });
+      const { injector } = new GraphQLModule({ imports:  [module2, module1] });
       expect(injector.get(Provider1).count).toEqual(1);
       expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(2);
@@ -214,31 +204,31 @@ describe('GraphQLAppModule', () => {
 
     // it('should init modules in the right order with multiple circular dependencies', async () => {
     //   let counter = 0;
-    //   @Injectable()
+    //
     //   class Provider1 {
     //     count: number;
     //     constructor() {
     //       this.count = counter++;
     //     }
     //   }
-    //   @Injectable()
+    //
     //   class Provider2 {
     //     count: number;
     //     constructor() {
     //       this.count = counter++;
     //     }
     //   }
-    //   @Injectable()
+    //
     //   class Provider3 {
     //     count: number;
     //     constructor() {
     //       this.count = counter++;
     //     }
     //   }
-    //   const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] });
-    //   const module2 = new GraphQLModule({ name: '2', imports:  ['1'], providers: [Provider2] });
-    //   const module3 = new GraphQLModule({ name: '3', imports:  ['1'], providers: [Provider3] });
-    //   const {injector} = new GraphQLModule({ name: 'app', imports:  [module2, module1, module3] });
+    //   const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
+    //   const module2 = new GraphQLModule({  imports: () => [module1], providers: [Provider2] });
+    //   const module3 = new GraphQLModule({ imports:  () => [module1], providers: [Provider3] });
+    //   const {injector} = new GraphQLModule({ imports:  [module2, module1, module3] });
     //   expect(injector.get(Provider1).count).toEqual(1);
     //   expect(injector.get(Provider2).count).toEqual(0);
     //   expect(counter).toEqual(3);
@@ -260,9 +250,9 @@ describe('GraphQLAppModule', () => {
     //       this.count = counter++;
     //     }
     //   }
-    //   const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] });
-    //   const module2 = new GraphQLModule({ name: '2', imports:  ['1'], providers: [Provider2] });
-    //   const {injector} = new GraphQLModule({ name: 'app', imports:  [module2, module1] });
+    //   const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
+    //   const module2 = new GraphQLModule({ () => [module1], providers: [Provider2] });
+    //   const {injector} = new GraphQLModule({ imports:  [module2, module1] });
 
     //   expect(injector.get(Provider1).count).toEqual(1);
     //   expect(injector.get(Provider2).count).toEqual(0);
@@ -275,21 +265,22 @@ describe('GraphQLAppModule', () => {
         test: number;
       }
 
+      const module1 = new GraphQLModule({ imports: () => [module2], providers: () => [Provider1] }).forRoot({test: 1});
+      const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({test: 2});
+
       class Provider1 {
         test: number;
-        constructor(@Inject(ModuleConfig('1')) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig(module1)) config: IModuleConfig) {
           this.test = config.test;
         }
       }
       class Provider2 {
         test: number;
-        constructor(@Inject(ModuleConfig('2')) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig(module2)) config: IModuleConfig) {
           this.test = config.test;
         }
       }
-      const module1 = new GraphQLModule({ name: '1', imports:  ['2'], providers: [Provider1] }).forRoot({test: 1});
-      const module2 = new GraphQLModule({ name: '2', providers: [Provider2] }).forRoot({test: 2});
-      const {injector} = new GraphQLModule({ name: 'app', imports:  [module2, module1] });
+      const {injector} = new GraphQLModule({ imports:  [module2, module1] });
 
       expect(injector.get(Provider1).test).toEqual(1);
       expect(injector.get(Provider2).test).toEqual(2);
@@ -297,7 +288,6 @@ describe('GraphQLAppModule', () => {
     it('should set CommunicationBridge correctly', async () => {
       const communicationBridge = new EventEmitterCommunicationBridge();
       const {injector} = new GraphQLModule({
-        name: 'app',
         providers: [
           {
             provide: CommunicationBridge,
@@ -315,7 +305,6 @@ describe('GraphQLAppModule', () => {
         }
       }
       const { context } = new GraphQLModule({
-        name: 'app',
         providers: [
           FooProvider,
         ],
@@ -334,7 +323,6 @@ describe('GraphQLAppModule', () => {
         }
       }
       const { context } = new GraphQLModule({
-        name: 'app',
         providers: [
           FooProvider,
         ],
