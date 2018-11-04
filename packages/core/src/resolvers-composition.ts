@@ -27,7 +27,7 @@ function resolveRelevantMappings(resolvers: IResolvers, path: string, allMapping
 
 export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 
-function chainFunctions(funcs: any[]) {
+export function chainFunctions(funcs: any[]) {
   if (funcs.length === 1) {
     return funcs[0];
   }

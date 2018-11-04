@@ -104,7 +104,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
-   * @param optionsDefinition - module configuration
+   * @param options - module configuration
    */
   constructor(
     private _options: GraphQLModuleOptions<Config, Request, Context>,
@@ -137,7 +137,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get schema() {
     if (!this._cache.schema) {
-      this.buildSchemaAndInjector(this.modulesMap, {});
+      this.buildSchemaAndInjector(this.modulesMap);
     }
     return this._cache.schema;
   }
@@ -148,7 +148,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   get injector(): SimpleInjector {
 
     if (!this._cache.injector) {
-      this.buildSchemaAndInjector(this.modulesMap, {});
+      this.buildSchemaAndInjector(this.modulesMap);
     }
 
     return this._cache.injector;
@@ -167,7 +167,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get resolvers(): IResolvers {
     if (!this._cache.resolvers) {
-      this.buildSchemaAndInjector(this.modulesMap, {});
+      this.buildSchemaAndInjector(this.modulesMap);
     }
     return this._cache.resolvers;
   }
@@ -273,35 +273,23 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     // tslint:disable-next-line:forin
     for (const path in resolversComposition) {
       const compositionArr = asArray(resolversComposition[path]);
-      // tslint:disable-next-line:forin
-      for (const compositionIndex in compositionArr) {
-        const composition = compositionArr[compositionIndex];
-        if (typeof composition === 'function') {
-          compositionArr[compositionIndex]
-           = (next: any) => {
-             const composedFn = composition.call(composition, next);
-            return (root: any, args: any, context: any, info: any) => {
-              return composedFn.call(composedFn, root, args, {
-                injector: this._cache.injector,
-                ...context,
-              }, info);
-            };
-           };
-        }
-      }
-      resolversComposition[path] = compositionArr;
+      resolversComposition[path] = [
+        (next: any) => (root: any, args: any, context: any, info: any) => next(root, args, {
+          ...context,
+          injector: this._cache.injector,
+        }, info),
+        ...compositionArr,
+      ];
     }
     return resolversComposition;
   }
 
-  private buildSchemaAndInjector(modulesMap: Map<string, GraphQLModule<any, Request, any>>, resolversComposition: IResolversComposerMapping) {
+  private buildSchemaAndInjector(modulesMap: Map<string, GraphQLModule<any, Request, any>>) {
     const imports = this.selfImports;
     const importsTypeDefs = new Array<string>();
     const importsResolvers = new Array<IResolvers>();
     const importsInjectors = new Array<Injector>();
     const importsContextBuilders = new Array<(req: Request) => Promise<Context>>();
-    const selfResolversComposition = this.wrapResolversComposition(this.selfResolversComposition);
-    resolversComposition = {...resolversComposition, ...selfResolversComposition};
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
@@ -309,7 +297,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       if (modulesMap !== module._cache.modulesMap) {
         module._cache.modulesMap = modulesMap;
         module.buildTypeDefs(modulesMap);
-        module.buildSchemaAndInjector(modulesMap, resolversComposition);
+        module.buildSchemaAndInjector(modulesMap);
       }
 
       const typeDefs = module._cache.typeDefs;
@@ -351,6 +339,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
       }
     }
+
+    const resolversComposition = this.wrapResolversComposition(this.selfResolversComposition);
 
     const composedResolvers = composeResolvers(
       mergeResolvers([resolvers, ...importsResolvers]),
@@ -405,7 +395,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get contextBuilder(): (req: Request) => Promise<Context> {
     if (!this._cache.contextBuilder) {
-      this.buildSchemaAndInjector(this.modulesMap, {});
+      this.buildSchemaAndInjector(this.modulesMap);
     }
     return this._cache.contextBuilder;
   }
