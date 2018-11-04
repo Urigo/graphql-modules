@@ -13,14 +13,18 @@ module.exports = (props) => (
     <img src={rocket} alt="" className="_bg-rocket" />
     <div className="_start-section">
       <div className="_title">
-        The best framework for GraphQL!
+        Enterprise Grade Toolings for your GraphQL server
       </div>
       <div className="_subtitle">
-        GraphQL Modules is a set of extra tools, structure and guidelines for your GraphQL server, Use it to get reusable, maintainable, testable and extendable GraphQL servers.
+        GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server.
       </div>
-      <Button className="_start-button">
-        Get started
-      </Button>
+      <Hyperlink>
+      </Hyperlink>
+      <Hyperlink href={`${siteConfig.baseUrl}docs/introduction/getting-started`}>
+        <Button className="_start-button">
+          Get started
+        </Button>
+      </Hyperlink>
     </div>
   </div>
 )

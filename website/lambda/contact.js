@@ -12,7 +12,7 @@ exports.handler = (event, context, callback) => {
   const body = JSON.parse(event.body)
 
   try {
-    validateEmail('body.name', body.name, 3, 50)
+    validateLength('body.name', body.name, 3, 50)
   }
   catch (e) {
     return callback(null, {

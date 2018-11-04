@@ -5,7 +5,7 @@ import { logger } from '@graphql-modules/logger';
 import { print } from 'graphql';
 
 const DEFAULT_SCHEMA_EXTENSIONS = ['gql', 'graphql', 'graphqls', 'ts', 'js'];
-const DEFAULT_IGNORED_RESOLVERS_EXTENSIONS = ['spec', 'test'];
+const DEFAULT_IGNORED_RESOLVERS_EXTENSIONS = ['spec', 'test', 'd'];
 const DEFAULT_RESOLVERS_EXTENSIONS = ['ts', 'js'];
 
 function scanForFiles(globStr: string, globOptions: IOptions = {}): string[] {

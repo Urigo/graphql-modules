@@ -532,6 +532,16 @@ textarea, input {
         font-size: 25px;
         line-height: normal;
       }
+
+      > ._apollo-logo {
+        width: 190px;
+        transform: translateY(23px);
+
+        @include device(mobile) {
+          width: 150px;
+          transform: translateY(20px)
+        }
+      }
     }
 
     > ._subtitle {
@@ -626,7 +636,7 @@ textarea, input {
     padding: 15px 30px;
   }
 
-  > ._start-section {
+  > a > ._start-section {
     width: 530px;
     padding-top: 230px;
 

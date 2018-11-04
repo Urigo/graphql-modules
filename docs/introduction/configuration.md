@@ -6,7 +6,7 @@ sidebar_label: Module Configuration
 
 Each module can have it's own configuration, and you can specify it in your `GraphQLModule`.
 
-Start by creating a TypeScript interface the specifies the structure of your configuration object, and pass it as the first generic argument to your `GraphQLModule`:
+Start by creating a TypeScript interface which specifies the structure of your configuration object, and pass it as the first generic argument to your `GraphQLModule`:
 
 ```typescript
 

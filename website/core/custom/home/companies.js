@@ -4,22 +4,18 @@ const siteConfig = require('../../../siteConfig')
 const device = require('../../../utils/device')
 const List = require('../list')
 
-const behanceLogo = `${siteConfig.baseUrl}img/home/behance-logo.svg`
-const facebookLogo = `${siteConfig.baseUrl}img/home/facebook-logo.svg`
-const googleLogo = `${siteConfig.baseUrl}img/home/google-logo.svg`
-const slackLogo = `${siteConfig.baseUrl}img/home/slack-logo.svg`
+const airfranceLogo = `${siteConfig.baseUrl}img/home/companies/airfrance-logo.svg`
+const klmLogo = `${siteConfig.baseUrl}img/home/companies/klm-logo.svg`
+const msjLogo = `${siteConfig.baseUrl}img/home/companies/msj-logo.svg`
+const schneiderLogo = `${siteConfig.baseUrl}img/home/companies/schneider-logo.svg`
 
 module.exports = (props) => (
   <div {...props} className={`Companies ${props.className || ''}`}>
     <List className="_companies-list">
-      <List.GreedyItem className="_company"><img src={googleLogo} alt="google" /></List.GreedyItem>
-      <List.GreedyItem className="_company"><img src={facebookLogo} alt="facebook" /></List.GreedyItem>
-      <List.GreedyItem className="_company"><img src={slackLogo} alt="slack" /></List.GreedyItem>
-      <List.GreedyItem className="_company"><img src={behanceLogo} alt="behance" /></List.GreedyItem>
+      <List.GreedyItem className="_company"><img src={airfranceLogo} alt="airfrance" /></List.GreedyItem>
+      <List.GreedyItem className="_company"><img src={klmLogo} alt="klm" /></List.GreedyItem>
+      <List.GreedyItem className="_company"><img src={msjLogo} alt="msj" /></List.GreedyItem>
+      <List.GreedyItem className="_company"><img src={schneiderLogo} alt="schneider" /></List.GreedyItem>
     </List>
-
-    <div className="_slogan">
-      Trusted by the world's best companies
-    </div>
   </div>
 )
