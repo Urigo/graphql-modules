@@ -8,7 +8,7 @@ declare var Reflect: any;
  * @hidden
  */
 export class Injector {
-  children: Injector[];
+  children = new Array<Injector>();
   types = new Array<any>();
   valueMap = new Map();
   classMap = new Map();

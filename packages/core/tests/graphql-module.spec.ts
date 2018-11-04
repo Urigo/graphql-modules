@@ -27,9 +27,18 @@ describe('GraphQLModule', () => {
     Query: { b: () => ({}) },
     B: { f: (root, args, context) => context.user.id },
   };
+  let resolverCompositionCalled = false;
   const moduleB = new GraphQLModule({
     typeDefs: typesB,
     resolvers: resolversB,
+    resolversComposition: {
+      'B.f': next => async (root, args, context: ModuleContext, info) => {
+        if (context.injector && context.injector.get(ModuleConfig(moduleB))) {
+          resolverCompositionCalled = true;
+        }
+        return next(root, args, context, info);
+      },
+    },
   });
 
   // C (with context building fn)
@@ -328,6 +337,17 @@ describe('GraphQLModule', () => {
         ],
       });
       await context(fooRequest);
+    });
+
+    it('should call resolvers composition with module context', async () => {
+      const schema = app.schema;
+      const context = await app.context({ req: {} });
+      const result = await execute({
+        schema,
+        document: testQuery,
+        contextValue: context,
+      });
+      expect(resolverCompositionCalled).toBe(true);
     });
   });
 });

@@ -2,7 +2,7 @@ import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, ModuleContext, Injector as SimpleInjector } from './di/types';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
-import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
+import { IResolversComposerMapping, composeResolvers, asArray } from './resolvers-composition';
 import { Injector } from './di';
 import { DepGraph } from 'dependency-graph';
 
@@ -269,13 +269,39 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return resolversComposition;
   }
 
+  private wrapResolversComposition(resolversComposition: IResolversComposerMapping) {
+    // tslint:disable-next-line:forin
+    for (const path in resolversComposition) {
+      const compositionArr = asArray(resolversComposition[path]);
+      // tslint:disable-next-line:forin
+      for (const compositionIndex in compositionArr) {
+        const composition = compositionArr[compositionIndex];
+        if (typeof composition === 'function') {
+          compositionArr[compositionIndex]
+           = (next: any) => {
+             const composedFn = composition.call(composition, next);
+            return (root: any, args: any, context: any, info: any) => {
+              return composedFn.call(composedFn, root, args, {
+                injector: this._cache.injector,
+                ...context,
+              }, info);
+            };
+           };
+        }
+      }
+      resolversComposition[path] = compositionArr;
+    }
+    return resolversComposition;
+  }
+
   private buildSchemaAndInjector(modulesMap: Map<string, GraphQLModule<any, Request, any>>, resolversComposition: IResolversComposerMapping) {
     const imports = this.selfImports;
     const importsTypeDefs = new Array<string>();
     const importsResolvers = new Array<IResolvers>();
     const importsInjectors = new Array<Injector>();
     const importsContextBuilders = new Array<(req: Request) => Promise<Context>>();
-    resolversComposition = {...resolversComposition, ...this.selfResolversComposition};
+    const selfResolversComposition = this.wrapResolversComposition(this.selfResolversComposition);
+    resolversComposition = {...resolversComposition, ...selfResolversComposition};
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
