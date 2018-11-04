@@ -211,62 +211,60 @@ describe('GraphQLModule', () => {
       expect(counter).toEqual(2);
     });
 
-    // it('should init modules in the right order with multiple circular dependencies', async () => {
-    //   let counter = 0;
-    //
-    //   class Provider1 {
-    //     count: number;
-    //     constructor() {
-    //       this.count = counter++;
-    //     }
-    //   }
-    //
-    //   class Provider2 {
-    //     count: number;
-    //     constructor() {
-    //       this.count = counter++;
-    //     }
-    //   }
-    //
-    //   class Provider3 {
-    //     count: number;
-    //     constructor() {
-    //       this.count = counter++;
-    //     }
-    //   }
-    //   const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-    //   const module2 = new GraphQLModule({  imports: () => [module1], providers: [Provider2] });
-    //   const module3 = new GraphQLModule({ imports:  () => [module1], providers: [Provider3] });
-    //   const {injector} = new GraphQLModule({ imports:  [module2, module1, module3] });
-    //   expect(injector.get(Provider1).count).toEqual(1);
-    //   expect(injector.get(Provider2).count).toEqual(0);
-    //   expect(counter).toEqual(3);
-    // });
+    it('should init modules in the right order with multiple circular dependencies', async () => {
+      let counter = 0;
 
-    // it('should init modules in the right order with 2 circular dependencies', async () => {
-    //   let counter = 0;
-    //   @Injectable()
-    //   class Provider1 {
-    //     count: number;
-    //     constructor() {
-    //       this.count = counter++;
-    //     }
-    //   }
-    //   @Injectable()
-    //   class Provider2 {
-    //     count: number;
-    //     constructor() {
-    //       this.count = counter++;
-    //     }
-    //   }
-    //   const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-    //   const module2 = new GraphQLModule({ () => [module1], providers: [Provider2] });
-    //   const {injector} = new GraphQLModule({ imports:  [module2, module1] });
+      class Provider1 {
+        count: number;
+        constructor() {
+          this.count = counter++;
+        }
+      }
 
-    //   expect(injector.get(Provider1).count).toEqual(1);
-    //   expect(injector.get(Provider2).count).toEqual(0);
-    //   expect(counter).toEqual(2);
-    // });
+      class Provider2 {
+        count: number;
+        constructor() {
+          this.count = counter++;
+        }
+      }
+
+      class Provider3 {
+        count: number;
+        constructor() {
+          this.count = counter++;
+        }
+      }
+      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
+      const module2 = new GraphQLModule({  imports: () => [module1], providers: [Provider2] });
+      const module3 = new GraphQLModule({ imports:  () => [module1], providers: [Provider3] });
+      const {injector} = new GraphQLModule({ imports:  [module2, module1, module3] });
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(3);
+    });
+
+    it('should init modules in the right order with 2 circular dependencies', async () => {
+      let counter = 0;
+      class Provider1 {
+        count: number;
+        constructor() {
+          this.count = counter++;
+        }
+      }
+      class Provider2 {
+        count: number;
+        constructor() {
+          this.count = counter++;
+        }
+      }
+      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
+      const module2 = new GraphQLModule({ imports: () => [module1], providers: [Provider2] });
+      const {injector} = new GraphQLModule({ imports:  [module2, module1] });
+
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(2);
+    });
 
     it('should set config per each module', async () => {
 
