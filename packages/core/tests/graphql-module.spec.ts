@@ -349,5 +349,54 @@ describe('GraphQLModule', () => {
       });
       expect(resolverCompositionCalled).toBe(true);
     });
+    it('should call resolvers composition in correct order with correct context', async () => {
+      const { schema, context } = new GraphQLModule({
+        typeDefs: `
+          type Query {
+            foo: String
+          }
+        `,
+        contextBuilder: async () => {
+          return {
+            counter: 0,
+          };
+        },
+        resolvers: {
+          Query: {
+            foo: (root, args, context, info) => {
+              context.counter++;
+              expect(context.foo).toBe('bar');
+              expect(context.bar).toBe('foo');
+              expect(context.counter).toBe(3);
+              return 'Hello';
+            },
+          },
+        },
+        resolversComposition: {
+          'Query.foo': [
+            next => (root, args, context, info) => {
+              context.counter++;
+              context.foo = 'bar';
+              expect(context.counter).toBe(1);
+              return next(root, args, context, info);
+            },
+            next => (root, args, context, info) => {
+              context.counter++;
+              expect(context.foo).toBe('bar');
+              expect(context.counter).toBe(2);
+              context.bar = 'foo';
+              return next(root, args, context, info);
+            },
+          ],
+        },
+      });
+      const contextValue = await context({ req: {} });
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue,
+      });
+      expect(contextValue.counter).toBe(0);
+    });
   });
 });
