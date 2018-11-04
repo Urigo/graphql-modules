@@ -75,13 +75,14 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
 export const ModuleConfig = (module: string | GraphQLModule) =>
   Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.options.name}`);
 
-export interface ModuleCache<Request, Context> {
+export interface ModuleCache<Config, Request, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: string;
   resolvers: IResolvers;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: Map<string, GraphQLModule<any, Request, any>>;
+  options: GraphQLModuleOptions<Config, Request, Context>;
 }
 
 /**
@@ -93,53 +94,53 @@ export interface ModuleCache<Request, Context> {
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
 
-  private _cache: ModuleCache<Request, Context>;
-  private _options: GraphQLModuleOptions<Config, Request, Context>;
+  private _cache: ModuleCache<Config, Request, Context> = {
+    options: null,
+    injector: null,
+    schema: null,
+    typeDefs: null,
+    resolvers: null,
+    contextBuilder: null,
+    modulesMap: null,
+  };
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param optionsDefinition - module configuration
    */
   constructor(
-    optionsDefinition: GraphQLModuleOptions<Config, Request, Context> | ((config: Config) => GraphQLModuleOptions<Config, Request, Context>),
+    private _optionsDefinition: GraphQLModuleOptions<Config, Request, Context> | ((config: Config) => GraphQLModuleOptions<Config, Request, Context>),
     private _moduleConfig: Config = {} as Config,
-    ) {
-      if (typeof optionsDefinition === 'function') {
-        this.options = optionsDefinition(_moduleConfig);
-      } else {
-        this.options = optionsDefinition;
-      }
-    }
+    ) {}
 
   /**
    * Creates another instance of the module using a configuration
    * @param config - the config object
    */
   forRoot(config: Config): GraphQLModule<Config, Request, Context> {
-    return new GraphQLModule<Config, Request, Context>(this._options, config);
+    return new GraphQLModule<Config, Request, Context>(this._optionsDefinition, config);
   }
 
   forChild(): string {
-    return this._options.name;
+    return this.options.name;
   }
 
   get options() {
-    return this._options;
+    if (!this._cache.options) {
+      this.buildOptions();
+    }
+    return this._cache.options;
   }
 
-  set options(options: GraphQLModuleOptions<Config, Request, Context>) {
-    if (!options.name) {
-      options.name = Math.random().toString();
+  private buildOptions() {
+    if (typeof this._optionsDefinition === 'function') {
+      this._cache.options = this._optionsDefinition(this._moduleConfig);
+    } else {
+      this._cache.options = this._optionsDefinition;
     }
-    this._options = options;
-    this._cache = {
-      injector: null,
-      schema: null,
-      typeDefs: null,
-      resolvers: null,
-      contextBuilder: null,
-      modulesMap: null,
-    };
+    if (!this._cache.options.name) {
+      this._cache.options.name = Math.random().toString();
+    }
   }
 
   /**
@@ -209,7 +210,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get selfTypeDefs(): string {
     let typeDefs: any = [];
-    const typeDefsDefinitions = this._options.typeDefs;
+    const typeDefsDefinitions = this.options.typeDefs;
     if (typeDefsDefinitions) {
       if (typeof typeDefsDefinitions === 'function') {
         typeDefs = typeDefsDefinitions(this._moduleConfig);
@@ -239,11 +240,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get selfImports() {
     let imports = new Array<ModuleDependency<any, Request, any>>();
-    if (this._options.imports) {
-      if (typeof this._options.imports === 'function') {
-        imports = this._options.imports(this._moduleConfig);
+    if (this.options.imports) {
+      if (typeof this.options.imports === 'function') {
+        imports = this.options.imports(this._moduleConfig);
       } else {
-        imports = this._options.imports;
+        imports = this.options.imports;
       }
     }
     return imports;
