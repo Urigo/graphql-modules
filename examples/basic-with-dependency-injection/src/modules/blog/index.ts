@@ -5,7 +5,6 @@ import resolvers from './resolvers';
 import { UserModule } from '../user';
 
 export const BlogModule = new GraphQLModule({
-  name: 'Blog',
   imports: [UserModule],
   providers: [Blog],
   resolvers,

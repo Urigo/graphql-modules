@@ -1,8 +1,8 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
-export async function run(app: GraphQLModule) {
-  const { schema, context } = app;
+export async function bootstrap(AppModule: GraphQLModule) {
+  const { schema, context } = AppModule;
   const server = new ApolloServer({
     schema,
     context,

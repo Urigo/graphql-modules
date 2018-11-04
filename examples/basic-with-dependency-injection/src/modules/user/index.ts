@@ -4,7 +4,6 @@ import resolvers from './resolvers';
 import gql from 'graphql-tag';
 
 export const UserModule = new GraphQLModule({
-  name: 'User',
   providers: [Users],
   resolvers,
   typeDefs: gql`

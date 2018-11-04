@@ -4,7 +4,6 @@ import gql from 'graphql-tag';
 import { UserModule } from '../user/user.module';
 
 export const AuthModule = new GraphQLModule({
-  name: 'Auth',
   typeDefs: gql`
     type Query {
       me: User

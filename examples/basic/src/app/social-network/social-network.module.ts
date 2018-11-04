@@ -3,7 +3,6 @@ import gql from 'graphql-tag';
 import { UserModule } from '../user/user.module';
 
 export const SocialNetworkModule = new GraphQLModule({
-  name: 'SocialNetwork',
   typeDefs: gql`
     type User {
       friends: [User]
