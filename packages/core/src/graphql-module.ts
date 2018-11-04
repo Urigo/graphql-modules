@@ -73,16 +73,15 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
  * @constructor
  */
 export const ModuleConfig = (module: string | GraphQLModule) =>
-  Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.options.name}`);
+  Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
-export interface ModuleCache<Config, Request, Context> {
+export interface ModuleCache<Request, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: string;
   resolvers: IResolvers;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: Map<string, GraphQLModule<any, Request, any>>;
-  options: GraphQLModuleOptions<Config, Request, Context>;
 }
 
 /**
@@ -94,8 +93,7 @@ export interface ModuleCache<Config, Request, Context> {
  */
 export class GraphQLModule<Config = any, Request = any, Context = any> {
 
-  private _cache: ModuleCache<Config, Request, Context> = {
-    options: null,
+  private _cache: ModuleCache<Request, Context> = {
     injector: null,
     schema: null,
     typeDefs: null,
@@ -109,38 +107,27 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @param optionsDefinition - module configuration
    */
   constructor(
-    private _optionsDefinition: GraphQLModuleOptions<Config, Request, Context> | ((config: Config) => GraphQLModuleOptions<Config, Request, Context>),
+    private _options: GraphQLModuleOptions<Config, Request, Context>,
     private _moduleConfig: Config = {} as Config,
-    ) {}
+    ) {
+      _options = _options || {};
+      _options.name = _options.name || Math.random().toString();
+    }
 
   /**
    * Creates another instance of the module using a configuration
    * @param config - the config object
    */
   forRoot(config: Config): GraphQLModule<Config, Request, Context> {
-    return new GraphQLModule<Config, Request, Context>(this._optionsDefinition, config);
+    return new GraphQLModule<Config, Request, Context>(this._options, config);
   }
 
   forChild(): string {
-    return this.options.name;
+    return this.name;
   }
 
-  get options() {
-    if (!this._cache.options) {
-      this.buildOptions();
-    }
-    return this._cache.options;
-  }
-
-  private buildOptions() {
-    if (typeof this._optionsDefinition === 'function') {
-      this._cache.options = this._optionsDefinition(this._moduleConfig);
-    } else {
-      this._cache.options = this._optionsDefinition;
-    }
-    if (!this._cache.options.name) {
-      this._cache.options.name = Math.random().toString();
-    }
+  get name() {
+    return this._options.name;
   }
 
   /**
@@ -189,7 +176,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const typeDefsArr = [];
     const selfImports = this.selfImports;
     for (let module of selfImports) {
-      const moduleName = typeof module === 'string' ? module : module.options.name;
+      const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
       module.buildTypeDefs(modulesMap);
       const moduleTypeDefs = module.typeDefs;
@@ -210,7 +197,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   get selfTypeDefs(): string {
     let typeDefs: any = [];
-    const typeDefsDefinitions = this.options.typeDefs;
+    const typeDefsDefinitions = this._options.typeDefs;
     if (typeDefsDefinitions) {
       if (typeof typeDefsDefinitions === 'function') {
         typeDefs = typeDefsDefinitions(this._moduleConfig);
@@ -227,7 +214,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get selfResolvers(): IResolvers {
     let resolvers: IResolvers = {};
-    const resolversDefinitions = this.options.resolvers;
+    const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
         resolvers = resolversDefinitions(this._moduleConfig);
@@ -240,11 +227,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get selfImports() {
     let imports = new Array<ModuleDependency<any, Request, any>>();
-    if (this.options.imports) {
-      if (typeof this.options.imports === 'function') {
-        imports = this.options.imports(this._moduleConfig);
+    if (this._options.imports) {
+      if (typeof this._options.imports === 'function') {
+        imports = this._options.imports(this._moduleConfig);
       } else {
-        imports = this.options.imports;
+        imports = this._options.imports;
       }
     }
     return imports;
@@ -252,7 +239,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get selfProviders(): Provider[] {
     let providers = new Array<Provider>();
-    const providersDefinitions = this.options.providers;
+    const providersDefinitions = this._options.providers;
     if (providersDefinitions) {
       if (typeof providersDefinitions === 'function') {
         providers = providersDefinitions(this._moduleConfig);
@@ -271,7 +258,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   get selfResolversComposition(): IResolversComposerMapping {
     let resolversComposition: IResolversComposerMapping = {};
-    const resolversCompositionDefinitions = this.options.resolversComposition;
+    const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (typeof resolversCompositionDefinitions === 'function') {
         resolversComposition = (resolversCompositionDefinitions as any)(this._moduleConfig);
@@ -290,7 +277,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const importsContextBuilders = new Array<(req: Request) => Promise<Context>>();
     resolversComposition = {...resolversComposition, ...this.selfResolversComposition};
     for (let module of imports) {
-      const moduleName = typeof module === 'string' ? module : module.options.name;
+      const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
 
       if (modulesMap !== module._cache.modulesMap) {
@@ -372,7 +359,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const importsContextArr$ = importsContextBuilders.map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
       const importsContext = importsContextArr.reduce((acc, curr) => ({...acc, ...curr as any}), {});
-      const moduleContext = await (this.options.contextBuilder ? this.options.contextBuilder(networkRequest, importsContext, this._cache.injector) : async () => ({}));
+      const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, this._cache.injector) : async () => ({}));
       const builtResult = {
         ...importsContext,
         ...moduleContext as any,
@@ -429,8 +416,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     private createInitialModulesMap() {
       const modulesMap = new Map<string, GraphQLModule<any, Request, any>>();
       const visitModule = (module: GraphQLModule<any, Request, any>) => {
-        if (!modulesMap.has(module.options.name)) {
-          modulesMap.set(module.options.name, module);
+        if (!modulesMap.has(module.name)) {
+          modulesMap.set(module.name, module);
           for (const subModule of module.selfImports) {
             if (typeof subModule !== 'string') {
               visitModule(subModule);
@@ -446,7 +433,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const graph = new DepGraph<GraphQLModule<any, Request, any>>();
 
       modulesMap.forEach(module => {
-        const moduleName = module.options.name;
+        const moduleName = module.name;
         if (!graph.hasNode(moduleName)) {
           graph.addNode(moduleName);
         }
@@ -456,28 +443,28 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
       const visitModuleToAddDependency = (module: GraphQLModule<any, Request, any>) =>  {
         for (let subModule of module.selfImports) {
-          const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.options.name;
+          const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.name;
           subModule = modulesMap.get(subModuleOrigName);
           if (!subModule) {
-            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.options.name}!`);
+            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.name}!`);
           }
           try {
             graph.addDependency(
-                module.options.name,
-                subModule.options.name,
+                module.name,
+                subModule.name,
             );
           } catch (e) {
-            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.options.name}!`);
+            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.name}!`);
           }
           // prevent infinite loop in case of circular dependency
-          if (!visitedModulesToAddDependency.has(subModule.options.name)) {
-            visitedModulesToAddDependency.add(subModule.options.name);
+          if (!visitedModulesToAddDependency.has(subModule.name)) {
+            visitedModulesToAddDependency.add(subModule.name);
             visitModuleToAddDependency(subModule);
           }
         }
       };
 
-      visitModuleToAddDependency(modulesMap.get(this.options.name));
+      visitModuleToAddDependency(modulesMap.get(this.name));
 
       try {
         graph.overallOrder();
@@ -511,13 +498,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             }
           }
         }
-        modulesMap.set(mergedModule.options.name, mergedModule);
-        (mergedModule.options.imports as Array<ModuleDependency<any, Request, any>>)
-          = (mergedModule.options.imports as Array<ModuleDependency<any, Request, any>>).filter(
+        modulesMap.set(mergedModule.name, mergedModule);
+        (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>)
+          = (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>).filter(
           module => {
-            const moduleName = typeof module === 'string' ? module : module.options.name;
+            const moduleName = typeof module === 'string' ? module : module.name;
             module = modulesMap.get(moduleName);
-            return (module.options.name !== mergedModule.options.name);
+            return (module.name !== mergedModule.name);
           },
         );
         return this.checkAndFixModulesMap(modulesMap);
@@ -535,13 +522,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         resolversComposition: {},
       };
       for (const module of modules) {
-        mergedOptions.name += module.options.name + '+';
+        mergedOptions.name += module.name + '+';
         (mergedOptions.typeDefs as string[]).push(module.selfTypeDefs as string);
         mergedOptions.resolvers = mergeResolvers([mergedOptions.resolvers as IResolvers, module.selfResolvers]);
         const accContextBuilder = mergedOptions.contextBuilder;
         mergedOptions.contextBuilder = async (networkRequest, currentContext, injector) => {
           const accContext = await accContextBuilder(networkRequest, currentContext, injector);
-          const moduleContext = module.options.contextBuilder ? await module.options.contextBuilder(networkRequest, currentContext, injector) : {};
+          const moduleContext = module._options.contextBuilder ? await module._options.contextBuilder(networkRequest, currentContext, injector) : {};
           return Object.assign({}, accContext, moduleContext);
         };
         mergedOptions.imports = [
