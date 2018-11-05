@@ -1,8 +1,5 @@
 <p align="center">
-  <h1 align="center">GraphQL-Modules</h1>
-</p>
-<p align="center">
-  <img src="./logo.svg" width="500" />
+  <img alt="GraphQL Modules" src="./logo.svg" width="500" />
 </p>
 
 [![CircleCI](https://circleci.com/gh/Urigo/graphql-modules.svg?style=svg&circle-token=28155ce743e1a9ba25152b0b3395acfa5b152f41)](https://circleci.com/gh/Urigo/graphql-modules)
