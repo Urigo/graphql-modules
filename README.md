@@ -43,7 +43,29 @@ We are also publishing a pre-release version to NPM on each change.
 
 Just take a look at the build status on CircleCI and find "Publish Canary" job to get the published version.
 
-## Examples
+## Usage
+
+More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs/introduction/getting-started)
+
+```js
+import { GraphQLModule } from '@graphql-modules/core';
+
+const module = new GraphQLModule({
+  typeDefs: gql`
+    type Post {
+      id: ID
+      title: String
+      author: User
+    }
+    
+    type Query {
+      posts: [Post]
+    }
+  `,
+  resolvers: blogResolvers,
+  imports: [UserModule],
+});
+```
 
 Inside the `examples` directory you can find the following examples:
 
