@@ -44,7 +44,6 @@ Then, make sure to use it in a `GraphQLModule` declaration:
 import { GraphQLModule, CommunicationBridge } from '@graphql-modules/core';
 
 const CommunicationModule = new GraphQLModule({
-    name: 'my-module',
     provider: [
       {
         provide: CommunicationBridge,

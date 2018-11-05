@@ -35,8 +35,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { loadResolversFiles, loadSchemaFiles } from '@graphql-modules/sonar';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
   typeDefs: mergeGraphQLSchemas(loadSchemaFiles(__dirname + '/schema/')),
   resolvers: mergeResolvers(loadResolversFiles(__dirname + '/resolvers/')),
 });
@@ -54,8 +53,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import resolvers from './resolvers';
 import * as typeDefs from './schema.graphql';
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
   resolvers,
   typeDefs,
 });
@@ -92,8 +90,7 @@ The simplest way to load your schema and resolvers into a module, is to write th
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
   resolvers: {
     User: {
         id: () => { },

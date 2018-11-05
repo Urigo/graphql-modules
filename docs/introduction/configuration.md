@@ -9,14 +9,18 @@ Each module can have it's own configuration, and you can specify it in your `Gra
 Start by creating a TypeScript interface which specifies the structure of your configuration object, and pass it as the first generic argument to your `GraphQLModule`:
 
 ```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+import { MyProvider } from './my-provider.ts';
 
 export interface MyModuleConfig {
     secretKey: string;
     remoteEndpoint: string;
 }
 
-export const myModule = new GraphQLModule<MyModuleConfig>({
-    name: 'my-module',
+export const MyModule = new GraphQLModule<MyModuleConfig>({
+  providers: () => [
+    MyProvider
+  ]
 });
 ```
 
@@ -24,12 +28,11 @@ Now, to provide the configuration values, add `.forRoot` to your module while lo
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
-import { myModule } from './modules/my-module';
+import { MyModule } from './modules/my-module';
 
-const anotherModule = new GraphQLModule({
-  name: 'another-module',
+const AnotherModule = new GraphQLModule({
   imports: [
-    myModule.forRoot({
+    MyModule.forRoot({
           secretKey: '123',
           remoteEndpoint: 'http://my-other-service.com',
       })
@@ -41,10 +44,11 @@ To get access to your configuration in your `Provider`s, inject `MyModuleConfig`
 
 ```typescript
 import { ModuleConfig, Inject, Injectable } from '@graphql-modules/core';
+import { MyModule } from './my-module.ts';
 
 @Injectable()
 export class MyProvider {
-    constructor(@Inject(ModuleConfig('my-module'))private config: MyModuleConfig) {
+    constructor(@Inject(ModuleConfig(MyModule)) private config: MyModuleConfig) {
 
     }
 

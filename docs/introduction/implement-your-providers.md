@@ -72,8 +72,7 @@ import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     typeDefs,
     resolvers,
     providers: [

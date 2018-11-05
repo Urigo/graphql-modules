@@ -35,8 +35,7 @@ import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     typeDefs,
     resolvers,
     providers: [
@@ -115,8 +114,7 @@ If you wish to decouple the actual class implementation and the dependency injec
 ```typescript
 const MY_CLASS_TOKEN = 'myAwesomeClassIdentifier';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     providers: [
         { provide: MY_CLASS_TOKEN, useClass: MyProvider },
     ],
@@ -155,8 +153,7 @@ You can use custom dependency injection tokens to identify your injectables, so 
 So we already learned how to provide classes. Just specify the class in the list of `providers` on your modules declaration:
 
 ```typescript
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     providers: [
         UserProvider,
     ],
@@ -174,8 +171,7 @@ You can use any value, and attach it to a dependency injection token.
 ```typescript
 const MY_VALUE = 'myUsefulVal8e';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     providers: [
         { provide: MY_VALUE, useValue: 'Hello!' },
     ],

@@ -517,10 +517,10 @@ describe('GraphQLModule', () => {
       // MUST get called after `Query.foo` resolver.
 
       const addUser = next => (root, args, context, info) => {
-        context.user ={
+        context.user = {
           id: 1,
           name: 'Dotan',
-          roles: ['A', 'B']
+          roles: ['A', 'B'],
         };
 
         return next(root, args, context, info);
@@ -553,7 +553,7 @@ describe('GraphQLModule', () => {
           type Query {
             foo: MyType
           }
-          
+
           type MyType {
             f: String
           }

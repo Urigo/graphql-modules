@@ -10,17 +10,18 @@ With GraphQL Modules and dependency injection it's much easier to test your modu
 
 So let's start with a basic module definition:
 
-`modules/my-module/index.ts`
+`modules/user/index.ts`
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
 export class UsersProvider {
-  
+  getUserById(id: string){
+    // some business logic
+  }
 }
 
-export const userModule = new GraphQLModule({
-  name: 'user',
+export const UserModule = new GraphQLModule({
   providers: [UsersProvider],
   typeDefs: gql`
     type User {
@@ -41,7 +42,7 @@ export const userModule = new GraphQLModule({
     Query: {
       me: (root, args, { injector, currentUser }) => currentUser,
       userById: (root, { id }, { injector }) => 
-        injector.get<UsersProvider>(UsersProvider).getUserById(id),
+        injector.get(UsersProvider).getUserById(id),
     },
   },
 });

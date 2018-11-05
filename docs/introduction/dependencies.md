@@ -18,8 +18,7 @@ import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
-export const mySecondModule = new GraphQLModule({
-    name: 'my-second-module',
+export const MySecondModule = new GraphQLModule({
     typeDefs,
     resolvers,
 });
@@ -32,28 +31,20 @@ import { GraphQLModule } from '@graphql-modules/core';
 import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
+import { MySecondModule } from './my-second-module';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export const MyModule = new GraphQLModule({
     typeDefs,
     resolvers,
     providers: [
         UserProvider,
     ],
     imports: [
-        mySecondModule,
+        MySecondModule,
     ],
 });
 ```
 
-Or, you can add a dependency by using only the name of the module as string:
-
-```typescript
-imports: [
-    'my-second-module',
-],
-```
-
 > This is useful when you just want to make sure your module is initialized after another module without knowing it directly.
 
-Now GraphQL Modules will make sure to load and initialize `my-second-module` before `my-module`.
+Now GraphQL Modules will make sure to load and initialize `MySecondModule` before `MyModule`.

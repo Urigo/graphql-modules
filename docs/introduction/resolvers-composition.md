@@ -87,8 +87,7 @@ Now, on our `GraphQLModule` declaration, let's add `resolversComposition` and ad
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 
-const graphQlModule = new GraphQLModule({
-    name: 'my-module',
+const MyModule = new GraphQLModule({
     /*...*/
     resolversComposition: {
         'Query.myQuery': [isAuthenticated(), hasRole('EDITOR')],

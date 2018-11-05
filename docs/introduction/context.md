@@ -48,8 +48,11 @@ import { GraphQLModule } from '@graphql-modules/core';
 import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 
-export const myModule = new GraphQLModule({
-    name: 'my-module',
+export interface IMyModuleContext {
+    myField: string;
+}
+
+export const MyModule = new GraphQLModule<{}, {}, IMyModuleContext>({
     typeDefs,
     resolvers,
     contextBuilder: (networkRequest, currentContext) => {
@@ -66,14 +69,11 @@ Then, in any of your resolvers, you can access it this way:
 
 ```typescript
 import { ModuleContext } from '@graphql-modules/core';
-
-interface MyExtendedContext extends ModuleContext {
-    myField: string;
-}
+import { IMyModuleContext } from './my-module';
 
 export default {
     Query: {
-        myQuery: (_, args, { myField }: MyExtendedContext) =>
+        myQuery: (_, args, { myField }: ModuleContext<IMyModuleContext>) =>
             injector.get(MyProvider).doSomething(myField),
     },
 };
@@ -85,15 +85,21 @@ You can also use this feature to implement authentication easily, because you ha
 import { GraphQLModule, Injector } from '@graphql-modules/core';
 import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
+import { AuthenticationProvider } from './auth-provider';
 
-export const authModule = new GraphQLModule({
-    name: 'auth',
+export interface IAuthModuleContext {
+  currentUser: any;
+}
+
+export const AuthModule = new GraphQLModule<{}, express.Request, IAuthModuleContext>({
     typeDefs,
     resolvers,
-    contextBuilder: async (networkRequest: express.Request, currentContext: object, injector: Injector): Promise<{ currentUser: object}> => {
+    providers: [
+      AuthenticationProvider,
+    ],
+    contextBuilder: async (networkRequest, currentContext, injector): Promise<IAuthModuleContext> => {
         const authToken = networkRequest.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
-
         return {
             currentUser,
         };

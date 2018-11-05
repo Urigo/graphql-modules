@@ -14,8 +14,7 @@ Here is a quick example:
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 
-export const myFirstModule = new GraphQLModule({
-    name: 'my-first-module',
+export const MyFirstModule = new GraphQLModule({
     typeDefs: gql`
         type Query {
             myData: Data

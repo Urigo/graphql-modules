@@ -15,7 +15,7 @@ GraphQL Modules provide multiple ways of doing it, and you should pick the right
 If your modules are coupled and you they should know each other because their logic and combined with each user, you cam use direct dependency injection.
 
 ```typescript
-import { @Injectable() } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
 @Injectable()
@@ -78,8 +78,7 @@ import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules
 
 const communicationBridge = new EventEmitterCommunicationBridge();
 
-const CommonModule = new GraphQLModule({
-    name: 'common',
+const CommunicationModule = new GraphQLModule({
     providers: [
       {
         provide: CommunicationBridge,
@@ -97,9 +96,8 @@ And don't forget to import this common module to the modules you want to use `Co
 import { GraphQLModule } from '@graphql-modules/core';
 
 export const FooModule = new GraphQLModule({
-  name: 'foo',
   imports: [
-    CommonModule
+    CommunicationModule
   ]
 })
 ```
@@ -108,9 +106,8 @@ export const FooModule = new GraphQLModule({
 import { GraphQLModule } from '@graphql-modules/core';
 
 export const BarModule = new GraphQLModule({
-  name: 'bar',
   imports: [
-    CommonModule
+    CommunicationModule
   ],
   providers: [
     MyProvider
