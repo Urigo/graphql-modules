@@ -431,7 +431,7 @@ textarea, input {
   height: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-evenly;
 }
 @media only screen and (max-width: 36em) {
   .Features > ._features-list {
@@ -439,11 +439,10 @@ textarea, input {
   }
 }
 .Features > ._features-list > ._feature {
-  width: 210px;
+  width: 20%;
   padding: 20px;
   margin-left: 20px;
   margin-right: 20px;
-  border: solid 1px rgba(120, 151, 188, 0.3);
 }
 @media only screen and (max-width: 36em) {
   .Features > ._features-list > ._feature {
@@ -485,7 +484,7 @@ textarea, input {
 }
 @media only screen and (max-width: 36em) {
   .FrameworkDetails {
-    margin-top: 50px;
+    margin-top: 80px;
     padding: 0 20px;
     padding-bottom: 300px;
   }
