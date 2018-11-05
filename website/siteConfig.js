@@ -15,7 +15,7 @@ const users = [
 
 const siteConfig = {
   title: 'GraphQL Modules', // Title for your website.
-  tagline: 'The best framework for GraphQL!',
+  tagline: 'Enterprise grade tooling for your graphql server',
   url: 'http://graphql-modules.com/', // Your website URL
   baseUrl: '/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
