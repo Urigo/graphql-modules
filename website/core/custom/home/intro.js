@@ -13,7 +13,7 @@ module.exports = (props) => (
     <img src={rocket} alt="" className="_bg-rocket" />
     <div className="_start-section">
       <div className="_title">
-        Enterprise Grade Toolings for your GraphQL server
+        Enterprise Grade Tooling for your GraphQL server
       </div>
       <div className="_subtitle">
         GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server.
