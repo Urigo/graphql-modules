@@ -9,6 +9,11 @@
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
