@@ -502,19 +502,22 @@ textarea, input {
   font-size: 36px;
   color: #243265;
   line-height: 45px;
+  line-height: 0.1;
 }
 @media only screen and (max-width: 36em) {
   .FrameworkDetails > ._details > ._title {
     font-size: 25px;
-    line-height: normal;
   }
 }
-.FrameworkDetails > ._details > ._title > ._powered-by {
-  width: 350px;
+.FrameworkDetails > ._details > ._title > ._apollo-logo {
+  width: 190px;
+  transform: translateY(23px);
+  margin-left: -13px;
 }
 @media only screen and (max-width: 36em) {
-  .FrameworkDetails > ._details > ._title > ._powered-by {
-    width: 100%;
+  .FrameworkDetails > ._details > ._title > ._apollo-logo {
+    width: 150px;
+    transform: translateY(20px);
   }
 }
 .FrameworkDetails > ._details > ._subtitle {
