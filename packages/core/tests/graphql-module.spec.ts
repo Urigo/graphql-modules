@@ -1,5 +1,13 @@
 import 'reflect-metadata';
-import { GraphQLModule, ModuleConfig, Inject, CommunicationBridge, EventEmitterCommunicationBridge, OnRequest, ModuleContext } from '../src';
+import {
+  CommunicationBridge,
+  EventEmitterCommunicationBridge,
+  GraphQLModule,
+  Inject,
+  ModuleConfig,
+  ModuleContext,
+  OnRequest
+} from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -13,12 +21,13 @@ describe('GraphQLModule', () => {
       return 'Test';
     }
   }
+
   const typesA = [`type A { f: String}`, `type Query { a: A }`];
   const moduleA = new GraphQLModule({
     typeDefs: typesA,
     resolvers: {
       Query: { a: () => ({}) },
-      A: { f: (_root, _args, {injector}: ModuleContext) => injector.get(ProviderA).doSomething() },
+      A: { f: (_root, _args, { injector }: ModuleContext) => injector.get(ProviderA).doSomething() },
     },
     providers: [ProviderA],
   });
@@ -79,7 +88,7 @@ describe('GraphQLModule', () => {
 
   // Queries
   const testQuery = gql`query { b { f }}`;
-  const app = new GraphQLModule({ imports:  [moduleA, moduleB, moduleC] });
+  const app = new GraphQLModule({ imports: [moduleA, moduleB, moduleC] });
 
   it('should return the correct GraphQLSchema', async () => {
     const schema = app.schema;
@@ -126,7 +135,7 @@ describe('GraphQLModule', () => {
         useValue: provider,
       }],
     });
-    const {injector} = new GraphQLModule({ imports:  [module] });
+    const { injector } = new GraphQLModule({ imports: [module] });
 
     expect(injector.get(token)).toBe(provider);
   });
@@ -145,7 +154,7 @@ describe('GraphQLModule', () => {
   });
 
   it('should throw an exception when a contextFn throws an exception', async () => {
-    const app = new GraphQLModule({  imports:  [moduleD] });
+    const app = new GraphQLModule({ imports: [moduleD] });
     const spy = jest.fn();
 
     await app.context({ req: {} }).catch(spy).then(() => expect(spy).toHaveBeenCalled());
@@ -181,7 +190,7 @@ describe('GraphQLModule', () => {
       });
 
       const app = new GraphQLModule({
-        imports:  [m1, m2],
+        imports: [m1, m2],
       });
 
       const aFields = app.schema.getTypeMap()['A']['getFields']();
@@ -197,6 +206,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider1 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
@@ -205,13 +215,15 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider2 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
       }
-      const module1 = new GraphQLModule({ imports:  () => [module2], providers: [Provider1] });
+
+      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
       const module2 = new GraphQLModule({ providers: [Provider2] });
-      const { injector } = new GraphQLModule({ imports:  [module2, module1] });
+      const { injector } = new GraphQLModule({ imports: [module2, module1] });
       expect(injector.get(Provider1).count).toEqual(1);
       expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(2);
@@ -223,6 +235,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider1 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
@@ -231,6 +244,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider2 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
@@ -239,14 +253,16 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider3 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
       }
+
       const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-      const module2 = new GraphQLModule({  imports: () => [module1], providers: [Provider2] });
-      const module3 = new GraphQLModule({ imports:  () => [module1], providers: [Provider3] });
-      const {injector} = new GraphQLModule({ imports:  [module2, module1, module3] });
+      const module2 = new GraphQLModule({ imports: () => [module1], providers: [Provider2] });
+      const module3 = new GraphQLModule({ imports: () => [module1], providers: [Provider3] });
+      const { injector } = new GraphQLModule({ imports: [module2, module1, module3] });
       expect(injector.get(Provider1).count).toEqual(1);
       expect(injector.get(Provider2).count).toEqual(0);
       expect(counter).toEqual(3);
@@ -258,6 +274,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider1 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
@@ -266,13 +283,15 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider2 {
         count: number;
+
         constructor() {
           this.count = counter++;
         }
       }
+
       const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
       const module2 = new GraphQLModule({ imports: () => [module1], providers: [Provider2] });
-      const {injector} = new GraphQLModule({ imports:  [module2, module1] });
+      const { injector } = new GraphQLModule({ imports: [module2, module1] });
 
       expect(injector.get(Provider1).count).toEqual(1);
       expect(injector.get(Provider2).count).toEqual(0);
@@ -285,12 +304,16 @@ describe('GraphQLModule', () => {
         test: number;
       }
 
-      const module1 = new GraphQLModule({ imports: () => [module2], providers: () => [Provider1] }).forRoot({test: 1});
-      const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({test: 2});
+      const module1 = new GraphQLModule({
+        imports: () => [module2],
+        providers: () => [Provider1]
+      }).forRoot({ test: 1 });
+      const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({ test: 2 });
 
       @Injectable()
       class Provider1 {
         test: number;
+
         constructor(@Inject(ModuleConfig(module1)) config: IModuleConfig) {
           this.test = config.test;
         }
@@ -299,11 +322,13 @@ describe('GraphQLModule', () => {
       @Injectable()
       class Provider2 {
         test: number;
+
         constructor(@Inject(ModuleConfig(module2)) config: IModuleConfig) {
           this.test = config.test;
         }
       }
-      const {injector} = new GraphQLModule({ imports:  [module2, module1] });
+
+      const { injector } = new GraphQLModule({ imports: [module2, module1] });
 
       expect(injector.get(Provider1).test).toEqual(1);
       expect(injector.get(Provider2).test).toEqual(2);
@@ -312,16 +337,19 @@ describe('GraphQLModule', () => {
       class ProviderA {
         test = 0;
       }
-      const moduleB = new GraphQLModule({ providers: [ProviderA]});
+
+      const moduleB = new GraphQLModule({ providers: [ProviderA] });
 
       @Injectable()
       class ProviderB {
-        constructor(providerA: ProviderA) {}
+        constructor(providerA: ProviderA) {
+        }
       }
+
       const moduleA = new GraphQLModule({ providers: [ProviderB] });
 
       try {
-        const {injector} = new GraphQLModule({ imports: [moduleA, moduleB] });
+        const { injector } = new GraphQLModule({ imports: [moduleA, moduleB] });
         injector.get(ProviderB);
       } catch (e) {
         expect(e instanceof DependencyNotFoundError).toBeTruthy();
@@ -338,17 +366,19 @@ describe('GraphQLModule', () => {
         `,
         resolvers: {
           Query: {
-            test: (root: never, args: never, {injector}: ModuleContext) =>
+            test: (root: never, args: never, { injector }: ModuleContext) =>
               injector.get(ProviderB).test,
           },
         },
       });
+
       @Injectable()
       class ProviderB {
         test = 1;
       }
-      const moduleB = new GraphQLModule({ providers: [ProviderB]});
-      const { schema, context } = new GraphQLModule({ imports: [moduleA, moduleB ]});
+
+      const moduleB = new GraphQLModule({ providers: [ProviderB] });
+      const { schema, context } = new GraphQLModule({ imports: [moduleA, moduleB] });
       const contextValue = await context({ req: {} });
       const result = await execute({
         schema,
@@ -366,7 +396,7 @@ describe('GraphQLModule', () => {
   describe('CommuncationBridge', async () => {
     it('should set CommunicationBridge correctly', async () => {
       const communicationBridge = new EventEmitterCommunicationBridge();
-      const {injector} = new GraphQLModule({
+      const { injector } = new GraphQLModule({
         providers: [
           {
             provide: CommunicationBridge,
@@ -381,12 +411,14 @@ describe('GraphQLModule', () => {
 
     it('should call onRequest hook on each request', async () => {
       let counter = 0;
+
       @Injectable()
       class FooProvider implements OnRequest {
         onRequest() {
           counter++;
         }
       }
+
       const { context } = new GraphQLModule({
         providers: [
           FooProvider,
@@ -400,12 +432,14 @@ describe('GraphQLModule', () => {
 
     it('should pass network request to onRequest hook', async () => {
       const fooRequest = {};
+
       @Injectable()
       class FooProvider implements OnRequest {
         onRequest(request) {
           expect(request).toBe(fooRequest);
         }
       }
+
       const { context } = new GraphQLModule({
         providers: [
           FooProvider,
@@ -425,6 +459,7 @@ describe('GraphQLModule', () => {
       });
       expect(resolverCompositionCalled).toBe(true);
     });
+
     it('should call resolvers composition in correct order with correct context', async () => {
       const { schema, context } = new GraphQLModule({
         typeDefs: `
@@ -473,6 +508,81 @@ describe('GraphQLModule', () => {
         contextValue,
       });
       expect(contextValue.counter).toBe(0);
+    });
+
+    it('should call resolvers composition in correct order with correct context - test nested types', async () => {
+      // We have 2 wrappers here: addUser - adds user to the context. checkRoles - depend on the user and check that he has roles.
+      // We wraps `Query.foo` with `addUser` and `checkRoles` and it works.
+      // Then, the `MyType` type has a field, and this field is wrapped only with `checkRoles`. Is should work because `MyType.f` resolver
+      // MUST get called after `Query.foo` resolver.
+
+      const addUser = next => (root, args, context, info) => {
+        context.user ={
+          id: 1,
+          name: 'Dotan',
+          roles: ['A', 'B']
+        };
+
+        return next(root, args, context, info);
+      };
+
+      let hasUserInQueryRoot = false;
+      let hasUserInTypeField = false;
+
+      const checkRoles = next => (root, args, context, info) => {
+        // This should be true. When it's called with `addUser` before, it works.
+        // When we call `checkRoles` without `addUser` before - it's missing.
+
+        if (info.fieldName === 'foo') {
+          console.log(`Query.foo context.user value = `, context.user);
+          hasUserInQueryRoot = !!context.user;
+        } else if (info.fieldName === 'f') {
+          console.log(`MyType.f context.user value = `, context.user);
+          hasUserInTypeField = !!context.user;
+        }
+
+        if (context.user.roles.length > 0) {
+          return next(root, args, context, info);
+        }
+
+        return null;
+      };
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: `
+          type Query {
+            foo: MyType
+          }
+          
+          type MyType {
+            f: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (root, args, context, info) => {
+              return { someValue: context.user.id };
+            },
+          },
+          MyType: {
+            f: v => v.someValue,
+          },
+        },
+        resolversComposition: {
+          'Query.foo': [addUser, checkRoles],
+          'MyType.f': [checkRoles],
+        },
+      });
+      const contextValue = await context({ req: {} });
+
+      await execute({
+        schema,
+        document: gql`query { foo { f } }`,
+        contextValue,
+      });
+
+      expect(hasUserInQueryRoot).toBeTruthy();
+      expect(hasUserInTypeField).toBeTruthy();
     });
   });
 });
