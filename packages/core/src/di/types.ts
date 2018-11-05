@@ -1,5 +1,5 @@
 import { GraphQLModule } from '../graphql-module';
-export { Inject } from './index';
+export { Inject, Injectable } from './index';
 
 interface Newable<T> {
   new (...args: any[]): T;

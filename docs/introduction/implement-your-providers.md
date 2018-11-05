@@ -13,7 +13,9 @@ You can define a provider and add it to your module.
 `modules/my-module/user.provider`
 
 ```typescript
+import { Injectable } from '@graphql-modules/core';
 
+@Injectable()
 export class UserProvider {
   users = [
     {

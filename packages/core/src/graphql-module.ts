@@ -366,7 +366,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           typeDefs: mergedTypeDefs,
           resolvers: composedResolvers,
         });
-      } catch (e) {}
+      } catch (e) {
+        if (e.message !== 'Must provide typeDefs') {
+          throw e;
+        }
+      }
     }
 
     this._cache.injector = injector;

@@ -6,7 +6,7 @@ sidebar_label: Dependency Injection
 
 GraphQL Modules let you use dependency injection between your modules, and let you inject config, functions, classes and instances to your modules.
 
-We are wrapping **[InversifyJS](http://inversify.io/)** and expose a simple API that covers most of the use-cases of relations between backend modules.
+We expose a simple API that covers most of the use-cases of relations between backend modules.
 
 We learned not to force you to use dependency injection too early in the process, because dependency injection make sense on some specific use cases and you should need to use it only when it helps you move faster and as your codebase grows.
 
@@ -14,11 +14,14 @@ GraphQL Modules let you choose whether to use dependency injection or not.
 
 ## Providers
 
-Let's start by creating a simple class called `UserProvider`.
+Let's start by creating a simple class called `UserProvider` with `@Injectable()` decorator.
 
 `modules/my-module/user.provider.ts`
 
 ```typescript
+import { Injectable } from '@graphql-modules/core';
+
+@Injectable()
 export class UserProvider {
 
 }
@@ -45,6 +48,9 @@ export const myModule = new GraphQLModule({
 Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
+import { Injectable } from '@graphql-modules/core';
+
+@Injectable()
 export class UserProvider {
     getUserById(id: string) {
         return {
@@ -89,8 +95,10 @@ It could be either `class`, `string` or `Symbol`.
 To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
+import { Injectable } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
+@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -118,12 +126,13 @@ export const myModule = new GraphQLModule({
 This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
 
 ```typescript
-import { Inject } from '@graphql-modules/core';
+import { Injectable, Inject } from '@graphql-modules/core';
 
 interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
+@Injectable()
 export class MyProvider {
     constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
@@ -184,8 +193,9 @@ GraphQL Modules give you some built-in injectables, and you can inject them into
 With this, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
 
 ```typescript
-import { injectable, OnRequest, inject } from '@graphql-modules/core';
+import { Injectable, OnRequest } from '@graphql-modules/core';
 
+@Injectable()
 export class MyProvider implements OnRequest {
 
     onRequest(networkRequest, currentContext, graphQlAppModule) {
@@ -203,8 +213,9 @@ This injectable will fetch the a module's configuration object that passed via `
 You can read more about [module configuration here](/TODO).
 
 ```typescript
-import { ModuleConfig, Inject } from '@graphql-modules/core';
+import { ModuleConfig, Injectable, Inject } from '@graphql-modules/core';
 
+@Injectable()
 export class MyProvider {
     constructor(@Inject(ModuleConfig('my-module')) private config) {
 
@@ -223,6 +234,7 @@ It's useful to dispatch messages between modules without knowing who will handle
 ```typescript
 import { CommunicationBridge } from '@graphql-modules/core';
 
+@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them

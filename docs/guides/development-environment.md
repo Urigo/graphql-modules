@@ -164,7 +164,7 @@ If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, 
 
 ### Without decorators
 
-You can use `inject` and `injectable` as regular functions to wrap your arguments and classes, you can read more about it [in Inversify documentation](https://github.com/inversify/InversifyJS/blob/master/wiki/basic_js_example.md).
+You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes.
 
 ## Testing Environment
 

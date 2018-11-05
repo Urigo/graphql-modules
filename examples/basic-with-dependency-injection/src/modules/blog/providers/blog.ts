@@ -1,3 +1,4 @@
+import { Injectable } from '@graphql-modules/core';
 import { Users } from '../../user/providers/users';
 
 const posts = [
@@ -18,6 +19,7 @@ const posts = [
   },
 ];
 
+@Injectable()
 export class Blog {
   constructor(
     private users: Users,

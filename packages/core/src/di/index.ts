@@ -4,9 +4,41 @@ export { __decorate as decorate } from 'tslib';
 
 const DESIGN_PARAM_TYPES = 'design:paramtypes';
 declare var Reflect: any;
+
+function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
+  return serviceIdentifier['name'] || serviceIdentifier.toString();
+}
 /**
  * @hidden
  */
+
+export class ServiceIdentifierNotFoundError<T> extends Error {
+  constructor(protected _serviceIdentifier: ServiceIdentifier<T>) {
+    super(`${getServiceIdentifierName(_serviceIdentifier)} not provided in that scope!`);
+    Object.setPrototypeOf(this, ServiceIdentifierNotFoundError.prototype);
+  }
+
+  get serviceIdentifier(): ServiceIdentifier<T> {
+    return this._serviceIdentifier;
+  }
+}
+
+export class DependencyNotFoundError<Dependency, Dependent> extends Error {
+  constructor(private _dependency: ServiceIdentifier<Dependency>, private _dependent: ServiceIdentifier<Dependent>) {
+    super(`
+    ${getServiceIdentifierName(_dependency)} couldn't be injected into ${getServiceIdentifierName(_dependent)} because ${getServiceIdentifierName(_dependency)} is not provided in that scope!
+  `);
+    Object.setPrototypeOf(this, DependencyNotFoundError.prototype);
+  }
+
+  get dependency(): ServiceIdentifier<Dependency> {
+    return this._dependency;
+  }
+
+  get dependent(): ServiceIdentifier<Dependent> {
+    return this._dependent;
+  }
+}
 export class Injector {
   children = new Array<Injector>();
   types = new Array<any>();
@@ -54,17 +86,34 @@ export class Injector {
       for (const child of this.children) {
         try {
           return child.get(serviceIdentifier);
-        } catch (e) {}
+        } catch (e) {
+          if (e instanceof ServiceIdentifierNotFoundError) {
+            continue;
+          } else {
+            throw e;
+          }
+        }
       }
-      throw new Error((serviceIdentifier['name'] || serviceIdentifier.toString()) + 'not found!');
+      throw new ServiceIdentifierNotFoundError(serviceIdentifier);
     }
 }
 
   public instantiate<T>(clazz: any): T {
-    const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz) || [];
-    const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
-    const instance = new clazz(...dependencyInstances);
-    return instance;
+    try {
+      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz);
+      if (!dependencies) {
+        throw new Error('You must decorate the provider class with @Injectable()');
+      }
+      const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
+      const instance = new clazz(...dependencyInstances);
+      return instance;
+    } catch (e) {
+      if (e instanceof ServiceIdentifierNotFoundError) {
+        throw new DependencyNotFoundError(e.serviceIdentifier, clazz);
+      } else {
+        throw e;
+      }
+    }
   }
 
   public callFactory<T>(factory: Factory<T>) {
@@ -117,11 +166,23 @@ function isFactory<T>(v: Provider<T>): v is FactoryProvider<T> {
   return 'useFactory' in v;
 }
 
-export function Inject(serviceIdentifier: ServiceIdentifier<any>) {
-  return (target: any, _targetKey: any, index: any) => {
-    const types = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
-    types[index] = serviceIdentifier;
-    Reflect.defineMetadata(DESIGN_PARAM_TYPES, types, target);
+export function Inject<Dependency>(serviceIdentifier: ServiceIdentifier<Dependency>) {
+  return (target: any, _targetKey: any, index: number) => {
+    const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
+    if (!dependencies) {
+      throw new Error('You must decorate the provider class with @Injectable()');
+    }
+    dependencies[index] = serviceIdentifier;
+    Reflect.defineMetadata(DESIGN_PARAM_TYPES, dependencies, target);
+    return target;
+  };
+}
+
+export function Injectable() {
+  return (target: any) => {
+    if (!Reflect.hasMetadata(DESIGN_PARAM_TYPES, target)) {
+      Reflect.defineMetadata(DESIGN_PARAM_TYPES, [], target);
+    }
     return target;
   };
 }
