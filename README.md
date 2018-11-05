@@ -19,6 +19,10 @@
 - **Gradual growth** - A clear, gradual path from a very simple and fast, single-file modules, to scalable multi-file, multi-teams, multi-repo, multi-server modules.
 - **Testable** - A rich toolset around testing, mocking and separation.
 
+## Documentation
+
+Documentation is available at [graphql-modules.com](https://graphql-modules.com/docs/introduction/getting-started) or inside the [docs](./docs/) directory.
+
 ## Installation
 
 To install graphql-modules, use the following:
@@ -46,10 +50,6 @@ Inside the `examples` directory you can find the following examples:
 - [Simple GraphQL-Modules example](./examples/basic)
 - [Using dependenecy injection in GraphQL Modules](./examples/basic-with-dependency-injection)
 - You can also take a look at the [graphql-modules-seed](https://github.com/darkbasic/graphql-modules-seed) repository.
-
-## Documentation
-
-Documentation is available at [graphql-modules.com](https://graphql-modules.com/docs/introduction/getting-started) or inside the [docs](./docs/) directory,
 
 ## GraphQL Code Generator integration
 
