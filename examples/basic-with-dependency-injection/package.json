@@ -1,6 +1,6 @@
 {
   "name": "examples-di",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "private": true,
   "main": "index.js",
   "license": "MIT",
@@ -9,9 +9,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "*",
-    "@graphql-modules/epoxy": "*",
-    "@graphql-modules/sonar": "*",
+    "@graphql-modules/core": "0.2.0",
+    "@graphql-modules/epoxy": "0.2.0",
+    "@graphql-modules/sonar": "0.2.0",
     "apollo-server": "2.1.0",
     "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
@@ -33,9 +33,9 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "23.3.2",
     "babel-core": "6.26.3",
     "babel-jest": "23.6.0",
-    "@types/jest": "23.3.2",
     "jest": "23.5.0",
     "ts-jest": "23.1.4"
   }
