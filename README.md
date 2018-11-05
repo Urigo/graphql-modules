@@ -1,5 +1,7 @@
 <p align="center">
   <h1 align="center">GraphQL-Modules</h1>
+</p>
+<p align="center">
   <img src="./logo.svg" width="500" />
 </p>
 
@@ -9,7 +11,7 @@
 
 **[GraphQL Modules Website](https://graphql-modules.com/docs/introduction/getting-started)**
 
-**[Link to blog posts etc](https://medium.com/@dotansimha/graphql-modules-dabadaba)**
+**[Introducing GraphQL Modules - Feature based GraphQL Modules at scale](https://medium.com/the-guild/graphql-modules-feature-based-graphql-modules-at-scale-2d7b2b0da6da)**
 
 GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server.
 
@@ -51,11 +53,11 @@ Just take a look at the build status on CircleCI and find "Publish Canary" job t
 
 ## Usage Examples
 
-Inside the examples directory you can find the following examples:
+Inside the `examples` directory you can find the following examples:
 
-- Example 1 is [available here](./examples/)
-- Example 2 is [available here](./examples/)
-- Example 3 is [available here](./examples/)
+- [Simple GraphQL-Modules example](./examples/basic)
+- [Using dependenecy injection in GraphQL Modules](./examples/basic-with-dependency-injection)
+- You can also take a look at the [graphql-modules-seed](https://github.com/darkbasic/graphql-modules-seed) repository.
 
 ## Documentation ##
 
@@ -63,7 +65,7 @@ Documentation is available inside the [docs](./docs/) directory or at [http://gr
 
 ## GraphQL Code Generator integration
 
-GraphQL Modules easily integrates with GraphQL Code Generator. To see how look at the [graphql-modules-seed](https://github.com/darkbasic/graphql-modules-seed).
+GraphQL Modules easily integrates with [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator). To see how look at the [graphql-modules-seed](https://github.com/darkbasic/graphql-modules-seed).
 
 ## Troubleshoot
 
