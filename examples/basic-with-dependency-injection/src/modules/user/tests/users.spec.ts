@@ -1,14 +1,14 @@
 import 'reflect-metadata';
-import { GraphQLApp } from '@graphql-modules/core';
-import { userModule } from '../index';
+import { GraphQLModule } from '@graphql-modules/core';
+import { UserModule } from '../index';
 
 describe('Users Module', () => {
-  let app: GraphQLApp;
+  let app: GraphQLModule<any, any, any>;
 
   beforeEach(() => {
-    app = new GraphQLApp({
-      modules: [
-        userModule,
+    app = new GraphQLModule({
+      imports: [
+        UserModule,
       ],
     });
   });

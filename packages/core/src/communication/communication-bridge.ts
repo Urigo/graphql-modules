@@ -1,6 +1,7 @@
-export interface CommunicationBridge {
-  subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void };
-  publish<T = any>(event: string, payload: T): void;
-}
+import { Injectable } from '../di';
 
-export const CommunicationBridge = Symbol.for('CommunicationBridge');
+@Injectable()
+export abstract class CommunicationBridge<EventMap = any> {
+  abstract subscribe<Event extends keyof EventMap, Payload = EventMap[Event]>(event: Event, handler: (payload: Payload) => void): { unsubscribe: () => void };
+  abstract publish<Event extends keyof EventMap, Payload = EventMap[Event]>(event: Event, payload: Payload): void;
+}

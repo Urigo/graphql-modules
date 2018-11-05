@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app } from './app';
-import { run } from './server';
+import { AppModule } from './app';
+import { bootstrap } from './server';
 
-run(app);
+bootstrap(AppModule);

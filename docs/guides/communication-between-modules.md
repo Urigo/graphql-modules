@@ -15,10 +15,10 @@ GraphQL Modules provide multiple ways of doing it, and you should pick the right
 If your modules are coupled and you they should know each other because their logic and combined with each user, you cam use direct dependency injection.
 
 ```typescript
-import { injectable } from '@graphql-modules/core';
+import { @Injectable() } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -31,15 +31,15 @@ export class MyProvider {
 If you wish to communicate other module with importing directly from it, you can use dependency-injection tokens:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Inject, Injectable } from '@graphql-modules/core';
 
 export interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+    constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
     }
 }
@@ -69,25 +69,61 @@ It's useful when you want to notify other module about something, without knowin
 
 `CommunicationBridge` is implemented as a simple Pub/Sub mechanism, with the ability to publish and subscribe to messages.
 
-First, you need to tell `GraphQLApp` how do you wish to transmit your messages. GraphQL Modules provides a simple `CommunicationBridge` implementation based on `EventEmitter`.
+First, you need to tell `GraphQLModule` how do you wish to transmit your messages. GraphQL Modules provides a simple `CommunicationBridge` implementation based on `EventEmitter`.
 
-To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to your `GraphQLApp` instance:
+To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to a shared `GraphQLModule` instance:
 
 ```typescript
-import { GraphQLApp, EventEmitterCommunicationBridge } from '@graphql-modules/core';
+import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
-    communicationBridge: new EventEmitterCommunicationBridge(),
-    modules: [ /* ... */],
+const communicationBridge = new EventEmitterCommunicationBridge();
+
+const CommonModule = new GraphQLModule({
+    name: 'common',
+    providers: [
+      {
+        provide: CommunicationBridge,
+        useValue: communicationBridge
+      }
+      /* ... */
+    ]
+    imports: [ /* ... */],
 });
+```
+
+And don't forget to import this common module to the modules you want to use `CommunicationBridge`.
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+
+export const FooModule = new GraphQLModule({
+  name: 'foo',
+  imports: [
+    CommonModule
+  ]
+})
+```
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+
+export const BarModule = new GraphQLModule({
+  name: 'bar',
+  imports: [
+    CommonModule
+  ],
+  providers: [
+    MyProvider
+  ]
+})
 ```
 
 Then, to use `CommunicationBridge`, you can do the following:
 
 ```typescript
-import { injectable, CommunicationBridge } from '@graphql-modules/core';
+import { CommunicationBridge, Injectable } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them

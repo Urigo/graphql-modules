@@ -65,8 +65,6 @@ export const myModule = new GraphQLModule({
 
 ## With Providers
 
-You can also use `class`es to implement your resolvers. It makes it easier to implement and test, and as your app grows, it's easier to separate your modules to small pieces.
-
 `Provider`s are first-class citizen in GraphQL Modules - they can interact easily with other modules, access the module's configuration, manage it's lifecycle easily and more.
 
 To get to know how to use `Provider`s, in the next step, we will take the previous example and change it to use `Provider`.

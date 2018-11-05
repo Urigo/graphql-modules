@@ -17,16 +17,18 @@
     "clean": "lerna clean --yes && rm -rf node_modules",
     "release": "lerna publish --exact --force-publish=\"*\"",
     "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
+    "ci:release:canary": "lerna publish --force-publish=\"*\" --canary --exact --yes",
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
+    "reflect-metadata": "0.1.12",
     "@types/graphql": "14.0.3",
     "@types/jest": "23.3.9",
     "graphql": "14.0.2",
     "jest": "23.6.0",
-    "lerna": "3.4.3",
+    "lerna": "2.11.0",
     "rimraf": "2.6.2",
-    "ts-jest": "22.4.6",
+    "ts-jest": "23.10.4",
     "typedoc": "0.13.0",
     "typedoc-plugin-docusaurus": "1.0.14",
     "replace-in-file": "3.4.2"

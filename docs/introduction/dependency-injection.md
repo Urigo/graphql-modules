@@ -6,7 +6,7 @@ sidebar_label: Dependency Injection
 
 GraphQL Modules let you use dependency injection between your modules, and let you inject config, functions, classes and instances to your modules.
 
-We are wrapping **[InversifyJS](http://inversify.io/)** and expose a simple API that covers most of the use-cases of relations between backend modules.
+We expose a simple API that covers most of the use-cases of relations between backend modules.
 
 We learned not to force you to use dependency injection too early in the process, because dependency injection make sense on some specific use cases and you should need to use it only when it helps you move faster and as your codebase grows.
 
@@ -14,13 +14,14 @@ GraphQL Modules let you choose whether to use dependency injection or not.
 
 ## Providers
 
-Let's start by creating a simple class called `UserProvider`. We are also decorating it with a special decorator called `@injectable` - this mark the class as available to use using dependency injection.
+Let's start by creating a simple class called `UserProvider` with `@Injectable()` decorator.
 
 `modules/my-module/user.provider.ts`
-```typescript
-import { injectable } from '@graphql-modules/core';
 
-@injectable()
+```typescript
+import { Injectable } from '@graphql-modules/core';
+
+@Injectable()
 export class UserProvider {
 
 }
@@ -47,9 +48,9 @@ export const myModule = new GraphQLModule({
 Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
-import { injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class UserProvider {
     getUserById(id: string) {
         return {
@@ -62,14 +63,14 @@ export class UserProvider {
 
 > `Provider` lifecycle is by default as singleton, so you can use the implemented functions as util functions, but still use `this` to save global variables.
 
-And to use this function from our `Provider` in the actual resolver implementation, we need to access the GraphQL `context`, and get `injector` out of it:
+And to use this function from our Provider in the actual resolver implementation, we need to access the GraphQL context, and get injector out of it:
 
 ```typescript
-import { AppContext } from '@graphql-modules/core';
+import { ModuleContext } from '@graphql-modules/core';
 
 export default {
     Query: {
-        user: (_, { id }: { id: string }, { injector }: AppContext) =>
+        user: (_, { id }: { id: string }, { injector }: ModuleContext) =>
             injector.get(UserProvider).getUserById(id),
     },
     User: {
@@ -94,10 +95,10 @@ It could be either `class`, `string` or `Symbol`.
 To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/core';
 import { OtherProvider } from '../my-other-module/other.provider';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private otherProvider: OtherProvider) {
 
@@ -125,29 +126,21 @@ export const myModule = new GraphQLModule({
 This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other providers, without knowing the specific implementation:
 
 ```typescript
-import { injectable, inject } from '@graphql-modules/core';
+import { Injectable, Inject } from '@graphql-modules/core';
 
 interface IOtherProviderSignature {
     doSomething: () => void;
 }
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
+    constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
 
     }
 }
 ```
 
 > This is a very common and useful design-pattern related to dependency injection, and with the power of TypeScript interfaces, you can easily use it.
-
-## App-Level Providers
-
-Besides adding providers to each module, you can declare and add modules to your `GraphQLApp`.
-
-Add `providers: [...]` to your `GraphQLApp` declaration, and add there the list of `Provider`s you wish to expose.
-
-App-level providers are useful when you need to provide global instances and utils, such as logger, database instance, remote service connection and so on.
 
 ## Custom Injectables
 
@@ -174,7 +167,7 @@ export const myModule = new GraphQLModule({
 
 ### Value
 
-Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@inject`.
+Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@Inject`.
 
 You can use any value, and attach it to a dependency injection token.
 
@@ -195,43 +188,36 @@ export const myModule = new GraphQLModule({
 
 GraphQL Modules give you some built-in injectables, and you can inject them into your providers/resolvers and use them according to your need.
 
-### `AppInfo`
+### `OnRequest hook`
 
-With this injectable, you can get access to useful information: the current `GraphQLApp`, GraphQL Context, and the network request.
+With this, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
 
 ```typescript
-import { injectable, AppInfo, inject } from '@graphql-modules/core';
+import { Injectable, OnRequest } from '@graphql-modules/core';
 
-@injectable()
-export class MyProvider {
-    constructor(private appInfo: AppInfo) {
+@Injectable()
+export class MyProvider implements OnRequest {
 
-    }
-
-    doSomething() {
-        const networkRequest = this.appInfo.getRequest();
-        const currentContext = this.appInfo.getContext();
-        const graphQlApp = this.appInfo.getApp();
-
+    onRequest(networkRequest, currentContext, graphQlAppModule) {
         // ...do your magic...
     }
 }
 ```
 
-`AppInfo` [API is available here](/TODO)
+`onRequest` hook [API is available here](/TODO)
 
 ### `ModuleConfig(moduleName: string)`
 
-This injectable will fetch the a module's configuration object that passed via `withConfig`.
+This injectable will fetch the a module's configuration object that passed via `forRoot`.
 
 You can read more about [module configuration here](/TODO).
 
 ```typescript
-import { injectable, ModuleConfig, inject } from '@graphql-modules/core';
+import { ModuleConfig, Injectable, Inject } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
-    constructor(@inject(ModuleConfig('my-module')) private config) {
+    constructor(@Inject(ModuleConfig('my-module')) private config) {
 
     }
 }
@@ -246,9 +232,9 @@ The messages are built in a form of `string => any` - so the key of each message
 It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
-import { injectable, CommunicationBridge } from '@graphql-modules/core';
+import { CommunicationBridge } from '@graphql-modules/core';
 
-@injectable()
+@Injectable()
 export class MyProvider {
     constructor(private pubsub: CommunicationBridge) {
         // Listen to messages and handle them

@@ -160,11 +160,11 @@ If you are using JavaScript in your project and not TypeScript, you can either [
 
 ### With Babel
 
-If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@injectable` and `@inject` in a regular way.
+If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@Inject` in a regular way.
 
 ### Without decorators
 
-You can use `inject` and `injectable` as regular functions to wrap your arguments and classes, you can read more about it [in Inversify documentation](https://github.com/inversify/InversifyJS/blob/master/wiki/basic_js_example.md).
+You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes.
 
 ## Testing Environment
 

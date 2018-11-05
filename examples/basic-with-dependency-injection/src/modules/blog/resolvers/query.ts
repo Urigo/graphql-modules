@@ -1,9 +1,8 @@
+import { ModuleContext } from '@graphql-modules/core';
 import { Blog } from '../providers/blog';
-import { AppContext } from '@graphql-modules/core';
 
 export default {
   Query: {
-    posts: (_, args, { injector }: AppContext) =>
-      injector.get(Blog).allPosts(),
+    posts: (root, args, { injector }: ModuleContext) => injector.get(Blog).allPosts(),
   },
 };

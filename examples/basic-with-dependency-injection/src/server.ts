@@ -1,11 +1,13 @@
-import { GraphQLApp } from '@graphql-modules/core';
-import { ApolloServer, Config } from 'apollo-server';
+import { GraphQLModule } from '@graphql-modules/core';
+import { ApolloServer } from 'apollo-server';
 
-export async function run(app: GraphQLApp) {
-  const serverConfig = app.generateServerConfig<Config>({
+export async function bootstrap(AppModule: GraphQLModule) {
+  const { schema, context } = AppModule;
+  const server = new ApolloServer({
+    schema,
+    context,
     introspection: true,
   });
-  const server = new ApolloServer(serverConfig);
   const { url } = await server.listen();
 
   console.log(`Server ready at ${url}`);

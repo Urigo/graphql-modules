@@ -4,7 +4,6 @@
     "module": "commonjs",
     "target": "es5",
     "lib": ["es6", "esnext", "es2015"],
-    "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,

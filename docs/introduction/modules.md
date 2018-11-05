@@ -27,7 +27,7 @@ And as your application grows, modules can have:
 
 ## Modules Example
 
-To get a better understanding of modules structure and it's extendability, let's take for example an app with 3 modules:
+To get a better understanding of modules structure and it's extendability, let's take for example an app with 3 imports: 
 
 - Authentication (defines only what it needs for users' authentication)
 - Users (define what user in our app should have)
@@ -85,7 +85,6 @@ type User {
     profile: Profile!
 }
 ```
-
 
 #### Gallery Module
 

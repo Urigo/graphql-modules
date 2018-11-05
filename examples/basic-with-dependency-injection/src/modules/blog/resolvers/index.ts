@@ -1,9 +1,9 @@
-import post from './post';
 import query from './query';
 import user from './user';
+import post from './post';
 
 export default {
-  ...post,
   ...user,
   ...query,
+  ...post,
 };

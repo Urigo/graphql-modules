@@ -12,10 +12,9 @@ So let's start with a basic module definition:
 
 `modules/my-module/index.ts`
 ```typescript
-import { GraphQLModule, AppContext, injectable } from '@graphql-modules/core';
+import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
 
-@injectable()
 export class UsersProvider {
   
 }

@@ -8,6 +8,8 @@ GraphQL Modules has another powerful feature called Resolvers Composition.
 
 With this feature, you can easily make sure each one of your modules only does what it needs (it's business logic) and does not need to do things that are not related to it.
 
+## With Basic Resolvers
+
 For example - if you have a simple server with authentication, and you wish to make sure that one of your queries is protected and only allowed for authenticated user and for users that has `EDITOR` role set, it means that your resolver need to verify these rules as well:
 
 ```typescript
@@ -61,8 +63,8 @@ And let's create util functions in a different file, with the logic we removed.
 
 We will need to implement it just like a resolver, so let's create the same signature as GraphQL resolver, and we also need a way to tell GraphQL Modules that everything is okay (`next` function).
 
-```
-export const isAuthenticated = next => async (root, args, context, info) => {
+```typescript
+export const isAuthenticated = () => next => async (root, args, context, info) => {
     if (!context.currentUser) {
         throw new Error('You are not authenticated!');
     }
@@ -80,18 +82,16 @@ export const hasRole = (role: string) => next => async (root, args, context, inf
 ```
 
 
-Now, on our `GraphQLApp` declaration, let's add `resolversComposition` and add a map between `Type.field` to the function (or functions) we wish to wrap the resolver with:
+Now, on our `GraphQLModule` declaration, let's add `resolversComposition` and add a map between `Type.field` to the function (or functions) we wish to wrap the resolver with:
 
 ```typescript
-import { GraphQLApp } from '@graphql-modules/core';
-import { myModule } from './modules/my-module';
+import { GraphQLModule } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
-    modules: [
-        myModule,
-    ],
+const graphQlModule = new GraphQLModule({
+    name: 'my-module',
+    /*...*/
     resolversComposition: {
-        'Query.myQuery': [isAuthenticated, hasRole('EDITOR')],
+        'Query.myQuery': [isAuthenticated(), hasRole('EDITOR')],
     },
 });
 ```

@@ -9,10 +9,10 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.1.9",
-    "@graphql-modules/epoxy": "0.1.9",
-    "@graphql-modules/sonar": "0.1.9",
-    "apollo-server": "2.0.7",
+    "@graphql-modules/core": "*",
+    "@graphql-modules/epoxy": "*",
+    "@graphql-modules/sonar": "*",
+    "apollo-server": "2.1.0",
     "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
     "ts-node": "7.0.1",

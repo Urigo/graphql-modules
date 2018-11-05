@@ -38,16 +38,24 @@ export class MyCommunicationBridge implements CommunicationBridge {
 }
 ```
 
-Then, make sure to use it in your `GraphQLApp` declaration:
+Then, make sure to use it in a `GraphQLModule` declaration:
 
 ```typescript
-import { GraphQLApp, EventEmitterCommunicationBridge } from '@graphql-modules/core';
+import { GraphQLModule, CommunicationBridge } from '@graphql-modules/core';
 
-const graphQlApp = new GraphQLApp({
-    communicationBridge: new MyCommunicationBridge(),
-    modules: [ /* ... */],
+const CommunicationModule = new GraphQLModule({
+    name: 'my-module',
+    provider: [
+      {
+        provide: CommunicationBridge,
+        useValue: new MyCommunicationBridge()
+      }
+    ],
+    /* ... */
 });
 ```
+
+Finally, you need to import this `CommunicationModule` to all other modules you want to use `CommunicationBridge` inside of their providers and resolvers.
 
 ### Redis PubSub
 

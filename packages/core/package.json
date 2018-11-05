@@ -9,6 +9,11 @@
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
@@ -23,7 +28,7 @@
     ]
   },
   "peerDependencies": {
-    "reflect-metadata": "~0.1.12"
+    "reflect-metadata": "0.1.12"
   },
   "dependencies": {
     "@graphql-modules/epoxy": "0.1.9",
@@ -31,7 +36,6 @@
     "@graphql-modules/sonar": "0.1.9",
     "dependency-graph": "0.7.2",
     "graphql-tools": "4.0.3",
-    "inversify": "5.0.1",
     "tslib": "1.9.3"
   },
   "devDependencies": {

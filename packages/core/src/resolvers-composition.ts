@@ -1,10 +1,11 @@
 import { get, set } from 'lodash';
+import { IResolvers } from 'graphql-tools';
 
 export interface IResolversComposerMapping {
   [resolverPath: string]: any | any[];
 }
 
-function resolveRelevantMappings(resolvers: any, path: string, allMappings: IResolversComposerMapping): string[] {
+function resolveRelevantMappings(resolvers: IResolvers, path: string, allMappings: IResolversComposerMapping): string[] {
   const result: string[] = [];
   const splitted = path.split('.');
 
@@ -24,9 +25,9 @@ function resolveRelevantMappings(resolvers: any, path: string, allMappings: IRes
   return result;
 }
 
-const asArray = (fns: any) => (Array.isArray(fns) ? fns : [fns]);
+export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 
-function chainFunctions(funcs: any[]) {
+export function chainFunctions(funcs: any[]) {
   if (funcs.length === 1) {
     return funcs[0];
   }
@@ -42,7 +43,7 @@ function chainFunctions(funcs: any[]) {
  * @param mapping - resolvers composition mapping
  * @hidden
  */
-export function composeResolvers(resolvers: any, mapping: IResolversComposerMapping = {}): any {
+export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): IResolvers {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
     const relevantFields = resolveRelevantMappings(resolvers, resolverPath, mapping);
