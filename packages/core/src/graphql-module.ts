@@ -333,9 +333,15 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const prop in resolvers[type]) {
         const resolver = typeResolvers[prop];
         if (typeof resolver === 'function') {
-          typeResolvers[prop] = (root: any, args: any, context: any) => {
-            return resolver.call(typeResolvers, root, args, { injector, ...context });
-          };
+          if (prop !== '__resolveType') {
+            typeResolvers[prop] = (root: any, args: any, context: any, info: any) => {
+              return resolver.call(typeResolvers, root, args, { injector, ...context }, info);
+            };
+          } else {
+            typeResolvers[prop] = (root: any, context: any, info: any) => {
+              return resolver.call(typeResolvers, root, { injector, ...context }, info);
+            };
+          }
         }
       }
     }

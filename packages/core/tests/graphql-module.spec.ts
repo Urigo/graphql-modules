@@ -510,7 +510,7 @@ describe('GraphQLModule', () => {
       expect(contextValue.counter).toBe(0);
     });
 
-    it.only('should inject context correctly into `__resolveType`', async () => {
+    it('should inject context correctly into `__resolveType`', async () => {
       let hasInjector = false;
 
       const { schema, context } = new GraphQLModule({
