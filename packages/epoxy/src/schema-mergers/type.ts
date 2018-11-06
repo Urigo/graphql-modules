@@ -13,7 +13,7 @@ export function mergeType(node: ObjectTypeDefinitionNode, existingNode: ObjectTy
         loc: node.loc,
         fields: mergeFields(node.fields, existingNode.fields),
         directives: mergeDirectives(node.directives, existingNode.directives),
-        interfaces: mergeNamedTypeArray(node.interfaces, existingNode.interfaces),
+        interfaces: mergeNamedTypeArray(node.interfaces || [], existingNode.interfaces || []),
       };
     } catch (e) {
       throw new Error(`Unable to merge GraphQL type "${node.name.value}": ${e.message}`);

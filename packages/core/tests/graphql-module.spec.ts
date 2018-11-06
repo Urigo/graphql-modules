@@ -177,7 +177,7 @@ describe('GraphQLModule', () => {
           `directive @entity on OBJECT`,
           `directive @field on FIELD_DEFINITION`,
           `type A @entity { f: String }`,
-          `type Query { a: A }`,
+          `type Query { a: [A!] }`,
         ],
       });
       const m2 = new GraphQLModule({
@@ -185,7 +185,7 @@ describe('GraphQLModule', () => {
           `directive @entity on OBJECT`,
           `directive @field on FIELD_DEFINITION`,
           `type A @entity { f: String @field }`,
-          `type Query { a: A }`,
+          `type Query { a: [A!] }`,
         ],
       });
 
