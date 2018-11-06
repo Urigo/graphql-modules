@@ -510,79 +510,50 @@ describe('GraphQLModule', () => {
       expect(contextValue.counter).toBe(0);
     });
 
-    it.skip('should call resolvers composition in correct order with correct context - test nested types', async () => {
-      // We have 2 wrappers here: addUser - adds user to the context. checkRoles - depend on the user and check that he has roles.
-      // We wraps `Query.foo` with `addUser` and `checkRoles` and it works.
-      // Then, the `MyType` type has a field, and this field is wrapped only with `checkRoles`. Is should work because `MyType.f` resolver
-      // MUST get called after `Query.foo` resolver.
-
-      const addUser = next => (root, args, context, info) => {
-        context.user = {
-          id: 1,
-          name: 'Dotan',
-          roles: ['A', 'B'],
-        };
-
-        return next(root, args, context, info);
-      };
-
-      let hasUserInQueryRoot = false;
-      let hasUserInTypeField = false;
-
-      const checkRoles = next => (root, args, context, info) => {
-        // This should be true. When it's called with `addUser` before, it works.
-        // When we call `checkRoles` without `addUser` before - it's missing.
-
-        if (info.fieldName === 'foo') {
-          console.log(`Query.foo context.user value = `, context.user);
-          hasUserInQueryRoot = !!context.user;
-        } else if (info.fieldName === 'f') {
-          console.log(`MyType.f context.user value = `, context.user);
-          hasUserInTypeField = !!context.user;
-        }
-
-        if (context.user.roles.length > 0) {
-          return next(root, args, context, info);
-        }
-
-        return null;
-      };
+    it.only('should inject context correctly into `__resolveType`', async () => {
+      let hasInjector = false;
 
       const { schema, context } = new GraphQLModule({
         typeDefs: `
           type Query {
-            foo: MyType
+            something: MyBase
           }
 
-          type MyType {
-            f: String
+          interface MyBase {
+            id: String
+          }
+        
+          type MyType implements MyBase {
+            id: String
           }
         `,
         resolvers: {
           Query: {
-            foo: (root, args, context, info) => {
-              return { someValue: context.user.id };
+            something: () => {
+              return { someValue: 1 };
+            },
+          },
+          MyBase: {
+            __resolveType: (obj, context) => {
+              hasInjector = !!context.injector;
+
+              return 'MyType';
             },
           },
           MyType: {
-            f: v => v.someValue,
+            id: o => o.someValue,
           },
-        },
-        resolversComposition: {
-          'Query.foo': [addUser, checkRoles],
-          'MyType.f': [checkRoles],
         },
       });
       const contextValue = await context({ req: {} });
 
       await execute({
         schema,
-        document: gql`query { foo { f } }`,
+        document: gql`query { something { id } }`,
         contextValue,
       });
 
-      expect(hasUserInQueryRoot).toBeTruthy();
-      expect(hasUserInTypeField).toBeTruthy();
+      expect(hasInjector).toBeTruthy();
     });
   });
 });
