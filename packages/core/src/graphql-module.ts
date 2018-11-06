@@ -1,10 +1,10 @@
 import { IResolvers, makeExecutableSchema } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, ModuleContext, Injector as SimpleInjector } from './di/types';
+import { Provider, ModuleContext, Injector } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers, asArray } from './resolvers-composition';
-import { Injector } from './di';
 import { DepGraph } from 'dependency-graph';
+import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError } from './errors';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -12,7 +12,7 @@ import { DepGraph } from 'dependency-graph';
 export type BuildContextFn<Request, Context> = (
   networkRequest: Request,
   currentContext: ModuleContext<Context>,
-  injector: SimpleInjector,
+  injector: Injector,
 ) => Promise<Context>;
 
 /**
@@ -111,7 +111,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     private _moduleConfig: Config = {} as Config,
     ) {
       _options = _options || {};
-      _options.name = _options.name || Math.random().toString();
+      _options.name = _options.name || Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
     }
 
   /**
@@ -145,7 +145,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   /**
    * Gets the application dependency-injection injector
    */
-  get injector(): SimpleInjector {
+  get injector(): Injector {
 
     if (!this._cache.injector) {
       this.buildSchemaAndInjector(this.modulesMap);
@@ -302,7 +302,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
       const typeDefs = module._cache.typeDefs;
       const resolvers = module._cache.resolvers;
-      const injector = module._cache.injector as Injector;
+      const injector = module._cache.injector;
       const contextBuilder = module._cache.contextBuilder;
 
       if (typeDefs && typeDefs.length) {
@@ -368,7 +368,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         });
       } catch (e) {
         if (e.message !== 'Must provide typeDefs') {
-          throw e;
+          throw new SchemaNotValidError(this.name, e.message);
         }
       }
     }
@@ -439,6 +439,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         if (!modulesMap.has(module.name)) {
           modulesMap.set(module.name, module);
           for (const subModule of module.selfImports) {
+            if (!subModule) {
+              throw new DependencyModuleUndefinedError(module.name);
+            }
             if (typeof subModule !== 'string') {
               visitModule(subModule);
             }
@@ -466,7 +469,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.name;
           subModule = modulesMap.get(subModuleOrigName);
           if (!subModule) {
-            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.name}!`);
+            throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
           }
           try {
             graph.addDependency(
@@ -474,7 +477,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
                 subModule.name,
             );
           } catch (e) {
-            throw new Error(`Module ${subModuleOrigName} is not defined, which is trying to be imported by ${module.name}!`);
+            throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
           }
           // prevent infinite loop in case of circular dependency
           if (!visitedModulesToAddDependency.has(subModule.name)) {

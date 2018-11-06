@@ -1,5 +1,5 @@
 import { GraphQLModule } from '../graphql-module';
-export { Inject, Injectable } from './index';
+import { Injector } from './injector';
 
 interface Newable<T> {
   new (...args: any[]): T;
@@ -34,10 +34,6 @@ export interface BaseProvider<T> {
 export interface TypeProvider<T> extends Type<T> {}
 
 export type Provider<T = any> = TypeProvider<T> | ValueProvider<T> | ClassProvider<T> | FactoryProvider<T>;
-
-export interface Injector {
-  get<T>(serviceIdentifier: ServiceIdentifier<T>): T;
-}
 
 export type ModuleContext<Context = { [key: string]: any }> = Context & { injector: Injector };
 

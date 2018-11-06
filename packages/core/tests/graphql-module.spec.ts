@@ -6,12 +6,12 @@ import {
   Inject,
   ModuleConfig,
   ModuleContext,
-  OnRequest
+  OnRequest,
 } from '../src';
 import { execute, GraphQLSchema, printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { DependencyNotFoundError, Injectable } from '../src/di';
+import { DependencyProviderNotFoundError, Injectable } from '../src';
 
 describe('GraphQLModule', () => {
   // A
@@ -306,7 +306,7 @@ describe('GraphQLModule', () => {
 
       const module1 = new GraphQLModule({
         imports: () => [module2],
-        providers: () => [Provider1]
+        providers: () => [Provider1],
       }).forRoot({ test: 1 });
       const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({ test: 2 });
 
@@ -352,7 +352,7 @@ describe('GraphQLModule', () => {
         const { injector } = new GraphQLModule({ imports: [moduleA, moduleB] });
         injector.get(ProviderB);
       } catch (e) {
-        expect(e instanceof DependencyNotFoundError).toBeTruthy();
+        expect(e instanceof DependencyProviderNotFoundError).toBeTruthy();
         expect(e.dependent === ProviderB).toBeTruthy();
         expect(e.dependency === ProviderA).toBeTruthy();
       }
@@ -390,7 +390,7 @@ describe('GraphQLModule', () => {
         contextValue,
       });
       expect(result.data.test).toBeNull();
-      expect(result.errors[0].message).toBe('ProviderB not provided in that scope!');
+      expect(result.errors[0].message).toContain('ProviderB not provided in that scope!');
     });
   });
   describe('CommuncationBridge', async () => {
