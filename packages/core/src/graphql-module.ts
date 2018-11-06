@@ -4,7 +4,7 @@ import { Provider, ModuleContext, Injector } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers, asArray } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
-import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError } from './errors';
+import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -332,7 +332,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       // tslint:disable-next-line:forin
       for (const prop in resolvers[type]) {
         const resolver = typeResolvers[prop];
-        if (resolver) {
+        if (typeof resolver === 'function') {
           typeResolvers[prop] = (root: any, args: any, context: any) => {
             return resolver.call(typeResolvers, root, args, { injector, ...context });
           };
@@ -368,7 +368,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         });
       } catch (e) {
         if (e.message !== 'Must provide typeDefs') {
-          throw new SchemaNotValidError(this.name, e.message);
+          if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
+            const typeDef = e.message.replace('Type "', '').replace('" not found in document.', '');
+            throw new TypeDefNotFoundError(typeDef, this.name);
+          } else {
+            throw new SchemaNotValidError(this.name, e.message);
+          }
         }
       }
     }
