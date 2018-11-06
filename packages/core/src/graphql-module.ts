@@ -13,7 +13,7 @@ export type BuildContextFn<Request, Context> = (
   networkRequest: Request,
   currentContext: ModuleContext<Context>,
   injector: Injector,
-) => Promise<Context>;
+) => Promise<Context> | Context;
 
 /**
  * Defines the structure of a dependency as it declared in each module's `dependencies` field.
