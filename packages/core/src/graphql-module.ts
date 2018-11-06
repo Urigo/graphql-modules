@@ -365,6 +365,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         this._cache.schema = makeExecutableSchema({
           typeDefs: mergedTypeDefs,
           resolvers: composedResolvers,
+          resolverValidationOptions: {
+            requireResolversForArgs: false,
+            requireResolversForNonScalar: false,
+            requireResolversForAllFields: false,
+            requireResolversForResolveType: false,
+            allowResolversNotInSchema: true,
+          },
         });
       } catch (e) {
         if (e.message !== 'Must provide typeDefs') {
