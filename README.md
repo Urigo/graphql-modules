@@ -27,11 +27,13 @@ Documentation is available at [graphql-modules.com](https://graphql-modules.com/
 
 To install graphql-modules, use the following:
 
-    $ npm install @graphql-modules/core
+```sh
+$ npm install @graphql-modules/core
     
-    // Or, with Yarn
+# Or, with Yarn
     
-    $ yarn add @graphql-modules/core
+$ yarn add @graphql-modules/core
+```
 
 Or, in alternative, just use the graphql-modules-seed to get started:
 
