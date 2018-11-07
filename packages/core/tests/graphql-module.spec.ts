@@ -8,10 +8,11 @@ import {
   ModuleContext,
   OnRequest,
 } from '../src';
-import { execute, GraphQLSchema, printSchema } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
+import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 describe('GraphQLModule', () => {
   // A
@@ -522,7 +523,7 @@ describe('GraphQLModule', () => {
           interface MyBase {
             id: String
           }
-        
+
           type MyType implements MyBase {
             id: String
           }
@@ -554,6 +555,65 @@ describe('GraphQLModule', () => {
       });
 
       expect(hasInjector).toBeTruthy();
+    });
+  });
+  describe('Schema Directives', async () => {
+    it('should handle schema directives', async () => {
+
+      const typeDefs = `
+      directive @date on FIELD_DEFINITION
+
+      scalar Date
+
+      type Query {
+        today: Date @date
+      }`;
+
+      class FormattableDateDirective extends SchemaDirectiveVisitor {
+        public visitFieldDefinition(field) {
+          const { resolve = defaultFieldResolver } = field;
+
+          field.args.push({
+            name: 'format',
+            type: GraphQLString,
+          });
+
+          field.resolve = async function(
+            source,
+            args,
+            context,
+            info,
+          ) {
+            const date = await resolve.call(this, source, args, context, info);
+            return date.toLocaleDateString();
+          };
+
+          field.type = GraphQLString;
+        }
+      }
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs,
+        resolvers: {
+          Query: {
+            today: () => new Date(),
+          },
+        },
+        schemaDirectives: {
+          date: FormattableDateDirective,
+        },
+      });
+
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { today }`,
+        contextValue,
+      });
+
+      expect(result.data['today']).toEqual(new Date().toLocaleDateString());
+
     });
   });
 });
