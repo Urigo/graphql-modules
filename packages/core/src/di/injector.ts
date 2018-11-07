@@ -110,7 +110,12 @@ export class Injector {
 
     const instance = this.getByProvider(provider);
 
-    if (instance && 'onRequest' in instance) {
+    if (
+      instance &&
+      typeof instance !== 'string' &&
+      typeof instance !== 'number' &&
+      'onRequest' in instance
+      ) {
       return instance.onRequest(request, context, appModule);
     }
   }

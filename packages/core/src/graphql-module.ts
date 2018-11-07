@@ -69,7 +69,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
  * the module's name.
  * You can use this later with `@Inject` in your `Provider`s.
  *
- * @param name - the name of the module
+ * @param module
  * @constructor
  */
 export const ModuleConfig = (module: string | GraphQLModule) =>
