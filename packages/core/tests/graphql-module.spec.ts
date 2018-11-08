@@ -171,15 +171,6 @@ describe('GraphQLModule', () => {
     expect(app.schema).toBeDefined();
   });
 
-  it('should handle providedIn', async () => {
-    const module = new GraphQLModule({});
-    @Injectable({
-      providedIn: module,
-    })
-    class ProviderA {}
-    expect(module.injector.get(ProviderA) instanceof ProviderA).toBeTruthy();
-  });
-
   describe('Schema merging', () => {
     it('should merge types and directives correctly', async () => {
       const m1 = new GraphQLModule({

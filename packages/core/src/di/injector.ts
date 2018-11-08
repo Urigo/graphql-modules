@@ -1,5 +1,5 @@
 import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
-import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider, INJECTABLE_OPTIONS } from '../utils';
+import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from '../utils';
 import { GraphQLModule } from '../graphql-module';
 import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
 
@@ -61,30 +61,8 @@ export class Injector {
             }
           }
         }
-        if (isType(serviceIdentifier) && this.checkInjectableOptions(serviceIdentifier)) {
-          this._types.add(serviceIdentifier);
-          const instance = this.instantiate<T>(serviceIdentifier);
-          this._instanceMap.set(serviceIdentifier, instance);
-          return instance;
-        }
         throw new ServiceIdentifierNotFoundError(serviceIdentifier, this.moduleName);
       }
-  }
-
-  private checkInjectableOptions(clazz: any) {
-    if (Reflect.hasMetadata(INJECTABLE_OPTIONS, clazz)) {
-      let { providedIn } = Reflect.getMetadata(INJECTABLE_OPTIONS, clazz);
-      if (typeof providedIn === 'function') {
-        providedIn = providedIn();
-      }
-      if (typeof providedIn === 'string') {
-        return providedIn === this.moduleName;
-      } else if (providedIn instanceof GraphQLModule) {
-        console.log(providedIn.name, this.moduleName);
-        return providedIn.name === this.moduleName;
-      }
-    }
-    return false;
   }
 
   public instantiate<T>(clazz: any): T {

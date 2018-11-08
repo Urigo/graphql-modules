@@ -1,7 +1,6 @@
 import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, FactoryProvider, TypeProvider } from './di/types';
 
 export const DESIGN_PARAM_TYPES = 'design:paramtypes';
-export const INJECTABLE_OPTIONS = 'injectable:options';
 
 export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
   if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {
