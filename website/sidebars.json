@@ -13,6 +13,7 @@
       "introduction/modules",
       "introduction/your-first-module",
       "introduction/integrate-with-apollo-server",
+      "introduction/integrate-with-graphql-code-generator",
       "introduction/implement-your-resolvers",
       "introduction/dependencies",
       "introduction/dependency-injection",

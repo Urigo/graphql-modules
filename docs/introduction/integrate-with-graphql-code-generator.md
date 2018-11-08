@@ -6,14 +6,12 @@ sidebar_label: Integrate With GraphQL Code Generator
 
 GraphQL Modules comes with a built-in support for [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator)
 
-To get started, add `graphql-code-generator` and `graphql-codegen-typescript-template` to your app.
+To get started, add `graphql-code-generator` and any template such as `graphql-codegen-typescript-template` to your app:
 
-```bash
-yarn add graphql-code-generator graphql-codegen-typescript-template
-```
+    $ yarn add graphql-code-generator graphql-codegen-typescript-template
 
 And create `schema.ts` to expose merged `typeDefs` of your GraphQL Modules application.
-Note that, GraphQL Modules won't load any other things such as injector, resolvers and providers when you just try to get `typeDefs` from your top module; because GraphQL Modules loads every part of module lazily.
+Note that GraphQL Modules won't load any other things such as injectors, resolvers and providers when you just try to get `typeDefs` from your top module; because GraphQL Modules loads every part of module in a lazy way.
 
 So, that
 
