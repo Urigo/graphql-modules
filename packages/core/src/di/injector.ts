@@ -6,7 +6,7 @@ import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, Provid
 declare var Reflect: any;
 
 export class Injector {
-  public children = new Array<Injector>();
+  public children = new Set<Injector>();
   private _types = new Set<any>();
   private _valueMap = new Map();
   private _classMap = new Map();
