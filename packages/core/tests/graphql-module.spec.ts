@@ -171,6 +171,15 @@ describe('GraphQLModule', () => {
     expect(app.schema).toBeDefined();
   });
 
+  it('should handle providedIn', async () => {
+    const module = new GraphQLModule({});
+    @Injectable({
+      providedIn: module,
+    })
+    class ProviderA {}
+    expect(module.injector.get(ProviderA) instanceof ProviderA).toBeTruthy();
+  });
+
   describe('Schema merging', () => {
     it('should merge types and directives correctly', async () => {
       const m1 = new GraphQLModule({
@@ -391,7 +400,7 @@ describe('GraphQLModule', () => {
         contextValue,
       });
       expect(result.data.test).toBeNull();
-      expect(result.errors[0].message).toContain('ProviderB not provided in that scope!');
+      expect(result.errors[0].message).toContain('ProviderB not provided in');
     });
   });
   describe('CommuncationBridge', async () => {

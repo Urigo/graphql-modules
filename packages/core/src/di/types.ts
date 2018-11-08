@@ -29,6 +29,7 @@ export interface FactoryProvider<T> extends BaseProvider<T> {
 
 export interface BaseProvider<T> {
   provide: ServiceIdentifier<T>;
+  overwrite?: boolean;
 }
 
 export interface TypeProvider<T> extends Type<T> {}
