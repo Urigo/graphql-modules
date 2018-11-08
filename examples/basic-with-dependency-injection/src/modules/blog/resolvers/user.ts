@@ -1,10 +1,10 @@
+import { ResolversHandler } from '@graphql-modules/core';
 import { Blog } from '../providers/blog';
-import { ModuleContext } from '@graphql-modules/core';
 
-// Example with injector in context
-
-export default {
-  User: {
-    posts: (user, args, { injector }: ModuleContext) => injector.get(Blog).getPostsOf(user._id),
-  },
-};
+@ResolversHandler('User')
+export class UserResolversHandler {
+  constructor(private blog: Blog) {}
+  posts(user) {
+    return this.blog.getPostsOf(user._id);
+  }
+}

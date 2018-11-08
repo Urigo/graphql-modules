@@ -1,11 +1,15 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import { Users } from './providers/users';
-import resolvers from './resolvers';
 import gql from 'graphql-tag';
+import { QueryResolversHandler } from './resolvers/query';
+import { UserResolversHandler } from './resolvers/user';
 
 export const UserModule = new GraphQLModule({
   providers: [Users],
-  resolvers,
+  resolversHandlers: [
+    QueryResolversHandler,
+    UserResolversHandler,
+  ],
   typeDefs: gql`
     type User {
       id: String

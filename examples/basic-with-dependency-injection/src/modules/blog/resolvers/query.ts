@@ -1,8 +1,10 @@
-import { ModuleContext } from '@graphql-modules/core';
+import { ResolversHandler } from '@graphql-modules/core';
 import { Blog } from '../providers/blog';
 
-export default {
-  Query: {
-    posts: (root, args, { injector }: ModuleContext) => injector.get(Blog).allPosts(),
-  },
-};
+@ResolversHandler('Query')
+export class QueryResolversHandler {
+  constructor(private blog: Blog) {}
+  posts() {
+    return this.blog.allPosts();
+  }
+}

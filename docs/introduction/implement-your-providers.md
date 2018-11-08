@@ -80,3 +80,44 @@ export const MyModule = new GraphQLModule({
     ],
 });
 ```
+
+### With Resolvers Handlers
+
+If you implement handler `class`es for your resolvers in GraphQLModule. You can inject **Providers** like you do in other **Providers**.
+
+`modules/my-module/query.handler.ts`
+
+```typescript
+
+import { ResolversHandler } from '@graphql-modules/core';
+import { UserProvider } from './user.provider';
+ @ResolversHandler('Query')
+export class QueryResolvers {
+  constructor(private userProvider: UserProvider){}
+  user(root, { id }){
+    return this.userProvider.getUserById(id);
+  }
+}
+
+```
+
+Then use those resolvers handler in your module definition 
+
+`modules/my-module/index.ts`
+
+ ```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+import * as typeDefs from './schema.graphql';
+import { QueryResolvers } from './query.handler';
+import { UserProvider } from './user.provider';
+ export const myModule = new GraphQLModule({
+    name: 'my-module',
+    typeDefs,
+    resolversHandlers: [
+      QueryResolvers
+    ],
+    providers: [
+      UserProvider
+    ],
+});
+```

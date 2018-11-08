@@ -5,6 +5,9 @@ import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers, asArray } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
+import { RESOLVERS_TYPE } from './utils';
+
+declare var Reflect: any;
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -69,6 +72,8 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: IResolversComposerMapping | ((config: Config) => IResolversComposerMapping);
   schemaDirectives?: ISchemaDirectives | ((config: Config) => ISchemaDirectives);
+  /** Resolver Handlers */
+  resolversHandlers?: any[] | ((config: Config) => any[]);
 }
 
 /**
@@ -313,6 +318,19 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return schemaDirectives;
   }
 
+  get selfResolversHandlers() {
+    let resolversHandlers = [];
+    const resolversHandlersDefinitions = this._options.resolversHandlers;
+     if (resolversHandlersDefinitions) {
+      if (typeof resolversHandlersDefinitions === 'function') {
+        resolversHandlers = resolversHandlersDefinitions(this._moduleConfig);
+      } else {
+        resolversHandlers = resolversHandlersDefinitions;
+      }
+    }
+    return resolversHandlers;
+  }
+
   private buildSchemaAndInjector(modulesMap: ModulesMap<Request>) {
     const imports = this.selfImports;
     const importsTypeDefs = new Array<string>();
@@ -358,6 +376,21 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     const resolvers = this.selfResolvers;
+
+    const resolversHandlers = this.selfResolversHandlers;
+     for ( const resolversHandler of resolversHandlers ) {
+      injector.provide(resolversHandler);
+      const resolversHandlerInstance = injector.get(resolversHandler);
+      const typeResolvers = {};
+      const resolversType = Reflect.getMetadata(RESOLVERS_TYPE, resolversHandler);
+      for ( const prop of Object.getOwnPropertyNames(Object.getPrototypeOf(resolversHandlerInstance))) {
+        if (prop !== 'constructor') {
+          typeResolvers[prop] = (...args: any[]) => resolversHandlerInstance[prop](...args);
+        }
+      }
+      resolvers[resolversType] = typeResolvers;
+    }
+
     // tslint:disable-next-line:forin
     for ( const type in resolvers ) {
       const typeResolvers = resolvers[type];
@@ -604,6 +637,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         imports: [],
         providers: [],
         resolversComposition: {},
+        schemaDirectives: {},
+        resolversHandlers: [],
       };
       for (const module of modules) {
         mergedOptions.name += module.name + '+';
@@ -627,6 +662,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           ...mergedOptions.resolversComposition as IResolversComposerMapping,
           ...module.selfResolversComposition,
         };
+        mergedOptions.schemaDirectives = {
+          ...mergedOptions.schemaDirectives as ISchemaDirectives,
+          ...module.selfSchemaDirectives,
+        };
+        mergedOptions.resolversHandlers = [
+          ...mergedOptions.resolversHandlers as any[],
+          ...module.selfResolversHandlers,
+        ];
       }
       return new GraphQLModule(mergedOptions);
     }

@@ -1,9 +1,13 @@
 import { Users } from '../providers/users';
-import { ModuleContext } from '@graphql-modules/core';
+import { ResolversHandler } from '@graphql-modules/core';
 
-export default {
-  Query: {
-    users: (root, args, {injector}: ModuleContext) => injector.get(Users).allUsers(),
-    user: (root, { id }, {injector}: ModuleContext) => injector.get(Users).getUser(id),
-  },
-};
+@ResolversHandler('Query')
+export class QueryResolversHandler {
+  constructor(private _users: Users) {}
+  users() {
+    return this._users.allUsers();
+  }
+  user(_, { id }) {
+    return this._users.getUser(id);
+  }
+}

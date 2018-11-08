@@ -7,6 +7,7 @@ import {
   ModuleConfig,
   ModuleContext,
   OnRequest,
+  ResolversHandler,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
@@ -613,6 +614,135 @@ describe('GraphQLModule', () => {
       });
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
+
+    });
+  });
+  describe('Resolvers Handlers', async () => {
+    it('should handle resolvers handlers as regular resolvers', async () => {
+      const foo = 'FOO';
+      @ResolversHandler('Query')
+      class QueryResolversHandlers {
+        foo() {
+          return foo;
+        }
+      }
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          scalar Date
+          type Query {
+            foo: String
+          }
+        `,
+        resolversHandlers: [
+          QueryResolversHandlers,
+        ],
+      });
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue,
+      });
+
+      expect(result.data['foo']).toBe(foo);
+
+    });
+    it('should handle DI correctly in resolvers handlers', async () => {
+      const foo = 'FOO';
+      @Injectable()
+      class FooProvider {
+        getFoo() {
+          return foo;
+        }
+      }
+      @ResolversHandler('Query')
+      class QueryResolversHandlers {
+        constructor(private fooProvider: FooProvider) {}
+        foo() {
+          return this.fooProvider.getFoo();
+        }
+      }
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          scalar Date
+          type Query {
+            foo: String
+          }
+        `,
+        resolversHandlers: [
+          QueryResolversHandlers,
+        ],
+        providers: [
+          FooProvider,
+        ],
+      });
+
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue,
+      });
+
+      expect(result.data['foo']).toBe(foo);
+    });
+    it('should handle resolvers composition inside resolvers handlers as decorators', async () => {
+
+      let message = '';
+
+      const bar = msg => next => (root, args, context, info) => {
+        message = msg;
+        return next(root, args, context, info);
+      };
+
+      const foo = 'FOO';
+      @Injectable()
+      class FooProvider {
+        getFoo() {
+          return foo;
+        }
+      }
+      @ResolversHandler('Query')
+      class QueryResolversHandlers {
+        constructor(private fooProvider: FooProvider) {}
+
+        foo() {
+          return this.fooProvider.getFoo();
+        }
+
+      }
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          scalar Date
+          type Query {
+            foo: String
+          }
+        `,
+        resolversHandlers: [
+          QueryResolversHandlers,
+        ],
+        providers: [
+          FooProvider,
+        ],
+        resolversComposition: {
+          'Query.foo': bar('BAR'),
+        },
+      });
+
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue,
+      });
+
+      expect(result.data['foo']).toBe(foo);
+      expect(message).toBe('BAR');
 
     });
   });

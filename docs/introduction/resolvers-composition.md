@@ -8,8 +8,6 @@ GraphQL Modules has another powerful feature called Resolvers Composition.
 
 With this feature, you can easily make sure each one of your modules only does what it needs (it's business logic) and does not need to do things that are not related to it.
 
-## With Basic Resolvers
-
 For example - if you have a simple server with authentication, and you wish to make sure that one of your queries is protected and only allowed for authenticated user and for users that has `EDITOR` role set, it means that your resolver need to verify these rules as well:
 
 ```typescript

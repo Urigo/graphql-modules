@@ -38,3 +38,19 @@ Then, add a script in `package.json` to generate types easily.
 }
 ```
 
+Finally, you can use those typings anywhere in your project.
+
+ ```typescript
+import { ResolversHandler, ModuleContext } from '@graphql-modules/core';
+import { QueryResolvers } from './generated-types';
+
+@ResolversHandler('Query')
+export class QueryResolversHandler implements QueryResolvers.Resolvers<ModuleContext> {
+  user(root, args, context){ // root and args are typed here
+    return {
+      _id: args.id,
+      username: 'jhon',
+    };
+  }
+}
+```
