@@ -5,6 +5,7 @@ import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers, asArray } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
+import deepmerge = require('deepmerge');
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -408,7 +409,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const schemaDirectivesToBeMerged = new Set(importsSchemaDirectives);
     schemaDirectivesToBeMerged.add(this.selfSchemaDirectives);
 
-    const mergedSchemaDirectives = [...schemaDirectivesToBeMerged].reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    const mergedSchemaDirectives = deepmerge.all([...schemaDirectivesToBeMerged]) as ISchemaDirectives;
 
     this._cache.schemaDirectives = mergedSchemaDirectives;
 
@@ -417,7 +418,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.contextBuilder = async networkRequest => {
       const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
-      const importsContext = importsContextArr.reduce((acc, curr) => ({...acc, ...curr as any}), {});
+      const importsContext = deepmerge.all(importsContextArr as any[]) as any;
       const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, this._cache.injector) : async () => ({}));
       const builtResult = {
         ...importsContext,
@@ -651,8 +652,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       );
       const imports = [...importsSet];
       const providers = [...providersSet];
-      const resolversComposition = [...resolversCompositionSet].reduce((acc, curr) => ({...acc, ...curr}));
-      const schemaDirectives = [...schemaDirectivesSet].reduce((acc, curr) => ({...acc, ...curr}));
+      const resolversComposition = deepmerge.all([...resolversCompositionSet]);
+      const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
       return new GraphQLModule<Config, Request, Context>({
         name,
         typeDefs,
