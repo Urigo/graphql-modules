@@ -1,68 +1,91 @@
 import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
-import { isType, isValue, isClass, isFactory, DESIGN_PARAM_TYPES } from '../utils';
+import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider, INJECTABLE_OPTIONS } from '../utils';
 import { GraphQLModule } from '../graphql-module';
-import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError } from '../errors';
+import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
 
 declare var Reflect: any;
 
 export class Injector {
-  children = new Array<Injector>();
-  types = new Array<any>();
-  valueMap = new Map();
-  classMap = new Map();
-  factoryMap = new Map();
-  instanceMap = new Map();
+  public children = new Array<Injector>();
+  private _types = new Set<any>();
+  private _valueMap = new Map();
+  private _classMap = new Map();
+  private _factoryMap = new Map();
+  private _instanceMap = new Map();
+  constructor(public moduleName: string) {}
   public provide<T>(provider: Provider<T>): void {
-    if (Array.isArray(provider)) {
-      return provider.forEach(p => this.provide(p));
-    }
-    if (isType(provider)) {
-      this.types.push(provider);
-    } else if (isValue(provider)) {
-      this.valueMap.set(provider.provide, provider.useValue);
-    } else if (isClass(provider)) {
-      this.classMap.set(provider.provide, provider.useClass);
-    } else if (isFactory(provider)) {
-      this.factoryMap.set(provider.provide, provider.useFactory);
+    if (isTypeProvider(provider)) {
+      this._types.add(provider);
+    } else if (isValueProvider(provider)) {
+      if (this._valueMap.has(provider.provide) && !provider.overwrite) {
+        throw new Error(`Provider #`);
+      }
+      this._valueMap.set(provider.provide, provider.useValue);
+    } else if (isClassProvider(provider)) {
+      this._classMap.set(provider.provide, provider.useClass);
+    } else if (isFactoryProvider(provider)) {
+      this._factoryMap.set(provider.provide, provider.useFactory);
     } else {
-      throw new Error(`Couldn't provide  ${provider}`);
+      throw new ProviderNotValidError(this.moduleName, provider['provide'] && JSON.stringify(provider));
     }
   }
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
-    if (this.types.includes(serviceIdentifier)) {
-      if (!this.instanceMap.has(serviceIdentifier)) {
-        this.instanceMap.set(serviceIdentifier, this.instantiate(serviceIdentifier));
-      }
-      return this.instanceMap.get(serviceIdentifier);
-    } else if (this.valueMap.has(serviceIdentifier)) {
-      return this.valueMap.get(serviceIdentifier);
-    } else if (this.classMap.has(serviceIdentifier)) {
-      const realClazz = this.classMap.get(serviceIdentifier);
-      if (!this.instanceMap.has(realClazz)) {
-        this.instanceMap.set(realClazz, this.instantiate(realClazz));
-      }
-      return this.instanceMap.get(realClazz);
-    } else if (this.factoryMap.has(serviceIdentifier)) {
-      if (!this.instanceMap.has(serviceIdentifier)) {
-        const factory = this.factoryMap.get(serviceIdentifier);
-        this.instanceMap.set(serviceIdentifier, this.callFactory(factory));
-      }
-      return this.instanceMap.get(serviceIdentifier);
-    } else {
-      for (const child of this.children) {
-        try {
-          return child.get(serviceIdentifier);
-        } catch (e) {
-          if (e instanceof ServiceIdentifierNotFoundError) {
-            continue;
-          } else {
-            throw e;
+      if (this._types.has(serviceIdentifier)) {
+        if (!this._instanceMap.has(serviceIdentifier)) {
+          this._instanceMap.set(serviceIdentifier, this.instantiate(serviceIdentifier));
+        }
+        return this._instanceMap.get(serviceIdentifier);
+      } else if (this._valueMap.has(serviceIdentifier)) {
+        return this._valueMap.get(serviceIdentifier);
+      } else if (this._classMap.has(serviceIdentifier)) {
+        const realClazz = this._classMap.get(serviceIdentifier);
+        if (!this._instanceMap.has(realClazz)) {
+          this._instanceMap.set(realClazz, this.instantiate(realClazz));
+        }
+        return this._instanceMap.get(realClazz);
+      } else if (this._factoryMap.has(serviceIdentifier)) {
+        if (!this._instanceMap.has(serviceIdentifier)) {
+          const factory = this._factoryMap.get(serviceIdentifier);
+          this._instanceMap.set(serviceIdentifier, this.callFactory(factory));
+        }
+        return this._instanceMap.get(serviceIdentifier);
+      } else {
+        for (const child of this.children) {
+          try {
+            return child.get(serviceIdentifier);
+          } catch (e) {
+            if (e instanceof ServiceIdentifierNotFoundError) {
+              continue;
+            } else {
+              throw e;
+            }
           }
         }
+        if (isType(serviceIdentifier) && this.checkInjectableOptions(serviceIdentifier)) {
+          this._types.add(serviceIdentifier);
+          const instance = this.instantiate<T>(serviceIdentifier);
+          this._instanceMap.set(serviceIdentifier, instance);
+          return instance;
+        }
+        throw new ServiceIdentifierNotFoundError(serviceIdentifier, this.moduleName);
       }
-      throw new ServiceIdentifierNotFoundError(serviceIdentifier);
+  }
+
+  private checkInjectableOptions(clazz: any) {
+    if (Reflect.hasMetadata(INJECTABLE_OPTIONS, clazz)) {
+      let { providedIn } = Reflect.getMetadata(INJECTABLE_OPTIONS, clazz);
+      if (typeof providedIn === 'function') {
+        providedIn = providedIn();
+      }
+      if (typeof providedIn === 'string') {
+        return providedIn === this.moduleName;
+      } else if (providedIn instanceof GraphQLModule) {
+        console.log(providedIn.name, this.moduleName);
+        return providedIn.name === this.moduleName;
+      }
     }
-}
+    return false;
+  }
 
   public instantiate<T>(clazz: any): T {
     try {
@@ -75,7 +98,7 @@ export class Injector {
       return instance;
     } catch (e) {
       if (e instanceof ServiceIdentifierNotFoundError) {
-        throw new DependencyProviderNotFoundError(e.serviceIdentifier, clazz);
+        throw new DependencyProviderNotFoundError(e.serviceIdentifier, clazz, this.moduleName);
       } else {
         throw e;
       }
@@ -95,9 +118,6 @@ export class Injector {
   }
 
   public init<T>(provider: Provider<T>): void {
-    if (Array.isArray(provider)) {
-      return provider.forEach(p => this.init(p));
-    }
     this.getByProvider(provider);
   }
 

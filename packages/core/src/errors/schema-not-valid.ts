@@ -2,7 +2,7 @@ export class SchemaNotValidError extends Error {
   constructor(moduleName: string, error: string) {
     super(`
       GraphQL-Modules Error: Schema is not valid!
-      - Module #${moduleName} doesn't have a valid schema!
+      - #Module #${moduleName} doesn't have a valid schema!
       -- ${error}
 
       Possible solutions:

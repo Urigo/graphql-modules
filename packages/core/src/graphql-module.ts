@@ -313,7 +313,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       importsContextBuilders.push(contextBuilder);
     }
 
-    const injector = new Injector();
+    const injector = new Injector(this.name);
     injector.children = importsInjectors;
 
     const providers = this.selfProviders;
