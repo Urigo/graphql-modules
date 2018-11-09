@@ -25,7 +25,7 @@ Next, create (or update, if you already have one) `tsconfig.json` in your root d
   "compilerOptions": {
     "experimentalDecorators": true,
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "lib": ["es6", "esnext", "es2015"],
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
