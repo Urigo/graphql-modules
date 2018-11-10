@@ -1,54 +1,112 @@
-import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
-import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from '../utils';
-import { GraphQLModule } from '../graphql-module';
-import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
+import { Provider, ServiceIdentifier, Factory, ProviderOptions, ProviderScope, Type } from './types';
+import { DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider, PROVIDER_OPTIONS } from '../utils';
+import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError, ProviderClassNotDecoratedError, ProviderAlreadyDefinedError } from '../errors';
 
 declare var Reflect: any;
 
 export class Injector {
   public children = new Set<Injector>();
-  private _types = new Set<any>();
-  private _valueMap = new Map();
-  private _classMap = new Map();
-  private _factoryMap = new Map();
-  private _instanceMap = new Map();
-  constructor(public moduleName: string) {}
+  private _classMap = new Map<ServiceIdentifier<any>, Type<any>>();
+  private _factoryMap = new Map<ServiceIdentifier<any>, Factory<any>>();
+  private _instanceMap = new Map<ServiceIdentifier<any>, any>();
+  public _applicationScopeSet = new Set<ServiceIdentifier<any>>();
+  public _requestScopeSet = new Set<ServiceIdentifier<any>>();
+  public _sessionScopeSet = new Set<ServiceIdentifier<any>>();
+  constructor(public moduleName: string, private _defaultScope = ProviderScope.Application) {}
   public provide<T>(provider: Provider<T>): void {
+
     if (isTypeProvider(provider)) {
-      this._types.add(provider);
-    } else if (isValueProvider(provider)) {
-      if (this._valueMap.has(provider.provide) && !provider.overwrite) {
-        throw new Error(`Provider #`);
+      const options: ProviderOptions = Reflect.getMetadata(PROVIDER_OPTIONS, provider);
+      if (options && !options.overwrite && this.has(provider)) {
+        throw new ProviderAlreadyDefinedError(this.moduleName, provider);
       }
-      this._valueMap.set(provider.provide, provider.useValue);
+      this._classMap.set(provider, provider);
+      switch ((options && options.scope) || this._defaultScope) {
+        case ProviderScope.Application:
+          this._applicationScopeSet.add(provider);
+        break;
+        case ProviderScope.Request:
+          this._requestScopeSet.add(provider);
+        break;
+        case ProviderScope.Session:
+          this._sessionScopeSet.add(provider);
+        break;
+      }
+      return;
+    }
+
+    if (!provider.overwrite && this.has(provider.provide)) {
+      throw new ProviderAlreadyDefinedError(this.moduleName, provider.provide);
+    }
+
+    if (isValueProvider(provider)) {
+      this._instanceMap.set(provider.provide, provider.useValue);
     } else if (isClassProvider(provider)) {
       this._classMap.set(provider.provide, provider.useClass);
     } else if (isFactoryProvider(provider)) {
       this._factoryMap.set(provider.provide, provider.useFactory);
     } else {
-      throw new ProviderNotValidError(this.moduleName, provider['provide'] && JSON.stringify(provider));
+      throw new ProviderNotValidError(this.moduleName, provider['provide'] && provider);
     }
+
+    switch (provider.scope || this._defaultScope) {
+      case ProviderScope.Application:
+        this._applicationScopeSet.add(provider.provide);
+      break;
+      case ProviderScope.Request:
+        this._requestScopeSet.add(provider.provide);
+      break;
+      case ProviderScope.Session:
+        this._sessionScopeSet.add(provider.provide);
+      break;
+    }
+
   }
+
+  public has<T>(serviceIdentifier: ServiceIdentifier<T>): boolean {
+    return (
+      this._instanceMap.has(serviceIdentifier) ||
+      this._classMap.has(serviceIdentifier) ||
+      this._factoryMap.has(serviceIdentifier)
+    );
+  }
+
+  public remove<T>(serviceIdentifier: ServiceIdentifier<T>): void {
+    this._instanceMap.delete(serviceIdentifier);
+    this._classMap.delete(serviceIdentifier);
+    this._factoryMap.delete(serviceIdentifier);
+  }
+
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
-      if (this._types.has(serviceIdentifier)) {
-        if (!this._instanceMap.has(serviceIdentifier)) {
-          this._instanceMap.set(serviceIdentifier, this.instantiate(serviceIdentifier));
-        }
+      if (this._instanceMap.has(serviceIdentifier)) {
         return this._instanceMap.get(serviceIdentifier);
-      } else if (this._valueMap.has(serviceIdentifier)) {
-        return this._valueMap.get(serviceIdentifier);
       } else if (this._classMap.has(serviceIdentifier)) {
-        const realClazz = this._classMap.get(serviceIdentifier);
-        if (!this._instanceMap.has(realClazz)) {
-          this._instanceMap.set(realClazz, this.instantiate(realClazz));
+        const RealClazz = this._classMap.get(serviceIdentifier);
+        try {
+          const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz);
+          if (!dependencies) {
+            throw new ProviderClassNotDecoratedError<T>(this.moduleName, serviceIdentifier, RealClazz.name);
+          }
+          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency));
+          const instance = new RealClazz(...dependencyInstances);
+          if (this._applicationScopeSet.has(serviceIdentifier)) {
+            this._instanceMap.set(serviceIdentifier, instance);
+          }
+          return instance;
+        } catch (e) {
+          if (e instanceof ServiceIdentifierNotFoundError) {
+            throw new DependencyProviderNotFoundError(e.serviceIdentifier, RealClazz, this.moduleName);
+          } else {
+            throw e;
+          }
         }
-        return this._instanceMap.get(realClazz);
       } else if (this._factoryMap.has(serviceIdentifier)) {
-        if (!this._instanceMap.has(serviceIdentifier)) {
-          const factory = this._factoryMap.get(serviceIdentifier);
-          this._instanceMap.set(serviceIdentifier, this.callFactory(factory));
+        const factory = this._factoryMap.get(serviceIdentifier);
+        const instance = factory(this);
+        if (this._applicationScopeSet.has(serviceIdentifier)) {
+          this._instanceMap.set(serviceIdentifier, instance);
         }
-        return this._instanceMap.get(serviceIdentifier);
+        return instance;
       } else {
         for (const child of this.children) {
           try {
@@ -65,56 +123,4 @@ export class Injector {
       }
   }
 
-  public instantiate<T>(clazz: any): T {
-    try {
-      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz);
-      if (!dependencies) {
-        throw new Error('You must decorate the provider class with @Injectable()');
-      }
-      const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
-      const instance = new clazz(...dependencyInstances);
-      return instance;
-    } catch (e) {
-      if (e instanceof ServiceIdentifierNotFoundError) {
-        throw new DependencyProviderNotFoundError(e.serviceIdentifier, clazz, this.moduleName);
-      } else {
-        throw e;
-      }
-    }
-  }
-
-  public callFactory<T>(factory: Factory<T>) {
-    return factory(this);
-  }
-
-  public getByProvider<T>(provider: Provider<T>) {
-    if (isType<T>(provider)) {
-      return this.get<T>(provider);
-    } else {
-      return this.get<T>(provider.provide);
-    }
-  }
-
-  public init<T>(provider: Provider<T>): void {
-    this.getByProvider(provider);
-  }
-
-  public async callRequestHookByProvider<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
-    provider: Provider<T>,
-    request: Request,
-    context: Context,
-    appModule: GraphQLModule<Config, Request, Context>,
-    ): Promise<void> {
-
-    const instance = this.getByProvider(provider);
-
-    if (
-      instance &&
-      typeof instance !== 'string' &&
-      typeof instance !== 'number' &&
-      'onRequest' in instance
-      ) {
-      return instance.onRequest(request, context, appModule);
-    }
-  }
 }

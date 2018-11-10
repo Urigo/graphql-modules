@@ -7,6 +7,8 @@ import {
   ModuleConfig,
   ModuleContext,
   OnRequest,
+  ProviderScope,
+  SessionInjector,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
@@ -614,6 +616,82 @@ describe('GraphQLModule', () => {
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
 
+    });
+  });
+  describe('Providers Scope', async () => {
+    it('should construct session scope on each network request', async () => {
+      let counter = 0;
+
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class ProviderA {
+        constructor() {
+          counter++;
+        }
+        test(injector: SessionInjector) {
+          return (this === injector.get(ProviderA));
+        }
+      }
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query{
+            test: Boolean
+          }
+        `,
+        resolvers: {
+          Query: {
+            test: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderA).test(injector),
+          },
+        },
+        providers: [
+          ProviderA,
+        ],
+      });
+      expect(counter).toBe(0);
+      const result1 = await execute({
+        schema,
+        document: gql`
+          query {
+            test
+          }
+        `,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result1.data['test']).toBe(true);
+      expect(counter).toBe(1);
+      const result2 = await execute({
+        schema,
+        document: gql`
+          query {
+            test
+          }
+        `,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result2.data['test']).toBe(true);
+      expect(counter).toBe(2);
+    });
+    it('should construct request scope on each injector request independently from network request', async () => {
+      let counter = 0;
+      @Injectable({
+        scope: ProviderScope.Request,
+      })
+      class ProviderA {
+        constructor() {
+          counter++;
+        }
+      }
+      const { context, injector } = new GraphQLModule({ providers: [ProviderA ]});
+      expect(counter).toBe(0);
+      await context({ mustBe: 0 });
+      expect(counter).toBe(0);
+      injector.get(ProviderA);
+      expect(counter).toBe(1);
+      injector.get(ProviderA);
+      expect(counter).toBe(2);
     });
   });
 });
