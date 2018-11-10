@@ -42,12 +42,12 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: string | string[] | DocumentNode | DocumentNode[] | ((module: GraphQLModule<Config, Request, Context>) => string | string[] | DocumentNode | DocumentNode[]);
+  typeDefs?: string | string[] | DocumentNode | DocumentNode[] | ((config: Config) => string | string[] | DocumentNode | DocumentNode[]);
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: IResolvers | ((module: GraphQLModule<Config, Request, Context>) => IResolvers);
+  resolvers?: IResolvers | ((config: Config) => IResolvers);
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -59,17 +59,17 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  imports?: ((module: GraphQLModule<Config, Request, Context>) => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
+  imports?: ((config: Config) => Array<ModuleDependency<any, Request, Context>> | string[]) | string[] | Array<ModuleDependency<any, Request, Context>>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
    * All loaded class will be loaded as Singletons, and the instance will be
    * shared across all GraphQL executions.
    */
-  providers?: Provider[] | ((module: GraphQLModule<Config, Request, Context>) => Provider[]);
+  providers?: Provider[] | ((config: Config) => Provider[]);
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
-  resolversComposition?: IResolversComposerMapping | ((module: GraphQLModule<Config, Request, Context>) => IResolversComposerMapping);
-  schemaDirectives?: ISchemaDirectives | ((module: GraphQLModule<Config, Request, Context>) => ISchemaDirectives);
+  resolversComposition?: IResolversComposerMapping | ((config: Config) => IResolversComposerMapping);
+  schemaDirectives?: ISchemaDirectives | ((config: Config) => ISchemaDirectives);
 }
 
 /**
@@ -221,7 +221,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const typeDefsDefinitions = this._options.typeDefs;
     if (typeDefsDefinitions) {
       if (typeof typeDefsDefinitions === 'function') {
-        typeDefs = typeDefsDefinitions(this);
+        typeDefs = typeDefsDefinitions(this._moduleConfig);
       } else if (Array.isArray(typeDefsDefinitions)) {
         typeDefs = mergeGraphQLSchemas(typeDefsDefinitions);
       } else if (typeof typeDefsDefinitions === 'string') {
@@ -238,7 +238,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
-        resolvers = resolversDefinitions(this);
+        resolvers = resolversDefinitions(this._moduleConfig);
       } else {
         resolvers = resolversDefinitions;
       }
@@ -250,7 +250,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     let imports = new Array<ModuleDependency<any, Request, any>>();
     if (this._options.imports) {
       if (typeof this._options.imports === 'function') {
-        imports = this._options.imports(this);
+        imports = this._options.imports(this._moduleConfig);
       } else {
         imports = this._options.imports;
       }
@@ -263,7 +263,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const providersDefinitions = this._options.providers;
     if (providersDefinitions) {
       if (typeof providersDefinitions === 'function') {
-        providers = providersDefinitions(this);
+        providers = providersDefinitions(this._moduleConfig);
       } else {
         providers = providersDefinitions;
       }
@@ -310,7 +310,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const schemaDirectivesDefinitions = this._options.schemaDirectives;
     if (schemaDirectivesDefinitions) {
       if (typeof schemaDirectivesDefinitions === 'function') {
-        schemaDirectives = schemaDirectivesDefinitions(this);
+        schemaDirectives = schemaDirectivesDefinitions(this._moduleConfig);
       } else {
         schemaDirectives = schemaDirectivesDefinitions;
       }
@@ -458,7 +458,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
       const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
-      const sessionInjector = new SessionInjector(this._cache.injector);
+      const sessionInjector = new SessionInjector(this._cache.injector, networkRequest);
       importsContext[`${this.name}SessionInjector`] = sessionInjector;
       const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, sessionInjector) : async () => ({}));
       const builtResult = {

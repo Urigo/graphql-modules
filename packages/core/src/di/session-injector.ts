@@ -1,10 +1,13 @@
 import { Injector } from './injector';
 import { ServiceIdentifier, OnRequest } from './types';
 import { GraphQLModule } from '..';
+import { NETWORK_REQUEST } from '../utils';
 
-export class SessionInjector {
+export class SessionInjector<Request = any> {
   _sessionInstanceMap = new Map<ServiceIdentifier<any>, any>();
-  constructor(public applicationInjector: Injector) {}
+  constructor(public applicationInjector: Injector, networkRequest: Request) {
+    this._sessionInstanceMap.set(NETWORK_REQUEST, networkRequest);
+  }
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
     if (this._sessionInstanceMap.has(serviceIdentifier)) {
       return this._sessionInstanceMap.get(serviceIdentifier);
