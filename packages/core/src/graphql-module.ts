@@ -14,7 +14,7 @@ import { ModuleSessionInfo } from './module-session-info';
 export type BuildContextFn<Config, Request, Context> = (
   networkRequest: Request,
   currentContext: ModuleContext<Context>,
-  injector: SessionInjector<Config, Request, Context>,
+  moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
 ) => Promise<Context> | Context;
 
 export interface ISchemaDirectives {
@@ -462,7 +462,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const moduleSessionInfo = new ModuleSessionInfo<Config, Request, Context>(this, networkRequest, importsContext);
       const sessionInjector = new SessionInjector(this._cache.injector, moduleSessionInfo);
       importsContext[`${this.name}SessionInjector`] = sessionInjector;
-      const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, sessionInjector) : async () => ({}));
+      let moduleContext = {};
+      const moduleContextDeclaration = this._options.contextBuilder;
+      if (moduleContextDeclaration) {
+         moduleContext = await this._options.contextBuilder(networkRequest, importsContext, moduleSessionInfo);
+      }
       const builtResult = {
         ...importsContext,
         ...moduleContext as any,
@@ -498,13 +502,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    *
    * @param request - the network request from `connect`, `express`, etc...
    */
-  context = async (networkRequest: Request): Promise<ModuleContext<Context>> => {
-    const moduleContext = await this.contextBuilder(networkRequest);
-    return {
-      ...moduleContext as any,
-      networkRequest,
-    };
-  }
+  context = (networkRequest: Request) => this.contextBuilder(networkRequest);
 
   get modulesMap() {
     if (!this._cache.modulesMap) {
