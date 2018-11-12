@@ -1,4 +1,4 @@
-import { DESIGN_PARAM_TYPES } from '../utils';
+import { DESIGN_PARAM_TYPES } from './utils';
 
 declare var Reflect: any;
 

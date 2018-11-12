@@ -1,31 +1,51 @@
-import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, FactoryProvider, TypeProvider } from './di/types';
+import { IResolversComposerMapping } from './resolvers-composition';
+import { IResolvers } from 'graphql-tools';
+import { Injector } from './di';
 
-export const DESIGN_PARAM_TYPES = 'design:paramtypes';
+export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 
-export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
-  if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {
-    return serviceIdentifier.name;
-  } else {
-    return serviceIdentifier.toString();
+export function chainFunctions(funcs: any[]) {
+  if (funcs.length === 1) {
+    return funcs[0];
   }
+
+  return funcs.reduce((a, b) => (...args: any[]) => a(b(...args)));
 }
 
-export function isType<T>(v: any): v is Type<T> {
-  return typeof v === 'function' && 'prototype' in v;
+export function addInjectorToResolversContext(resolvers: IResolvers, injector: Injector) {
+    // tslint:disable-next-line:forin
+    for ( const type in resolvers ) {
+      const typeResolvers = resolvers[type];
+      // tslint:disable-next-line:forin
+      for (const prop in resolvers[type]) {
+        const resolver = typeResolvers[prop];
+        if (typeof resolver === 'function') {
+          if (prop !== '__resolveType') {
+            typeResolvers[prop] = (root: any, args: any, context: any, info: any) => {
+              return resolver.call(typeResolvers, root, args, { injector, ...context }, info);
+            };
+          } else {
+            typeResolvers[prop] = (root: any, context: any, info: any) => {
+              return resolver.call(typeResolvers, root, { injector, ...context }, info);
+            };
+          }
+        }
+      }
+    }
+    return resolvers;
 }
 
-export function isTypeProvider<T>(v: Provider<T>): v is TypeProvider<T> {
-  return isType<T>(v);
-}
-
-export function isValueProvider<T>(v: Provider<T>): v is ValueProvider<T> {
-  return 'useValue' in v;
-}
-
-export function isClassProvider<T>(v: Provider<T>): v is ClassProvider<T> {
-  return 'useClass' in v && isType(v.useClass);
-}
-
-export function isFactoryProvider<T>(v: Provider<T>): v is FactoryProvider<T> {
-  return 'useFactory' in v && typeof v.useFactory === 'function';
+export function addInjectorToResolversCompositionContext(resolversComposition: IResolversComposerMapping, injector: Injector) {
+  // tslint:disable-next-line:forin
+  for (const path in resolversComposition) {
+    const compositionArr = asArray(resolversComposition[path]);
+    resolversComposition[path] = [
+      (next: any) => (root: any, args: any, context: any, info: any) => next(root, args, {
+        ...context,
+        injector,
+      }, info),
+      ...compositionArr,
+    ];
+  }
+  return resolversComposition;
 }

@@ -1,5 +1,5 @@
 import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
-import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from '../utils';
+import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from './utils';
 import { GraphQLModule } from '../graphql-module';
 import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
 
