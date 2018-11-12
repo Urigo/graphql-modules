@@ -3,3 +3,4 @@ export { Inject } from './inject';
 export { Injectable } from './injectable';
 export { Injector } from './injector';
 export * from './types';
+export * from './utils';
