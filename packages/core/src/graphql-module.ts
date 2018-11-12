@@ -364,6 +364,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       injector.init(provider);
     }
 
+    this._cache.injector = injector;
+
     const resolvers = this.selfResolvers;
     // tslint:disable-next-line:forin
     for ( const type in resolvers ) {
@@ -446,8 +448,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         this._cache.schema = null;
       }
     }
-
-    this._cache.injector = injector;
 
     this._cache.contextBuilder = async networkRequest => {
       const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
