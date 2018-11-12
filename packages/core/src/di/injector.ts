@@ -1,6 +1,7 @@
-import { Provider, ServiceIdentifier, Factory, ProviderOptions, ProviderScope, Type } from './types';
-import { DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider, PROVIDER_OPTIONS } from './utils';
-import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError, ProviderClassNotDecoratedError, ProviderAlreadyDefinedError } from '../errors';
+
+import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError, ProviderClassNotDecoratedError } from '../errors';
+import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
+import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
 
 declare var Reflect: any;
 
