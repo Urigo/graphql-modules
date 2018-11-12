@@ -6,14 +6,15 @@ import { IResolversComposerMapping, composeResolvers, asArray } from './resolver
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
 import deepmerge = require('deepmerge');
+import { ModuleSessionInfo } from './module-session-info';
 
 /**
  * A context builder method signature for `contextBuilder`.
  */
-export type BuildContextFn<Request, Context> = (
+export type BuildContextFn<Config, Request, Context> = (
   networkRequest: Request,
   currentContext: ModuleContext<Context>,
-  injector: SessionInjector,
+  injector: SessionInjector<Config, Request, Context>,
 ) => Promise<Context> | Context;
 
 export interface ISchemaDirectives {
@@ -52,7 +53,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  contextBuilder?: BuildContextFn<Request, Context>;
+  contextBuilder?: BuildContextFn<Config, Request, Context>;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
@@ -458,7 +459,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
       const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
-      const sessionInjector = new SessionInjector(this._cache.injector, networkRequest);
+      const moduleSessionInfo = new ModuleSessionInfo<Config, Request, Context>(this, networkRequest, importsContext);
+      const sessionInjector = new SessionInjector(this._cache.injector, moduleSessionInfo);
       importsContext[`${this.name}SessionInjector`] = sessionInjector;
       const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, sessionInjector) : async () => ({}));
       const builtResult = {
@@ -468,12 +470,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const requestHooks$ = [
         ...sessionInjector.applicationInjector._applicationScopeSet,
         ...sessionInjector.applicationInjector._sessionScopeSet,
-      ].map(serviceIdentifier => sessionInjector.callRequestHook(
-            serviceIdentifier,
-            networkRequest,
-            builtResult,
-            this,
-          ),
+      ].map(serviceIdentifier => sessionInjector.callRequestHook(serviceIdentifier),
       );
       await Promise.all(requestHooks$);
       return builtResult;
@@ -623,7 +620,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
     const resolversSet = new Set<IResolvers>();
-    const contextBuilderSet = new Set<BuildContextFn<Request, Context>>();
+    const contextBuilderSet = new Set<BuildContextFn<Config, Request, Context>>();
     const importsSet = new Set<ModuleDependency<any, Request, any>>();
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();

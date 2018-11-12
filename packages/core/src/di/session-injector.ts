@@ -1,32 +1,21 @@
 import { Injector } from './injector';
 import { ServiceIdentifier, OnRequest } from './types';
-import { GraphQLModule } from '..';
-import { NETWORK_REQUEST } from '../utils';
+import { ModuleSessionInfo } from '../module-session-info';
 
-export class SessionInjector<Request = any> {
+export class SessionInjector<Config, Request, Context> {
   _sessionInstanceMap = new Map<ServiceIdentifier<any>, any>();
-  constructor(public applicationInjector: Injector, networkRequest: Request) {
-    this._sessionInstanceMap.set(NETWORK_REQUEST, networkRequest);
+  constructor(public applicationInjector: Injector, private _moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>) {
+    _moduleSessionInfo.injector = this;
+    this._sessionInstanceMap.set(ModuleSessionInfo, _moduleSessionInfo);
   }
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
-    if (this._sessionInstanceMap.has(serviceIdentifier)) {
-      return this._sessionInstanceMap.get(serviceIdentifier);
-    } else {
-      const instance = this.applicationInjector.get(serviceIdentifier);
-      if (this.applicationInjector._sessionScopeSet.has(serviceIdentifier)) {
-        this._sessionInstanceMap.set(serviceIdentifier, instance);
-      }
-      return instance;
-    }
+    return this.applicationInjector.get(serviceIdentifier, this._sessionInstanceMap);
   }
-  public async callRequestHook<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
+  public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
     serviceIdentifier: ServiceIdentifier<T>,
-    request: Request,
-    context: Context,
-    module: GraphQLModule<Config, Request, Context>,
     ): Promise<void> {
 
-    const instance = this.get(serviceIdentifier);
+    const instance = this.get<T>(serviceIdentifier);
 
     if (
       instance &&
@@ -34,7 +23,7 @@ export class SessionInjector<Request = any> {
       typeof instance !== 'number' &&
       'onRequest' in instance
       ) {
-      return instance.onRequest(request, context, module);
+      return instance.onRequest(this._moduleSessionInfo);
     }
   }
 }

@@ -15,6 +15,7 @@ import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { ModuleSessionInfo } from '../src/module-session-info';
 
 describe('GraphQLModule', () => {
   // A
@@ -435,11 +436,12 @@ describe('GraphQLModule', () => {
 
     it('should pass network request to onRequest hook', async () => {
       const fooRequest = {};
+      let receivedRequest;
 
       @Injectable()
       class FooProvider implements OnRequest {
-        onRequest(request) {
-          expect(request).toBe(fooRequest);
+        onRequest(moduleInfo) {
+          receivedRequest = moduleInfo.request;
         }
       }
 
@@ -449,6 +451,7 @@ describe('GraphQLModule', () => {
         ],
       });
       await context(fooRequest);
+      expect(receivedRequest).toBe(fooRequest);
     });
   });
   describe('Resolvers Composition', async () => {
@@ -562,14 +565,15 @@ describe('GraphQLModule', () => {
   describe('Schema Directives', async () => {
     it('should handle schema directives', async () => {
 
-      const typeDefs = `
+      const typeDefs = gql `
       directive @date on FIELD_DEFINITION
 
       scalar Date
 
       type Query {
         today: Date @date
-      }`;
+      }
+      `;
 
       class FormattableDateDirective extends SchemaDirectiveVisitor {
         public visitFieldDefinition(field) {
@@ -629,7 +633,7 @@ describe('GraphQLModule', () => {
         constructor() {
           counter++;
         }
-        test(injector: SessionInjector) {
+        test(injector: SessionInjector<any, any, any>) {
           return (this === injector.get(ProviderA));
         }
       }
@@ -692,6 +696,61 @@ describe('GraphQLModule', () => {
       expect(counter).toBe(1);
       injector.get(ProviderA);
       expect(counter).toBe(2);
+    });
+    it('should inject network request with moduleSessionInfo in session and request scope providers', async () => {
+      const testRequest = {
+        foo: 'BAR',
+      };
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class ProviderA {
+        constructor(private moduleInfo: ModuleSessionInfo) {}
+        test() {
+          return this.moduleInfo.request.foo;
+        }
+      }
+      @Injectable({
+        scope: ProviderScope.Request,
+      })
+      class ProviderB {
+        constructor(private moduleInfo: ModuleSessionInfo) {}
+        test() {
+          return this.moduleInfo.request.foo;
+        }
+      }
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query{
+            testA: String
+            testB: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            testA: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderA).test(),
+            testB: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderB).test(),
+          },
+        },
+        providers: [
+          ProviderA,
+          ProviderB,
+        ],
+      });
+      const result = await execute({
+        schema,
+        document: gql`
+          query {
+            testA
+            testB
+          }
+        `,
+        contextValue: await context(testRequest),
+      });
+      expect(result.data['testA']).toBe('BAR');
+      expect(result.data['testB']).toBe('BAR');
     });
   });
 });

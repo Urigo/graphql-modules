@@ -1,4 +1,4 @@
-import { DESIGN_PARAM_TYPES, PROVIDER_OPTIONS } from '../utils';
+import { DESIGN_PARAM_TYPES, PROVIDER_OPTIONS } from './utils';
 import { ProviderOptions } from './types';
 
 declare var Reflect: any;
