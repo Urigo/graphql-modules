@@ -1,4 +1,4 @@
-import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, ModuleContext, Injector } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
@@ -73,6 +73,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Request, Context>;
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
+  logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
 }
 
 /**
@@ -122,9 +123,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   constructor(
     private _options: GraphQLModuleOptions<Config, Request, Context> = {},
     private _moduleConfig: Config = {} as Config,
-    ) {
-      _options.name = _options.name || Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
-    }
+  ) {
+    _options.name = _options.name || Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
+  }
 
   /**
    * Creates another instance of the module using a configuration
@@ -209,6 +210,21 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
     return this._cache.schemaDirectives;
   }
+
+  /**
+   * Build a GraphQL `context` object based on a network request.
+   * It iterates over all modules by their dependency-based order, and executes
+   * `contextBuilder` method.
+   * It also in charge of injecting a reference to the application `Injector` to
+   * the `context`.
+   * The network request is passed to each `contextBuilder` method, and the return
+   * value of each `contextBuilder` is merged into a unified `context` object.
+   *
+   * This method should be in use with your GraphQL manager, such as Apollo-Server.
+   *
+   * @param request - the network request from `connect`, `express`, etc...
+   */
+  context = (request: Request) => this.contextBuilder(request);
 
   /**
    * Returns the GraphQL type definitions of the module
@@ -301,6 +317,19 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return schemaDirectives;
   }
 
+  get selfLogger(): ILogger {
+    let logger: ILogger;
+    const loggerDefinitions = this._options.logger;
+    if (loggerDefinitions) {
+      if (typeof logger === 'function') {
+        logger = (loggerDefinitions as any)(this);
+      } else {
+        logger = loggerDefinitions as ILogger;
+      }
+    }
+    return logger;
+  }
+
   private buildSchemaAndInjector(modulesMap: ModulesMap<Request>) {
     const imports = this.selfImports;
     const importsTypeDefs = new Set<string>();
@@ -331,7 +360,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             importsTypeDefs.add(typeDef);
           }
         } else {
-           importsTypeDefs.add(typeDefs);
+          importsTypeDefs.add(typeDefs);
         }
       }
       importsContextBuilders.add(contextBuilder);
@@ -401,6 +430,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             allowResolversNotInSchema: true,
           },
           schemaDirectives: this.schemaDirectives,
+          logger: this.selfLogger,
         });
       }
     } catch (e) {
@@ -445,197 +475,187 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return this._cache.contextBuilder;
   }
 
-  /**
-   * Build a GraphQL `context` object based on a network request.
-   * It iterates over all modules by their dependency-based order, and executes
-   * `contextBuilder` method.
-   * It also in charge of injecting a reference to the application `Injector` to
-   * the `context`.
-   * The network request is passed to each `contextBuilder` method, and the return
-   * value of each `contextBuilder` is merged into a unified `context` object.
-   *
-   * This method should be in use with your GraphQL manager, such as Apollo-Server.
-   *
-   * @param request - the network request from `connect`, `express`, etc...
-   */
-  context = async (request: Request): Promise<ModuleContext<Context>> => {
-      const moduleContext = await this.contextBuilder(request);
-      return {
-        ...moduleContext as any,
-      };
+  get modulesMap() {
+    if (!this._cache.modulesMap) {
+      let modulesMap = this.createInitialModulesMap();
+      modulesMap = this.checkAndFixModulesMap(modulesMap);
+      this._cache.modulesMap = modulesMap;
     }
+    return this._cache.modulesMap;
+  }
 
-    get modulesMap() {
-      if (!this._cache.modulesMap) {
-        let modulesMap = this.createInitialModulesMap();
-        modulesMap = this.checkAndFixModulesMap(modulesMap);
-        this._cache.modulesMap = modulesMap;
-      }
-      return this._cache.modulesMap;
-    }
-
-    private createInitialModulesMap() {
-      const modulesMap = new Map<string, GraphQLModule<any, Request, any>>();
-      const visitModule = (module: GraphQLModule<any, Request, any>) => {
-        if (!modulesMap.has(module.name)) {
-          modulesMap.set(module.name, module);
-          for (const subModule of module.selfImports) {
-            if (!subModule) {
-              throw new DependencyModuleUndefinedError(module.name);
-            }
-            if (typeof subModule !== 'string') {
-              visitModule(subModule);
-            }
+  private createInitialModulesMap() {
+    const modulesMap = new Map<string, GraphQLModule<any, Request, any>>();
+    const visitModule = (module: GraphQLModule<any, Request, any>) => {
+      if (!modulesMap.has(module.name)) {
+        modulesMap.set(module.name, module);
+        for (const subModule of module.selfImports) {
+          if (!subModule) {
+            throw new DependencyModuleUndefinedError(module.name);
+          }
+          if (typeof subModule !== 'string') {
+            visitModule(subModule);
           }
         }
-      };
-      visitModule(this);
+      }
+    };
+    visitModule(this);
+    return modulesMap;
+  }
+
+  private checkAndFixModulesMap(modulesMap: ModulesMap<Request>): Map<string, GraphQLModule<any, Request, any>> {
+    const graph = new DepGraph<GraphQLModule<any, Request, any>>();
+
+    modulesMap.forEach(module => {
+      const moduleName = module.name;
+      if (!graph.hasNode(moduleName)) {
+        graph.addNode(moduleName);
+      }
+    });
+
+    const visitedModulesToAddDependency = new Set<string>();
+
+    const visitModuleToAddDependency = (module: GraphQLModule<any, Request, any>) => {
+      for (let subModule of module.selfImports) {
+        const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.name;
+        subModule = modulesMap.get(subModuleOrigName);
+        if (!subModule) {
+          throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
+        }
+        try {
+          graph.addDependency(
+            module.name,
+            subModule.name,
+          );
+        } catch (e) {
+          throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
+        }
+        // prevent infinite loop in case of circular dependency
+        if (!visitedModulesToAddDependency.has(subModule.name)) {
+          visitedModulesToAddDependency.add(subModule.name);
+          visitModuleToAddDependency(subModule);
+        }
+      }
+    };
+
+    visitModuleToAddDependency(modulesMap.get(this.name));
+
+    try {
+      graph.overallOrder();
       return modulesMap;
-    }
-
-    private checkAndFixModulesMap(modulesMap: ModulesMap<Request>): Map<string, GraphQLModule<any, Request, any>> {
-      const graph = new DepGraph<GraphQLModule<any, Request, any>>();
-
-      modulesMap.forEach(module => {
-        const moduleName = module.name;
-        if (!graph.hasNode(moduleName)) {
-          graph.addNode(moduleName);
+    } catch (e) {
+      const { message } = e as Error;
+      const currentPathStr = message.replace('Dependency Cycle Found: ', '');
+      const currentPath = currentPathStr.split(' -> ');
+      const moduleIndexMap = new Map<string, number>();
+      let start = 0;
+      let end = currentPath.length;
+      currentPath.forEach((moduleName, index) => {
+        if (moduleIndexMap.has(moduleName)) {
+          start = moduleIndexMap.get(moduleName);
+          end = index;
+        } else {
+          moduleIndexMap.set(moduleName, index);
         }
       });
-
-      const visitedModulesToAddDependency = new Set<string>();
-
-      const visitModuleToAddDependency = (module: GraphQLModule<any, Request, any>) =>  {
-        for (let subModule of module.selfImports) {
-          const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.name;
-          subModule = modulesMap.get(subModuleOrigName);
-          if (!subModule) {
-            throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
-          }
-          try {
-            graph.addDependency(
-                module.name,
-                subModule.name,
-            );
-          } catch (e) {
-            throw new DependencyModuleNotFoundError(subModuleOrigName, module.name);
-          }
-          // prevent infinite loop in case of circular dependency
-          if (!visitedModulesToAddDependency.has(subModule.name)) {
-            visitedModulesToAddDependency.add(subModule.name);
-            visitModuleToAddDependency(subModule);
+      const realPath = currentPath.slice(start, end);
+      const circularModules = Array.from(new Set(realPath)).map(moduleName => {
+        // if it is merged module, get one module, it will be enough to get merged one.
+        return modulesMap.get(moduleName);
+      });
+      const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, modulesMap);
+      for (const moduleName of realPath) {
+        modulesMap.set(moduleName, mergedModule);
+        for (const subModuleName of moduleName.split('+')) {
+          if (modulesMap.has(subModuleName)) {
+            modulesMap.set(subModuleName, mergedModule);
           }
         }
-      };
-
-      visitModuleToAddDependency(modulesMap.get(this.name));
-
-      try {
-        graph.overallOrder();
-        return modulesMap;
-      } catch (e) {
-        const { message } = e as Error;
-        const currentPathStr = message.replace('Dependency Cycle Found: ', '');
-        const currentPath = currentPathStr.split(' -> ');
-        const moduleIndexMap = new Map<string, number>();
-        let start = 0;
-        let end = currentPath.length;
-        currentPath.forEach((moduleName, index) => {
-         if (moduleIndexMap.has(moduleName)) {
-           start = moduleIndexMap.get(moduleName);
-           end = index;
-         } else {
-           moduleIndexMap.set(moduleName, index);
-         }
-        });
-        const realPath = currentPath.slice(start, end);
-        const circularModules = Array.from(new Set(realPath)).map(moduleName => {
-            // if it is merged module, get one module, it will be enough to get merged one.
-            return modulesMap.get(moduleName);
-        });
-        const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, modulesMap);
-        for (const moduleName of realPath) {
-          modulesMap.set(moduleName, mergedModule);
-          for (const subModuleName of moduleName.split('+')) {
-            if (modulesMap.has(subModuleName)) {
-              modulesMap.set(subModuleName, mergedModule);
-            }
-          }
-        }
-        modulesMap.set(mergedModule.name, mergedModule);
-        (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>)
-          = (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>).filter(
+      }
+      modulesMap.set(mergedModule.name, mergedModule);
+      (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>)
+        = (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>).filter(
           module => {
             const moduleName = typeof module === 'string' ? module : module.name;
             module = modulesMap.get(moduleName);
             return (module.name !== mergedModule.name);
           },
         );
-        return this.checkAndFixModulesMap(modulesMap);
-      }
-    }
-
-    static mergeModules<Config = any, Request = any, Context = any>(modules: Array<GraphQLModule<any, Request, any>>, modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
-      const nameSet = new Set();
-      const typeDefsSet = new Set();
-      const resolversSet = new Set<IResolvers>();
-      const contextBuilderSet = new Set<BuildContextFn<Request, Context>>();
-      const importsSet = new Set<ModuleDependency<any, Request, any>>();
-      const providersSet = new Set<Provider<any>>();
-      const resolversCompositionSet = new Set<IResolversComposerMapping>();
-      const schemaDirectivesSet = new Set<ISchemaDirectives>();
-      for (const module of modules) {
-        const subMergedModuleNames = module.name.split('+');
-        for (const subMergedModuleName of subMergedModuleNames) {
-          nameSet.add(subMergedModuleName);
-        }
-        if (Array.isArray(module.selfTypeDefs)) {
-          for (const typeDef of module.selfTypeDefs) {
-            typeDefsSet.add(typeDef);
-          }
-        } else {
-          typeDefsSet.add(module.selfTypeDefs);
-        }
-        resolversSet.add(module.selfResolvers);
-        contextBuilderSet.add(module._options.contextBuilder);
-        for (let importModule of module.selfImports) {
-          if (modulesMap) {
-            importModule = modulesMap.get(typeof importModule === 'string' ? importModule : importModule.name);
-          }
-          importsSet.add(importModule);
-        }
-        for (const provider of module.selfProviders) {
-          providersSet.add(provider);
-        }
-        resolversCompositionSet.add(module.selfResolversComposition);
-        schemaDirectivesSet.add(module.selfSchemaDirectives);
-      }
-
-      const name = [...nameSet].join('+');
-      const typeDefs = [...typeDefsSet];
-      const resolvers = mergeResolvers([...resolversSet]);
-      const contextBuilder = [...contextBuilderSet].reduce(
-        (accContextBuilder, currentContextBuilder) => {
-          return async (networkRequest, currentContext, injector) => {
-            const accContext = await accContextBuilder(networkRequest, currentContext, injector);
-            const moduleContext = currentContextBuilder ? await currentContextBuilder(networkRequest, currentContext, injector) : {};
-            return Object.assign({}, accContext, moduleContext);
-          };
-        },
-      );
-      const imports = [...importsSet];
-      const providers = [...providersSet];
-      const resolversComposition = deepmerge.all([...resolversCompositionSet]);
-      const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
-      return new GraphQLModule<Config, Request, Context>({
-        name,
-        typeDefs,
-        resolvers,
-        contextBuilder,
-        imports,
-        providers,
-        resolversComposition,
-        schemaDirectives,
-      });
+      return this.checkAndFixModulesMap(modulesMap);
     }
   }
+
+  static mergeModules<Config = any, Request = any, Context = any>(modules: Array<GraphQLModule<any, Request, any>>, modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
+    const nameSet = new Set();
+    const typeDefsSet = new Set();
+    const resolversSet = new Set<IResolvers>();
+    const contextBuilderSet = new Set<BuildContextFn<Request, Context>>();
+    const importsSet = new Set<ModuleDependency<any, Request, any>>();
+    const providersSet = new Set<Provider<any>>();
+    const resolversCompositionSet = new Set<IResolversComposerMapping>();
+    const schemaDirectivesSet = new Set<ISchemaDirectives>();
+    const loggerSet = new Set<ILogger>();
+    for (const module of modules) {
+      const subMergedModuleNames = module.name.split('+');
+      for (const subMergedModuleName of subMergedModuleNames) {
+        nameSet.add(subMergedModuleName);
+      }
+      if (Array.isArray(module.selfTypeDefs)) {
+        for (const typeDef of module.selfTypeDefs) {
+          typeDefsSet.add(typeDef);
+        }
+      } else {
+        typeDefsSet.add(module.selfTypeDefs);
+      }
+      resolversSet.add(module.selfResolvers);
+      contextBuilderSet.add(module._options.contextBuilder);
+      for (let importModule of module.selfImports) {
+        if (modulesMap) {
+          importModule = modulesMap.get(typeof importModule === 'string' ? importModule : importModule.name);
+        }
+        importsSet.add(importModule);
+      }
+      for (const provider of module.selfProviders) {
+        providersSet.add(provider);
+      }
+      resolversCompositionSet.add(module.selfResolversComposition);
+      schemaDirectivesSet.add(module.selfSchemaDirectives);
+      loggerSet.add(module.selfLogger);
+    }
+
+    const name = [...nameSet].join('+');
+    const typeDefs = [...typeDefsSet];
+    const resolvers = mergeResolvers([...resolversSet]);
+    const contextBuilder = [...contextBuilderSet].reduce(
+      (accContextBuilder, currentContextBuilder) => {
+        return async (networkRequest, currentContext, injector) => {
+          const accContext = await accContextBuilder(networkRequest, currentContext, injector);
+          const moduleContext = currentContextBuilder ? await currentContextBuilder(networkRequest, currentContext, injector) : {};
+          return Object.assign({}, accContext, moduleContext);
+        };
+      },
+    );
+    const imports = [...importsSet];
+    const providers = [...providersSet];
+    const resolversComposition = deepmerge.all([...resolversCompositionSet]);
+    const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
+    const logger = {
+      log(message: string) {
+        for (const logger of loggerSet) {
+          logger.log(message);
+        }
+      },
+    };
+    return new GraphQLModule<Config, Request, Context>({
+      name,
+      typeDefs,
+      resolvers,
+      contextBuilder,
+      imports,
+      providers,
+      resolversComposition,
+      schemaDirectives,
+      logger,
+    });
+  }
+}
