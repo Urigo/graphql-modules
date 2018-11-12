@@ -28,7 +28,7 @@ export type ModulesMap<Request> = Map<string, GraphQLModule<any, Request, any>>;
  */
 export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, Request, Context> | string;
 
-export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>) => Option);
+export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>, ...args: any[]) => Option);
 
 /**
  * Defined the structure of GraphQL module options object.
@@ -236,7 +236,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
-        resolvers = resolversDefinitions(this);
+        resolvers = this.injector.call(resolversDefinitions, this);
       } else {
         resolvers = resolversDefinitions;
       }
@@ -280,7 +280,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (typeof resolversCompositionDefinitions === 'function') {
-        resolversComposition = (resolversCompositionDefinitions as any)(this);
+        resolversComposition = this.injector.call(resolversCompositionDefinitions as any, this);
       } else {
         resolversComposition = resolversCompositionDefinitions;
       }
@@ -293,7 +293,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const schemaDirectivesDefinitions = this._options.schemaDirectives;
     if (schemaDirectivesDefinitions) {
       if (typeof schemaDirectivesDefinitions === 'function') {
-        schemaDirectives = schemaDirectivesDefinitions(this);
+        schemaDirectives = this.injector.call(schemaDirectivesDefinitions, this);
       } else {
         schemaDirectives = schemaDirectivesDefinitions;
       }

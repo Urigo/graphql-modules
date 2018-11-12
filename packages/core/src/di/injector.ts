@@ -1,4 +1,4 @@
-import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
+import { Provider, ServiceIdentifier, OnRequest } from './types';
 import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from './utils';
 import { GraphQLModule } from '../graphql-module';
 import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
@@ -46,7 +46,7 @@ export class Injector {
       } else if (this._factoryMap.has(serviceIdentifier)) {
         if (!this._instanceMap.has(serviceIdentifier)) {
           const factory = this._factoryMap.get(serviceIdentifier);
-          this._instanceMap.set(serviceIdentifier, this.callFactory(factory));
+          this._instanceMap.set(serviceIdentifier, this.call(factory));
         }
         return this._instanceMap.get(serviceIdentifier);
       } else {
@@ -83,8 +83,13 @@ export class Injector {
     }
   }
 
-  public callFactory<T>(factory: Factory<T>) {
-    return factory(this);
+  public call<Fn extends (...args: any[]) => any>(fn: Fn, ...args: any[]): ReturnType<Fn> {
+    if (Reflect.hasMetadata(DESIGN_PARAM_TYPES, fn)) {
+      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, fn);
+      const instances = dependencies.map((dependency: any) => this.get(dependency));
+      return fn.call(fn, ...args, ...instances);
+    }
+    return fn.call(fn, ...args);
   }
 
   public getByProvider<T>(provider: Provider<T>) {
