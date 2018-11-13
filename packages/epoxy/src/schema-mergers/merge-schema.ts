@@ -1,4 +1,4 @@
-import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source } from 'graphql';
+import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
