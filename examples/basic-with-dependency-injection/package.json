@@ -1,6 +1,6 @@
 {
   "name": "examples-di",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "main": "index.js",
   "license": "MIT",
@@ -9,9 +9,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.2.0",
-    "@graphql-modules/epoxy": "0.2.0",
-    "@graphql-modules/sonar": "0.2.0",
+    "@graphql-modules/core": "0.2.1",
+    "@graphql-modules/epoxy": "0.2.1",
+    "@graphql-modules/sonar": "0.2.1",
     "apollo-server": "2.1.0",
     "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
