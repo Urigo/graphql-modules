@@ -16,7 +16,7 @@ Note that GraphQL Modules won't load any other things such as injectors, resolve
 So, that
 
 ```typescript
-import 'reflect-metadata';
+import 'reflect-metadata'; // Not required if you're not using DI
 import { AppModule } from './modules/app.module';
 import { makeExecutableSchema } from 'graphql-tools';
 

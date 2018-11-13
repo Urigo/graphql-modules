@@ -15,7 +15,13 @@ To setup your development environment easily, we recommend to use [TypeScript](h
 To get started to with your development environment, install the following tools in your project:
 
 ```bash
-yarn add -D ts-node typescript nodemon
+yarn add ts-node typescript nodemon tslib
+```
+
+or
+
+```bash
+npm install ts-node typescript nodemon tslib --save
 ```
 
 Next, create (or update, if you already have one) `tsconfig.json` in your root directory:
@@ -25,8 +31,8 @@ Next, create (or update, if you already have one) `tsconfig.json` in your root d
   "compilerOptions": {
     "experimentalDecorators": true,
     "module": "commonjs",
-    "target": "es6",
-    "lib": ["es6", "esnext", "es2015"],
+    "target": "es2015",
+    "lib": ["esnext"],
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
@@ -34,7 +40,8 @@ Next, create (or update, if you already have one) `tsconfig.json` in your root d
     "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "importHelpers": true
   },
   "include": ["src/**/*.ts"],
   "files": ["src/index.ts"],

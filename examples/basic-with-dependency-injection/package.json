@@ -6,12 +6,11 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node ./src/index.ts",
+    "build": "tsc",
     "test": "jest"
   },
   "dependencies": {
     "@graphql-modules/core": "0.2.1",
-    "@graphql-modules/epoxy": "0.2.1",
-    "@graphql-modules/sonar": "0.2.1",
     "apollo-server": "2.1.0",
     "graphql": "14.0.2",
     "reflect-metadata": "0.1.12",
