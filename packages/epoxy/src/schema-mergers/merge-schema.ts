@@ -1,4 +1,4 @@
-import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, printSchema, Source } from 'graphql';
+import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -18,7 +18,10 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
-        const printedSchema = printSchema(type, { commentDescriptions: true });
+        const typesMap = type.getTypeMap();
+        const allTypesPrinted = Object.keys(typesMap).map(key => typesMap[key]).map(type => type.astNode ? print(type.astNode) : null).filter(e => e);
+        const directivesDeclaration = type.getDirectives().map(directive => directive.astNode ? print(directive.astNode) : null).filter(e => e);
+        const printedSchema = [...directivesDeclaration, ...allTypesPrinted].join('\n');
 
         return parse(printedSchema);
       } else if (isStringTypes(type) || isSourceTypes(type)) {

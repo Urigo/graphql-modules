@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/epoxy",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -28,7 +28,7 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/logger": "0.2.0",
+    "@graphql-modules/logger": "0.2.1",
     "@types/deepmerge": "2.1.0",
     "deepmerge": "2.2.1",
     "graphql-tools": "4.0.3",
