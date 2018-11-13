@@ -1,9 +1,6 @@
-import { Provider, ServiceIdentifier, Factory, OnRequest } from './types';
+import { Provider, ServiceIdentifier, Factory } from './types';
 import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from './utils';
-import { GraphQLModule } from '../graphql-module';
-import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
-
-declare var Reflect: any;
+import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from './errors';
 
 export class Injector {
   public children = new Set<Injector>();
@@ -67,10 +64,7 @@ export class Injector {
 
   public instantiate<T>(clazz: any): T {
     try {
-      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz);
-      if (!dependencies) {
-        throw new Error('You must decorate the provider class with @Injectable()');
-      }
+      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz) || [];
       const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
       const instance = new clazz(...dependencyInstances);
       return instance;
@@ -97,24 +91,5 @@ export class Injector {
 
   public init<T>(provider: Provider<T>): void {
     this.getByProvider(provider);
-  }
-
-  public async callRequestHookByProvider<T extends OnRequest<Config, Request, Context>, Config, Request, Context>(
-    provider: Provider<T>,
-    request: Request,
-    context: Context,
-    appModule: GraphQLModule<Config, Request, Context>,
-    ): Promise<void> {
-
-    const instance = this.getByProvider(provider);
-
-    if (
-      instance &&
-      typeof instance !== 'string' &&
-      typeof instance !== 'number' &&
-      'onRequest' in instance
-      ) {
-      return instance.onRequest(request, context, appModule);
-    }
   }
 }

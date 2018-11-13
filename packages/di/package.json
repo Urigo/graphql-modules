@@ -1,0 +1,30 @@
+{
+  "name": "@graphql-modules/di",
+  "version": "0.2.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "",
+    "build": "tsc",
+    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
+  },
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.12"
+  },
+  "devDependencies": {
+    "reflect-metadata": "0.1.12",
+    "tslint": "5.11.0",
+    "typescript": "3.1.6"
+  },
+  "dependencies": {
+    "tslib": "1.9.3",
+    "winston": "3.1.0"
+  },
+  "typings": "./dist/index.d.ts",
+  "typescript": {
+    "definition": "./dist/index.d.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

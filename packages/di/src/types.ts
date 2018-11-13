@@ -1,4 +1,3 @@
-import { GraphQLModule } from '../graphql-module';
 import { Injector } from './injector';
 
 interface Newable<T> {
@@ -35,9 +34,3 @@ export interface BaseProvider<T> {
 export interface TypeProvider<T> extends Type<T> {}
 
 export type Provider<T = any> = TypeProvider<T> | ValueProvider<T> | ClassProvider<T> | FactoryProvider<T>;
-
-export type ModuleContext<Context = { [key: string]: any }> = Context & { injector: Injector };
-
-export interface OnRequest<Config = any, Request = any, Context = any> {
-  onRequest(request: Request, context: Context, appModule: GraphQLModule<Config, Request, Context>): Promise<void> | void;
-}

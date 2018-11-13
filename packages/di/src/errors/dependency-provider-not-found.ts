@@ -1,4 +1,5 @@
-import { ServiceIdentifier, getServiceIdentifierName } from '../di';
+import { ServiceIdentifier } from '../types';
+import { getServiceIdentifierName } from '../utils';
 
 export class DependencyProviderNotFoundError<Dependency, Dependent> extends Error {
   constructor(private _dependency: ServiceIdentifier<Dependency>, private _dependent: ServiceIdentifier<Dependent>, private _moduleName: string) {

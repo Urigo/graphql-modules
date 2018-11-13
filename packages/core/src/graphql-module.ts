@@ -1,12 +1,13 @@
 import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, ModuleContext, Injector } from './di';
+import { Provider, Injector } from '@graphql-modules/di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
 import deepmerge = require('deepmerge');
 import { addInjectorToResolversContext, addInjectorToResolversCompositionContext } from './utils';
+import { ModuleContext } from './types';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -425,13 +426,22 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         ...importsContext,
         ...moduleContext as any,
       };
-      const requestHooks$ = providers.map(provider =>
-        this._cache.injector.callRequestHookByProvider(
-          provider,
-          networkRequest,
-          builtResult,
-          this,
-        ),
+      const requestHooks$ = providers.map(provider => {
+        const instance = this.injector.getByProvider(provider);
+
+        if (
+          instance &&
+          typeof instance !== 'string' &&
+          typeof instance !== 'number' &&
+          'onRequest' in instance
+          ) {
+            return instance.onRequest(
+              networkRequest,
+              builtResult,
+              this,
+            );
+          }
+        },
       );
       await Promise.all(requestHooks$);
       return builtResult;

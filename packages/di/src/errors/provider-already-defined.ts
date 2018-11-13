@@ -1,4 +1,5 @@
-import { ServiceIdentifier, getServiceIdentifierName } from '../di';
+import { ServiceIdentifier } from '../types';
+import { getServiceIdentifierName } from '../utils';
 
 export class ProviderAlreadyDefinedError<T> extends Error {
   constructor(private _moduleName: string, private _serviceIdentifier: ServiceIdentifier<T>) {

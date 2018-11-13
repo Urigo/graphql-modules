@@ -1,4 +1,5 @@
-import { ServiceIdentifier, getServiceIdentifierName } from '../di';
+import { ServiceIdentifier } from '../types';
+import { getServiceIdentifierName } from '../utils';
 
 export class ServiceIdentifierNotFoundError<T> extends Error {
   constructor(protected _serviceIdentifier: ServiceIdentifier<T>, private _dependent: string) {

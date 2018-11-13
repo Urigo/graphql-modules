@@ -33,7 +33,7 @@
     "deepmerge": "2.2.1",
     "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
-  },
+    },
   "devDependencies": {
     "graphql-tag": "2.10.0",
     "jest": "23.6.0",

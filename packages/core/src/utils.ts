@@ -1,6 +1,6 @@
 import { IResolversComposerMapping } from './resolvers-composition';
 import { IResolvers } from 'graphql-tools';
-import { Injector } from './di';
+import { Injector } from '@graphql-modules/di';
 
 export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 

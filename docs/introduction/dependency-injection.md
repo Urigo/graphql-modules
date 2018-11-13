@@ -19,7 +19,7 @@ Let's start by creating a simple class called `UserProvider` with `@Injectable()
 `modules/my-module/user.provider.ts`
 
 ```typescript
-import { Injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
 
 @Injectable()
 export class UserProvider {
@@ -47,7 +47,7 @@ export const MyModule = new GraphQLModule({
 Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
-import { Injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
 
 @Injectable()
 export class UserProvider {
@@ -94,7 +94,7 @@ It could be either `class`, `string` or `Symbol`.
 To get `OtherProvider` from `MyProvider`, do the following:
 
 ```typescript
-import { Injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
 import { OtherProvider } from '../my-other-module/other.provider';
 
 @Injectable()
