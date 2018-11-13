@@ -142,6 +142,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return this._options.name;
   }
 
+  get config() {
+    return this._moduleConfig;
+  }
+
   /**
    * Gets the application `GraphQLSchema` object.
    * If the schema object is not built yet, it compiles
