@@ -318,13 +318,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
               const { _networkRequest } = appContext;
-              const moduleContext = await this.contextBuilder(_networkRequest);
+              const moduleContext = await this.context(_networkRequest);
               return resolver.call(typeResolvers, root, args, moduleContext, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
               const { _networkRequest } = appContext;
-              const moduleContext = await this.contextBuilder(_networkRequest);
+              const moduleContext = await this.context(_networkRequest);
               return resolver.call(typeResolvers, root, moduleContext as any, info);
             };
           }
@@ -342,7 +342,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           const { _networkRequest } = appContext;
-          const moduleContext = await this.contextBuilder(_networkRequest);
+          const moduleContext = await this.context(_networkRequest);
           return next(root, args, moduleContext, info);
         },
         ...compositionArr,
@@ -467,6 +467,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     this._cache.contextBuilder = async _networkRequest => {
+      _networkRequest[MODULE_NAME_CONTEXT_MAP] = _networkRequest[MODULE_NAME_CONTEXT_MAP] || new Map<string, any>();
       if (! (_networkRequest[MODULE_NAME_CONTEXT_MAP].has(this.name))) {
         const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(_networkRequest));
         const importsContextArr = await Promise.all(importsContextArr$);
@@ -498,16 +499,24 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
   }
 
-  get contextBuilder(): (networkRequest: Request) => Promise<Context> {
+  /**
+   * Build a GraphQL `context` object based on a network request.
+   * It iterates over all modules by their dependency-based order, and executes
+   * `contextBuilder` method.
+   * It also in charge of injecting a reference to the application `Injector` to
+   * the `context`.
+   * The network request is passed to each `contextBuilder` method, and the return
+   * value of each `contextBuilder` is merged into a unified `context` object.
+   *
+   * This method should be in use with your GraphQL manager, such as Apollo-Server.
+   *
+   * @param request - the network request from `connect`, `express`, etc...
+   */
+  get context(): (networkRequest: Request) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
       this.buildSchemaAndInjector(this.modulesMap);
     }
-    return this._cache.contextBuilder;
-  }
-
-  context = async (_networkRequest: Request) => {
-    _networkRequest[MODULE_NAME_CONTEXT_MAP] = new Map<string, any>();
-    return { _networkRequest };
+    return this._cache.contextBuilder.bind(this);
   }
 
   get modulesMap() {
