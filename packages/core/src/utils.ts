@@ -1,4 +1,3 @@
-export const MODULE_NAME_MODULE_SESSION_INFO_MAP = '_moduleNameModuleSessionInfoMap';
 export const MODULE_NAME_CONTEXT_MAP = '_moduleNameContextMap';
 
 export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);

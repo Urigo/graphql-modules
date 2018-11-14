@@ -2,7 +2,7 @@
 import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError, ProviderClassNotDecoratedError } from '../errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
 import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES, getServiceIdentifierName } from './utils';
-import { MODULE_NAME_MODULE_SESSION_INFO_MAP } from '../utils';
+import { NAME_SESSION_INJECTOR_MAP } from './utils';
 
 declare var Reflect: any;
 
@@ -14,13 +14,13 @@ export class Injector {
   public _applicationScopeSet = new Set<ServiceIdentifier<any>>();
   public _requestScopeSet = new Set<ServiceIdentifier<any>>();
   public _sessionScopeSet = new Set<ServiceIdentifier<any>>();
-  constructor(public moduleName: string, private _defaultScope = ProviderScope.Application) {}
+  constructor(public name: string, private _defaultScope = ProviderScope.Application) {}
   public provide<T>(provider: Provider<T>): void {
 
     if (isTypeProvider(provider)) {
       const options: ProviderOptions = Reflect.getMetadata(PROVIDER_OPTIONS, provider);
       if (options && !options.overwrite && this.has(provider)) {
-        throw new ProviderAlreadyDefinedError(this.moduleName, provider);
+        throw new ProviderAlreadyDefinedError(this.name, provider);
       }
       this._classMap.set(provider, provider);
       switch ((options && options.scope) || this._defaultScope) {
@@ -38,7 +38,7 @@ export class Injector {
     }
 
     if (!provider.overwrite && this.has(provider.provide)) {
-      throw new ProviderAlreadyDefinedError(this.moduleName, provider.provide);
+      throw new ProviderAlreadyDefinedError(this.name, provider.provide);
     }
 
     if (isValueProvider(provider)) {
@@ -48,7 +48,7 @@ export class Injector {
     } else if (isFactoryProvider(provider)) {
       this._factoryMap.set(provider.provide, provider.useFactory);
     } else {
-      throw new ProviderNotValidError(this.moduleName, provider['provide'] && provider);
+      throw new ProviderNotValidError(this.name, provider['provide'] && provider);
     }
 
     switch (provider.scope || this._defaultScope) {
@@ -79,11 +79,11 @@ export class Injector {
     this._factoryMap.delete(serviceIdentifier);
   }
 
-  public get<T, Request = any>(serviceIdentifier: ServiceIdentifier<T>, networkRequest?: Request): T {
-      if (this._sessionScopeSet.has(serviceIdentifier) && !networkRequest) {
+  public get<T, Session = any>(serviceIdentifier: ServiceIdentifier<T>, session?: Session): T {
+      if (this._sessionScopeSet.has(serviceIdentifier) && !session) {
         throw new Error(`You cannot inject Provider #${getServiceIdentifierName(serviceIdentifier)} in application scope!`);
       }
-      const sessionScopeInstanceMap = networkRequest && networkRequest[MODULE_NAME_MODULE_SESSION_INFO_MAP].get(this.moduleName).injector.sessionScopeInstanceMap;
+      const sessionScopeInstanceMap = session && session[NAME_SESSION_INJECTOR_MAP].get(this.name).injector.sessionScopeInstanceMap;
       if (sessionScopeInstanceMap && sessionScopeInstanceMap.has(serviceIdentifier)) {
         return sessionScopeInstanceMap.get(serviceIdentifier);
       } else if (this._instanceMap.has(serviceIdentifier)) {
@@ -93,9 +93,9 @@ export class Injector {
         try {
           const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz);
           if (!dependencies) {
-            throw new ProviderClassNotDecoratedError<T>(this.moduleName, serviceIdentifier, RealClazz.name);
+            throw new ProviderClassNotDecoratedError<T>(this.name, serviceIdentifier, RealClazz.name);
           }
-          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency, networkRequest));
+          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency, session));
           const instance = new RealClazz(...dependencyInstances);
           if (this._applicationScopeSet.has(serviceIdentifier)) {
             this._instanceMap.set(serviceIdentifier, instance);
@@ -105,7 +105,7 @@ export class Injector {
           return instance;
         } catch (e) {
           if (e instanceof ServiceIdentifierNotFoundError) {
-            throw new DependencyProviderNotFoundError(e.serviceIdentifier, RealClazz, this.moduleName);
+            throw new DependencyProviderNotFoundError(e.serviceIdentifier, RealClazz, this.name);
           } else {
             throw e;
           }
@@ -122,7 +122,7 @@ export class Injector {
       } else {
         for (const child of this.children) {
           try {
-            return child.get(serviceIdentifier, networkRequest);
+            return child.get(serviceIdentifier, session);
           } catch (e) {
             if (e instanceof ServiceIdentifierNotFoundError) {
               continue;
@@ -131,7 +131,7 @@ export class Injector {
             }
           }
         }
-        throw new ServiceIdentifierNotFoundError(serviceIdentifier, this.moduleName);
+        throw new ServiceIdentifierNotFoundError(serviceIdentifier, this.name);
       }
   }
 

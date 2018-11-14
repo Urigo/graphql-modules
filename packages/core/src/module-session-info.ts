@@ -1,17 +1,15 @@
 import { GraphQLModule } from './graphql-module';
-import { SessionInjector } from './di';
-import { MODULE_NAME_MODULE_SESSION_INFO_MAP } from './utils';
+import { SessionInjector, ServiceIdentifier } from './di';
+import { OnRequest } from './types';
 
 export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
-  private _injector: SessionInjector<Config, Request, Context>;
+  private _injector: SessionInjector<Request>;
   constructor(
     private _module: GraphQLModule<Config, Request, Context>,
     private _request: Request,
     private _context: Context,
   ) {
-    this.injector = new SessionInjector<Config, Request, Context>(_module.injector, this);
-    _request[MODULE_NAME_MODULE_SESSION_INFO_MAP] = _request[MODULE_NAME_MODULE_SESSION_INFO_MAP] || new Map<string, ModuleSessionInfo<any, Request, any>>();
-    _request[MODULE_NAME_MODULE_SESSION_INFO_MAP].set(_module.name, this);
+    this._injector = new SessionInjector(_module.injector, _request);
   }
   get module() {
     return this._module;
@@ -25,7 +23,19 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
   get injector() {
     return this._injector;
   }
-  set injector(injector: SessionInjector<Config, Request, Context>) {
-    this._injector = injector;
+  public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
+    serviceIdentifier: ServiceIdentifier<T>,
+    ): Promise<void> {
+
+    const instance = this._injector.get<T>(serviceIdentifier);
+
+    if (
+      instance &&
+      typeof instance !== 'string' &&
+      typeof instance !== 'number' &&
+      'onRequest' in instance
+      ) {
+      return instance.onRequest(this);
+    }
   }
 }

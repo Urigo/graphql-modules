@@ -1,31 +1,20 @@
 import { Injector } from './injector';
-import { ServiceIdentifier, OnRequest } from './types';
-import { ModuleSessionInfo } from '../module-session-info';
+import { ServiceIdentifier } from './types';
+import { NAME_SESSION_INJECTOR_MAP } from './utils';
 
-export class SessionInjector<Config, Request, Context> {
+type ExtendedSession<Session> = Session & { [NAME_SESSION_INJECTOR_MAP]: Map<string, SessionInjector<Session>> };
+
+export class SessionInjector<Session> {
   sessionScopeInstanceMap = new Map<ServiceIdentifier<any>, any>();
   constructor(
     public applicationInjector: Injector,
-    private moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
+    private session: Session,
    ) {
-    this.sessionScopeInstanceMap.set(ModuleSessionInfo, moduleSessionInfo);
-  }
+    const extendedSession = session as ExtendedSession<Session>;
+    extendedSession[NAME_SESSION_INJECTOR_MAP] = extendedSession[NAME_SESSION_INJECTOR_MAP] || new Map();
+    extendedSession[NAME_SESSION_INJECTOR_MAP].set(this.applicationInjector.name, this);
+   }
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
-    return this.applicationInjector.get(serviceIdentifier, this.moduleSessionInfo.request);
-  }
-  public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
-    serviceIdentifier: ServiceIdentifier<T>,
-    ): Promise<void> {
-
-    const instance = this.get<T>(serviceIdentifier);
-
-    if (
-      instance &&
-      typeof instance !== 'string' &&
-      typeof instance !== 'number' &&
-      'onRequest' in instance
-      ) {
-      return instance.onRequest(this.moduleSessionInfo);
-    }
+    return this.applicationInjector.get(serviceIdentifier, this.session);
   }
 }

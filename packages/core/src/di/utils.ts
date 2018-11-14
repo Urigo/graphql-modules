@@ -2,6 +2,7 @@ import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, Factor
 
 export const DESIGN_PARAM_TYPES = 'design:paramtypes';
 export const PROVIDER_OPTIONS = 'provider-options';
+export const NAME_SESSION_INJECTOR_MAP = 'name_session_injector_map';
 
 export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
   if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {

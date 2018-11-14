@@ -1,6 +1,6 @@
 import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, ModuleContext, Injector } from './di';
+import { Provider, Injector } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
@@ -8,6 +8,7 @@ import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUnd
 import deepmerge = require('deepmerge');
 import { ModuleSessionInfo } from './module-session-info';
 import { asArray, MODULE_NAME_CONTEXT_MAP } from './utils';
+import { ModuleContext } from './types';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -388,10 +389,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       importsSchemaDirectives.add(schemaDirectives);
     }
 
-    const injector = new Injector(this.name);
+    const injector = this._cache.injector = new Injector(this.name);
     injector.children = importsInjectors;
 
     const providers = this.selfProviders;
+
     for (const provider of providers) {
       injector.provide(provider);
     }
@@ -399,8 +401,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     for (const serviceIdentifier of injector._applicationScopeSet) {
       injector.get(serviceIdentifier);
     }
-
-    this._cache.injector = injector;
 
     const resolvers = this.addSessionInjectorToSelfResolversContext();
 
@@ -472,7 +472,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(_networkRequest));
         const importsContextArr = await Promise.all(importsContextArr$);
         const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
-        const moduleSessionInfo = new ModuleSessionInfo<Config, Request, Context>(this, _networkRequest, importsContext);
+        const moduleSessionInfo = new ModuleSessionInfo<Config, any, Context>(this, _networkRequest, importsContext);
         const applicationInjector = this.injector;
         const sessionInjector = moduleSessionInfo.injector;
         let moduleContext = {};
@@ -493,7 +493,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         const requestHooks$ = [
           ...applicationInjector._applicationScopeSet,
           ...applicationInjector._sessionScopeSet,
-        ].map(serviceIdentifier => sessionInjector.callRequestHook(serviceIdentifier),
+        ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
         );
         await Promise.all(requestHooks$);
         _networkRequest[MODULE_NAME_CONTEXT_MAP].set(this.name, builtResult);
