@@ -18,7 +18,6 @@ So, that
 ```typescript
 import 'reflect-metadata';
 import { AppModule } from './modules/app.module';
-import { makeExecutableSchema } from 'graphql-tools';
 
 // Get typeDefs from top module, and export it.
 export default AppModule.typeDefs;
