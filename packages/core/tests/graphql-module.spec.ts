@@ -64,13 +64,13 @@ describe('GraphQLModule', () => {
   const typesC = [`type C { f: String}`, `type Query { c: C }`];
   const moduleC = new GraphQLModule({
     typeDefs: typesC,
-    contextBuilder: cContextBuilder,
+    context: cContextBuilder,
   });
 
   // D
   const moduleD = new GraphQLModule({
     typeDefs: typesC,
-    contextBuilder: () => {
+    context: () => {
       throw new Error('oops');
     },
   });
@@ -510,7 +510,7 @@ describe('GraphQLModule', () => {
             foo: String
           }
         `,
-        contextBuilder: async () => {
+        context: async () => {
           return {
             counter: 0,
           };

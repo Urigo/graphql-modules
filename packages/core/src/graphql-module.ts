@@ -56,7 +56,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  contextBuilder?: BuildContextFn<Config, Request, Context>;
+  context?: BuildContextFn<Config, Request, Context> | Context;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
@@ -476,9 +476,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         const applicationInjector = this.injector;
         const sessionInjector = moduleSessionInfo.injector;
         let moduleContext = {};
-        const moduleContextDeclaration = this._options.contextBuilder;
+        const moduleContextDeclaration = this._options.context;
         if (moduleContextDeclaration) {
-          moduleContext = await this._options.contextBuilder(_networkRequest, importsContext, moduleSessionInfo);
+          if (typeof moduleContextDeclaration === 'function') {
+            moduleContext = await (moduleContextDeclaration as any)(_networkRequest, importsContext, moduleSessionInfo);
+          } else {
+            moduleContext = moduleContextDeclaration;
+          }
         }
         const builtResult = {
           ...importsContext,
@@ -651,7 +655,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         typeDefsSet.add(module.selfTypeDefs);
       }
       resolversSet.add(module.selfResolvers);
-      contextBuilderSet.add(module._options.contextBuilder);
+      contextBuilderSet.add(module._options.context);
       for (let importModule of module.selfImports) {
         if (modulesMap) {
           importModule = modulesMap.get(typeof importModule === 'string' ? importModule : importModule.name);
@@ -668,12 +672,15 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const name = [...nameSet].join('+');
     const typeDefs = [...typeDefsSet];
     const resolvers = mergeResolvers([...resolversSet]);
-    const contextBuilder = [...contextBuilderSet].reduce(
+    const context = [...contextBuilderSet].reduce(
       (accContextBuilder, currentContextBuilder) => {
         return async (networkRequest, currentContext, injector) => {
           const accContext = await accContextBuilder(networkRequest, currentContext, injector);
-          const moduleContext = currentContextBuilder ? await currentContextBuilder(networkRequest, currentContext, injector) : {};
-          return Object.assign({}, accContext, moduleContext);
+          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(networkRequest, currentContext, injector) : (currentContextBuilder || {});
+          return {
+            ...accContext as any,
+            ...moduleContext as any,
+          };
         };
       },
     );
@@ -685,7 +692,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       name,
       typeDefs,
       resolvers,
-      contextBuilder,
+      context,
       imports,
       providers,
       resolversComposition,
