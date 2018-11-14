@@ -3,13 +3,15 @@ import { ServiceIdentifier, OnRequest } from './types';
 import { ModuleSessionInfo } from '../module-session-info';
 
 export class SessionInjector<Config, Request, Context> {
-  _sessionInstanceMap = new Map<ServiceIdentifier<any>, any>();
-  constructor(public applicationInjector: Injector, private _moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>) {
-    _moduleSessionInfo.injector = this;
-    this._sessionInstanceMap.set(ModuleSessionInfo, _moduleSessionInfo);
+  sessionScopeInstanceMap = new Map<ServiceIdentifier<any>, any>();
+  constructor(
+    public applicationInjector: Injector,
+    private moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
+   ) {
+    this.sessionScopeInstanceMap.set(ModuleSessionInfo, moduleSessionInfo);
   }
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
-    return this.applicationInjector.get(serviceIdentifier, this._sessionInstanceMap);
+    return this.applicationInjector.get(serviceIdentifier, this.moduleSessionInfo.request);
   }
   public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
     serviceIdentifier: ServiceIdentifier<T>,
@@ -23,7 +25,7 @@ export class SessionInjector<Config, Request, Context> {
       typeof instance !== 'number' &&
       'onRequest' in instance
       ) {
-      return instance.onRequest(this._moduleSessionInfo);
+      return instance.onRequest(this.moduleSessionInfo);
     }
   }
 }

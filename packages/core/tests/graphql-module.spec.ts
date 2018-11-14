@@ -54,6 +54,9 @@ describe('GraphQLModule', () => {
         return next(root, args, context, info);
       },
     },
+    imports: () => [
+      moduleC,
+    ],
   });
 
   // C (with context building fn)
@@ -114,8 +117,8 @@ describe('GraphQLModule', () => {
 
       type Query {
         a: A
-        b: B
         c: C
+        b: B
       }`));
   });
 
@@ -155,13 +158,6 @@ describe('GraphQLModule', () => {
     });
 
     expect(result.data.b.f).toBe('1');
-  });
-
-  it('should throw an exception when a contextFn throws an exception', async () => {
-    const app = new GraphQLModule({ imports: [moduleD] });
-    const spy = jest.fn();
-
-    await app.context({ req: {} }).catch(spy).then(() => expect(spy).toHaveBeenCalled());
   });
 
   it('should put the correct providers to the injector', async () => {
@@ -415,7 +411,6 @@ describe('GraphQLModule', () => {
 
     it('should call onRequest hook on each request', async () => {
       let counter = 0;
-
       @Injectable()
       class FooProvider implements OnRequest {
         onRequest() {
@@ -423,19 +418,45 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { context } = new GraphQLModule({
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => '',
+          },
+        },
         providers: [
           FooProvider,
         ],
       });
-      await context({});
-      expect(counter).toEqual(1);
-      await context({});
-      expect(counter).toEqual(2);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(1);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(2);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(3);
     });
 
     it('should pass network request to onRequest hook', async () => {
-      const fooRequest = {};
+      const fooRequest = {
+        foo: 'bar',
+      };
       let receivedRequest;
 
       @Injectable()
@@ -445,13 +466,29 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { context } = new GraphQLModule({
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (root, args, {injector}: ModuleContext, info) => injector.get(ModuleSessionInfo).request.foo,
+          },
+        },
         providers: [
           FooProvider,
         ],
       });
-      await context(fooRequest);
-      expect(receivedRequest).toBe(fooRequest);
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context(fooRequest),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(receivedRequest.foo).toBe(fooRequest.foo);
+      expect(result.data.foo).toBe(fooRequest.foo);
     });
   });
   describe('Resolvers Composition', async () => {
@@ -507,13 +544,13 @@ describe('GraphQLModule', () => {
           ],
         },
       });
-      const contextValue = await context({ req: {} });
       const result = await execute({
         schema,
         document: gql`query { foo }`,
-        contextValue,
+        contextValue: await context({ req: {} }),
       });
-      expect(contextValue.counter).toBe(0);
+      expect(result.errors).toBeFalsy();
+      expect(result.data.foo).toBe('Hello');
     });
 
     it('should inject context correctly into `__resolveType`', async () => {
@@ -749,6 +786,7 @@ describe('GraphQLModule', () => {
         `,
         contextValue: await context(testRequest),
       });
+      expect(result.errors).toBeFalsy();
       expect(result.data['testA']).toBe('BAR');
       expect(result.data['testB']).toBe('BAR');
     });

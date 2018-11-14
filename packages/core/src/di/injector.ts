@@ -1,7 +1,8 @@
 
 import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError, ProviderClassNotDecoratedError } from '../errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
-import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
+import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES, getServiceIdentifierName } from './utils';
+import { MODULE_NAME_MODULE_SESSION_INFO_MAP } from '../utils';
 
 declare var Reflect: any;
 
@@ -78,9 +79,13 @@ export class Injector {
     this._factoryMap.delete(serviceIdentifier);
   }
 
-  public get<T>(serviceIdentifier: ServiceIdentifier<T>, sessionInstanceMap?: Map<ServiceIdentifier<any>, any>): T {
-      if (sessionInstanceMap && sessionInstanceMap.has(serviceIdentifier)) {
-        return sessionInstanceMap.get(serviceIdentifier);
+  public get<T, Request = any>(serviceIdentifier: ServiceIdentifier<T>, networkRequest?: Request): T {
+      if (this._sessionScopeSet.has(serviceIdentifier) && !networkRequest) {
+        throw new Error(`You cannot inject Provider #${getServiceIdentifierName(serviceIdentifier)} in application scope!`);
+      }
+      const sessionScopeInstanceMap = networkRequest && networkRequest[MODULE_NAME_MODULE_SESSION_INFO_MAP].get(this.moduleName).injector.sessionScopeInstanceMap;
+      if (sessionScopeInstanceMap && sessionScopeInstanceMap.has(serviceIdentifier)) {
+        return sessionScopeInstanceMap.get(serviceIdentifier);
       } else if (this._instanceMap.has(serviceIdentifier)) {
         return this._instanceMap.get(serviceIdentifier);
       } else if (this._classMap.has(serviceIdentifier)) {
@@ -90,12 +95,12 @@ export class Injector {
           if (!dependencies) {
             throw new ProviderClassNotDecoratedError<T>(this.moduleName, serviceIdentifier, RealClazz.name);
           }
-          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency, sessionInstanceMap));
+          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency, networkRequest));
           const instance = new RealClazz(...dependencyInstances);
           if (this._applicationScopeSet.has(serviceIdentifier)) {
             this._instanceMap.set(serviceIdentifier, instance);
-          } else if (sessionInstanceMap && this._sessionScopeSet.has(serviceIdentifier)) {
-            sessionInstanceMap.set(serviceIdentifier, instance);
+          } else if (sessionScopeInstanceMap && this._sessionScopeSet.has(serviceIdentifier)) {
+            sessionScopeInstanceMap.set(serviceIdentifier, instance);
           }
           return instance;
         } catch (e) {
@@ -110,14 +115,14 @@ export class Injector {
         const instance = factory(this);
         if (this._applicationScopeSet.has(serviceIdentifier)) {
           this._instanceMap.set(serviceIdentifier, instance);
-        } else if (sessionInstanceMap && this._sessionScopeSet.has(serviceIdentifier)) {
-          sessionInstanceMap.set(serviceIdentifier, instance);
+        } else if (sessionScopeInstanceMap && this._sessionScopeSet.has(serviceIdentifier)) {
+          sessionScopeInstanceMap.set(serviceIdentifier, instance);
         }
         return instance;
       } else {
         for (const child of this.children) {
           try {
-            return child.get(serviceIdentifier, sessionInstanceMap);
+            return child.get(serviceIdentifier, networkRequest);
           } catch (e) {
             if (e instanceof ServiceIdentifierNotFoundError) {
               continue;
