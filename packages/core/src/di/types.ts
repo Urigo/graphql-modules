@@ -44,3 +44,5 @@ export const enum ProviderScope {
   Request = 'REQUEST',
   Session = 'SESSION',
 }
+
+export type ExtendedSession<Session> = Session & { nameSessionInjectorMap: Map<string, Injector> };

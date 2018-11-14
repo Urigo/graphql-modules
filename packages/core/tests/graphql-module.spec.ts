@@ -8,7 +8,7 @@ import {
   ModuleContext,
   OnRequest,
   ProviderScope,
-  SessionInjector,
+  Injector,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
@@ -487,7 +487,7 @@ describe('GraphQLModule', () => {
         contextValue: await context(fooRequest),
       });
       expect(result.errors).toBeFalsy();
-      expect(receivedRequest.foo).toBe(fooRequest.foo);
+      expect(receivedRequest).toBe(fooRequest);
       expect(result.data.foo).toBe(fooRequest.foo);
     });
   });
@@ -670,7 +670,7 @@ describe('GraphQLModule', () => {
         constructor() {
           counter++;
         }
-        test(injector: SessionInjector<any, any, any>) {
+        test(injector: Injector) {
           return (this === injector.get(ProviderA));
         }
       }

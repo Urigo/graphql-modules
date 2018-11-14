@@ -1,15 +1,17 @@
 import { GraphQLModule } from './graphql-module';
-import { SessionInjector, ServiceIdentifier } from './di';
+import { ServiceIdentifier } from './di';
 import { OnRequest } from './types';
 
 export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
-  private _injector: SessionInjector<Request>;
   constructor(
     private _module: GraphQLModule<Config, Request, Context>,
     private _request: Request,
     private _context: Context,
   ) {
-    this._injector = new SessionInjector(_module.injector, _request);
+    this.injector.provide({
+      provide: ModuleSessionInfo,
+      useValue: this,
+    });
   }
   get module() {
     return this._module;
@@ -21,13 +23,13 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
     return this._context;
   }
   get injector() {
-    return this._injector;
+    return this._module.injector.getSessionInjector(this.request);
   }
   public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
     serviceIdentifier: ServiceIdentifier<T>,
     ): Promise<void> {
 
-    const instance = this._injector.get<T>(serviceIdentifier);
+    const instance = this.injector.get<T>(serviceIdentifier);
 
     if (
       instance &&

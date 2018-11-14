@@ -1,13 +1,13 @@
 import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
-import { Provider, Injector } from './di';
+import { Provider, Injector, ProviderScope } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
 import deepmerge = require('deepmerge');
 import { ModuleSessionInfo } from './module-session-info';
-import { asArray, MODULE_NAME_CONTEXT_MAP } from './utils';
+import { asArray } from './utils';
 import { ModuleContext } from './types';
 
 /**
@@ -318,14 +318,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         if (typeof resolver === 'function') {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-              const { _networkRequest } = appContext;
-              const moduleContext = await this.context(_networkRequest);
+              const { networkRequest } = appContext;
+              const moduleContext = await this.context(networkRequest);
               return resolver.call(typeResolvers, root, args, moduleContext, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-              const { _networkRequest } = appContext;
-              const moduleContext = await this.context(_networkRequest);
+              const { networkRequest } = appContext;
+              const moduleContext = await this.context(networkRequest);
               return resolver.call(typeResolvers, root, moduleContext as any, info);
             };
           }
@@ -342,8 +342,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const { _networkRequest } = appContext;
-          const moduleContext = await this.context(_networkRequest);
+          const { networkRequest } = appContext;
+          const moduleContext = await this.context(networkRequest);
           return next(root, args, moduleContext, info);
         },
         ...compositionArr,
@@ -389,7 +389,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       importsSchemaDirectives.add(schemaDirectives);
     }
 
-    const injector = this._cache.injector = new Injector(this.name);
+    const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application);
     injector.children = importsInjectors;
 
     const providers = this.selfProviders;
@@ -398,7 +398,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       injector.provide(provider);
     }
 
-    for (const serviceIdentifier of injector._applicationScopeSet) {
+    for (const serviceIdentifier of injector.scopeSet) {
       injector.get(serviceIdentifier);
     }
 
@@ -466,20 +466,20 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
 
-    this._cache.contextBuilder = async _networkRequest => {
-      _networkRequest[MODULE_NAME_CONTEXT_MAP] = _networkRequest[MODULE_NAME_CONTEXT_MAP] || new Map<string, any>();
-      if (! (_networkRequest[MODULE_NAME_CONTEXT_MAP].has(this.name))) {
-        const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(_networkRequest));
+    this._cache.contextBuilder = async networkRequest => {
+      networkRequest['moduleNameContextMap'] = networkRequest['moduleNameContextMap'] || new Map();
+      const moduleNameContextMap: Map<string, any> = networkRequest['moduleNameContextMap'];
+      if (! (moduleNameContextMap.has(this.name))) {
+        const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
         const importsContextArr = await Promise.all(importsContextArr$);
         const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
-        const moduleSessionInfo = new ModuleSessionInfo<Config, any, Context>(this, _networkRequest, importsContext);
-        const applicationInjector = this.injector;
-        const sessionInjector = moduleSessionInfo.injector;
+        const sessionInjector = this.injector.getSessionInjector(networkRequest);
+        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) :  new ModuleSessionInfo<Config, any, Context>(this, networkRequest, importsContext);
         let moduleContext = {};
         const moduleContextDeclaration = this._options.context;
         if (moduleContextDeclaration) {
           if (typeof moduleContextDeclaration === 'function') {
-            moduleContext = await (moduleContextDeclaration as any)(_networkRequest, importsContext, moduleSessionInfo);
+            moduleContext = await (moduleContextDeclaration as any)(networkRequest, importsContext, moduleSessionInfo);
           } else {
             moduleContext = moduleContextDeclaration;
           }
@@ -488,17 +488,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           ...importsContext,
           ...moduleContext as any,
           injector: sessionInjector,
-          _networkRequest,
+          networkRequest,
         };
         const requestHooks$ = [
-          ...applicationInjector._applicationScopeSet,
-          ...applicationInjector._sessionScopeSet,
+          ...this.injector.scopeSet,
+          ...sessionInjector.scopeSet,
         ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
         );
         await Promise.all(requestHooks$);
-        _networkRequest[MODULE_NAME_CONTEXT_MAP].set(this.name, builtResult);
+        moduleNameContextMap.set(this.name, builtResult);
       }
-      return _networkRequest[MODULE_NAME_CONTEXT_MAP].get(this.name);
+      return moduleNameContextMap.get(this.name);
     };
 
   }

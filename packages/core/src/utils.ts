@@ -1,5 +1,3 @@
-export const MODULE_NAME_CONTEXT_MAP = '_moduleNameContextMap';
-
 export const asArray = <T>(fns: T | T[]) => (Array.isArray(fns) ? fns : [fns]);
 
 export function chainFunctions(funcs: any[]) {
