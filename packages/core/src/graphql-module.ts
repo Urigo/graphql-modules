@@ -389,8 +389,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       importsSchemaDirectives.add(schemaDirectives);
     }
 
-    const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application);
-    injector.children = importsInjectors;
+    const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
 
     const providers = this.selfProviders;
 
@@ -462,6 +461,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           throw new SchemaNotValidError(this.name, e.message);
         }
       } else {
+        this._cache.typeDefs = this._cache.typeDefs || null;
         this._cache.schema = null;
       }
     }
