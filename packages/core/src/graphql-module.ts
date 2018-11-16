@@ -1,4 +1,4 @@
-import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, mergeSchemas } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, ModuleContext, Injector } from './di';
 import { DocumentNode, print, GraphQLSchema } from 'graphql';
@@ -73,6 +73,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Request, Context>;
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
+  logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
   extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
 }
 
@@ -231,6 +232,21 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   /**
+   * Build a GraphQL `context` object based on a network request.
+   * It iterates over all modules by their dependency-based order, and executes
+   * `contextBuilder` method.
+   * It also in charge of injecting a reference to the application `Injector` to
+   * the `context`.
+   * The network request is passed to each `contextBuilder` method, and the return
+   * value of each `contextBuilder` is merged into a unified `context` object.
+   *
+   * This method should be in use with your GraphQL manager, such as Apollo-Server.
+   *
+   * @param request - the network request from `connect`, `express`, etc...
+   */
+  context = (request: Request) => this.contextBuilder(request);
+
+  /**
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
    */
@@ -319,6 +335,19 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
     return schemaDirectives;
+  }
+
+  get selfLogger(): ILogger {
+    let logger: ILogger;
+    const loggerDefinitions = this._options.logger;
+    if (loggerDefinitions) {
+      if (typeof logger === 'function') {
+        logger = (loggerDefinitions as any)(this);
+      } else {
+        logger = loggerDefinitions as ILogger;
+      }
+    }
+    return logger;
   }
 
   private buildSchemaAndInjector(modulesMap: ModulesMap<Request>) {
@@ -435,6 +464,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             requireResolversForResolveType: false,
             allowResolversNotInSchema: true,
           },
+          logger: this.selfLogger,
         });
         this._cache.schema = mergeSchemas({
           schemas: [localSchema, ...allExtraSchemas],
@@ -480,26 +510,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       this.buildSchemaAndInjector(this.modulesMap);
     }
     return this._cache.contextBuilder;
-  }
-
-  /**
-   * Build a GraphQL `context` object based on a network request.
-   * It iterates over all modules by their dependency-based order, and executes
-   * `contextBuilder` method.
-   * It also in charge of injecting a reference to the application `Injector` to
-   * the `context`.
-   * The network request is passed to each `contextBuilder` method, and the return
-   * value of each `contextBuilder` is merged into a unified `context` object.
-   *
-   * This method should be in use with your GraphQL manager, such as Apollo-Server.
-   *
-   * @param request - the network request from `connect`, `express`, etc...
-   */
-  context = async (request: Request): Promise<ModuleContext<Context>> => {
-    const moduleContext = await this.contextBuilder(request);
-    return {
-      ...moduleContext as any,
-    };
   }
 
   get modulesMap() {
@@ -621,6 +631,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();
     const schemaDirectivesSet = new Set<ISchemaDirectives>();
+    const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
@@ -650,6 +661,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const extraSchema of module.selfExtraSchemas) {
         extraSchemasSet.add(extraSchema);
       }
+      loggerSet.add(module.selfLogger);
     }
 
     const name = [...nameSet].join('+');
@@ -668,6 +680,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const providers = [...providersSet];
     const resolversComposition = deepmerge.all([...resolversCompositionSet]);
     const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
+    const logger = {
+      log(message: string) {
+        for (const logger of loggerSet) {
+          logger.log(message);
+        }
+      },
+    };
     const extraSchemas = [...extraSchemasSet];
     return new GraphQLModule<Config, Request, Context>({
       name,
@@ -679,6 +698,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       resolversComposition,
       schemaDirectives,
       extraSchemas,
+      logger,
     });
   }
 }

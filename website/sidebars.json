@@ -3,8 +3,7 @@
     "API Docs": [
       "api/core/api-readme",
       "api/sonar/api-readme",
-      "api/epoxy/api-readme",
-      "api/logger/api-readme"
+      "api/epoxy/api-readme"
     ]
   },
   "docs": {
