@@ -12,7 +12,7 @@ import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, Gr
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
-import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 
 describe('GraphQLModule', () => {
   // A
@@ -614,6 +614,46 @@ describe('GraphQLModule', () => {
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
 
+    });
+  });
+  describe('Extra Schemas', async () => {
+    it('should handle extraSchemas together with local ones', async () => {
+      const extraSchema = makeExecutableSchema({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => 'FOO',
+          },
+        },
+      });
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            bar: String
+          }
+        `,
+        resolvers: {
+          Query : {
+            bar: () => 'BAR',
+          },
+        },
+        extraSchemas: [
+          extraSchema,
+        ],
+      });
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { foo bar }`,
+        contextValue,
+      });
+      expect(result.data['foo']).toBe('FOO');
+      expect(result.data['bar']).toBe('BAR');
     });
   });
 });
