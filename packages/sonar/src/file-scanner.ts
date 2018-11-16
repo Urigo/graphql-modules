@@ -1,7 +1,6 @@
 import { IOptions, sync } from 'glob';
 import { extname } from 'path';
 import { readFileSync } from 'fs';
-import { logger } from '@graphql-modules/logger';
 import { print } from 'graphql';
 
 const DEFAULT_SCHEMA_EXTENSIONS = ['gql', 'graphql', 'graphqls', 'ts', 'js'];
@@ -104,8 +103,7 @@ export function loadResolversFiles(basePath: string, options: LoadResolversFiles
 
       return extractExports(fileExports);
     } catch (e) {
-      logger.error(`Unable to load resolver file: ${path}, error: ${e}`);
-
+      throw new Error(`Unable to load resolver file: ${path}, error: ${e}`);
       return null;
     }
   }).filter(t => t);
