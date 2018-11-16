@@ -1,4 +1,4 @@
-import { Provider, ServiceIdentifier, OnRequest } from './types';
+import { Provider, ServiceIdentifier, OnRequest, Type } from './types';
 import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactoryProvider, isTypeProvider } from './utils';
 import { GraphQLModule } from '../graphql-module';
 import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
@@ -9,9 +9,9 @@ export class Injector {
   public children = new Set<Injector>();
   private _types = new Set<any>();
   private _valueMap = new Map();
-  private _classMap = new Map();
-  private _factoryMap = new Map();
-  private _instanceMap = new Map();
+  private _classMap = new Map<ServiceIdentifier<any>, Type<any>>();
+  private _factoryMap = new Map<any, (...args: any[]) => any>();
+  private _instanceMap = new Map<ServiceIdentifier<any>, any>();
   constructor(public moduleName: string) {}
   public provide<T>(provider: Provider<T>): void {
     if (isTypeProvider(provider)) {
@@ -46,7 +46,7 @@ export class Injector {
       } else if (this._factoryMap.has(serviceIdentifier)) {
         if (!this._instanceMap.has(serviceIdentifier)) {
           const factory = this._factoryMap.get(serviceIdentifier);
-          this._instanceMap.set(serviceIdentifier, this.call(factory));
+          this._instanceMap.set(serviceIdentifier, this.call(factory, factory));
         }
         return this._instanceMap.get(serviceIdentifier);
       } else {
@@ -83,13 +83,13 @@ export class Injector {
     }
   }
 
-  public call<Fn extends (...args: any[]) => any>(fn: Fn, ...args: any[]): ReturnType<Fn> {
+  public call<Fn extends (this: ThisArg, ...args: any[]) => any, ThisArg>(fn: Fn, thisArg: ThisArg): ReturnType<Fn> {
     if (Reflect.hasMetadata(DESIGN_PARAM_TYPES, fn)) {
       const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, fn);
       const instances = dependencies.map((dependency: any) => this.get(dependency));
-      return fn.call(fn, ...args, ...instances);
+      return fn.call(thisArg, ...instances);
     }
-    return fn.call(fn, ...args);
+    return fn.call(thisArg, thisArg);
   }
 
   public getByProvider<T>(provider: Provider<T>) {

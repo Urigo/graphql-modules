@@ -372,7 +372,7 @@ describe('GraphQLModule', () => {
               test: String
             }
           `,
-          resolvers: Inject(ProviderB)((module, providerB: ProviderB) => ({
+          resolvers: Inject(ProviderB)((providerB) => ({
             Query: {
               test: () => providerB.test,
             },

@@ -1,7 +1,7 @@
 import { GraphQLModule } from '../graphql-module';
 import { Injector } from './injector';
 
-interface Newable<T> {
+export interface Newable<T> {
   new (...args: any[]): T;
 }
 interface Abstract<T> {

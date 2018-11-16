@@ -392,7 +392,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
 
-    const injector = new Injector(this.name);
+    const injector = this._cache.injector = new Injector(this.name);
+    injector.provide({
+      provide: GraphQLModule,
+      useValue: this,
+    });
+
     injector.children = importsInjectors;
 
     const providers = this.selfProviders;
@@ -403,8 +408,6 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     for (const provider of providers) {
       injector.init(provider);
     }
-
-    this._cache.injector = injector;
 
     const resolvers = addInjectorToResolversContext(this.selfResolvers, injector);
 
@@ -468,6 +471,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         });
         this._cache.schema = mergeSchemas({
           schemas: [localSchema, ...allExtraSchemas],
+        });
+        this.injector.provide({
+          provide: GraphQLSchema,
+          useValue: this._cache.schema,
         });
       }
     } catch (e) {
