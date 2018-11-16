@@ -18,10 +18,9 @@ So, that
 ```typescript
 import 'reflect-metadata';
 import { AppModule } from './modules/app.module';
-import { makeExecutableSchema } from 'graphql-tools';
 
-// Get typeDefs from top module, and create a schema without resolvers and other business logic
-export default makeExecutableSchema({ typeDefs: AppModule.typeDefs });
+// Get typeDefs from top module, and export it.
+export default AppModule.typeDefs;
 ```
 
 Then, add a script in `package.json` to generate types easily.

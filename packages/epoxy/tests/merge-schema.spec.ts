@@ -1,5 +1,6 @@
 import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/merge-schema';
 import { makeExecutableSchema } from 'graphql-tools';
+import { printSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 
@@ -224,6 +225,25 @@ describe('Merge Schema', () => {
           }
         `),
       );
+    });
+
+    it('should merge two GraphQLSchema with directives correctly', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            `type Query { f1: MyType }`,
+            `type MyType { f2: String }`,
+          ],
+        }),
+        makeExecutableSchema({
+          typeDefs: [
+            `directive @id on FIELD_DEFINITION`,
+            `type MyType2 { f2: String @id }`,
+          ],
+        }),
+      ]);
+
+      expect(merged).toContain('f2: String @id');
     });
 
     it('should merge the same directives and its locations', () => {

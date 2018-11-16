@@ -14,7 +14,7 @@ import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, Gr
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
-import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
 
 describe('GraphQLModule', () => {
@@ -474,7 +474,7 @@ describe('GraphQLModule', () => {
         `,
         resolvers: {
           Query: {
-            foo: (root, args, {injector}: ModuleContext, info) => injector.get(ModuleSessionInfo).request.foo,
+            foo: (root, args, { injector }: ModuleContext, info) => injector.get(ModuleSessionInfo).request.foo,
           },
         },
         providers: [
@@ -602,7 +602,7 @@ describe('GraphQLModule', () => {
   describe('Schema Directives', async () => {
     it('should handle schema directives', async () => {
 
-      const typeDefs = gql `
+      const typeDefs = gql`
       directive @date on FIELD_DEFINITION
 
       scalar Date
@@ -725,7 +725,7 @@ describe('GraphQLModule', () => {
           counter++;
         }
       }
-      const { context, injector } = new GraphQLModule({ providers: [ProviderA ]});
+      const { context, injector } = new GraphQLModule({ providers: [ProviderA] });
       expect(counter).toBe(0);
       await context({ mustBe: 0 });
       expect(counter).toBe(0);
@@ -742,7 +742,7 @@ describe('GraphQLModule', () => {
         scope: ProviderScope.Session,
       })
       class ProviderA {
-        constructor(private moduleInfo: ModuleSessionInfo) {}
+        constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
           return this.moduleInfo.request.foo;
         }
@@ -751,7 +751,7 @@ describe('GraphQLModule', () => {
         scope: ProviderScope.Request,
       })
       class ProviderB {
-        constructor(private moduleInfo: ModuleSessionInfo) {}
+        constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
           return this.moduleInfo.request.foo;
         }
@@ -789,6 +789,46 @@ describe('GraphQLModule', () => {
       expect(result.errors).toBeFalsy();
       expect(result.data['testA']).toBe('BAR');
       expect(result.data['testB']).toBe('BAR');
+    });
+  });
+  describe('Extra Schemas', async () => {
+    it('should handle extraSchemas together with local ones', async () => {
+      const extraSchema = makeExecutableSchema({
+        typeDefs: gql`
+      type Query {
+        foo: String
+      }
+    `,
+        resolvers: {
+          Query: {
+            foo: () => 'FOO',
+          },
+        },
+      });
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+        type Query {
+          bar: String
+        }
+      `,
+        resolvers: {
+          Query: {
+            bar: () => 'BAR',
+          },
+        },
+        extraSchemas: [
+          extraSchema,
+        ],
+      });
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { foo bar }`,
+        contextValue,
+      });
+      expect(result.data['foo']).toBe('FOO');
+      expect(result.data['bar']).toBe('BAR');
     });
   });
 });

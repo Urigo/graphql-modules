@@ -1,4 +1,4 @@
-import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, mergeSchemas } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, Injector, ProviderScope } from './di';
 import { DocumentNode, print, GraphQLSchema, parse } from 'graphql';
@@ -75,6 +75,8 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
   resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Request, Context>;
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
+  logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
+  extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
 }
 
 /**
@@ -94,6 +96,7 @@ export interface ModuleCache<Request, Context> {
   typeDefs: string;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
+  extraSchemas: GraphQLSchema[];
 }
 
 /**
@@ -111,6 +114,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     typeDefs: undefined,
     contextBuilder: undefined,
     modulesMap: undefined,
+    extraSchemas: undefined,
   };
 
   /**
@@ -198,6 +202,19 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
   }
 
+  get selfExtraSchemas(): GraphQLSchema[] {
+    let extraSchemas = new Array<GraphQLSchema>();
+    const extraSchemasDefinitions = this._options.extraSchemas;
+    if (extraSchemasDefinitions) {
+      if (typeof extraSchemasDefinitions === 'function') {
+        extraSchemas = extraSchemasDefinitions(this);
+      } else {
+        extraSchemas = extraSchemasDefinitions;
+      }
+    }
+    return extraSchemas;
+  }
+
   /**
    * Returns the GraphQL type definitions of the module
    * @return a `string` with the merged type definitions
@@ -257,7 +274,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     providers.unshift(
       {
         provide: ModuleConfig(this),
-        useValue: this._moduleConfig,
+        useValue: this.config,
       },
     );
     return providers;
@@ -333,6 +350,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
     return resolversComposition;
   }
+  get selfLogger(): ILogger {
+    let logger: ILogger;
+    const loggerDefinitions = this._options.logger;
+    if (loggerDefinitions) {
+      if (typeof logger === 'function') {
+        logger = (loggerDefinitions as any)(this);
+      } else {
+        logger = loggerDefinitions as ILogger;
+      }
+    }
+    return logger;
+  }
 
   private buildSchemaAndInjector(modulesMap: ModulesMap<Request>) {
     const imports = this.selfImports;
@@ -382,6 +411,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     try {
       const schemasToBeMerged = new Set(importsSchemas);
+      const extraSchemas = this.selfExtraSchemas;
+      for (const extraSchema of extraSchemas) {
+        schemasToBeMerged.add(extraSchema);
+      }
       const typeDefs = this.selfTypeDefs;
       if (schemasToBeMerged.size) {
         if (typeDefs && typeDefs.length) {
@@ -557,7 +590,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         // if it is merged module, get one module, it will be enough to get merged one.
         return modulesMap.get(moduleName);
       });
-      const mergedModule = GraphQLModule.mergeModules(circularModules, modulesMap);
+      const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, modulesMap);
       for (const moduleName of realPath) {
         modulesMap.set(moduleName, mergedModule);
         for (const subModuleName of moduleName.split('+')) {
@@ -588,6 +621,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();
     const schemaDirectivesSet = new Set<ISchemaDirectives>();
+    const loggerSet = new Set<ILogger>();
+    const extraSchemasSet = new Set<GraphQLSchema>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
       for (const subMergedModuleName of subMergedModuleNames) {
@@ -613,6 +648,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
       resolversCompositionSet.add(module.selfResolversComposition);
       schemaDirectivesSet.add(module.selfSchemaDirectives);
+      for (const extraSchema of module.selfExtraSchemas) {
+        extraSchemasSet.add(extraSchema);
+      }
+      loggerSet.add(module.selfLogger);
     }
 
     const name = [...nameSet].join('+');
@@ -634,6 +673,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const providers = [...providersSet];
     const resolversComposition = deepmerge.all([...resolversCompositionSet]);
     const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
+    const logger = {
+      log(message: string) {
+        for (const logger of loggerSet) {
+          logger.log(message);
+        }
+      },
+    };
+    const extraSchemas = [...extraSchemasSet];
     return new GraphQLModule<Config, Request, Context>({
       name,
       typeDefs,
@@ -643,6 +690,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       providers,
       resolversComposition,
       schemaDirectives,
+      extraSchemas,
+      logger,
     });
   }
 }
