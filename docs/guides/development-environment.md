@@ -107,21 +107,15 @@ import { SomeProvider } from '@modules/my-module';
 
 You can also treat `.graphql` files as text files and import from them easily. It's useful because most IDEs detects `.graphql` files and have syntax highlighting for it.
 
-To add support for this kind of imports in TypeScript, create a file called `src/typings.d.ts` in your project, with the following content:
+You can use [graphql-import-node](https://github.com/ardatan/graphql-import-node) to make NodeJS able to import `.graphql` files;
 
-```typescript
-declare module '*.graphql' {
-    import {DocumentNode} from 'graphql';
-
-    const value: DocumentNode;
-    export = value;
-}
+```bash
+yarn add graphql-import-node
 ```
 
-Now you should be able to import `.graphql` files this way:
-
 ```typescript
-import * as UserType from './user.graphql';
+import 'graphql-import-node'; // You should add this at the begininng of your entry file.
+import * as UserTypeDefs from './user.graphql';
 ```
 
 ## Webpack
