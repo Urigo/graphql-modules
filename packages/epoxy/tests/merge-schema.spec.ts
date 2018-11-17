@@ -1,10 +1,45 @@
 import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/merge-schema';
 import { makeExecutableSchema } from 'graphql-tools';
-import { printSchema } from 'graphql';
+import { buildSchema, buildClientSchema } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
+import * as introspectionSchema from './schema.json';
 
 describe('Merge Schema', () => {
+  describe('AST Schema Fixing', () => {
+    it('Should handle correctly schema without valid root AST node', () => {
+      const schema = buildSchema(`
+        type A {
+          a: String
+        }
+
+        type Query {
+          a: A
+        }
+      `);
+
+      expect(schema.astNode).toBeUndefined();
+
+      expect(() => {
+        mergeGraphQLTypes([
+          schema,
+        ]);
+      }).not.toThrow();
+    });
+
+    it('Should handle correctly schema without valid types AST nodes', () => {
+      const schema = buildClientSchema(introspectionSchema);
+
+      expect(schema.astNode).toBeUndefined();
+
+      expect(() => {
+        mergeGraphQLTypes([
+          schema,
+        ]);
+      }).not.toThrow();
+    });
+  });
+
   describe('mergeGraphQLTypes', () => {
     it('should return the correct definition of Schema', () => {
       const mergedArray = mergeGraphQLTypes([

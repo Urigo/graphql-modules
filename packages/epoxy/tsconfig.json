@@ -13,7 +13,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "importHelpers": true,
-    "noImplicitAny": true,
+    "resolveJsonModule": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noImplicitReturns": true,

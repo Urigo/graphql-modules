@@ -1,4 +1,4 @@
-import { DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source } from 'graphql';
+import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -14,13 +14,25 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode 
     .join('\n');
 }
 
+function fixSchemaAst(schema: GraphQLSchema): GraphQLSchema {
+  return buildASTSchema(parse(printSchema(schema)));
+}
+ 
 export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
-        const typesMap = type.getTypeMap();
+        let schema: GraphQLSchema = type;
+        let typesMap = type.getTypeMap();
+        const validAstNodes = Object.keys(typesMap).filter(key => typesMap[key].astNode);
+
+        if (validAstNodes.length === 0 && Object.keys(typesMap).length > 0) {
+          schema = fixSchemaAst(schema);
+          typesMap = schema.getTypeMap();
+        }
+
         const allTypesPrinted = Object.keys(typesMap).map(key => typesMap[key]).map(type => type.astNode ? print(type.astNode) : null).filter(e => e);
-        const directivesDeclaration = type.getDirectives().map(directive => directive.astNode ? print(directive.astNode) : null).filter(e => e);
+        const directivesDeclaration = schema.getDirectives().map(directive => directive.astNode ? print(directive.astNode) : null).filter(e => e);
         const printedSchema = [...directivesDeclaration, ...allTypesPrinted].join('\n');
 
         return parse(printedSchema);
