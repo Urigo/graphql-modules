@@ -17,7 +17,7 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode 
 function fixSchemaAst(schema: GraphQLSchema): GraphQLSchema {
   return buildASTSchema(parse(printSchema(schema)));
 }
- 
+
 export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
