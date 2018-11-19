@@ -6,7 +6,7 @@ export interface IResolversComposerMapping {
   [resolverPath: string]: any | any[];
 }
 
-function resolveRelevantMappings(resolvers: IResolvers, path: string, allMappings: IResolversComposerMapping): string[] {
+function resolveRelevantMappings<TSource, TContext>(resolvers: IResolvers<TSource, TContext>, path: string, allMappings: IResolversComposerMapping): string[] {
   const result: string[] = [];
   const splitted = path.split('.');
 
@@ -34,7 +34,7 @@ function resolveRelevantMappings(resolvers: IResolvers, path: string, allMapping
  * @param mapping - resolvers composition mapping
  * @hidden
  */
-export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): IResolvers {
+export function composeResolvers<TSource, TContext>(resolvers: IResolvers<TSource, TContext>, mapping: IResolversComposerMapping = {}): IResolvers {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
     const relevantFields = resolveRelevantMappings(resolvers, resolverPath, mapping);

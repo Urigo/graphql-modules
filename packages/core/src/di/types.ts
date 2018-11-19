@@ -41,3 +41,7 @@ export type ModuleContext<Context = { [key: string]: any }> = Context & { inject
 export interface OnRequest<Config = any, Request = any, Context = any> {
   onRequest(request: Request, context: Context, appModule: GraphQLModule<Config, Request, Context>): Promise<void> | void;
 }
+
+export type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
+  [Key in keyof Dependencies]: Dependencies[Key] extends Newable<any> ? InstanceType<Dependencies[Key]> : any;
+};

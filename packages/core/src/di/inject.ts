@@ -1,19 +1,15 @@
 import { DESIGN_PARAM_TYPES } from './utils';
-import { ServiceIdentifier, Newable } from './types';
-
-declare var Reflect: any;
-
-type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
-  [Key in keyof Dependencies]: Dependencies[Key] extends Newable<any> ? InstanceType<Dependencies[Key]> : any;
-};
+import { ServiceIdentifier, Instances } from './types';
 
 export function Inject<Dependencies extends Array<ServiceIdentifier<any>>, Fn extends (...args: Instances<Dependencies>) => any>(...dependencies: Dependencies) {
-  return (target: Fn, _targetKey?: any, index?: number): any => {
-    const allDependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
+  return (target: Fn, _targetKey?: string, index?: number): any => {
+    let allDependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
     if (typeof index !== 'undefined') {
-      allDependencies[index] = dependencies;
+      allDependencies[index] = dependencies[0];
+    } else {
+      allDependencies = dependencies;
     }
-    Reflect.defineMetadata(DESIGN_PARAM_TYPES, dependencies, target);
+    Reflect.defineMetadata(DESIGN_PARAM_TYPES, allDependencies, target);
     return target;
   };
 }

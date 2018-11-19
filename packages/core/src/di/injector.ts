@@ -3,8 +3,6 @@ import { isType, DESIGN_PARAM_TYPES, isValueProvider, isClassProvider, isFactory
 import { GraphQLModule } from '../graphql-module';
 import { ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderNotValidError } from '../errors';
 
-declare var Reflect: any;
-
 export class Injector {
   public children = new Set<Injector>();
   private _types = new Set<any>();
@@ -67,10 +65,7 @@ export class Injector {
 
   public instantiate<T>(clazz: any): T {
     try {
-      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz);
-      if (!dependencies) {
-        throw new Error('You must decorate the provider class with @Injectable()');
-      }
+      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, clazz) || [];
       const dependencyInstances = dependencies.map((dependency: any) => this.get(dependency));
       const instance = new clazz(...dependencyInstances);
       return instance;

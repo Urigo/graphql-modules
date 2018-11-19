@@ -473,6 +473,8 @@ describe('GraphQLModule', () => {
         contextBuilder: async () => {
           return {
             counter: 0,
+            foo: '',
+            bar: '',
           };
         },
         resolvers: {

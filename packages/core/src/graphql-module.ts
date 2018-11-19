@@ -50,7 +50,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<IResolvers, Config, Request, Context>;
+  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>>, Config, Request, Context>;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -92,7 +92,7 @@ export interface ModuleCache<Request, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: string;
-  resolvers: IResolvers;
+  resolvers: IResolvers<any, ModuleContext<Context>>;
   schemaDirectives: ISchemaDirectives;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
@@ -204,7 +204,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
   }
 
-  get resolvers(): IResolvers {
+  get resolvers(): IResolvers<any, ModuleContext<Context>> {
     if (typeof this._cache.resolvers === 'undefined') {
       this.buildSchemaAndInjector(this.modulesMap);
     }
@@ -267,8 +267,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return typeDefs;
   }
 
-  get selfResolvers(): IResolvers {
-    let resolvers: IResolvers = {};
+  get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
+    let resolvers: IResolvers<any, ModuleContext<Context>> = {};
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
@@ -315,8 +315,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     let resolversComposition: IResolversComposerMapping = {};
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
-      if (typeof resolversCompositionDefinitions === 'function') {
-        resolversComposition = this.injector.call(resolversCompositionDefinitions as any, this);
+      if (resolversCompositionDefinitions instanceof Function) {
+        resolversComposition = this.injector.call(resolversCompositionDefinitions, this);
       } else {
         resolversComposition = resolversCompositionDefinitions;
       }
@@ -341,8 +341,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     let logger: ILogger;
     const loggerDefinitions = this._options.logger;
     if (loggerDefinitions) {
-      if (typeof logger === 'function') {
-        logger = (loggerDefinitions as any)(this);
+      if (logger instanceof Function) {
+        logger = this.injector.call(loggerDefinitions as () => ILogger, this);
       } else {
         logger = loggerDefinitions as ILogger;
       }
