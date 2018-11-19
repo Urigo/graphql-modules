@@ -1,6 +1,6 @@
 import { mergeGraphQLSchemas, mergeGraphQLTypes } from '../src/schema-mergers/merge-schema';
 import { makeExecutableSchema } from 'graphql-tools';
-import { buildSchema, buildClientSchema } from 'graphql';
+import { buildSchema, buildClientSchema, print } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import * as introspectionSchema from './schema.json';
@@ -86,24 +86,24 @@ describe('Merge Schema', () => {
   });
 
   describe('mergeGraphQLSchemas', () => {
-    it('should return a string with the correct values', () => {
+    it('should return a Document with the correct values', () => {
       const merged = mergeGraphQLSchemas([
         'type Query { f1: String }',
         'type Query { f2: String }',
         'type MyType { field: Int } type Query { f3: MyType }',
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
           f2: String
           f3: MyType
         }
-  
+
         type MyType {
           field: Int
         }
-  
+
         schema {
           query: Query
         }`));
@@ -125,7 +125,7 @@ describe('Merge Schema', () => {
         `,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         " or she's not? "
         type MyType {
           field1: Int
@@ -136,7 +136,7 @@ describe('Merge Schema', () => {
         type Query {
           f1: MyType
         }
-  
+
         schema {
           query: Query
         }`));
@@ -153,7 +153,7 @@ describe('Merge Schema', () => {
         'interface MyInterface3 { f3: Int } type MyType4 implements MyInterface3 { f3: Int }'
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query @test @test2 { f1: String f2: String f3: MyType } type MyType { field: Int } union MyUnion = MyType | MyType2 type MyType2 { field: Int } interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int } interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 & MyInterface3 { f2: Int f3: Int } interface MyInterface3 { f3: Int } schema { query: Query }
         `));
     });
@@ -165,18 +165,18 @@ describe('Merge Schema', () => {
         `type Query { f1: MyType }`,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(
+      expect(stripWhitespaces(print(merged))).toBe(
         stripWhitespaces(`
           directive @id on FIELD_DEFINITION
-          
+
           type MyType {
             id: Int @id
-          } 
-          
+          }
+
           type Query {
             f1: MyType
-          } 
-          
+          }
+
           schema {
             query: Query
           }
@@ -195,18 +195,18 @@ describe('Merge Schema', () => {
         `type Query { f1: MyType }`,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(
+      expect(stripWhitespaces(print(merged))).toBe(
         stripWhitespaces(`
           directive @id(primitiveArg: String, arrayArg: [String]) on FIELD_DEFINITION
-          
+
           type MyType {
             id: Int @id(arrayArg: ["2", "1"], primitiveArg: "1")
-          } 
-          
+          }
+
           type Query {
             f1: MyType
-          } 
-          
+          }
+
           schema {
             query: Query
           }
@@ -243,18 +243,18 @@ describe('Merge Schema', () => {
         `type Query { f1: MyType }`,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(
+      expect(stripWhitespaces(print(merged))).toBe(
         stripWhitespaces(`
           directive @id on FIELD_DEFINITION
-          
+
           type MyType {
             id: Int @id
-          } 
-          
+          }
+
           type Query {
             f1: MyType
-          } 
-          
+          }
+
           schema {
             query: Query
           }
@@ -278,7 +278,7 @@ describe('Merge Schema', () => {
         }),
       ]);
 
-      expect(merged).toContain('f2: String @id');
+      expect(print(merged)).toContain('f2: String @id');
     });
 
     it('should merge the same directives and its locations', () => {
@@ -289,18 +289,18 @@ describe('Merge Schema', () => {
         `type Query { f1: MyType }`,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(
+      expect(stripWhitespaces(print(merged))).toBe(
         stripWhitespaces(`
           directive @id on FIELD_DEFINITION | OBJECT
-          
+
           type MyType {
             id: Int @id
-          } 
-          
+          }
+
           type Query {
             f1: MyType
-          } 
-          
+          }
+
           schema {
             query: Query
           }
@@ -315,11 +315,11 @@ describe('Merge Schema', () => {
         'type Query { f1: String }',
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
         }
-  
+
         schema {
           query: Query
         }`));
@@ -332,11 +332,11 @@ describe('Merge Schema', () => {
         `,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
         }
-  
+
         schema {
           query: Query
         }`));
@@ -350,12 +350,12 @@ describe('Merge Schema', () => {
         'type Query { f2: String }',
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
           f2: String
         }
-  
+
         schema {
           query: Query
         }`));
@@ -372,12 +372,12 @@ describe('Merge Schema', () => {
         'type Query { f2: String }',
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
           f2: String
         }
-  
+
         schema {
           query: Query
         }`));
@@ -397,13 +397,13 @@ describe('Merge Schema', () => {
         `,
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type Query {
           f1: String
           f2: String
           f3: String
         }
-  
+
         schema {
           query: Query
         }`));
@@ -419,7 +419,7 @@ describe('Merge Schema', () => {
         }),
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type MyType { f1: String }
         `));
     });
@@ -440,7 +440,7 @@ describe('Merge Schema', () => {
         }),
       ]);
 
-      expect(stripWhitespaces(merged)).toBe(stripWhitespaces(`
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type MyType { f1: String f2: String }
         `));
     });
