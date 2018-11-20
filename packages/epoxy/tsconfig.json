@@ -18,7 +18,8 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "downlevelIteration": true
   },
   "files": ["src/index.ts"],
   "exclude": ["node_modules"]
