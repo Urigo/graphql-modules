@@ -2,16 +2,11 @@ import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchem
 import { isGraphQLSchema, isSourceTypes, isStringTypes } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
-export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): string {
-  const astDefinitions = mergeGraphQLTypes(types);
-
-  return astDefinitions
-    .map<DocumentNode>(definition => ({
-      kind: 'Document',
-      definitions: [definition],
-    }))
-    .map(document => print(document))
-    .join('\n');
+export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): DocumentNode {
+  return {
+    kind: 'Document',
+    definitions: mergeGraphQLTypes(types),
+  };
 }
 
 function fixSchemaAst(schema: GraphQLSchema): GraphQLSchema {
