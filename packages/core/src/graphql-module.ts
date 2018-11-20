@@ -470,7 +470,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.contextBuilder = async networkRequest => {
       const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
       const importsContextArr = await Promise.all(importsContextArr$);
-      const importsContext = deepmerge.all(importsContextArr as any[]) as any;
+      const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...curr as any }), {});
       const moduleContext = await (this._options.contextBuilder ? this._options.contextBuilder(networkRequest, importsContext, this._cache.injector) : async () => ({}));
       const builtResult = {
         ...importsContext,

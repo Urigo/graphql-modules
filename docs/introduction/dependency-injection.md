@@ -62,21 +62,21 @@ export class UserProvider {
 
 > `Provider` lifecycle is by default as singleton, so you can use the implemented functions as util functions, but still use `this` to save global variables.
 
-And to use this function from our Provider in the actual resolver implementation, we need to access the GraphQL context, and get injector out of it:
+And to use this function from our Provider in the actual resolver implementation, get injector:
 
 ```typescript
-import { ModuleContext } from '@graphql-modules/core';
+import { GraphQLModule } from '@graphql-modules/core';
 
-export default {
+export default ({ injector }: GraphQLModule) => ({
     Query: {
-        user: (_, { id }: { id: string }, { injector }: ModuleContext) =>
+        user: (_, { id }: { id: string }) =>
             injector.get(UserProvider).getUserById(id),
     },
     User: {
         id: user => user._id,
         username: user => user.username,
     },
-};
+});
 ```
 
 So now our resolver is just a proxy to our implementation, which means we can replace easily `UserProvider` during tests and use mocks.
