@@ -1,4 +1,4 @@
-import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source } from 'graphql';
+import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -11,6 +11,28 @@ export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode 
 
 function fixSchemaAst(schema: GraphQLSchema): GraphQLSchema {
   return buildASTSchema(parse(printSchema(schema)));
+}
+
+function createSchemaDefinition(def: {
+  query: string | GraphQLObjectType | null;
+  mutation: string | GraphQLObjectType | null;
+  subscription: string | GraphQLObjectType | null;
+}): string {
+  const schemaRoot = {
+    query: def.query && def.query.toString(),
+    mutation: def.mutation && def.mutation.toString(),
+    subscription: def.subscription && def.subscription.toString(),
+  };
+
+  const fields = Object.keys(schemaRoot)
+    .map(rootType => (schemaRoot[rootType] ? `${rootType}: ${schemaRoot[rootType]}` : null))
+    .filter(a => a);
+
+  if (fields.length) {
+    return `schema { ${fields.join('\n')} }`;
+  }
+
+  return undefined;
 }
 
 export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
@@ -26,6 +48,11 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
           typesMap = schema.getTypeMap();
         }
 
+        const schemaDefinition = createSchemaDefinition({
+          query: schema.getQueryType(),
+          mutation: schema.getMutationType(),
+          subscription: schema.getSubscriptionType(),
+        });
         const allTypesPrinted = Object.keys(typesMap)
           .map(key => typesMap[key])
           .map(type => (type.astNode ? print(type.astNode) : null))
@@ -34,7 +61,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
           .getDirectives()
           .map(directive => (directive.astNode ? print(directive.astNode) : null))
           .filter(e => e);
-        const printedSchema = [...directivesDeclaration, ...allTypesPrinted].join('\n');
+        const printedSchema = [...directivesDeclaration, ...allTypesPrinted, schemaDefinition].join('\n');
 
         return parse(printedSchema);
       } else if (isStringTypes(type) || isSourceTypes(type)) {
@@ -73,21 +100,17 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   const mutationType = schemaDef.mutation ? schemaDef.mutation : allTypes.find(t => t === 'Mutation');
   const subscriptionType = schemaDef.subscription ? schemaDef.subscription : allTypes.find(t => t === 'Subscription');
 
-  const schemaRoot = {
+  const schemaDefinition = createSchemaDefinition({
     query: queryType,
     mutation: mutationType,
     subscription: subscriptionType,
-  };
+  });
 
-  const relevantTypes = Object.keys(schemaRoot)
-    .map(rootType => (schemaRoot[rootType] ? `${rootType}: ${schemaRoot[rootType]}` : null))
-    .filter(a => a);
-
-  if (relevantTypes.length === 0) {
+  if (!schemaDefinition) {
     return Object.values(mergedNodes);
   }
 
-  const schemaDefinition = parse(`schema { ${relevantTypes.join('\n')} }`).definitions[0];
+  const def = parse(schemaDefinition).definitions[0];
 
-  return [...Object.values(mergedNodes), schemaDefinition];
+  return [...Object.values(mergedNodes), def];
 }
