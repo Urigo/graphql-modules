@@ -401,6 +401,34 @@ describe('Merge Schema', () => {
         }`));
     });
 
+    it('should merge GraphQL Schemas that have schema definition', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type RootQuery { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+        makeExecutableSchema({
+          typeDefs: [
+            'type RootQuery { f2: String }',
+            'schema { query: RootQuery }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+      ]);
+
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        type RootQuery {
+          f1: String
+          f2: String
+        }
+
+        schema {
+          query: RootQuery
+        }`));
+    });
+
     it('should handle all merged correctly', () => {
       const merged = mergeGraphQLSchemas([
         makeExecutableSchema({
