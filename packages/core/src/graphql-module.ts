@@ -50,7 +50,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<IResolvers<any, Context>, Config, Request, Context>;
+  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>>, Config, Request, Context>;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -92,7 +92,7 @@ export interface ModuleCache<Request, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
-  resolvers: IResolvers<any, Context>;
+  resolvers: IResolvers<any, ModuleContext<Context>>;
   schemaDirectives: ISchemaDirectives;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
@@ -204,7 +204,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
   }
 
-  get resolvers(): IResolvers<any, Context> {
+  get resolvers(): IResolvers<any, ModuleContext<Context>> {
     if (typeof this._cache.resolvers === 'undefined') {
       this.buildSchemaAndInjector(this.modulesMap);
     }
@@ -263,8 +263,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return mergeGraphQLSchemas(asArray(typeDefs));
   }
 
-  get selfResolvers(): IResolvers<any, Context> {
-    let resolvers: IResolvers<any, Context> = {};
+  get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
+    let resolvers: IResolvers<any, ModuleContext<Context>> = {};
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
@@ -349,7 +349,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   private buildSchemaAndInjector(modulesMap: ModulesMap<Request>) {
     const imports = this.selfImports;
     const importsTypeDefs = new Set<DocumentNode>();
-    const importsResolvers = new Set<IResolvers<any, Context>>();
+    const importsResolvers = new Set<IResolvers<any, any>>();
     const importsInjectors = new Set<Injector>();
     const importsContextBuilders = new Set<(req: Request) => Promise<Context>>();
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
@@ -400,10 +400,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     const resolversComposition = addInjectorToResolversCompositionContext(this.selfResolversComposition, injector);
 
-    const resolversToBeComposed = new Set<IResolvers<any, Context>>(importsResolvers);
+    const resolversToBeComposed = new Set<IResolvers<any, any>>(importsResolvers);
     resolversToBeComposed.add(resolvers);
 
-    const composedResolvers = composeResolvers(
+    const composedResolvers = composeResolvers<any, ModuleContext<Context>>(
       mergeResolvers([...resolversToBeComposed]),
       resolversComposition,
     );
@@ -437,7 +437,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       if (typeDefsToBeMerged.size || allExtraSchemas.size) {
         const mergedTypeDefs = mergeGraphQLSchemas([...typeDefsToBeMerged]);
         this._cache.typeDefs = mergedTypeDefs;
-        const localSchema = makeExecutableSchema({
+        const localSchema = makeExecutableSchema<ModuleContext<Context>>({
           typeDefs: mergedTypeDefs,
           resolvers: composedResolvers,
           schemaDirectives: mergedSchemaDirectives,
@@ -609,7 +609,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   static mergeModules<Config = any, Request = any, Context = any>(modules: Array<GraphQLModule<any, Request, any>>, modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
-    const resolversSet = new Set<IResolvers<any, Context>>();
+    const resolversSet = new Set<IResolvers<any, any>>();
     const contextBuilderSet = new Set<BuildContextFn<Request, Context>>();
     const importsSet = new Set<ModuleDependency<any, Request, any>>();
     const providersSet = new Set<Provider<any>>();
