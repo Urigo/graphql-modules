@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/utils",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {

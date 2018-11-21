@@ -68,6 +68,24 @@ describe('Merge Schema', () => {
       expect(mergedArray[2].kind).toBe('SchemaDefinition');
     });
 
+    it('should accept root schema object', () => {
+      const mergedSchema = mergeGraphQLSchemas([
+        'type RootQuery { f1: String }',
+        'type RootQuery { f2: String }',
+        'schema { query: RootQuery }',
+        'type MyType { field: Int } type RootQuery { f3: MyType }',
+      ]);
+
+      const schema = makeExecutableSchema({
+        typeDefs: mergedSchema,
+      });
+      const queryType = schema.getQueryType();
+
+      expect(queryType).toBeDefined();
+      expect(queryType).not.toBeNull();
+      expect(queryType.name).toEqual('RootQuery');
+    });
+
     it('should return the correct definition of Schema when it defined multiple times', () => {
       const mergedArray = mergeGraphQLTypes([
         'type Query { f1: String }',
@@ -380,6 +398,34 @@ describe('Merge Schema', () => {
 
         schema {
           query: Query
+        }`));
+    });
+
+    it('should merge GraphQL Schemas that have schema definition', () => {
+      const merged = mergeGraphQLSchemas([
+        makeExecutableSchema({
+          typeDefs: [
+            'type RootQuery { f1: String }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+        makeExecutableSchema({
+          typeDefs: [
+            'type RootQuery { f2: String }',
+            'schema { query: RootQuery }',
+          ],
+          allowUndefinedInResolve: true,
+        }),
+      ]);
+
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        type RootQuery {
+          f1: String
+          f2: String
+        }
+
+        schema {
+          query: RootQuery
         }`));
     });
 
