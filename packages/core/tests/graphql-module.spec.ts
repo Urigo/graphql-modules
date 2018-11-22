@@ -29,10 +29,10 @@ describe('GraphQLModule', () => {
   const typesA = [`type A { f: String}`, `type Query { a: A }`];
   const moduleA = new GraphQLModule({
     typeDefs: typesA,
-    resolvers: {
+    resolvers: ({ injector }) => ({
       Query: { a: () => ({}) },
-      A: { f: (_root, _args, { injector }: ModuleContext) => injector.get(ProviderA).doSomething() },
-    },
+      A: { f: () => injector.get(ProviderA).doSomething() },
+    }),
     providers: [ProviderA],
   });
 
@@ -364,12 +364,12 @@ describe('GraphQLModule', () => {
             test: String
           }
         `,
-        resolvers: {
+        resolvers: ({ injector }) => ({
           Query: {
-            test: (root: never, args: never, { injector }: ModuleContext) =>
+            test: () =>
               injector.get(ProviderB).test,
           },
-        },
+        }),
       });
 
       @Injectable()
@@ -513,6 +513,8 @@ describe('GraphQLModule', () => {
         context: async () => {
           return {
             counter: 0,
+            foo: null,
+            bar: null,
           };
         },
         resolvers: {

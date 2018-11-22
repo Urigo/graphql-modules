@@ -12,7 +12,6 @@
       "introduction/modules",
       "introduction/your-first-module",
       "introduction/integrate-with-apollo-server",
-      "introduction/integrate-with-graphql-code-generator",
       "introduction/implement-your-resolvers",
       "introduction/dependencies",
       "introduction/dependency-injection",
@@ -26,7 +25,8 @@
       "guides/load-your-schema",
       "guides/communication-between-modules",
       "guides/testing-and-mocking",
-      "guides/microservices"
+      "guides/microservices",
+      "guides/integrate-with-graphql-code-generator"
     ]
   }
 }

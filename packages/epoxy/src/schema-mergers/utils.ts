@@ -11,6 +11,7 @@ import {
   GraphQLSchema,
   InterfaceTypeDefinitionNode,
   DirectiveDefinitionNode,
+  SchemaDefinitionNode,
 } from 'graphql';
 
 export function isStringTypes(types: any): types is string {
@@ -61,4 +62,8 @@ export function extractType(type: TypeNode): NamedTypeNode {
   }
   return visitedType as any;
 
+}
+
+export function isSchemaDefinition(node: DefinitionNode): node is SchemaDefinitionNode {
+  return node.kind === 'SchemaDefinition';
 }

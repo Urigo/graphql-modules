@@ -52,7 +52,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<IResolvers, Config, Request, Context>;
+  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>>, Config, Request, Context>;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -183,7 +183,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (let module of selfImports) {
         const moduleName = typeof module === 'string' ? module : module.name;
         module = modulesMap.get(moduleName);
-        module._cache.modulesMap = modulesMap;
+        if (module._cache.modulesMap !== modulesMap) {
+          module._cache.modulesMap = modulesMap;
+          module._cache.typeDefs = undefined;
+        }
         const moduleTypeDefs = module.typeDefs;
         if (moduleTypeDefs) {
           typeDefsSet.add(moduleTypeDefs);
@@ -216,24 +219,25 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @return a `string` with the merged type definitions
    */
   get selfTypeDefs(): DocumentNode {
-    let typeDefs: any = [];
-    const typeDefsDefinitions = this._options.typeDefs;
+    let typeDefs = null;
+    let typeDefsDefinitions = this._options.typeDefs;
     if (typeDefsDefinitions) {
       if (typeof typeDefsDefinitions === 'function') {
-        typeDefs = typeDefsDefinitions(this);
+        typeDefsDefinitions = typeDefsDefinitions(this);
+      }
+      if (typeof typeDefsDefinitions === 'string') {
+        typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
         typeDefs = mergeGraphQLSchemas(typeDefsDefinitions);
-      } else if (typeof typeDefsDefinitions === 'string') {
-        typeDefs = parse(typeDefsDefinitions);
-      } else {
+      } else if (typeDefsDefinitions) {
         typeDefs = typeDefsDefinitions;
       }
     }
     return typeDefs;
   }
 
-  get selfResolvers(): IResolvers {
-    let resolvers: IResolvers = {};
+  get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
+    let resolvers: IResolvers<any, ModuleContext<Context>> = {};
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
@@ -267,13 +271,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         providers = providersDefinitions;
       }
     }
-    providers.unshift(
+    return [
       {
         provide: ModuleConfig(this),
         useValue: this.config,
       },
-    );
-    return providers;
+      ...providers,
+    ];
   }
 
   get selfResolversComposition(): IResolversComposerMapping {
@@ -384,6 +388,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
       if (module._cache.modulesMap !== modulesMap) {
         module._cache.modulesMap = modulesMap;
+        module._cache.injector = undefined;
+        module._cache.schema = undefined;
+        module._cache.contextBuilder = undefined;
         module.buildSchemaAndInjector();
       }
 
@@ -420,16 +427,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     const logger = this.selfLogger;
 
+    const typeDefs = this.selfTypeDefs;
+
+    const extraSchemas = this.selfExtraSchemas;
+
     try {
       const schemasToBeMerged = new Set<GraphQLSchema | DocumentNode>(importsSchemas);
-      const extraSchemas = this.selfExtraSchemas;
       for (const extraSchema of extraSchemas) {
         schemasToBeMerged.add(extraSchema);
       }
-      const typeDefs = this.selfTypeDefs;
       if (schemasToBeMerged.size) {
         if (typeDefs) {
-          schemasToBeMerged.add(this.selfTypeDefs);
+          schemasToBeMerged.add(typeDefs);
         }
         this._cache.schema = mergeSchemas({
           schemas: [...schemasToBeMerged],
@@ -643,11 +652,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const subMergedModuleName of subMergedModuleNames) {
         nameSet.add(subMergedModuleName);
       }
-      if (Array.isArray(module.selfTypeDefs)) {
-        for (const typeDef of module.selfTypeDefs) {
-          typeDefsSet.add(typeDef);
-        }
-      } else {
+      if (module.selfTypeDefs) {
         typeDefsSet.add(module.selfTypeDefs);
       }
       resolversSet.add(module.selfResolvers);

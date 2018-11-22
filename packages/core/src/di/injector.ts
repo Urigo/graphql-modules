@@ -1,5 +1,5 @@
 
-import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError, ProviderClassNotDecoratedError } from '../errors';
+import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError } from '../errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
 import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
 
@@ -111,10 +111,7 @@ export class Injector {
       } else if (this._classMap.has(serviceIdentifier)) {
         const RealClazz = this._classMap.get(serviceIdentifier);
         try {
-          const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz);
-          if (!dependencies) {
-            throw new ProviderClassNotDecoratedError<T>(this._name, serviceIdentifier, RealClazz.name);
-          }
+          const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz) || [];
           const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency));
           const instance = new RealClazz(...dependencyInstances);
           if (this.scopeSet.has(serviceIdentifier)) {

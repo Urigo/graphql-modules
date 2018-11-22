@@ -34,7 +34,7 @@ function resolveRelevantMappings(resolvers: IResolvers, path: string, allMapping
  * @param mapping - resolvers composition mapping
  * @hidden
  */
-export function composeResolvers(resolvers: IResolvers, mapping: IResolversComposerMapping = {}): IResolvers {
+export function composeResolvers<TSource, TContext>(resolvers: IResolvers<TSource, TContext>, mapping: IResolversComposerMapping = {}): IResolvers {
   Object.keys(mapping).map((resolverPath: string) => {
     const composeFns = mapping[resolverPath];
     const relevantFields = resolveRelevantMappings(resolvers, resolverPath, mapping);
