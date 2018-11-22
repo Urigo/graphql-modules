@@ -4,7 +4,6 @@
     "module": "commonjs",
     "target": "es5",
     "lib": ["es6", "esnext", "es2015"],
-    "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -13,13 +12,12 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "importHelpers": true,
-    "resolveJsonModule": true,
+    "noImplicitAny": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "downlevelIteration": true
+    "noUnusedParameters": true
   },
   "files": ["src/index.ts"],
   "exclude": ["node_modules"]
