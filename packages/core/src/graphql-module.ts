@@ -4,7 +4,7 @@ import { Provider, ModuleContext, Injector } from './di';
 import { DocumentNode, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
-import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError } from './errors';
+import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError } from './errors';
 import deepmerge = require('deepmerge');
 import { addInjectorToResolversContext, addInjectorToResolversCompositionContext, asArray } from './utils';
 
@@ -75,6 +75,9 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
   logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
   extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
+  mergeCircularImports?: boolean;
+  warnCircularImports?: boolean;
+  configRequired?: boolean;
 }
 
 /**
@@ -125,9 +128,20 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    */
   constructor(
     private _options: GraphQLModuleOptions<Config, Request, Context> = {},
-    private _moduleConfig: Config = {} as Config,
+    private _moduleConfig?: Config,
   ) {
     _options.name = _options.name || Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
+    if (!('mergeCircularImports' in _options)) {
+      _options.mergeCircularImports = true;
+    }
+    if (!('warnCircularImports' in _options)) {
+      _options.warnCircularImports = true;
+    }
+    if (!('logger' in _options)) {
+      _options.logger = {
+        log() {},
+      };
+    }
   }
 
   /**
@@ -156,6 +170,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * the `typeDefs` and `resolvers` into `GraphQLSchema`
    */
   get schema() {
+    if (this._options.configRequired && !this._moduleConfig) {
+      throw new ModuleConfigRequiredError(this.name);
+    }
     if (typeof this._cache.schema === 'undefined') {
       this.buildSchemaAndInjector(this.modulesMap);
     }
@@ -166,13 +183,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Gets the application dependency-injection injector
    */
   get injector(): Injector {
-
+    if (this._options.configRequired && !this._moduleConfig) {
+      throw new ModuleConfigRequiredError(this.name);
+    }
     if (typeof this._cache.injector === 'undefined') {
       this.buildSchemaAndInjector(this.modulesMap);
     }
-
     return this._cache.injector;
-
   }
 
   /**
@@ -567,6 +584,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     } catch (e) {
       const { message } = e as Error;
       const currentPathStr = message.replace('Dependency Cycle Found: ', '');
+      if (!this._options.mergeCircularImports) {
+        throw e;
+      }
+      if (this._options.warnCircularImports) {
+        this.selfLogger.log(e.message);
+      }
       const currentPath = currentPathStr.split(' -> ');
       const moduleIndexMap = new Map<string, number>();
       let start = 0;
@@ -584,7 +607,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         // if it is merged module, get one module, it will be enough to get merged one.
         return modulesMap.get(moduleName);
       });
-      const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, modulesMap);
+      const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, this._options.warnCircularImports, modulesMap);
       for (const moduleName of realPath) {
         modulesMap.set(moduleName, mergedModule);
         for (const subModuleName of moduleName.split('+')) {
@@ -606,7 +629,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
   }
 
-  static mergeModules<Config = any, Request = any, Context = any>(modules: Array<GraphQLModule<any, Request, any>>, modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
+  static mergeModules<Config = any, Request = any, Context = any>(
+    modules: Array<GraphQLModule<any, Request, any>>,
+    warnCircularImports = false,
+    modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
     const resolversSet = new Set<IResolvers<any, any>>();
@@ -683,6 +709,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       schemaDirectives,
       extraSchemas,
       logger,
+      warnCircularImports,
+      mergeCircularImports: true,
     });
   }
 }

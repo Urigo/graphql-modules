@@ -7,6 +7,7 @@ import {
   ModuleConfig,
   ModuleContext,
   OnRequest,
+  ModuleConfigRequiredError,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
@@ -25,6 +26,7 @@ describe('GraphQLModule', () => {
 
   const typesA = [`type A { f: String}`, `type Query { a: A }`];
   const moduleA = new GraphQLModule({
+    name: 'A',
     typeDefs: typesA,
     resolvers: ({ injector }) => ({
       Query: { a: () => ({}) },
@@ -41,6 +43,7 @@ describe('GraphQLModule', () => {
   };
   let resolverCompositionCalled = false;
   const moduleB = new GraphQLModule({
+    name: 'B',
     typeDefs: typesB,
     resolvers: resolversB,
     resolversComposition: {
@@ -57,12 +60,14 @@ describe('GraphQLModule', () => {
   const cContextBuilder = jest.fn(() => ({ user: { id: 1 } }));
   const typesC = [`type C { f: String}`, `type Query { c: C }`];
   const moduleC = new GraphQLModule({
+    name: 'C',
     typeDefs: typesC,
     contextBuilder: cContextBuilder,
   });
 
   // D
   const moduleD = new GraphQLModule({
+    name: 'D',
     typeDefs: typesC,
     contextBuilder: () => {
       throw new Error('oops');
@@ -71,6 +76,7 @@ describe('GraphQLModule', () => {
 
   // E
   const moduleE = new GraphQLModule({
+    name: 'E',
     typeDefs: typesC,
   });
 
@@ -78,6 +84,7 @@ describe('GraphQLModule', () => {
   const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
   const resolversFnMock = jest.fn().mockReturnValue({ C: {} });
   const moduleF = new GraphQLModule({
+    name: 'F',
     typeDefs: typeDefsFnMock,
     resolvers: resolversFnMock,
   });
@@ -89,7 +96,7 @@ describe('GraphQLModule', () => {
 
   // Queries
   const testQuery = gql`query { b { f }}`;
-  const app = new GraphQLModule({ imports: [moduleA, moduleB, moduleC] });
+  const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
   it('should return the correct GraphQLSchema', async () => {
     const schema = app.schema;
@@ -334,6 +341,17 @@ describe('GraphQLModule', () => {
       expect(injector.get(Provider1).test).toEqual(1);
       expect(injector.get(Provider2).test).toEqual(2);
     });
+    it('should not allow to use modules without configuration if required', async () => {
+      let error;
+      try {
+        const { injector } = new GraphQLModule({
+          configRequired: true,
+        });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeInstanceOf(ModuleConfigRequiredError);
+    });
     it('should encapsulate between providers from different non-dependent modules', async () => {
       class ProviderA {
         test = 0;
@@ -392,6 +410,24 @@ describe('GraphQLModule', () => {
       });
       expect(result.data.test).toBeNull();
       expect(result.errors[0].message).toContain('ProviderB not provided in');
+    });
+    it('should throw error if mergeCircularImports is disabled', async () => {
+      const moduleA = new GraphQLModule({
+        imports: () => [moduleA],
+      });
+      const moduleB = new GraphQLModule({
+        imports: () => [moduleB],
+      });
+      let errorMsg;
+      try {
+        const { schema, context } = new GraphQLModule({
+          imports: [moduleA, moduleB],
+          mergeCircularImports: false,
+        });
+      } catch (e) {
+        errorMsg = e.message;
+      }
+      expect(errorMsg).toContain('Dependency Cycle');
     });
   });
   describe('CommuncationBridge', async () => {
@@ -471,6 +507,8 @@ describe('GraphQLModule', () => {
         contextBuilder: async () => {
           return {
             counter: 0,
+            foo: '',
+            bar: '',
           };
         },
         resolvers: {
