@@ -23,7 +23,9 @@ describe('Merge Schema', () => {
       expect(() => {
         mergeGraphQLTypes([
           schema,
-        ]);
+        ], {
+          useSchemaDefinition: true,
+        });
       }).not.toThrow();
     });
 
@@ -35,7 +37,9 @@ describe('Merge Schema', () => {
       expect(() => {
         mergeGraphQLTypes([
           schema,
-        ]);
+        ], {
+          useSchemaDefinition: true,
+        });
       }).not.toThrow();
     });
   });
@@ -46,7 +50,9 @@ describe('Merge Schema', () => {
         'type Query { f1: String }',
         'type Query { f2: String }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
@@ -60,7 +66,9 @@ describe('Merge Schema', () => {
         'type Query { f2: String }',
         'schema { query: Query }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
@@ -94,7 +102,9 @@ describe('Merge Schema', () => {
         'schema { query: Query }',
         'schema { query: Query }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
