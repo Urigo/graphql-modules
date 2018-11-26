@@ -2,10 +2,20 @@ import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchem
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
-export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): DocumentNode {
+interface Config {
+  useSchemaDefinition?: boolean;
+}
+
+export function mergeGraphQLSchemas(
+  types: Array<string | Source | DocumentNode | GraphQLSchema>,
+  config?: Partial<Config>,
+): DocumentNode {
   return {
     kind: 'Document',
-    definitions: mergeGraphQLTypes(types),
+    definitions: mergeGraphQLTypes(types, {
+      useSchemaDefinition: true,
+      ...config,
+    }),
   };
 }
 
@@ -35,7 +45,10 @@ function createSchemaDefinition(def: {
   return undefined;
 }
 
-export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
+export function mergeGraphQLTypes(
+  types: Array<string | Source | DocumentNode | GraphQLSchema>,
+  config: Config,
+): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
@@ -110,7 +123,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
     return Object.values(mergedNodes);
   }
 
-  const def = parse(schemaDefinition).definitions[0];
+  const def = config && config.useSchemaDefinition ? parse(schemaDefinition).definitions[0] : null;
 
-  return [...Object.values(mergedNodes), def];
+  return [...Object.values(mergedNodes), def].filter(n => n);
 }
