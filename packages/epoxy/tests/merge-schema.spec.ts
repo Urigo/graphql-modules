@@ -127,6 +127,31 @@ describe('Merge Schema', () => {
         }`));
     });
 
+    it('should skip printing schema definition object on request', () => {
+      const merged = mergeGraphQLSchemas([
+        'type Query { f1: String }',
+        'type Query { f2: String }',
+        'type MyType { field: Int } type Query { f3: MyType }',
+      ], {
+        useSchemaDefinition: false,
+      });
+
+      const output = stripWhitespaces(print(merged));
+
+      expect(output).not.toContain('schema {');
+
+      expect(output).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+          f2: String
+          f3: MyType
+        }
+
+        type MyType {
+          field: Int
+        }`));
+    });
+
     it('should merge descriptions', () => {
       const merged = mergeGraphQLSchemas([
         `

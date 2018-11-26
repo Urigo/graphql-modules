@@ -2,10 +2,18 @@ import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchem
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
-export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): DocumentNode {
+export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>, config?: {
+  useSchemaDefinition?: boolean;
+}): DocumentNode {
+  let definitions = mergeGraphQLTypes(types);
+
+  if (config && config.useSchemaDefinition === false) {
+    definitions = definitions.filter(def => def.kind !== 'SchemaDefinition');
+  }
+
   return {
     kind: 'Document',
-    definitions: mergeGraphQLTypes(types),
+    definitions,
   };
 }
 
