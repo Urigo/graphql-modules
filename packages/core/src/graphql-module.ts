@@ -5,7 +5,7 @@ import { DocumentNode, GraphQLSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError } from './errors';
-import deepmerge = require('deepmerge');
+import * as deepmerge from 'deepmerge';
 import { addInjectorToResolversContext, addInjectorToResolversCompositionContext, asArray } from './utils';
 
 /**
@@ -29,6 +29,8 @@ export type ModulesMap<Request> = Map<string, GraphQLModule<any, Request, any>>;
 export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, Request, Context> | string;
 
 export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>) => Option);
+
+export type GraphQLModuleMiddleware<Request, Context> = (moduleCache: ModuleCache<Request, Context>) => Partial<ModuleCache<Request, Context>> | void;
 
 /**
  * Defined the structure of GraphQL module options object.
@@ -75,6 +77,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
   logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
   extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
+  middleware?: GraphQLModuleMiddleware<Request, Context>;
   mergeCircularImports?: boolean;
   warnCircularImports?: boolean;
   configRequired?: boolean;
@@ -218,7 +221,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     if (selfTypeDefs) {
       typeDefsSet.add(selfTypeDefs);
     }
-    this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
+    this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet], {
+      useSchemaDefinition: false,
+    });
   }
 
   get resolvers(): IResolvers<any, ModuleContext<Context>> {
@@ -504,6 +509,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       await Promise.all(requestHooks$);
       return builtResult;
     };
+
+    if ('middleware' in this._options) {
+      const middlewareResult = this._options.middleware(this._cache);
+      this._cache = Object.assign(this._cache, middlewareResult);
+    }
   }
 
   get contextBuilder(): (req: Request) => Promise<Context> {
@@ -636,13 +646,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
     const resolversSet = new Set<IResolvers<any, any>>();
-    const contextBuilderSet = new Set<BuildContextFn<Request, Context>>();
+    const contextBuilderSet = new Set<BuildContextFn<Request, any>>();
     const importsSet = new Set<ModuleDependency<any, Request, any>>();
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();
     const schemaDirectivesSet = new Set<ISchemaDirectives>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
+    const middlewareSet = new Set<GraphQLModuleMiddleware<Request, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
       for (const subMergedModuleName of subMergedModuleNames) {
@@ -698,6 +709,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       },
     };
     const extraSchemas = [...extraSchemasSet];
+    const middleware = (moduleCache: ModuleCache<Request, any>) => {
+      let result = {};
+      for ( const subMiddleware of middlewareSet ) {
+        result = Object.assign(result, subMiddleware(moduleCache));
+      }
+      return result;
+    };
     return new GraphQLModule<Config, Request, Context>({
       name,
       typeDefs,
@@ -707,8 +725,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       providers,
       resolversComposition,
       schemaDirectives,
-      extraSchemas,
       logger,
+      extraSchemas,
+      middleware,
       warnCircularImports,
       mergeCircularImports: true,
     });

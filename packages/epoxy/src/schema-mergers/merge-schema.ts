@@ -28,11 +28,21 @@ function createSchemaDefinition(def: {
   mutation: string | GraphQLObjectType | null;
   subscription: string | GraphQLObjectType | null;
 }): string {
-  const schemaRoot = {
-    query: def.query && def.query.toString(),
-    mutation: def.mutation && def.mutation.toString(),
-    subscription: def.subscription && def.subscription.toString(),
-  };
+  const schemaRoot: {
+    query?: string,
+    mutation?: string,
+    subscription?: string,
+  } = {};
+
+  if (def.query) {
+    schemaRoot.query = def.query.toString();
+  }
+  if (def.mutation) {
+    schemaRoot.mutation = def.mutation.toString();
+  }
+  if (def.subscription) {
+    schemaRoot.query = def.subscription.toString();
+  }
 
   const fields = Object.keys(schemaRoot)
     .map(rootType => (schemaRoot[rootType] ? `${rootType}: ${schemaRoot[rootType]}` : null))
@@ -87,7 +97,7 @@ export function mergeGraphQLTypes(
     .reduce((defs, newDef) => [...defs, ...newDef], []);
 
   // XXX: right now we don't handle multiple schema definitions
-  const schemaDef: {
+  let schemaDef: {
     query: string | null;
     mutation: string | null;
     subscription: string | null;
@@ -109,21 +119,23 @@ export function mergeGraphQLTypes(
   );
   const mergedNodes: MergedResultMap = mergeGraphQLNodes(allNodes);
   const allTypes = Object.keys(mergedNodes);
-  const queryType = schemaDef.query ? schemaDef.query : allTypes.find(t => t === 'Query');
-  const mutationType = schemaDef.mutation ? schemaDef.mutation : allTypes.find(t => t === 'Mutation');
-  const subscriptionType = schemaDef.subscription ? schemaDef.subscription : allTypes.find(t => t === 'Subscription');
 
-  const schemaDefinition = createSchemaDefinition({
-    query: queryType,
-    mutation: mutationType,
-    subscription: subscriptionType,
-  });
+  if (config && config.useSchemaDefinition) {
+    const queryType = schemaDef.query ? schemaDef.query : allTypes.find(t => t === 'Query');
+    const mutationType = schemaDef.mutation ? schemaDef.mutation : allTypes.find(t => t === 'Mutation');
+    const subscriptionType = schemaDef.subscription ? schemaDef.subscription : allTypes.find(t => t === 'Subscription');
+    schemaDef = {
+      query: queryType,
+      mutation: mutationType,
+      subscription: subscriptionType,
+    };
+  }
+
+  const schemaDefinition = createSchemaDefinition(schemaDef);
 
   if (!schemaDefinition) {
     return Object.values(mergedNodes);
   }
 
-  const def = config && config.useSchemaDefinition ? parse(schemaDefinition).definitions[0] : null;
-
-  return [...Object.values(mergedNodes), def].filter(n => n);
+  return [...Object.values(mergedNodes), parse(schemaDefinition).definitions[0]];
 }
