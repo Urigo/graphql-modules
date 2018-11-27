@@ -1,4 +1,4 @@
-import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType } from 'graphql';
+import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType, isSpecifiedScalarType, isIntrospectionType, GraphQLScalarType, printType } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -78,7 +78,13 @@ export function mergeGraphQLTypes(
         });
         const allTypesPrinted = Object.keys(typesMap)
           .map(key => typesMap[key])
-          .map(type => (type.astNode ? print(type.astNode) : null))
+          .filter(type => {
+            const isPredefinedScalar = type instanceof GraphQLScalarType && isSpecifiedScalarType(type);
+            const isIntrospection = isIntrospectionType(type);
+
+            return !isPredefinedScalar && !isIntrospection;
+          })
+          .map(type => (type.astNode ? print(type.astNode) : printType(type)))
           .filter(e => e);
         const directivesDeclaration = schema
           .getDirectives()
