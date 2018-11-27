@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -31,8 +31,8 @@
     "reflect-metadata": "0.1.12"
   },
   "dependencies": {
-    "@graphql-modules/epoxy": "0.2.10",
-    "@graphql-modules/sonar": "0.2.10",
+    "@graphql-modules/epoxy": "0.2.11",
+    "@graphql-modules/sonar": "0.2.11",
     "dependency-graph": "0.7.2",
     "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
