@@ -23,7 +23,9 @@ describe('Merge Schema', () => {
       expect(() => {
         mergeGraphQLTypes([
           schema,
-        ]);
+        ], {
+          useSchemaDefinition: true,
+        });
       }).not.toThrow();
     });
 
@@ -35,7 +37,9 @@ describe('Merge Schema', () => {
       expect(() => {
         mergeGraphQLTypes([
           schema,
-        ]);
+        ], {
+          useSchemaDefinition: true,
+        });
       }).not.toThrow();
     });
   });
@@ -46,7 +50,9 @@ describe('Merge Schema', () => {
         'type Query { f1: String }',
         'type Query { f2: String }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
@@ -60,7 +66,9 @@ describe('Merge Schema', () => {
         'type Query { f2: String }',
         'schema { query: Query }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
@@ -94,7 +102,9 @@ describe('Merge Schema', () => {
         'schema { query: Query }',
         'schema { query: Query }',
         'type MyType { field: Int } type Query { f3: MyType }',
-      ]);
+      ], {
+        useSchemaDefinition: true,
+      });
 
       expect(mergedArray.length).toBe(3);
       expect(mergedArray[0].kind).toBe('ObjectTypeDefinition');
@@ -125,6 +135,45 @@ describe('Merge Schema', () => {
         schema {
           query: Query
         }`));
+    });
+
+    it('should skip printing schema definition object on request', () => {
+      const merged = mergeGraphQLSchemas([
+        'type Query { f1: String }',
+        'type Query { f2: String }',
+        'type MyType { field: Int } type Query { f3: MyType }',
+      ], {
+        useSchemaDefinition: false,
+      });
+
+      const output = stripWhitespaces(print(merged));
+
+      expect(output).not.toContain('schema {');
+
+      expect(output).toBe(stripWhitespaces(`
+        type Query {
+          f1: String
+          f2: String
+          f3: MyType
+        }
+
+        type MyType {
+          field: Int
+        }`));
+    });
+
+    it('should keep scalars', () => {
+      const mergedSchema = mergeGraphQLSchemas([
+        buildSchema('scalar UniqueId'),
+      ]);
+
+      expect(print(mergedSchema).indexOf('scalar')).not.toEqual(-1);
+
+      const schema = makeExecutableSchema({
+        typeDefs: mergedSchema,
+      });
+
+      expect(schema.getType('UniqueId')).toBeDefined();
     });
 
     it('should merge descriptions', () => {
@@ -168,11 +217,39 @@ describe('Merge Schema', () => {
         'type MyType2 { field: Int } union MyUnion = MyType2',
         'interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int }',
         'interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 { f2: Int }',
-        'interface MyInterface3 { f3: Int } type MyType4 implements MyInterface3 { f3: Int }'
+        'interface MyInterface3 { f3: Int } type MyType4 implements MyInterface3 { f3: Int }',
       ]);
 
       expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
-        type Query @test @test2 { f1: String f2: String f3: MyType } type MyType { field: Int } union MyUnion = MyType | MyType2 type MyType2 { field: Int } interface MyInterface { f: Int } type MyType3 implements MyInterface { f: Int } interface MyInterface2 { f2: Int } type MyType4 implements MyInterface2 & MyInterface3 { f2: Int f3: Int } interface MyInterface3 { f3: Int } schema { query: Query }
+        type Query @test @test2 {
+          f1: String
+          f2: String
+          f3: MyType
+        }
+        type MyType {
+          field: Int
+        }
+        union MyUnion = MyType | MyType2
+        type MyType2 {
+          field: Int
+        }
+        interface MyInterface {
+          f: Int
+        }
+        type MyType3 implements MyInterface {
+          f: Int
+        } interface MyInterface2 {
+          f2: Int
+        }
+        type MyType4 implements MyInterface2 & MyInterface3 {
+          f2: Int f3: Int
+        }
+        interface MyInterface3 {
+          f3: Int
+        }
+        schema {
+          query: Query
+        }
         `));
     });
 
@@ -489,6 +566,74 @@ describe('Merge Schema', () => {
       expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
         type MyType { f1: String f2: String }
         `));
+    });
+    it('should handle extend types', () => {
+      const merged = mergeGraphQLSchemas([`
+        type Test {
+          foo: String
+        }
+      `, `
+        extend type Test {
+          bar: String
+        }
+      `]);
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        type Test {
+          foo: String
+          bar: String
+        }
+      `));
+    });
+    it('should handle extend inputs', () => {
+      const merged = mergeGraphQLSchemas([`
+        input TestInput {
+          foo: String
+        }
+      `, `
+        extend input TestInput {
+          bar: String
+        }
+      `]);
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        input TestInput {
+          foo: String
+          bar: String
+        }
+      `));
+    });
+    it('should extend extension types', () => {
+      const merged = mergeGraphQLSchemas([`
+        extend type Test {
+          foo: String
+        }
+      `, `
+        extend type Test {
+          bar: String
+        }
+      `]);
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        extend type Test {
+          foo: String
+          bar: String
+        }
+      `));
+    });
+    it('should extend extension input types', () => {
+      const merged = mergeGraphQLSchemas([`
+        extend input TestInput {
+          foo: String
+        }
+      `, `
+        extend input TestInput {
+          bar: String
+        }
+      `]);
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        extend input TestInput {
+          foo: String
+          bar: String
+        }
+      `));
     });
   });
 });

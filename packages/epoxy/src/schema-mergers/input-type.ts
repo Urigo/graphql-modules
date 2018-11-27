@@ -1,21 +1,24 @@
 import { InputObjectTypeDefinitionNode } from 'graphql';
 import { mergeFields } from './fields';
 import { mergeDirectives } from './directives';
-import { InputValueDefinitionNode } from 'graphql/language/ast';
+import { InputValueDefinitionNode, InputObjectTypeExtensionNode } from 'graphql/language/ast';
 
-export function mergeInputType(node: InputObjectTypeDefinitionNode, existingNode: InputObjectTypeDefinitionNode): InputObjectTypeDefinitionNode {
+export function mergeInputType(
+  node: InputObjectTypeDefinitionNode | InputObjectTypeExtensionNode,
+  existingNode: InputObjectTypeDefinitionNode | InputObjectTypeExtensionNode): InputObjectTypeDefinitionNode | InputObjectTypeExtensionNode {
+
   if (existingNode) {
     try {
       return {
         name: node.name,
-        description: node.description || existingNode.description,
-        kind: node.kind,
+        description: node['description'] || existingNode['description'],
+        kind: (node.kind === 'InputObjectTypeDefinition' || existingNode.kind === 'InputObjectTypeDefinition') ? 'InputObjectTypeDefinition' : 'InputObjectTypeExtension',
         loc: node.loc,
         fields: mergeFields<InputValueDefinitionNode>(node.fields, existingNode.fields),
         directives: mergeDirectives(node.directives, existingNode.directives),
-      };
+      } as any;
     } catch (e) {
-      throw new Error(`Unable to merge GraphQL type "${node.name.value}": ${e.message}`);
+      throw new Error(`Unable to merge GraphQL input type "${node.name.value}": ${e.message}`);
     }
   }
 

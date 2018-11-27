@@ -194,7 +194,7 @@ import { Injectable, OnRequest } from '@graphql-modules/core';
 @Injectable()
 export class MyProvider implements OnRequest {
 
-    onRequest(networkRequest, currentContext, graphQlAppModule) {
+    onRequest(moduleSessionInfo: ModuleSessionInfo) {
         // ...do your magic...
     }
 }

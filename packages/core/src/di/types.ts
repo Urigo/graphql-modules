@@ -1,10 +1,9 @@
-import { GraphQLModule } from '../graphql-module';
 import { Injector } from './injector';
 
 export interface Newable<T> {
   new (...args: any[]): T;
 }
-interface Abstract<T> {
+export interface Abstract<T> {
   prototype: T;
 }
 export type ServiceIdentifier<T> = (string | symbol | Newable<T> | Abstract<T>);
@@ -27,21 +26,26 @@ export interface FactoryProvider<T> extends BaseProvider<T> {
   useFactory: Factory<T>;
 }
 
-export interface BaseProvider<T> {
+export interface BaseProvider<T> extends ProviderOptions {
   provide: ServiceIdentifier<T>;
-  overwrite?: boolean;
 }
 
 export interface TypeProvider<T> extends Type<T> {}
 
 export type Provider<T = any> = TypeProvider<T> | ValueProvider<T> | ClassProvider<T> | FactoryProvider<T>;
 
-export type ModuleContext<Context = { [key: string]: any }> = Context & { injector: Injector };
+export interface ProviderOptions {
+  overwrite?: boolean;
+  scope?: ProviderScope;
+}
 
-export interface OnRequest<Config = any, Request = any, Context = any> {
-  onRequest(request: Request, context: Context, appModule: GraphQLModule<Config, Request, Context>): Promise<void> | void;
+export const enum ProviderScope {
+  Application = 'APPLICATION',
+  Request = 'REQUEST',
+  Session = 'SESSION',
 }
 
 export type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
   [Key in keyof Dependencies]: Dependencies[Key] extends Newable<any> ? InstanceType<Dependencies[Key]> : any;
 };
+export type ExtendedSession<Session> = Session & { nameSessionInjectorMap: Map<string, Injector> };
