@@ -162,6 +162,20 @@ describe('Merge Schema', () => {
         }`));
     });
 
+    it('should keep scalars', () => {
+      const mergedSchema = mergeGraphQLSchemas([
+        buildSchema('scalar UniqueId'),
+      ]);
+
+      expect(print(mergedSchema).indexOf('scalar')).not.toEqual(-1);
+
+      const schema = makeExecutableSchema({
+        typeDefs: mergedSchema,
+      });
+
+      expect(schema.getType('UniqueId')).toBeDefined();
+    });
+
     it('should merge descriptions', () => {
       const merged = mergeGraphQLSchemas([
         `
