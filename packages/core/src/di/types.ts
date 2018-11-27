@@ -45,4 +45,7 @@ export const enum ProviderScope {
   Session = 'SESSION',
 }
 
+export type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
+  [Key in keyof Dependencies]: Dependencies[Key] extends Newable<any> ? InstanceType<Dependencies[Key]> : any;
+};
 export type ExtendedSession<Session> = Session & { nameSessionInjectorMap: Map<string, Injector> };

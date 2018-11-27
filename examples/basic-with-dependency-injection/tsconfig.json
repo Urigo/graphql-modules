@@ -2,8 +2,8 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "module": "commonjs",
-    "target": "es5",
-    "lib": ["es6", "esnext", "es2015"],
+    "target": "es2015",
+    "lib": ["es2015", "esnext.asynciterable"],
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
@@ -13,7 +13,5 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts"],
-  "files": ["src/index.ts"],
-  "exclude": ["node_modules"]
+  "files": ["src/index.ts"]
 }

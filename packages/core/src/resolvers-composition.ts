@@ -6,7 +6,7 @@ export interface IResolversComposerMapping {
   [resolverPath: string]: any | any[];
 }
 
-function resolveRelevantMappings(resolvers: IResolvers, path: string, allMappings: IResolversComposerMapping): string[] {
+function resolveRelevantMappings<TSource, TContext>(resolvers: IResolvers<TSource, TContext>, path: string, allMappings: IResolversComposerMapping): string[] {
   const result: string[] = [];
   const splitted = path.split('.');
 

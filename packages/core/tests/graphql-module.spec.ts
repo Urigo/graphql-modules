@@ -11,7 +11,7 @@ import {
   Injector,
   ModuleConfigRequiredError,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
@@ -376,39 +376,41 @@ describe('GraphQLModule', () => {
       }
     });
     it('should encapsulate resolvers', async () => {
-      const moduleA = new GraphQLModule({
-        typeDefs: gql`
-          type Query{
-            test: String
-          }
-        `,
-        resolvers: ({ injector }) => ({
-          Query: {
-            test: () =>
-              injector.get(ProviderB).test,
-          },
-        }),
-      });
 
       @Injectable()
       class ProviderB {
         test = 1;
       }
 
-      const moduleB = new GraphQLModule({ providers: [ProviderB] });
-      const { schema, context } = new GraphQLModule({ imports: [moduleA, moduleB] });
-      const contextValue = await context({ req: {} });
-      const result = await execute({
-        schema,
-        document: gql`
-          query {
-            test
-          }
-        `,
-        contextValue,
-      });
-      expect(result.data.test).toBeNull();
-      expect(result.errors[0].message).toContain('ProviderB not provided in');
+      try {
+        const moduleA = new GraphQLModule({
+          typeDefs: gql`
+            type Query{
+              test: String
+            }
+          `,
+          resolvers: Inject(ProviderB)((providerB) => ({
+            Query: {
+              test: () => providerB.test,
+            },
+          })),
+        });
+
+        const moduleB = new GraphQLModule({ providers: [ProviderB] });
+        const { schema, context } = new GraphQLModule({ imports: [moduleA, moduleB] });
+        const contextValue = await context({ req: {} });
+        const result = await execute({
+          schema,
+          document: gql`
+            query {
+              test
+            }
+          `,
+          contextValue,
+        });
+      } catch (e) {
+        expect(e.message).toContain('ProviderB not provided in');
+      }
     });
     it('should throw error if mergeCircularImports is disabled', async () => {
       const moduleA = new GraphQLModule({

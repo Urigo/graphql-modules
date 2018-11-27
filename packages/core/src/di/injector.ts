@@ -3,8 +3,6 @@ import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProvid
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
 import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
 
-declare var Reflect: any;
-
 export class Injector {
   private _classMap = new Map<ServiceIdentifier<any>, Type<any>>();
   private _factoryMap = new Map<ServiceIdentifier<any>, Factory<any>>();
@@ -169,5 +167,13 @@ export class Injector {
       nameSessionInjectorMap.set(this._name, sessionInjector);
     }
     return nameSessionInjectorMap.get(this._name);
+  }
+  public call<Fn extends (this: ThisArg, ...args: any[]) => any, ThisArg>(fn: Fn, thisArg: ThisArg): ReturnType<Fn> {
+    if (Reflect.hasMetadata(DESIGN_PARAM_TYPES, fn)) {
+      const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, fn);
+      const instances = dependencies.map((dependency: any) => this.get(dependency));
+      return fn.call(thisArg, ...instances);
+    }
+    return fn.call(thisArg, thisArg);
   }
 }

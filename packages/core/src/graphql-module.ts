@@ -30,7 +30,7 @@ export type ModulesMap<Request> = Map<string, GraphQLModule<any, Request, any>>;
  */
 export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, Request, Context> | string;
 
-export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>) => Option);
+export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>, ...args: any[]) => Option);
 
 export type GraphQLModuleMiddleware<Request, Context> = (moduleCache: ModuleCache<Request, Context>) => Partial<ModuleCache<Request, Context>> | void;
 
@@ -261,7 +261,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
-        resolvers = resolversDefinitions(this);
+        resolvers = this.injector.call(resolversDefinitions, this);
       } else {
         resolvers = resolversDefinitions;
       }
@@ -304,8 +304,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     let resolversComposition: IResolversComposerMapping = {};
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
-      if (typeof resolversCompositionDefinitions === 'function') {
-        resolversComposition = (resolversCompositionDefinitions as any)(this);
+      if (resolversCompositionDefinitions instanceof Function) {
+        resolversComposition = this.injector.call(resolversCompositionDefinitions, this);
       } else {
         resolversComposition = resolversCompositionDefinitions;
       }
@@ -318,7 +318,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const schemaDirectivesDefinitions = this._options.schemaDirectives;
     if (schemaDirectivesDefinitions) {
       if (typeof schemaDirectivesDefinitions === 'function') {
-        schemaDirectives = schemaDirectivesDefinitions(this);
+        schemaDirectives = this.injector.call(schemaDirectivesDefinitions, this);
       } else {
         schemaDirectives = schemaDirectivesDefinitions;
       }
@@ -387,8 +387,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     let logger: ILogger;
     const loggerDefinitions = this._options.logger;
     if (loggerDefinitions) {
-      if (typeof logger === 'function') {
-        logger = (loggerDefinitions as any)(this);
+      if (logger instanceof Function) {
+        logger = this.injector.call(loggerDefinitions as () => ILogger, this);
       } else {
         logger = loggerDefinitions as ILogger;
       }
@@ -424,7 +424,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
-
+    injector.provide({
+      provide: GraphQLModule,
+      useValue: this,
+    });
     const providers = this.selfProviders;
 
     for (const provider of providers) {
@@ -472,6 +475,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           schemaDirectives,
           directiveResolvers,
           logger,
+        });
+        this.injector.provide({
+          provide: GraphQLSchema,
+          useValue: this._cache.schema,
         });
       }
     } catch (e) {
@@ -686,8 +693,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const subMergedModuleName of subMergedModuleNames) {
         nameSet.add(subMergedModuleName);
       }
-      if (module.selfTypeDefs) {
-        typeDefsSet.add(module.selfTypeDefs);
+      const typeDefs = module.selfTypeDefs;
+      if (typeDefs) {
+        typeDefsSet.add(typeDefs);
       }
       resolversSet.add(module.selfResolvers);
       contextBuilderSet.add(module._options.context);

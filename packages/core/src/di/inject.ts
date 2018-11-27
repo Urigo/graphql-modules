@@ -1,17 +1,15 @@
-import { ServiceIdentifier } from './types';
-
 import { DESIGN_PARAM_TYPES } from './utils';
+import { ServiceIdentifier, Instances } from './types';
 
-declare var Reflect: any;
-
-export function Inject<Dependency>(serviceIdentifier: ServiceIdentifier<Dependency>) {
-  return (target: any, _targetKey: any, index: number) => {
-    const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
-    if (!dependencies) {
-      throw new Error('You must decorate the provider class with @Injectable()');
+export function Inject<Dependencies extends Array<ServiceIdentifier<any>>, Fn extends (...args: Instances<Dependencies>) => any>(...dependencies: Dependencies) {
+  return (target: Fn, _targetKey?: string, index?: number): any => {
+    let allDependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, target) || [];
+    if (typeof index !== 'undefined') {
+      allDependencies[index] = dependencies[0];
+    } else {
+      allDependencies = dependencies;
     }
-    dependencies[index] = serviceIdentifier;
-    Reflect.defineMetadata(DESIGN_PARAM_TYPES, dependencies, target);
+    Reflect.defineMetadata(DESIGN_PARAM_TYPES, allDependencies, target);
     return target;
   };
 }
