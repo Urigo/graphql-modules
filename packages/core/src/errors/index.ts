@@ -7,3 +7,4 @@ export { TypeDefNotFoundError } from './typedef-not-found';
 export { ProviderNotValidError } from './provider-not-valid';
 export { ProviderAlreadyDefinedError } from './provider-already-defined';
 export { ProviderClassNotDecoratedError } from './provider-class-not-decorated';
+export { ModuleConfigRequiredError } from './module-config-required';

@@ -1,11 +1,18 @@
 import { DefinitionNode } from 'graphql';
 import {
   isGraphQLEnum,
-  isGraphQLInputType, isGraphQLInterface,
+  isGraphQLInputType,
+  isGraphQLInterface,
   isGraphQLScalar,
   isGraphQLType,
   isGraphQLUnion,
   isGraphQLDirective,
+  isGraphQLTypeExtension,
+  isGraphQLInputTypeExtension,
+  isGraphQLEnumExtension,
+  isGraphQLUnionExtension,
+  isGraphQLScalarExtension,
+  isGraphQLInterfaceExtension,
 } from './utils';
 import { mergeType } from './type';
 import { mergeEnum } from './enum';
@@ -23,18 +30,18 @@ export function mergeGraphQLNodes(nodes: ReadonlyArray<DefinitionNode>): MergedR
     if (node && node.name && node.name.value) {
       const name = node.name.value;
 
-      if (isGraphQLType(nodeDefinition)) {
+      if (isGraphQLType(nodeDefinition) || isGraphQLTypeExtension(nodeDefinition)) {
         prev[name] = mergeType(nodeDefinition, prev[name] as any);
-      } else if (isGraphQLEnum(nodeDefinition)) {
+      } else if (isGraphQLEnum(nodeDefinition) || isGraphQLEnumExtension(nodeDefinition)) {
         prev[name] = mergeEnum(nodeDefinition, prev[name] as any);
-      } else if (isGraphQLUnion(nodeDefinition)) {
+      } else if (isGraphQLUnion(nodeDefinition) || isGraphQLUnionExtension(nodeDefinition)) {
         prev[name] = mergeUnion(nodeDefinition, prev[name] as any);
-      } else if (isGraphQLScalar(nodeDefinition)) {
+      } else if (isGraphQLScalar(nodeDefinition) || isGraphQLScalarExtension(nodeDefinition)) {
         prev[name] = nodeDefinition;
-      } else if (isGraphQLInputType(nodeDefinition)) {
-        prev[name] = mergeInputType(nodeDefinition as any, prev[name] as any);
-      } else if (isGraphQLInterface(nodeDefinition)) {
-        prev[name] = mergeInterface(nodeDefinition as any, prev[name] as any);
+      } else if (isGraphQLInputType(nodeDefinition) || isGraphQLInputTypeExtension(nodeDefinition)) {
+        prev[name] = mergeInputType(nodeDefinition, prev[name] as any);
+      } else if (isGraphQLInterface(nodeDefinition) || isGraphQLInterfaceExtension(nodeDefinition)) {
+        prev[name] = mergeInterface(nodeDefinition, prev[name] as any);
       } else if (isGraphQLDirective(nodeDefinition)) {
         prev[name] = mergeDirective(nodeDefinition, prev[name] as any);
       }

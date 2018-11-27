@@ -1,11 +1,21 @@
-import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType } from 'graphql';
+import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType, isSpecifiedScalarType, isIntrospectionType, GraphQLScalarType, printType } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
-export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>): DocumentNode {
+interface Config {
+  useSchemaDefinition?: boolean;
+}
+
+export function mergeGraphQLSchemas(
+  types: Array<string | Source | DocumentNode | GraphQLSchema>,
+  config?: Partial<Config>,
+): DocumentNode {
   return {
     kind: 'Document',
-    definitions: mergeGraphQLTypes(types),
+    definitions: mergeGraphQLTypes(types, {
+      useSchemaDefinition: true,
+      ...config,
+    }),
   };
 }
 
@@ -18,11 +28,21 @@ function createSchemaDefinition(def: {
   mutation: string | GraphQLObjectType | null;
   subscription: string | GraphQLObjectType | null;
 }): string {
-  const schemaRoot = {
-    query: def.query && def.query.toString(),
-    mutation: def.mutation && def.mutation.toString(),
-    subscription: def.subscription && def.subscription.toString(),
-  };
+  const schemaRoot: {
+    query?: string,
+    mutation?: string,
+    subscription?: string,
+  } = {};
+
+  if (def.query) {
+    schemaRoot.query = def.query.toString();
+  }
+  if (def.mutation) {
+    schemaRoot.mutation = def.mutation.toString();
+  }
+  if (def.subscription) {
+    schemaRoot.query = def.subscription.toString();
+  }
 
   const fields = Object.keys(schemaRoot)
     .map(rootType => (schemaRoot[rootType] ? `${rootType}: ${schemaRoot[rootType]}` : null))
@@ -35,7 +55,10 @@ function createSchemaDefinition(def: {
   return undefined;
 }
 
-export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>): DefinitionNode[] {
+export function mergeGraphQLTypes(
+  types: Array<string | Source | DocumentNode | GraphQLSchema>,
+  config: Config,
+): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
@@ -55,7 +78,13 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
         });
         const allTypesPrinted = Object.keys(typesMap)
           .map(key => typesMap[key])
-          .map(type => (type.astNode ? print(type.astNode) : null))
+          .filter(type => {
+            const isPredefinedScalar = type instanceof GraphQLScalarType && isSpecifiedScalarType(type);
+            const isIntrospection = isIntrospectionType(type);
+
+            return !isPredefinedScalar && !isIntrospection;
+          })
+          .map(type => (type.astNode ? print(type.astNode) : printType(type)))
           .filter(e => e);
         const directivesDeclaration = schema
           .getDirectives()
@@ -74,7 +103,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
     .reduce((defs, newDef) => [...defs, ...newDef], []);
 
   // XXX: right now we don't handle multiple schema definitions
-  const schemaDef: {
+  let schemaDef: {
     query: string | null;
     mutation: string | null;
     subscription: string | null;
@@ -96,21 +125,23 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   );
   const mergedNodes: MergedResultMap = mergeGraphQLNodes(allNodes);
   const allTypes = Object.keys(mergedNodes);
-  const queryType = schemaDef.query ? schemaDef.query : allTypes.find(t => t === 'Query');
-  const mutationType = schemaDef.mutation ? schemaDef.mutation : allTypes.find(t => t === 'Mutation');
-  const subscriptionType = schemaDef.subscription ? schemaDef.subscription : allTypes.find(t => t === 'Subscription');
 
-  const schemaDefinition = createSchemaDefinition({
-    query: queryType,
-    mutation: mutationType,
-    subscription: subscriptionType,
-  });
+  if (config && config.useSchemaDefinition) {
+    const queryType = schemaDef.query ? schemaDef.query : allTypes.find(t => t === 'Query');
+    const mutationType = schemaDef.mutation ? schemaDef.mutation : allTypes.find(t => t === 'Mutation');
+    const subscriptionType = schemaDef.subscription ? schemaDef.subscription : allTypes.find(t => t === 'Subscription');
+    schemaDef = {
+      query: queryType,
+      mutation: mutationType,
+      subscription: subscriptionType,
+    };
+  }
+
+  const schemaDefinition = createSchemaDefinition(schemaDef);
 
   if (!schemaDefinition) {
     return Object.values(mergedNodes);
   }
 
-  const def = parse(schemaDefinition).definitions[0];
-
-  return [...Object.values(mergedNodes), def];
+  return [...Object.values(mergedNodes), parse(schemaDefinition).definitions[0]];
 }
