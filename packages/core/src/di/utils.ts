@@ -1,6 +1,7 @@
 import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, FactoryProvider, TypeProvider } from './types';
 
 export const DESIGN_PARAM_TYPES = 'design:paramtypes';
+export const PROVIDER_OPTIONS = 'provider-options';
 
 export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
   if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {

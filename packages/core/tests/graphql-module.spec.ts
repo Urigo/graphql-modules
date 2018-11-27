@@ -7,6 +7,8 @@ import {
   ModuleConfig,
   ModuleContext,
   OnRequest,
+  ProviderScope,
+  Injector,
   ModuleConfigRequiredError,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLField, GraphQLEnumValue, GraphQLString, defaultFieldResolver } from 'graphql';
@@ -14,6 +16,7 @@ import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
+import { ModuleSessionInfo } from '../src/module-session-info';
 
 describe('GraphQLModule', () => {
   // A
@@ -54,6 +57,9 @@ describe('GraphQLModule', () => {
         return next(root, args, context, info);
       },
     },
+    imports: () => [
+      moduleC,
+    ],
   });
 
   // C (with context building fn)
@@ -62,14 +68,14 @@ describe('GraphQLModule', () => {
   const moduleC = new GraphQLModule({
     name: 'C',
     typeDefs: typesC,
-    contextBuilder: cContextBuilder,
+    context: cContextBuilder,
   });
 
   // D
   const moduleD = new GraphQLModule({
     name: 'D',
     typeDefs: typesC,
-    contextBuilder: () => {
+    context: () => {
       throw new Error('oops');
     },
   });
@@ -118,8 +124,8 @@ describe('GraphQLModule', () => {
 
       type Query {
         a: A
-        b: B
         c: C
+        b: B
       }`));
   });
 
@@ -159,13 +165,6 @@ describe('GraphQLModule', () => {
     });
 
     expect(result.data.b.f).toBe('1');
-  });
-
-  it('should throw an exception when a contextFn throws an exception', async () => {
-    const app = new GraphQLModule({ imports: [moduleD] });
-    const spy = jest.fn();
-
-    await app.context({ req: {} }).catch(spy).then(() => expect(spy).toHaveBeenCalled());
   });
 
   it('should put the correct providers to the injector', async () => {
@@ -448,7 +447,6 @@ describe('GraphQLModule', () => {
 
     it('should call onRequest hook on each request', async () => {
       let counter = 0;
-
       @Injectable()
       class FooProvider implements OnRequest {
         onRequest() {
@@ -456,33 +454,77 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { context } = new GraphQLModule({
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => '',
+          },
+        },
         providers: [
           FooProvider,
         ],
       });
-      await context({});
-      expect(counter).toEqual(1);
-      await context({});
-      expect(counter).toEqual(2);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(1);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(2);
+      await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({}),
+      });
+      expect(counter).toBe(3);
     });
 
     it('should pass network request to onRequest hook', async () => {
-      const fooRequest = {};
+      const fooRequest = {
+        foo: 'bar',
+      };
+      let receivedRequest;
 
       @Injectable()
       class FooProvider implements OnRequest {
-        onRequest(request) {
-          expect(request).toBe(fooRequest);
+        onRequest(moduleInfo) {
+          receivedRequest = moduleInfo.request;
         }
       }
 
-      const { context } = new GraphQLModule({
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (root, args, { injector }: ModuleContext, info) => injector.get(ModuleSessionInfo).request.foo,
+          },
+        },
         providers: [
           FooProvider,
         ],
       });
-      await context(fooRequest);
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context(fooRequest),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(receivedRequest).toBe(fooRequest);
+      expect(result.data.foo).toBe(fooRequest.foo);
     });
   });
   describe('Resolvers Composition', async () => {
@@ -504,11 +546,11 @@ describe('GraphQLModule', () => {
             foo: String
           }
         `,
-        contextBuilder: async () => {
+        context: async () => {
           return {
             counter: 0,
-            foo: '',
-            bar: '',
+            foo: null,
+            bar: null,
           };
         },
         resolvers: {
@@ -540,13 +582,13 @@ describe('GraphQLModule', () => {
           ],
         },
       });
-      const contextValue = await context({ req: {} });
       const result = await execute({
         schema,
         document: gql`query { foo }`,
-        contextValue,
+        contextValue: await context({ req: {} }),
       });
-      expect(contextValue.counter).toBe(0);
+      expect(result.errors).toBeFalsy();
+      expect(result.data.foo).toBe('Hello');
     });
 
     it('should inject context correctly into `__resolveType`', async () => {
@@ -598,14 +640,15 @@ describe('GraphQLModule', () => {
   describe('Schema Directives', async () => {
     it('should handle schema directives', async () => {
 
-      const typeDefs = `
+      const typeDefs = gql`
       directive @date on FIELD_DEFINITION
 
       scalar Date
 
       type Query {
         today: Date @date
-      }`;
+      }
+      `;
 
       class FormattableDateDirective extends SchemaDirectiveVisitor {
         public visitFieldDefinition(field) {
@@ -654,14 +697,146 @@ describe('GraphQLModule', () => {
 
     });
   });
+  describe('Providers Scope', async () => {
+    it('should construct session scope on each network request', async () => {
+      let counter = 0;
+
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class ProviderA {
+        constructor() {
+          counter++;
+        }
+        test(injector: Injector) {
+          return (this === injector.get(ProviderA));
+        }
+      }
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query{
+            test: Boolean
+          }
+        `,
+        resolvers: {
+          Query: {
+            test: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderA).test(injector),
+          },
+        },
+        providers: [
+          ProviderA,
+        ],
+      });
+      expect(counter).toBe(0);
+      const result1 = await execute({
+        schema,
+        document: gql`
+          query {
+            test
+          }
+        `,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result1.data['test']).toBe(true);
+      expect(counter).toBe(1);
+      const result2 = await execute({
+        schema,
+        document: gql`
+          query {
+            test
+          }
+        `,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result2.data['test']).toBe(true);
+      expect(counter).toBe(2);
+    });
+    it('should construct request scope on each injector request independently from network request', async () => {
+      let counter = 0;
+      @Injectable({
+        scope: ProviderScope.Request,
+      })
+      class ProviderA {
+        constructor() {
+          counter++;
+        }
+      }
+      const { context, injector } = new GraphQLModule({ providers: [ProviderA] });
+      expect(counter).toBe(0);
+      await context({ mustBe: 0 });
+      expect(counter).toBe(0);
+      injector.get(ProviderA);
+      expect(counter).toBe(1);
+      injector.get(ProviderA);
+      expect(counter).toBe(2);
+    });
+    it('should inject network request with moduleSessionInfo in session and request scope providers', async () => {
+      const testRequest = {
+        foo: 'BAR',
+      };
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class ProviderA {
+        constructor(private moduleInfo: ModuleSessionInfo) { }
+        test() {
+          return this.moduleInfo.request.foo;
+        }
+      }
+      @Injectable({
+        scope: ProviderScope.Request,
+      })
+      class ProviderB {
+        constructor(private moduleInfo: ModuleSessionInfo) { }
+        test() {
+          return this.moduleInfo.request.foo;
+        }
+      }
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+          type Query{
+            testA: String
+            testB: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            testA: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderA).test(),
+            testB: (root: never, args: never, { injector }: ModuleContext) =>
+              injector.get(ProviderB).test(),
+          },
+        },
+        providers: [
+          ProviderA,
+          ProviderB,
+        ],
+      });
+      const result = await execute({
+        schema,
+        document: gql`
+          query {
+            testA
+            testB
+          }
+        `,
+        contextValue: await context(testRequest),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(result.data['testA']).toBe('BAR');
+      expect(result.data['testB']).toBe('BAR');
+    });
+  });
   describe('Extra Schemas', async () => {
     it('should handle extraSchemas together with local ones', async () => {
       const extraSchema = makeExecutableSchema({
         typeDefs: gql`
-          type Query {
-            foo: String
-          }
-        `,
+      type Query {
+        foo: String
+      }
+    `,
         resolvers: {
           Query: {
             foo: () => 'FOO',
@@ -670,12 +845,12 @@ describe('GraphQLModule', () => {
       });
       const { schema, context } = new GraphQLModule({
         typeDefs: gql`
-          type Query {
-            bar: String
-          }
-        `,
+        type Query {
+          bar: String
+        }
+      `,
         resolvers: {
-          Query : {
+          Query: {
             bar: () => 'BAR',
           },
         },

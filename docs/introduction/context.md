@@ -8,7 +8,7 @@ In GraphQL, a Context is an object shared by all the resolvers of a specific exe
 
 The `context` is available as 3rd argument of each resolver:
 
-```
+```typescript
 const resolvers = {
     Query: {
         myQuery: (root, args, context, info) => {
@@ -39,9 +39,9 @@ export default {
 
 In addition to the added `injector`, GraphQL Modules let you add custom fields to the `context`.
 
-Each module can have it's own `contextBuilder` function, which get's the network request, the current `context`, and the `injector` and can extend the GraphQL `context` with any field.
+Each module can have it's own `context` function or object, which get's the network request, the current `context`, and the `injector` and can extend the GraphQL `context` with any field.
 
-To add a custom `contextBuilder` to your `GraphQLModule` do the following:
+To add a custom `context` to your `GraphQLModule` do the following:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
@@ -55,7 +55,7 @@ export interface IMyModuleContext {
 export const MyModule = new GraphQLModule<{}, {}, IMyModuleContext>({
     typeDefs,
     resolvers,
-    contextBuilder: (networkRequest, currentContext) => {
+    context: (networkRequest, currentContext, moduleSessionInfo) => {
         return {
             myField: 'some-value',
         };
@@ -91,14 +91,18 @@ export interface IAuthModuleContext {
   currentUser: any;
 }
 
-export const AuthModule = new GraphQLModule<{}, express.Request, IAuthModuleContext>({
+export interface IAuthModuleRequest {
+  req: express.Request;
+}
+
+export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleContext>({
     typeDefs,
     resolvers,
     providers: [
       AuthenticationProvider,
     ],
-    contextBuilder: async (networkRequest, currentContext, injector): Promise<IAuthModuleContext> => {
-        const authToken = networkRequest.headers.authentication;
+    context: async (networkRequest, currentContext, injector): Promise<IAuthModuleContext> => {
+        const authToken = networkRequest.req.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
         return {
             currentUser,
