@@ -390,15 +390,15 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         if (typeof resolver === 'function') {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-              const { networkRequest, dataSources } = appContext;
+              const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
-              return resolver.call(typeResolvers, root, args, {...moduleContext as any, dataSources}, info);
+              return resolver.call(typeResolvers, root, args, moduleContext, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-              const { networkRequest, dataSources } = appContext;
+              const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
-              return resolver.call(typeResolvers, root, {...moduleContext as any, dataSources}, info);
+              return resolver.call(typeResolvers, root, moduleContext, info);
             };
           }
         }
@@ -414,9 +414,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const { networkRequest, dataSources } = appContext;
+          const { networkRequest } = appContext;
           const moduleContext = await this.context(networkRequest);
-          return next(root, args, {...moduleContext as any, dataSources}, info);
+          return next(root, args, moduleContext, info);
         },
         ...compositionArr,
       ];
@@ -611,12 +611,25 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
       // tslint:disable-next-line:forin
       for (const key in allDataSources) {
-        const initializeMethod = allDataSources[key]['initialize'];
-        allDataSources['initialize'] = function(config: GraphQLModuleDataSourceConfig<any>) {
+        const thisModule = this;
+        const dataSource = allDataSources[key];
+        const initializeMethod = dataSource['initialize'];
+        // tslint:disable-next-line:only-arrow-functions
+        dataSource['initialize'] = async function(config: GraphQLModuleDataSourceConfig<any>) {
           const { networkRequest } = config.context;
-          return initializeMethod({
+          const context = await thisModule.context(networkRequest);
+          context.injector.provide({
+            provide: dataSource['constructor'],
+            useValue: this,
+            scope: ProviderScope.Session,
+            overwrite: true,
+          });
+          Object.assign(context, {
+            dataSources: allDataSources,
+          });
+          initializeMethod.call(this, {
             ...config,
-            context: this.context(networkRequest),
+            context,
           });
         };
       }
@@ -780,7 +793,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const directiveResolversSet = new Set<IDirectiveResolvers>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
-    const dataSourcesBuilderSet = new Set<GraphQLModuleDataSourcesBuilder<any>>();
+    const dataSourcesBuilderSet = new Set<(module: GraphQLModule<any, Request, any>) => {[key: string]: GraphQLModuleDataSource<any>}>();
     const middlewareSet = new Set<GraphQLModuleMiddleware<Request, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
@@ -808,6 +821,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       loggerSet.add(module.selfLogger);
       for (const extraSchema of module.selfExtraSchemas) {
         extraSchemasSet.add(extraSchema);
+      }
+      if (module._options.dataSources) {
+        dataSourcesBuilderSet.add(module._options.dataSources);
       }
       if (module._options.middleware) {
         middlewareSet.add(module._options.middleware);
@@ -842,7 +858,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       },
     };
     const extraSchemas = [...extraSchemasSet];
-    const dataSources = () => [...dataSourcesBuilderSet].reduce((acc, curr) => ({...acc, ...curr()}), {});
+    const dataSources = (...args: any[]) => [...dataSourcesBuilderSet].reduce((acc, curr) => ({...acc, ...(curr as any)(...args)}), {});
     const middleware = (moduleCache: ModuleCache<Request, any>) => {
       let result = {};
       for (const subMiddleware of middlewareSet) {
