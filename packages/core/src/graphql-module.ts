@@ -34,6 +34,23 @@ export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((m
 
 export type GraphQLModuleMiddleware<Request, Context> = (moduleCache: ModuleCache<Request, Context>) => Partial<ModuleCache<Request, Context>> | void;
 
+export interface GraphQLModuleKeyValueCache {
+  get(key: string): Promise<string | undefined>;
+  set(key: string, value: string, options?: { ttl?: number }): Promise<void>;
+  delete(key: string): Promise<boolean | void>;
+}
+
+export interface GraphQLModuleDataSourceConfig<Context> {
+  context: ModuleContext<Context>;
+  cache: GraphQLModuleKeyValueCache;
+}
+
+export interface GraphQLModuleDataSource<Context> {
+  initialize?(config: GraphQLModuleDataSourceConfig<Context>): void;
+}
+
+export type GraphQLModuleDataSourcesBuilder<Context> = () => {[key: string]: GraphQLModuleDataSource<Context>};
+
 /**
  * Defined the structure of GraphQL module options object.
  */
@@ -84,6 +101,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   mergeCircularImports?: boolean;
   warnCircularImports?: boolean;
   configRequired?: boolean;
+  dataSources?: (module: GraphQLModule<Config, Request, Context>) => {[key: string]: GraphQLModuleDataSource<Context>};
 }
 
 /**
@@ -103,9 +121,10 @@ export interface ModuleCache<Request, Context> {
   typeDefs: DocumentNode;
   resolvers: IResolvers<any, ModuleContext<Context>>;
   schemaDirectives: ISchemaDirectives;
-  contextBuilder: (req: Request) => Promise<Context>;
+  context: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
   extraSchemas: GraphQLSchema[];
+  dataSources: GraphQLModuleDataSourcesBuilder<Context>;
 }
 
 /**
@@ -123,9 +142,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     typeDefs: undefined,
     resolvers: undefined,
     schemaDirectives: undefined,
-    contextBuilder: undefined,
+    context: undefined,
     modulesMap: undefined,
     extraSchemas: undefined,
+    dataSources: undefined,
   };
 
   /**
@@ -422,9 +442,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const importsTypeDefs = new Set<DocumentNode>();
     const importsResolvers = new Set<IResolvers<any, any>>();
     const importsInjectors = new Set<Injector>();
-    const importsContextBuilders = new Set<(req: Request) => Promise<Context>>();
+    const importsContextBuilders = new Set<(req: Request) => Promise<any>>();
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
     const importsExtraSchemas = new Set<GraphQLSchema>();
+    const importsDataSourcesBuilders = new Set<GraphQLModuleDataSourcesBuilder<Context>>();
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
@@ -433,22 +454,23 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         module._cache.modulesMap = modulesMap;
         module._cache.injector = undefined;
         module._cache.schema = undefined;
-        module._cache.contextBuilder = undefined;
+        module._cache.context = undefined;
         module.buildSchemaAndInjector();
       }
 
-      const { injector, resolvers, typeDefs, contextBuilder, schemaDirectives, extraSchemas } = module._cache;
+      const { injector, resolvers, typeDefs, context, schemaDirectives, extraSchemas, dataSources } = module._cache;
 
       importsInjectors.add(injector);
       importsResolvers.add(resolvers);
       if (typeDefs) {
         importsTypeDefs.add(typeDefs);
       }
-      importsContextBuilders.add(contextBuilder);
+      importsContextBuilders.add(context);
       importsSchemaDirectives.add(schemaDirectives);
       for (const extraSchema of extraSchemas) {
         importsExtraSchemas.add(extraSchema);
       }
+      importsDataSourcesBuilders.add(dataSources);
     }
 
     const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
@@ -543,7 +565,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
 
-    this._cache.contextBuilder = async networkRequest => {
+    this._cache.context = async networkRequest => {
       networkRequest['moduleNameContextMap'] = networkRequest['moduleNameContextMap'] || new Map();
       const moduleNameContextMap: Map<string, any> = networkRequest['moduleNameContextMap'];
       if (!(moduleNameContextMap.has(this.name))) {
@@ -579,6 +601,28 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       return moduleNameContextMap.get(this.name);
     };
 
+    this._cache.dataSources = () => {
+      let allDataSources = [...importsDataSourcesBuilders].reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
+      if (this._options.dataSources) {
+        allDataSources = {
+          ...allDataSources,
+          ...this.injector.call(this._options.dataSources, this),
+        };
+      }
+      // tslint:disable-next-line:forin
+      for (const key in allDataSources) {
+        const initializeMethod = allDataSources[key]['initialize'];
+        allDataSources['initialize'] = function(config: GraphQLModuleDataSourceConfig<any>) {
+          const { networkRequest } = config.context;
+          return initializeMethod({
+            ...config,
+            context: this.context(networkRequest),
+          });
+        };
+      }
+      return allDataSources;
+    };
+
     if ('middleware' in this._options) {
       const middlewareResult = this._options.middleware(this._cache);
       this._cache = Object.assign(this._cache, middlewareResult);
@@ -599,10 +643,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @param request - the network request from `connect`, `express`, etc...
    */
   get context(): (networkRequest: Request) => Promise<ModuleContext<Context>> {
-    if (!this._cache.contextBuilder) {
+    if (!this._cache.context) {
       this.buildSchemaAndInjector();
     }
-    return this._cache.contextBuilder.bind(this);
+    return this._cache.context.bind(this);
   }
 
   get modulesMap() {
@@ -736,6 +780,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const directiveResolversSet = new Set<IDirectiveResolvers>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
+    const dataSourcesBuilderSet = new Set<GraphQLModuleDataSourcesBuilder<any>>();
     const middlewareSet = new Set<GraphQLModuleMiddleware<Request, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
@@ -760,10 +805,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       resolversCompositionSet.add(module.selfResolversComposition);
       schemaDirectivesSet.add(module.selfSchemaDirectives);
       directiveResolversSet.add(module.selfDirectiveResolvers);
+      loggerSet.add(module.selfLogger);
       for (const extraSchema of module.selfExtraSchemas) {
         extraSchemasSet.add(extraSchema);
       }
-      loggerSet.add(module.selfLogger);
+      if (module._options.middleware) {
+        middlewareSet.add(module._options.middleware);
+      }
     }
 
     const name = [...nameSet].join('+');
@@ -794,6 +842,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       },
     };
     const extraSchemas = [...extraSchemasSet];
+    const dataSources = () => [...dataSourcesBuilderSet].reduce((acc, curr) => ({...acc, ...curr()}), {});
     const middleware = (moduleCache: ModuleCache<Request, any>) => {
       let result = {};
       for (const subMiddleware of middlewareSet) {
@@ -813,6 +862,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       directiveResolvers,
       logger,
       extraSchemas,
+      dataSources,
       middleware,
       warnCircularImports,
       mergeCircularImports: true,
