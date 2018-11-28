@@ -390,15 +390,15 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         if (typeof resolver === 'function') {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-              const { networkRequest } = appContext;
+              const { networkRequest, dataSources } = appContext;
               const moduleContext = await this.context(networkRequest);
-              return resolver.call(typeResolvers, root, args, moduleContext, info);
+              return resolver.call(typeResolvers, root, args, {...moduleContext as any, dataSources}, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-              const { networkRequest } = appContext;
+              const { networkRequest, dataSources } = appContext;
               const moduleContext = await this.context(networkRequest);
-              return resolver.call(typeResolvers, root, moduleContext as any, info);
+              return resolver.call(typeResolvers, root, {...moduleContext as any, dataSources}, info);
             };
           }
         }
@@ -414,9 +414,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const { networkRequest } = appContext;
+          const { networkRequest, dataSources } = appContext;
           const moduleContext = await this.context(networkRequest);
-          return next(root, args, moduleContext, info);
+          return next(root, args, {...moduleContext as any, dataSources}, info);
         },
         ...compositionArr,
       ];
