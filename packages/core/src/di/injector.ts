@@ -125,7 +125,7 @@ export class Injector {
         }
       } else if (this._factoryMap.has(serviceIdentifier)) {
         const factory = this._factoryMap.get(serviceIdentifier);
-        const instance = factory(this);
+        const instance = this.call(factory, this);
         if (this.scopeSet.has(serviceIdentifier)) {
           this._instanceMap.set(serviceIdentifier, instance);
         }

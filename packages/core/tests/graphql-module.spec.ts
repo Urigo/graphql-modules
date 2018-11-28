@@ -23,7 +23,15 @@ describe('GraphQLModule', () => {
   @Injectable()
   class ProviderA {
     doSomething() {
-      return 'Test';
+      return 'Test1';
+    }
+  }
+
+  // B
+  @Injectable()
+  class ProviderB {
+    doSomethingElse() {
+      return 'Test2';
     }
   }
 
@@ -175,6 +183,38 @@ describe('GraphQLModule', () => {
   it('should allow to get schema', async () => {
 
     expect(app.schema).toBeDefined();
+  });
+
+  it('should inject dependencies to factory functions using Inject', async () => {
+    const { schema, context } = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          something: String
+          somethingElse: String
+        }
+      `,
+      providers: [ProviderA, ProviderB],
+      resolvers: Inject(ProviderA, ProviderB)((providerA, providerB) => ({
+        Query: {
+          something: () => providerA.doSomething(),
+          somethingElse: () => providerB.doSomethingElse(),
+        },
+      })),
+    });
+    const contextValue = await context({ req: {} });
+    const result = await execute({
+      schema,
+      document: gql`
+        query {
+          something
+          somethingElse
+        }
+      `,
+      contextValue,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data.something).toBe('Test1');
+    expect(result.data.somethingElse).toBe('Test2');
   });
 
   describe('Schema merging', () => {
