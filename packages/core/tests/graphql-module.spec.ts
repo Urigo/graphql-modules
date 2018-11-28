@@ -11,7 +11,7 @@ import {
   Injector,
   ModuleConfigRequiredError,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { DependencyProviderNotFoundError, Injectable } from '../src';
@@ -835,25 +835,39 @@ describe('GraphQLModule', () => {
     it('should handle extraSchemas together with local ones', async () => {
       const extraSchema = makeExecutableSchema({
         typeDefs: gql`
-      type Query {
-        foo: String
-      }
-    `,
+            directive @myDirective on FIELD_DEFINITION
+            type Query {
+              foo: Foo
+            }
+            type Foo {
+              id: ID
+              content: String
+            }
+        `,
         resolvers: {
           Query: {
-            foo: () => 'FOO',
+            foo: () => ({
+              content: 'FOO',
+            }),
           },
         },
       });
       const { schema, context } = new GraphQLModule({
         typeDefs: gql`
         type Query {
-          bar: String
+          bar: Bar
+        }
+        type Bar {
+          id: ID @myDirective
+          content: String
         }
       `,
         resolvers: {
           Query: {
-            bar: () => 'BAR',
+            bar: () => ({}),
+          },
+          Bar: {
+            content: () => 'BAR',
           },
         },
         extraSchemas: [
@@ -864,11 +878,12 @@ describe('GraphQLModule', () => {
 
       const result = await execute({
         schema,
-        document: gql`query { foo bar }`,
+        document: gql`query { foo { content } bar { content } }`,
         contextValue,
       });
-      expect(result.data['foo']).toBe('FOO');
-      expect(result.data['bar']).toBe('BAR');
+      expect(result.errors).toBeFalsy();
+      expect(result.data['foo'].content).toBe('FOO');
+      expect(result.data['bar'].content).toBe('BAR');
     });
   });
 });

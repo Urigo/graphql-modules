@@ -101,8 +101,11 @@ export interface ModuleCache<Request, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
+  resolvers: IResolvers<any, ModuleContext<Context>>;
+  schemaDirectives: ISchemaDirectives;
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
+  extraSchemas: GraphQLSchema[];
 }
 
 /**
@@ -118,8 +121,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     injector: undefined,
     schema: undefined,
     typeDefs: undefined,
+    resolvers: undefined,
+    schemaDirectives: undefined,
     contextBuilder: undefined,
     modulesMap: undefined,
+    extraSchemas: undefined,
   };
 
   /**
@@ -139,7 +145,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
     if (!('logger' in _options)) {
       _options.logger = {
-        log() {},
+        log() { },
       };
     }
   }
@@ -219,6 +225,20 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
     }
     return this._cache.typeDefs;
+  }
+
+  get resolvers(): IResolvers<any, ModuleContext<Context>> {
+    if (typeof this._cache.resolvers === 'undefined') {
+      this.buildSchemaAndInjector();
+    }
+    return this._cache.resolvers;
+  }
+
+  get schemaDirectives(): ISchemaDirectives {
+    if (typeof this._cache.schemaDirectives === 'undefined') {
+      this.buildSchemaAndInjector();
+    }
+    return this._cache.schemaDirectives;
   }
 
   get selfExtraSchemas(): GraphQLSchema[] {
@@ -399,9 +419,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   private buildSchemaAndInjector() {
     const modulesMap = this.modulesMap;
     const imports = this.selfImports;
+    const importsTypeDefs = new Set<DocumentNode>();
+    const importsResolvers = new Set<IResolvers<any, any>>();
     const importsInjectors = new Set<Injector>();
-    const importsSchemas = new Set<GraphQLSchema>();
     const importsContextBuilders = new Set<(req: Request) => Promise<Context>>();
+    const importsSchemaDirectives = new Set<ISchemaDirectives>();
+    const importsExtraSchemas = new Set<GraphQLSchema>();
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
@@ -414,13 +437,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         module.buildSchemaAndInjector();
       }
 
-      const { injector, schema, contextBuilder } = module._cache;
+      const { injector, resolvers, typeDefs, contextBuilder, schemaDirectives, extraSchemas } = module._cache;
 
       importsInjectors.add(injector);
-      if (schema) {
-        importsSchemas.add(schema);
+      importsResolvers.add(resolvers);
+      if (typeDefs) {
+        importsTypeDefs.add(typeDefs);
       }
       importsContextBuilders.add(contextBuilder);
+      importsSchemaDirectives.add(schemaDirectives);
+      for (const extraSchema of extraSchemas) {
+        importsExtraSchemas.add(extraSchema);
+      }
     }
 
     const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
@@ -442,40 +470,61 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
 
-    const composedResolvers = composeResolvers(resolvers, resolversComposition);
+    const resolversToBeComposed = new Set<IResolvers<any, any>>(importsResolvers);
+    resolversToBeComposed.add(resolvers);
 
-    const schemaDirectives = this.selfSchemaDirectives;
+    const composedResolvers = composeResolvers<any, ModuleContext<Context>>(
+      mergeResolvers([...resolversToBeComposed]),
+      resolversComposition,
+    );
 
-    const directiveResolvers = this.selfDirectiveResolvers;
+    this._cache.resolvers = composedResolvers;
 
-    const logger = this.selfLogger;
+    const typeDefsToBeMerged = new Set(importsTypeDefs);
 
-    const typeDefs = this.selfTypeDefs;
+    const selfTypeDefs = this.selfTypeDefs;
+    if (selfTypeDefs) {
+      typeDefsToBeMerged.add(selfTypeDefs);
+    }
+
+    const schemaDirectivesToBeMerged = new Set(importsSchemaDirectives);
+    schemaDirectivesToBeMerged.add(this.selfSchemaDirectives);
+    const mergedSchemaDirectives = deepmerge.all([...schemaDirectivesToBeMerged]) as ISchemaDirectives;
+    this._cache.schemaDirectives = mergedSchemaDirectives;
 
     const extraSchemas = this.selfExtraSchemas;
 
+    const allExtraSchemas = new Set(importsExtraSchemas);
+    for (const extraSchema of extraSchemas) {
+      allExtraSchemas.add(extraSchema);
+    }
+
+    this._cache.extraSchemas = [...allExtraSchemas];
+
     try {
-      const schemasToBeMerged = new Set<GraphQLSchema | DocumentNode>(importsSchemas);
-      for (const extraSchema of extraSchemas) {
-        schemasToBeMerged.add(extraSchema);
-      }
-      if (schemasToBeMerged.size) {
-        if (typeDefs) {
-          schemasToBeMerged.add(typeDefs);
+      if (typeDefsToBeMerged.size || allExtraSchemas.size) {
+        const mergedTypeDefs = mergeGraphQLSchemas([...allExtraSchemas, ...typeDefsToBeMerged]);
+        this._cache.typeDefs = mergedTypeDefs;
+        const localSchema = makeExecutableSchema<ModuleContext<Context>>({
+          typeDefs: mergedTypeDefs,
+          resolvers: composedResolvers,
+          schemaDirectives: mergedSchemaDirectives,
+          resolverValidationOptions: {
+            requireResolversForArgs: false,
+            requireResolversForNonScalar: false,
+            requireResolversForAllFields: false,
+            requireResolversForResolveType: false,
+            allowResolversNotInSchema: true,
+          },
+          logger: this.selfLogger,
+        });
+        if (allExtraSchemas.size) {
+          this._cache.schema = mergeSchemas({
+            schemas: [localSchema, ...allExtraSchemas],
+          });
+        } else {
+          this._cache.schema = localSchema;
         }
-        this._cache.schema = mergeSchemas({
-          schemas: [...schemasToBeMerged],
-          resolvers: composedResolvers,
-          schemaDirectives,
-        });
-      } else if (typeDefs) {
-        this._cache.schema = makeExecutableSchema({
-          typeDefs,
-          resolvers: composedResolvers,
-          schemaDirectives,
-          directiveResolvers,
-          logger,
-        });
         this.injector.provide({
           provide: GraphQLSchema,
           useValue: this._cache.schema,
@@ -497,13 +546,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     this._cache.contextBuilder = async networkRequest => {
       networkRequest['moduleNameContextMap'] = networkRequest['moduleNameContextMap'] || new Map();
       const moduleNameContextMap: Map<string, any> = networkRequest['moduleNameContextMap'];
-      if (! (moduleNameContextMap.has(this.name))) {
+      if (!(moduleNameContextMap.has(this.name))) {
         const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
         const importsContextArr = await Promise.all(importsContextArr$);
         const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
         const applicationInjector = this.injector;
         const sessionInjector = applicationInjector.getSessionInjector(networkRequest);
-        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) :  new ModuleSessionInfo<Config, any, Context>(this, networkRequest, importsContext);
+        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, networkRequest, importsContext);
         let moduleContext = {};
         const moduleContextDeclaration = this._options.context;
         if (moduleContextDeclaration) {
@@ -747,7 +796,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const extraSchemas = [...extraSchemasSet];
     const middleware = (moduleCache: ModuleCache<Request, any>) => {
       let result = {};
-      for ( const subMiddleware of middlewareSet ) {
+      for (const subMiddleware of middlewareSet) {
         result = Object.assign(result, subMiddleware(moduleCache));
       }
       return result;
