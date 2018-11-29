@@ -37,7 +37,7 @@
     "graphql-tag": "2.10.0",
     "jest": "23.6.0",
     "tslint": "5.11.0",
-    "typescript": "3.1.6"
+    "typescript": "3.2.1"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {
