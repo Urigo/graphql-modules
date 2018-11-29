@@ -19,6 +19,9 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
   get request() {
     return this._request;
   }
+  get cache() {
+    return this.module.cache;
+  }
   get context() {
     return this._context;
   }
@@ -34,10 +37,14 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
     if (
       instance &&
       typeof instance !== 'string' &&
-      typeof instance !== 'number' &&
-      'onRequest' in instance
+      typeof instance !== 'number'
       ) {
-      return instance.onRequest(this);
+      if ('onRequest' in instance) {
+        return instance.onRequest(this);
+      }
+      if ('initialize' in instance) {
+        return instance['initialize'](this);
+      }
     }
   }
 }

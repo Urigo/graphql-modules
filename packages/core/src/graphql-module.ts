@@ -34,6 +34,12 @@ export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((m
 
 export type GraphQLModuleMiddleware<Request, Context> = (moduleCache: ModuleCache<Request, Context>) => Partial<ModuleCache<Request, Context>> | void;
 
+export interface KeyValueCache {
+  get(key: string): Promise<string | undefined>;
+  set(key: string, value: string, options?: { ttl?: number }): Promise<void>;
+  delete(key: string): Promise<boolean | void>;
+}
+
 /**
  * Defined the structure of GraphQL module options object.
  */
@@ -81,6 +87,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
   extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
   middleware?: GraphQLModuleMiddleware<Request, Context>;
+  cache?: KeyValueCache;
   mergeCircularImports?: boolean;
   warnCircularImports?: boolean;
   configRequired?: boolean;
@@ -148,6 +155,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         log() { },
       };
     }
+    if (!('cache' in _options)) {
+      const storage = new Map<string, any>();
+      _options.cache = {
+        get: async key => storage.get(key),
+        set: async (key, value) => { storage.set(key, value); },
+        delete: async key => storage.delete(key),
+      };
+    }
   }
 
   /**
@@ -196,6 +211,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       this.buildSchemaAndInjector();
     }
     return this._cache.injector;
+  }
+
+  get cache(): KeyValueCache {
+    return this._options.cache;
   }
 
   /**
