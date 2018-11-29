@@ -41,7 +41,7 @@ function createSchemaDefinition(def: {
     schemaRoot.mutation = def.mutation.toString();
   }
   if (def.subscription) {
-    schemaRoot.query = def.subscription.toString();
+    schemaRoot.subscription = def.subscription.toString();
   }
 
   const fields = Object.keys(schemaRoot)
