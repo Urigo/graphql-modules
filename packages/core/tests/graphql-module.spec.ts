@@ -886,4 +886,26 @@ describe('GraphQLModule', () => {
       expect(result.data['bar'].content).toBe('BAR');
     });
   });
+  it('should mutate schema using middleware', async () => {
+    const { schema, context } = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          foo: Boolean
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: (root, args, context, info) => !!info.schema['__DIRTY__'],
+        },
+      },
+      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { foo }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo']).toBeTruthy();
+  });
 });
