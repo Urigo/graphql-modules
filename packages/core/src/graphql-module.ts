@@ -113,6 +113,7 @@ export interface ModuleCache<Request, Context> {
   contextBuilder: (req: Request) => Promise<Context>;
   modulesMap: ModulesMap<Request>;
   extraSchemas: GraphQLSchema[];
+  directiveResolvers: IDirectiveResolvers;
 }
 
 /**
@@ -133,6 +134,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     contextBuilder: undefined,
     modulesMap: undefined,
     extraSchemas: undefined,
+    directiveResolvers: undefined,
   };
 
   /**
@@ -391,12 +393,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
               const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
+              info.schema = this._cache.schema;
               return resolver.call(typeResolvers, root, args, moduleContext, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
               const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
+              info.schema = this._cache.schema;
               return resolver.call(typeResolvers, root, moduleContext as any, info);
             };
           }
@@ -415,6 +419,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           const { networkRequest } = appContext;
           const moduleContext = await this.context(networkRequest);
+          info.schema = this._cache.schema;
           return next(root, args, moduleContext, info);
         },
         ...compositionArr,
@@ -444,6 +449,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const importsContextBuilders = new Set<(req: Request) => Promise<Context>>();
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
     const importsExtraSchemas = new Set<GraphQLSchema>();
+    const importsDirectiveResolvers = new Set<IDirectiveResolvers>();
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
@@ -456,7 +462,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         module.buildSchemaAndInjector();
       }
 
-      const { injector, resolvers, typeDefs, contextBuilder, schemaDirectives, extraSchemas } = module._cache;
+      const { injector, resolvers, typeDefs, contextBuilder, schemaDirectives, extraSchemas, directiveResolvers } = module._cache;
 
       importsInjectors.add(injector);
       importsResolvers.add(resolvers);
@@ -468,6 +474,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       for (const extraSchema of extraSchemas) {
         importsExtraSchemas.add(extraSchema);
       }
+      importsDirectiveResolvers.add(directiveResolvers);
     }
 
     const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
@@ -520,6 +527,10 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     this._cache.extraSchemas = [...allExtraSchemas];
 
+    const directiveResolversToBeMerged = new Set(importsDirectiveResolvers);
+    directiveResolversToBeMerged.add(this.selfDirectiveResolvers);
+    this._cache.directiveResolvers = deepmerge.all([...directiveResolversToBeMerged]) as IDirectiveResolvers;
+
     try {
       if (typeDefsToBeMerged.size || allExtraSchemas.size) {
         const mergedTypeDefs = mergeGraphQLSchemas([...allExtraSchemas, ...typeDefsToBeMerged]);
@@ -535,6 +546,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             requireResolversForResolveType: false,
             allowResolversNotInSchema: true,
           },
+          directiveResolvers: this._cache.directiveResolvers,
           logger: this.selfLogger,
         });
         if (allExtraSchemas.size) {
