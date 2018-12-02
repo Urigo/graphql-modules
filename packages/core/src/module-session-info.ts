@@ -1,5 +1,5 @@
 import { GraphQLModule } from './graphql-module';
-import { ServiceIdentifier } from './di';
+import { ServiceIdentifier } from '@graphql-modules/di';
 import { OnRequest } from './types';
 
 export class ModuleSessionInfo<Config = any, Request = any, Context = any> {

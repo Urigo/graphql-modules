@@ -1,5 +1,5 @@
 
-import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError } from '../errors';
+import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError } from './errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
 import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
 
@@ -169,7 +169,7 @@ export class Injector {
     return nameSessionInjectorMap.get(this._name);
   }
   public call<Fn extends (this: ThisArg, ...args: any[]) => any, ThisArg>(fn: Fn, thisArg: ThisArg): ReturnType<Fn> {
-    if (Reflect.hasMetadata(DESIGN_PARAM_TYPES, fn)) {
+    if ('hasMetadata' in Reflect && Reflect.hasMetadata(DESIGN_PARAM_TYPES, fn)) {
       const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, fn);
       const instances = dependencies.map((dependency: any) => this.get(dependency));
       return fn.call(thisArg, ...instances);

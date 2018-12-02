@@ -1,4 +1,4 @@
-import { ServiceIdentifier } from '../di';
+import { ServiceIdentifier } from '@graphql-modules/di';
 
 export class ProviderClassNotDecoratedError<T> extends Error {
   constructor(private _moduleName: string, private _serviceIdentifier: ServiceIdentifier<T>, private _className: string) {

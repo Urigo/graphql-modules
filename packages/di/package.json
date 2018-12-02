@@ -1,5 +1,5 @@
 {
-  "name": "@graphql-modules/core",
+  "name": "@graphql-modules/di",
   "version": "0.2.14",
   "main": "dist/index.js",
   "license": "MIT",
@@ -17,6 +17,10 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/test-assets"
+    ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
       "ts",
@@ -27,18 +31,17 @@
       "node"
     ]
   },
-  "dependencies": {
-    "@graphql-modules/epoxy": "0.2.14",
-    "@graphql-modules/di": "0.2.14",
-    "dependency-graph": "0.7.2",
-    "graphql-tools": "4.0.3",
-    "tslib": "1.9.3"
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
-    "graphql-tag": "2.10.0",
     "jest": "23.6.0",
     "tslint": "5.11.0",
+    "reflect-metadata": "0.1.12",
     "typescript": "3.2.1"
+  },
+  "dependencies": {
+    "tslib": "1.9.3"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

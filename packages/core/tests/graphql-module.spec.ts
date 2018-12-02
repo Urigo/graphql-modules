@@ -3,20 +3,17 @@ import {
   CommunicationBridge,
   EventEmitterCommunicationBridge,
   GraphQLModule,
-  Inject,
   ModuleConfig,
   ModuleContext,
   OnRequest,
-  ProviderScope,
-  Injector,
   ModuleConfigRequiredError,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { DependencyProviderNotFoundError, Injectable } from '../src';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
+import { Injectable, Inject, Injector, ProviderScope, DependencyProviderNotFoundError } from '@graphql-modules/di';
 
 describe('GraphQLModule', () => {
   // A
