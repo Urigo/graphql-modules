@@ -1,4 +1,4 @@
-import { Injectable } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
 import { Users } from '../../user/providers/users';
 
 const posts = [
