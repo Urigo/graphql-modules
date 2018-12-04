@@ -243,7 +243,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       if (selfTypeDefs) {
         typeDefsSet.add(selfTypeDefs);
       }
-      this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet]);
+      this._cache.typeDefs = mergeGraphQLSchemas([...typeDefsSet], {
+        useSchemaDefinition: false,
+      });
     }
     return this._cache.typeDefs;
   }
@@ -289,7 +291,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
-        typeDefs = mergeGraphQLSchemas(typeDefsDefinitions);
+        typeDefs = mergeGraphQLSchemas(typeDefsDefinitions, {
+          useSchemaDefinition: false,
+        });
       } else if (typeDefsDefinitions) {
         typeDefs = typeDefsDefinitions;
       }
@@ -533,7 +537,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     try {
       if (typeDefsToBeMerged.size || allExtraSchemas.size) {
-        const mergedTypeDefs = mergeGraphQLSchemas([...allExtraSchemas, ...typeDefsToBeMerged]);
+        const mergedTypeDefs = mergeGraphQLSchemas([...allExtraSchemas, ...typeDefsToBeMerged], {
+          useSchemaDefinition: false,
+        });
         this._cache.typeDefs = mergedTypeDefs;
         const localSchema = makeExecutableSchema<ModuleContext<Context>>({
           typeDefs: mergedTypeDefs,
