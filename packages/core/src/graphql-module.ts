@@ -655,7 +655,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             throw new DependencyModuleUndefinedError(module.name);
           }
           if (typeof subModule !== 'string') {
-            visitModule(subModule);
+            if (subModule._options.configRequired) {
+              if (subModule.config) {
+                visitModule(subModule);
+              }
+            } else {
+              visitModule(subModule);
+            }
           }
         }
       }

@@ -945,4 +945,46 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['foo']).toBeTruthy();
   });
+  it('should avoid getting non-configured module', async () => {
+    const FOO = Symbol('FOO');
+    const moduleA = new GraphQLModule<{ foo: string }>({
+      providers: ({config}) => [
+        {
+          provide: FOO,
+          useValue: config.foo,
+        },
+      ],
+      configRequired: true,
+    });
+    const moduleB = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          foo: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: (_, __, { injector }) => injector.get(FOO),
+        },
+      },
+      imports: [
+        moduleA,
+      ],
+    });
+    const { schema, context } = new GraphQLModule({
+      imports: [
+        moduleB,
+        moduleA.forRoot({
+          foo: 'FOO',
+        }),
+      ],
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { foo }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo']).toBe('FOO');
+  });
 });
