@@ -87,8 +87,13 @@ import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
 import { AuthenticationProvider } from './auth-provider';
 
+export interface User {
+  firstName: string;
+  lastName: string;
+}
+
 export interface IAuthModuleContext {
-  currentUser: any;
+  currentUser: User;
 }
 
 export interface IAuthModuleRequest {
@@ -101,7 +106,7 @@ export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleC
     providers: [
       AuthenticationProvider,
     ],
-    context: async (networkRequest, currentContext, injector): Promise<IAuthModuleContext> => {
+    async context(networkRequest, currentContext, { injector }) {
         const authToken = networkRequest.req.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
         return {
@@ -111,4 +116,4 @@ export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleC
 });
 ```
 
-You can read more about [authentication and how to implement it here](/TODO).
+You can read more about [authentication and how to implement it here](https://medium.com/the-guild/authentication-and-authorization-in-graphql-and-how-graphql-modules-can-help-fadc1ee5b0c2).
