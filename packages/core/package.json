@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -28,8 +28,8 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/di": "0.2.16",
-    "@graphql-modules/epoxy": "0.2.16",
+    "@graphql-modules/di": "0.2.17",
+    "@graphql-modules/epoxy": "0.2.17",
     "dependency-graph": "0.7.2",
     "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
