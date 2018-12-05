@@ -823,6 +823,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           };
         };
       },
+      () => ({}),
     );
     const imports = [...importsSet];
     const providers = [...providersSet];
