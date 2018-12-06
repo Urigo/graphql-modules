@@ -39,7 +39,7 @@ export interface ProviderOptions {
   scope?: ProviderScope;
 }
 
-export const enum ProviderScope {
+export enum ProviderScope {
   Application = 'APPLICATION',
   Request = 'REQUEST',
   Session = 'SESSION',
