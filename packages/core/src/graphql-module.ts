@@ -1,4 +1,4 @@
-import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas, IDirectiveResolvers } from 'graphql-tools';
+import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse } from 'graphql';
@@ -91,6 +91,7 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
   mergeCircularImports?: boolean;
   warnCircularImports?: boolean;
   configRequired?: boolean;
+  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Request, Context>;
 }
 
 /**
@@ -444,6 +445,19 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return logger;
   }
 
+  get selfResolverValidationOptions(): IResolverValidationOptions {
+    let resolverValidationOptions: IResolverValidationOptions = {};
+    const resolverValidationOptionsDefinitions = this._options.resolverValidationOptions;
+    if ( resolverValidationOptionsDefinitions ) {
+      if (resolverValidationOptionsDefinitions instanceof Function) {
+        resolverValidationOptions = this.injector.call(resolverValidationOptionsDefinitions as () => IResolverValidationOptions, this);
+      } else {
+        resolverValidationOptions = resolverValidationOptionsDefinitions as IResolverValidationOptions;
+      }
+    }
+    return resolverValidationOptions;
+  }
+
   private buildSchemaAndInjector() {
     const modulesMap = this.modulesMap;
     const imports = this.selfImports;
@@ -545,15 +559,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           typeDefs: mergedTypeDefs,
           resolvers: composedResolvers,
           schemaDirectives: mergedSchemaDirectives,
-          resolverValidationOptions: {
-            requireResolversForArgs: false,
-            requireResolversForNonScalar: false,
-            requireResolversForAllFields: false,
-            requireResolversForResolveType: false,
-            allowResolversNotInSchema: true,
-          },
           directiveResolvers: this._cache.directiveResolvers,
           logger: this.selfLogger,
+          resolverValidationOptions: this.selfResolverValidationOptions,
         });
         if (allExtraSchemas.size) {
           this._cache.schema = mergeSchemas({
