@@ -90,6 +90,7 @@ Then, you can add custom mapping to your `tsconfig.json` file:
 ```json
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@modules/*": ["./modules/*"]
     }
