@@ -26,7 +26,8 @@
       "guides/communication-between-modules",
       "guides/testing-and-mocking",
       "guides/microservices",
-      "guides/integrate-with-graphql-code-generator"
+      "guides/integrate-with-graphql-code-generator",
+      "guides/data-sources"
     ]
   }
 }
