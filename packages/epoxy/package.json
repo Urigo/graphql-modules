@@ -28,7 +28,6 @@
     ]
   },
   "dependencies": {
-    "@types/deepmerge": "2.1.0",
     "deepmerge": "3.0.0",
     "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
