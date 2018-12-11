@@ -8,7 +8,7 @@ import {
   OnRequest,
   ModuleConfigRequiredError,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print, GraphQLScalarType, Kind } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
@@ -1007,5 +1007,44 @@ describe('GraphQLModule', () => {
     const context = await gqlModule.context({});
     const resolvers = gqlModule.resolvers;
     expect(await resolvers['Query']['test'](null, {}, context, {})).toBe(1);
+  });
+  it('should resolve scalars correctly', async () => {
+    const today = new Date();
+    const { schema, context } = new GraphQLModule({
+      typeDefs: gql`
+        scalar Date
+        type Query {
+          today: Date
+        }
+      `,
+      resolvers: {
+        Date: new GraphQLScalarType({
+          name: 'Date',
+          description: 'Date custom scalar type',
+          parseValue(value) {
+            return new Date(value); // value from the client
+          },
+          serialize(value) {
+            return value.getTime(); // value sent to the client
+          },
+          parseLiteral(ast) {
+            if (ast.kind === Kind.INT) {
+              return new Date(ast.value); // ast value is always in string format
+            }
+            return null;
+          },
+        }),
+        Query: {
+          today: () => today,
+        },
+      },
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { today }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['today']).toBe(today.getTime());
   });
 });
