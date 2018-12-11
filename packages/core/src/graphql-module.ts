@@ -485,8 +485,17 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       module = modulesMap.get(moduleName);
 
       if (module._cache.modulesMap !== modulesMap) {
-        module._cache.modulesMap = modulesMap;
-        module.buildSchemaAndInjector();
+        module._cache = {
+          injector: undefined,
+          schema: undefined,
+          typeDefs: undefined,
+          resolvers: undefined,
+          schemaDirectives: undefined,
+          contextBuilder: undefined,
+          modulesMap,
+          extraSchemas: undefined,
+          directiveResolvers: undefined,
+        };
       }
 
       const { injector, resolvers, typeDefs, schemaDirectives } = module;
