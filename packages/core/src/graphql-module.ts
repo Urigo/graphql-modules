@@ -14,7 +14,7 @@ import { ModuleContext } from './types';
  * A context builder method signature for `contextBuilder`.
  */
 export type BuildContextFn<Config, Request, Context> = (
-  networkRequest: Request,
+  request: Request,
   currentContext: ModuleContext<Context>,
   moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
 ) => Promise<Context> | Context;
@@ -386,7 +386,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   private checkIfResolverCalledSafely(resolverPath: string, appContext: any, info: any) {
-    if (!('networkRequest' in appContext)) {
+    if (!('request' in appContext)) {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Request hasn't been passed!`);
     }
     if (typeof info === 'undefined') {
@@ -409,16 +409,16 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
               this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-              const { networkRequest } = appContext;
-              const moduleContext = await this.context(networkRequest);
+              const { request } = appContext;
+              const moduleContext = await this.context(request);
               info.schema = this._cache.schema;
               return resolver.call(typeResolvers, root, args, moduleContext, info);
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
               this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-              const { networkRequest } = appContext;
-              const moduleContext = await this.context(networkRequest);
+              const { request } = appContext;
+              const moduleContext = await this.context(request);
               info.schema = this._cache.schema;
               return resolver.call(typeResolvers, root, moduleContext as any, info);
             };
@@ -437,8 +437,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           this.checkIfResolverCalledSafely(path, appContext, info);
-          const { networkRequest } = appContext;
-          const moduleContext = await this.context(networkRequest);
+          const { request } = appContext;
+          const moduleContext = await this.context(request);
           info.schema = this._cache.schema;
           return next(root, args, moduleContext, info);
         },
@@ -610,21 +610,21 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
 
-    this._cache.contextBuilder = async networkRequest => {
-      networkRequest['moduleNameContextMap'] = networkRequest['moduleNameContextMap'] || new Map();
-      const moduleNameContextMap: Map<string, any> = networkRequest['moduleNameContextMap'];
+    this._cache.contextBuilder = async request => {
+      request['moduleNameContextMap'] = request['moduleNameContextMap'] || new Map();
+      const moduleNameContextMap: Map<string, any> = request['moduleNameContextMap'];
       if (!(moduleNameContextMap.has(this.name))) {
-        const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(networkRequest));
+        const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(request));
         const importsContextArr = await Promise.all(importsContextArr$);
         const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
         const applicationInjector = this.injector;
-        const sessionInjector = applicationInjector.getSessionInjector(networkRequest);
-        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, networkRequest, importsContext);
+        const sessionInjector = applicationInjector.getSessionInjector(request);
+        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, request, importsContext);
         let moduleContext = {};
         const moduleContextDeclaration = this._options.context;
         if (moduleContextDeclaration) {
           if (typeof moduleContextDeclaration === 'function') {
-            moduleContext = await (moduleContextDeclaration as any)(networkRequest, importsContext, moduleSessionInfo);
+            moduleContext = await (moduleContextDeclaration as any)(request, importsContext, moduleSessionInfo);
           } else {
             moduleContext = moduleContextDeclaration;
           }
@@ -633,7 +633,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           ...importsContext,
           ...moduleContext as any,
           injector: sessionInjector,
-          networkRequest,
+          request,
         };
         const requestHooks$ = [
           ...applicationInjector.scopeSet,
@@ -665,7 +665,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    *
    * @param request - the network request from `connect`, `express`, etc...
    */
-  get context(): (networkRequest: Request) => Promise<ModuleContext<Context>> {
+  get context(): (request: Request) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
       this.buildSchemaAndInjector();
     }
@@ -844,9 +844,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolvers = mergeResolvers([...resolversSet]);
     const context = [...contextBuilderSet].reduce(
       (accContextBuilder, currentContextBuilder) => {
-        return async (networkRequest, currentContext, injector) => {
-          const accContext = await accContextBuilder(networkRequest, currentContext, injector);
-          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(networkRequest, currentContext, injector) : (currentContextBuilder || {});
+        return async (request, currentContext, injector) => {
+          const accContext = await accContextBuilder(request, currentContext, injector);
+          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(request, currentContext, injector) : (currentContextBuilder || {});
           return {
             ...accContext as any,
             ...moduleContext as any,
