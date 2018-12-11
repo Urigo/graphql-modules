@@ -4,7 +4,7 @@ import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
-import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError } from './errors';
+import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { asArray } from './utils';
@@ -385,6 +385,15 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return directiveResolvers;
   }
 
+  private checkIfResolverCalledSafely(resolverPath: string, appContext: any, info: any) {
+    if (!('networkRequest' in appContext)) {
+      throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Request hasn't been passed!`);
+    }
+    if (typeof info === 'undefined') {
+      throw new IllegalResolverInvocationError(resolverPath, this.name, `GraphQL Resolve Information hasn't been passed!`);
+    }
+  }
+
   private addSessionInjectorToSelfResolversContext() {
     const resolvers = this.selfResolvers;
     // tslint:disable-next-line:forin
@@ -396,6 +405,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         if (typeof resolver === 'function') {
           if (prop !== '__resolveType') {
             typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
+              this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
               const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
               info.schema = this._cache.schema;
@@ -403,6 +413,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             };
           } else {
             typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
+              this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
               const { networkRequest } = appContext;
               const moduleContext = await this.context(networkRequest);
               info.schema = this._cache.schema;
@@ -422,6 +433,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
+          this.checkIfResolverCalledSafely(path, appContext, info);
           const { networkRequest } = appContext;
           const moduleContext = await this.context(networkRequest);
           info.schema = this._cache.schema;
@@ -474,13 +486,11 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
       if (module._cache.modulesMap !== modulesMap) {
         module._cache.modulesMap = modulesMap;
-        module._cache.injector = undefined;
-        module._cache.schema = undefined;
-        module._cache.contextBuilder = undefined;
         module.buildSchemaAndInjector();
       }
 
-      const { injector, resolvers, typeDefs, contextBuilder, schemaDirectives, extraSchemas, directiveResolvers } = module._cache;
+      const { injector, resolvers, typeDefs, schemaDirectives } = module;
+      const { contextBuilder, extraSchemas, directiveResolvers } = module._cache;
 
       importsInjectors.add(injector);
       importsResolvers.add(resolvers);

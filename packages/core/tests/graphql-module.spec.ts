@@ -8,7 +8,7 @@ import {
   OnRequest,
   ModuleConfigRequiredError,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
@@ -986,5 +986,26 @@ describe('GraphQLModule', () => {
     });
     expect(result.errors).toBeFalsy();
     expect(result.data['foo']).toBe('FOO');
+  });
+  it('should export correct typeDefs and resolvers', async () => {
+    const gqlModule = new GraphQLModule({
+      imports: [
+        new GraphQLModule({
+          name: 'test',
+          typeDefs: 'type Query { test: Int }',
+          resolvers: {
+            Query: {
+              test: () => 1,
+            },
+          },
+        }),
+      ],
+    });
+
+    const typeDefs = gqlModule.typeDefs;
+    expect(stripWhitespaces(print(typeDefs))).toBe(stripWhitespaces('type Query { test: Int }'));
+    const context = await gqlModule.context({});
+    const resolvers = gqlModule.resolvers;
+    expect(await resolvers['Query']['test'](null, {}, context, {})).toBe(1);
   });
 });
