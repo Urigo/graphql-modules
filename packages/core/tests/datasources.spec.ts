@@ -9,15 +9,8 @@ import { ProviderScope } from '../../di/src/types';
   scope: ProviderScope.Session,
 })
 export class TestDataSourceAPI {
-  _initParams: any;
-
   public initialize(initParams) {
-    console.log(initParams);
-    this._initParams = initParams;
-  }
-
-  public getInitParams() {
-    return this._initParams;
+    expect(initParams.context.myField).toBe('some-value');
   }
 }
 
@@ -37,7 +30,7 @@ describe('Apollo DataSources Intergration', () => {
       resolvers: {
         Query: { a: () => ({ f: 's' }) },
       },
-      context: (networkRequest, currentContext, moduleSessionInfo) => {
+      context: () => {
         return {
           myField: 'some-value',
         };
@@ -45,17 +38,6 @@ describe('Apollo DataSources Intergration', () => {
       providers: [TestDataSourceAPI],
     });
     const app = new GraphQLModule({ imports: [moduleA] });
-    const schema = app.schema;
-    const context = await app.context({ req: {} });
-    console.log('context', context);
-
-    await execute({
-      schema,
-      document: testQuery,
-      contextValue: context,
-    });
-
-    const datasourceInitParams = app.injector.get(TestDataSourceAPI).getInitParams();
-    console.log(datasourceInitParams);
+    await app.context({ req: {} });
   });
 });
