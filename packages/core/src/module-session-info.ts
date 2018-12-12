@@ -6,7 +6,6 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
   constructor(
     private _module: GraphQLModule<Config, Request, Context>,
     private _request: Request,
-    private _context: Context,
   ) {
     this.injector.provide({
       provide: ModuleSessionInfo,
@@ -23,7 +22,7 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
     return this.module.cache;
   }
   get context() {
-    return this._context;
+    return this.request['moduleNameContextMap'].get(this.module.name);
   }
   get injector() {
     return this._module.injector.getSessionInjector(this.request);

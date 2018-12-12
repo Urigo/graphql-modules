@@ -616,7 +616,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...(curr as any) }), {});
         const applicationInjector = this.injector;
         const sessionInjector = applicationInjector.getSessionInjector(networkRequest);
-        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, networkRequest, importsContext);
+        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, networkRequest);
         let moduleContext = {};
         const moduleContextDeclaration = this._options.context;
         if (moduleContextDeclaration) {
@@ -626,19 +626,18 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             moduleContext = moduleContextDeclaration;
           }
         }
-        const builtResult = {
+        moduleNameContextMap.set(this.name, {
           ...importsContext,
           ...moduleContext as any,
           injector: sessionInjector,
           networkRequest,
-        };
+        });
         const requestHooks$ = [
           ...applicationInjector.scopeSet,
           ...sessionInjector.scopeSet,
         ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
         );
         await Promise.all(requestHooks$);
-        moduleNameContextMap.set(this.name, builtResult);
       }
       return moduleNameContextMap.get(this.name);
     };
