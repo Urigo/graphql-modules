@@ -1047,4 +1047,41 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['today']).toBe(today.getTime());
   });
+  describe('Apollo DataSources Intergration', () => {
+    it('Should pass props correctly to initialize method', async () => {
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class TestDataSourceAPI {
+        public initialize(initParams: ModuleSessionInfo) {
+          expect(initParams.context.myField).toBe('some-value');
+          expect(initParams.module).toBe(moduleA);
+          expect(initParams.cache).toBe(moduleA.cache);
+        }
+      }
+      const testQuery = gql`
+        query {
+          a {
+            f
+          }
+        }
+      `;
+      const typesA = [`type A { f: String}`, `type Query { a: A }`];
+      const moduleA = new GraphQLModule({
+        name: 'A',
+        typeDefs: typesA,
+        resolvers: {
+          Query: { a: () => ({ f: 's' }) },
+        },
+        context: () => {
+          return {
+            myField: 'some-value',
+          };
+        },
+        providers: [TestDataSourceAPI],
+      });
+      const app = new GraphQLModule({ imports: [moduleA] });
+      await app.context({ req: {} });
+    });
+  });
 });
