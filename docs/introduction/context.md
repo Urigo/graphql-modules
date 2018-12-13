@@ -55,7 +55,7 @@ export interface IMyModuleContext {
 export const MyModule = new GraphQLModule<{}, {}, IMyModuleContext>({
     typeDefs,
     resolvers,
-    context: (networkRequest, currentContext, moduleSessionInfo) => {
+    context: (request, currentContext, moduleSessionInfo) => {
         return {
             myField: 'some-value',
         };
@@ -106,8 +106,8 @@ export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleC
     providers: [
       AuthenticationProvider,
     ],
-    async context(networkRequest, currentContext, { injector }) {
-        const authToken = networkRequest.req.headers.authentication;
+    async context(request, currentContext, { injector }) {
+        const authToken = request.req.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
         return {
             currentUser,
