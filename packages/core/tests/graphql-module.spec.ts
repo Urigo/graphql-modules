@@ -68,7 +68,7 @@ describe('GraphQLModule', () => {
   });
 
   // C (with context building fn)
-  const cContextBuilder = jest.fn(() => ({ user: { id: 1 } }));
+  const cContextBuilder = () => ({ user: { id: 1 } });
   const typesC = [`type C { f: String}`, `type Query { c: C }`];
   const moduleC = new GraphQLModule({
     name: 'C',
@@ -142,6 +142,7 @@ describe('GraphQLModule', () => {
       document: testQuery,
       contextValue: context,
     });
+    expect(result.errors).toBeFalsy();
     expect(result.data.b.f).toBe('1');
   });
 
@@ -157,19 +158,6 @@ describe('GraphQLModule', () => {
     const { injector } = new GraphQLModule({ imports: [module] });
 
     expect(injector.get(token)).toBe(provider);
-  });
-
-  it('should inject implementation object into the context using the module name', async () => {
-    const schema = app.schema;
-    const context = await app.context({ req: {} });
-
-    const result = await execute({
-      schema,
-      document: testQuery,
-      contextValue: context,
-    });
-
-    expect(result.data.b.f).toBe('1');
   });
 
   it('should put the correct providers to the injector', async () => {
@@ -1054,7 +1042,7 @@ describe('GraphQLModule', () => {
       })
       class TestDataSourceAPI {
         public initialize(initParams: ModuleSessionInfo) {
-          expect(initParams.context.myField).toBe('some-value');
+          expect(initParams.context['myField']).toBe('some-value');
           expect(initParams.module).toBe(moduleA);
           expect(initParams.cache).toBe(moduleA.cache);
         }
@@ -1083,5 +1071,33 @@ describe('GraphQLModule', () => {
       const app = new GraphQLModule({ imports: [moduleA] });
       await app.context({ req: {} });
     });
+  });
+  it('should exclude network request', async () => {
+    const { schema, context } = new GraphQLModule({
+      context: {
+        request: { foo: 'BAR' },
+        // this request is not request that is internally passed by GraphQLModules
+        // this request must be passed instead of Network Request
+      },
+      typeDefs: gql`
+        type Query {
+          foo: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: (_, __, context) => {
+            return context.request.foo;
+          },
+        },
+      },
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { foo }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo']).toBe('BAR');
   });
 });

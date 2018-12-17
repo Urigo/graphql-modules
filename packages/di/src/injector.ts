@@ -145,7 +145,7 @@ export class Injector {
         throw new ServiceIdentifierNotFoundError(serviceIdentifier, this._name);
       }
   }
-  static sessionNameSessionInjectorMapMap = new WeakMap<any, Map<string, Injector>>();
+  private static sessionNameSessionInjectorMapMap = new WeakMap<any, Map<string, Injector>>();
   public getSessionInjector<Session>(session: Session): Injector {
     if (!Injector.sessionNameSessionInjectorMapMap.has(session)) {
       Injector.sessionNameSessionInjectorMapMap.set(session, new Map());

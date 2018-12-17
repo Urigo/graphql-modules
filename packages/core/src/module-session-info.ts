@@ -22,10 +22,10 @@ export class ModuleSessionInfo<Config = any, Request = any, Context = any> {
     return this.module.cache;
   }
   get context() {
-    return this.request['moduleNameContextMap'].get(this.module.name);
+    return this.module.getModuleNameContextMap(this.request).get(this.module.name);
   }
   get injector() {
-    return this._module.injector.getSessionInjector(this.request);
+    return this.module.injector.getSessionInjector(this.request);
   }
   public async callRequestHook<T extends OnRequest<Config, Request, Context>>(
     serviceIdentifier: ServiceIdentifier<T>,
