@@ -636,6 +636,28 @@ describe('Merge Schema', () => {
         `]);
       }).toThrowError('Unable to merge GraphQL type');
     });
+
+    it('should preserve an extend keyword if there is no base', () => {
+      const merged = mergeGraphQLSchemas([`
+        extend type Query {
+          foo: String
+        }
+      `, `
+        extend type Query {
+          bar: String
+        }
+      `]);
+
+      const printed = stripWhitespaces(print(merged));
+
+      expect(printed).toContain(stripWhitespaces(`
+        extend type Query {
+          foo: String
+          bar: String
+        }
+      `));
+    });
+
     it('should handle extend inputs', () => {
       const merged = mergeGraphQLSchemas([`
         input TestInput {
