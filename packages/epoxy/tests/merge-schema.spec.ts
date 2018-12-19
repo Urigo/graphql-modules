@@ -584,6 +584,26 @@ describe('Merge Schema', () => {
         }
       `));
     });
+    it('should handle extend types when GraphQLSchema is the source', () => {
+      const schema = makeExecutableSchema({
+        typeDefs: [`
+          type Query {
+            foo: String
+          }
+        `, `
+          extend type Query {
+            bar: String
+          }
+        `],
+      });
+      const merged = mergeGraphQLSchemas([schema]);
+      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+        type Query {
+          foo: String
+          bar: String
+        }
+      `));
+    });
     it('should handle extend inputs', () => {
       const merged = mergeGraphQLSchemas([`
         input TestInput {
