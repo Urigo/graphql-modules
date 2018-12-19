@@ -596,7 +596,6 @@ describe('Merge Schema', () => {
           }
         `, `
           extend type Query {
-            foo: Int
             bar: String
           }
 
