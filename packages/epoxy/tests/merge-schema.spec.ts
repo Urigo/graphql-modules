@@ -596,6 +596,7 @@ describe('Merge Schema', () => {
           }
         `, `
           extend type Query {
+            foo: Int
             bar: String
           }
 
@@ -619,6 +620,21 @@ describe('Merge Schema', () => {
           id: ID
         }
       `));
+    });
+
+    it('should fail when a field is already defined and has a different type', () => {
+      expect(() => {
+        mergeGraphQLSchemas([`
+          type Query {
+            foo: String
+          }
+        `, `
+          extend type Query {
+            foo: Int
+            bar: String
+          }
+        `]);
+      }).toThrowError('Unable to merge GraphQL type');
     });
     it('should handle extend inputs', () => {
       const merged = mergeGraphQLSchemas([`
