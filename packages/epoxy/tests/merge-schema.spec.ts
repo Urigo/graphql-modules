@@ -590,17 +590,33 @@ describe('Merge Schema', () => {
           type Query {
             foo: String
           }
+
+          type User {
+            name: String
+          }
         `, `
           extend type Query {
             bar: String
           }
+
+          extend type User {
+            id: ID
+          }
         `],
       });
       const merged = mergeGraphQLSchemas([schema]);
-      expect(stripWhitespaces(print(merged))).toBe(stripWhitespaces(`
+      const printed = stripWhitespaces(print(merged));
+
+      expect(printed).toContain(stripWhitespaces(`
         type Query {
           foo: String
           bar: String
+        }
+      `));
+      expect(printed).toContain(stripWhitespaces(`
+        type User {
+          name: String
+          id: ID
         }
       `));
     });

@@ -1,4 +1,19 @@
-import { buildASTSchema, printSchema, DefinitionNode, DocumentNode, GraphQLSchema, parse, print, Source, GraphQLObjectType, isSpecifiedScalarType, isIntrospectionType, GraphQLScalarType, printType } from 'graphql';
+import {
+  buildASTSchema,
+  printSchema,
+  DefinitionNode,
+  DocumentNode,
+  GraphQLSchema,
+  parse,
+  print,
+  Source,
+  GraphQLObjectType,
+  isSpecifiedScalarType,
+  isIntrospectionType,
+  GraphQLScalarType,
+  printType,
+  ObjectTypeExtensionNode,
+} from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
 
@@ -6,10 +21,7 @@ interface Config {
   useSchemaDefinition?: boolean;
 }
 
-export function mergeGraphQLSchemas(
-  types: Array<string | Source | DocumentNode | GraphQLSchema>,
-  config?: Partial<Config>,
-): DocumentNode {
+export function mergeGraphQLSchemas(types: Array<string | Source | DocumentNode | GraphQLSchema>, config?: Partial<Config>): DocumentNode {
   return {
     kind: 'Document',
     definitions: mergeGraphQLTypes(types, {
@@ -29,9 +41,9 @@ function createSchemaDefinition(def: {
   subscription: string | GraphQLObjectType | null;
 }): string {
   const schemaRoot: {
-    query?: string,
-    mutation?: string,
-    subscription?: string,
+    query?: string;
+    mutation?: string;
+    subscription?: string;
   } = {};
 
   if (def.query) {
@@ -55,10 +67,7 @@ function createSchemaDefinition(def: {
   return undefined;
 }
 
-export function mergeGraphQLTypes(
-  types: Array<string | Source | DocumentNode | GraphQLSchema>,
-  config: Config,
-): DefinitionNode[] {
+export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | GraphQLSchema>, config: Config): DefinitionNode[] {
   const allNodes: ReadonlyArray<DefinitionNode> = types
     .map<DocumentNode>(type => {
       if (isGraphQLSchema(type)) {
@@ -84,7 +93,26 @@ export function mergeGraphQLTypes(
 
             return !isPredefinedScalar && !isIntrospection;
           })
-          .map(type => (type.astNode ? print(type.astNode) : printType(type)))
+          .map(type => {
+            if (type.astNode) {
+              if (type.extensionASTNodes && type.astNode.kind === 'ObjectTypeDefinition') {
+                type.astNode = {
+                  ...type.astNode,
+                  // add fields from object extension (`extend type Query { newField: String }`)
+                  fields: type.astNode.fields.concat(
+                    (type.extensionASTNodes as ReadonlyArray<ObjectTypeExtensionNode>).reduce(
+                      (fields, node) => fields.concat(node.fields),
+                      [],
+                    ),
+                  ),
+                };
+              }
+
+              return print(type.astNode);
+            } else {
+              return printType(type);
+            }
+          })
           .filter(e => e);
         const directivesDeclaration = schema
           .getDirectives()
