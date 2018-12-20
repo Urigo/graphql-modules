@@ -13,6 +13,8 @@ import {
   GraphQLScalarType,
   printType,
   ObjectTypeExtensionNode,
+  GraphQLNamedType,
+  isObjectType,
 } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
@@ -95,20 +97,7 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
           })
           .map(type => {
             if (type.astNode) {
-              if (type.extensionASTNodes && type.astNode.kind === 'ObjectTypeDefinition') {
-                type.astNode = {
-                  ...type.astNode,
-                  // add fields from object extension (`extend type Query { newField: String }`)
-                  fields: type.astNode.fields.concat(
-                    (type.extensionASTNodes as ReadonlyArray<ObjectTypeExtensionNode>).reduce(
-                      (fields, node) => fields.concat(node.fields),
-                      [],
-                    ),
-                  ),
-                };
-              }
-
-              return print(type.astNode);
+              return print(type.extensionASTNodes ? extendDefinition(type) : type.astNode);
             } else {
               return printType(type);
             }
@@ -172,4 +161,19 @@ export function mergeGraphQLTypes(types: Array<string | Source | DocumentNode | 
   }
 
   return [...Object.values(mergedNodes), parse(schemaDefinition).definitions[0]];
+}
+
+function extendDefinition(type: GraphQLNamedType): GraphQLNamedType['astNode'] {
+  switch (type.astNode.kind) {
+    case 'ObjectTypeDefinition':
+      return {
+        ...type.astNode,
+        // add fields from object extension (`extend type Query { newField: String }`)
+        fields: type.astNode.fields.concat(
+          (type.extensionASTNodes as ReadonlyArray<ObjectTypeExtensionNode>).reduce((fields, node) => fields.concat(node.fields), []),
+        ),
+      };
+    default:
+      return type.astNode;
+  }
 }
