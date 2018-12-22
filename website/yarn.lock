@@ -7418,10 +7418,10 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@7.32.4:
-  version "7.32.4"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-7.32.4.tgz#41afcba8595bceab637ce00f261b5d2dc85dc8d1"
-  integrity sha512-KQbqbG+pSpgGn7UAJNKfaXlCt/KvaEnDKTN9mQB5wYLpQoZ380MFZfPcyHQB90d6rip7nhrltxaRU0MFXFsyog==
+sweetalert2@7.33.1:
+  version "7.33.1"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-7.33.1.tgz#7e3534d2c2962f875f419cfea5d75ee526d65cd4"
+  integrity sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"
