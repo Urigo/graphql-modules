@@ -14,7 +14,6 @@ import {
   printType,
   ObjectTypeExtensionNode,
   GraphQLNamedType,
-  isObjectType,
 } from 'graphql';
 import { isGraphQLSchema, isSourceTypes, isStringTypes, isSchemaDefinition } from './utils';
 import { MergedResultMap, mergeGraphQLNodes } from './merge-nodes';
