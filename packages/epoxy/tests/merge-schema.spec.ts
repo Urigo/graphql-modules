@@ -584,6 +584,79 @@ describe('Merge Schema', () => {
         }
       `));
     });
+    it('should handle extend types when GraphQLSchema is the source', () => {
+      const schema = makeExecutableSchema({
+        typeDefs: [`
+          type Query {
+            foo: String
+          }
+
+          type User {
+            name: String
+          }
+        `, `
+          extend type Query {
+            bar: String
+          }
+
+          extend type User {
+            id: ID
+          }
+        `],
+      });
+      const merged = mergeGraphQLSchemas([schema]);
+      const printed = stripWhitespaces(print(merged));
+
+      expect(printed).toContain(stripWhitespaces(`
+        type Query {
+          foo: String
+          bar: String
+        }
+      `));
+      expect(printed).toContain(stripWhitespaces(`
+        type User {
+          name: String
+          id: ID
+        }
+      `));
+    });
+
+    it('should fail when a field is already defined and has a different type', () => {
+      expect(() => {
+        mergeGraphQLSchemas([`
+          type Query {
+            foo: String
+          }
+        `, `
+          extend type Query {
+            foo: Int
+            bar: String
+          }
+        `]);
+      }).toThrowError('Unable to merge GraphQL type');
+    });
+
+    it('should preserve an extend keyword if there is no base', () => {
+      const merged = mergeGraphQLSchemas([`
+        extend type Query {
+          foo: String
+        }
+      `, `
+        extend type Query {
+          bar: String
+        }
+      `]);
+
+      const printed = stripWhitespaces(print(merged));
+
+      expect(printed).toContain(stripWhitespaces(`
+        extend type Query {
+          foo: String
+          bar: String
+        }
+      `));
+    });
+
     it('should handle extend inputs', () => {
       const merged = mergeGraphQLSchemas([`
         input TestInput {
