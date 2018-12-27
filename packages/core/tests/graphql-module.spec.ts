@@ -1,7 +1,5 @@
 import 'reflect-metadata';
 import {
-  CommunicationBridge,
-  EventEmitterCommunicationBridge,
   GraphQLModule,
   ModuleConfig,
   ModuleContext,
@@ -454,20 +452,6 @@ describe('GraphQLModule', () => {
         errorMsg = e.message;
       }
       expect(errorMsg).toContain('Dependency Cycle');
-    });
-  });
-  describe('CommuncationBridge', async () => {
-    it('should set CommunicationBridge correctly', async () => {
-      const communicationBridge = new EventEmitterCommunicationBridge();
-      const { injector } = new GraphQLModule({
-        providers: [
-          {
-            provide: CommunicationBridge,
-            useValue: communicationBridge,
-          },
-        ],
-      });
-      expect(injector.get(CommunicationBridge) === communicationBridge).toBeTruthy();
     });
   });
   describe('onRequest Hook', async () => {
