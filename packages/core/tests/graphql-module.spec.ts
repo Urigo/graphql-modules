@@ -456,7 +456,7 @@ describe('GraphQLModule', () => {
       expect(errorMsg).toContain('Dependency Cycle');
     });
   });
-  describe('CommuncationBridge', async () => {
+  describe('CommunicationBridge', async () => {
     it('should set CommunicationBridge correctly', async () => {
       const communicationBridge = new EventEmitterCommunicationBridge();
       const { injector } = new GraphQLModule({
@@ -1035,7 +1035,7 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['today']).toBe(today.getTime());
   });
-  describe('Apollo DataSources Intergration', () => {
+  describe('Apollo DataSources Integration', () => {
     it('Should pass props correctly to initialize method', async () => {
       @Injectable({
         scope: ProviderScope.Session,
