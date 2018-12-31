@@ -456,7 +456,7 @@ describe('GraphQLModule', () => {
       expect(errorMsg).toContain('Dependency Cycle');
     });
   });
-  describe('CommuncationBridge', async () => {
+  describe('CommunicationBridge', async () => {
     it('should set CommunicationBridge correctly', async () => {
       const communicationBridge = new EventEmitterCommunicationBridge();
       const { injector } = new GraphQLModule({
