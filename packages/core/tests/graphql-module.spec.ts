@@ -1019,7 +1019,7 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['today']).toBe(today.getTime());
   });
-  describe('Apollo DataSources Intergration', () => {
+  describe('Apollo DataSources Integration', () => {
     it('Should pass props correctly to initialize method', async () => {
       @Injectable({
         scope: ProviderScope.Session,
