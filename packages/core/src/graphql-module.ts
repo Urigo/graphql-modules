@@ -4,7 +4,7 @@ import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
-import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError } from './errors';
+import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { asArray } from './utils';
@@ -409,7 +409,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
                 const request = info.request || appContext.request;
                 info.request = request;
                 this.checkIfResolverCalledSafely(`${type}.${prop}`, request, info);
-                const moduleContext = await this.context(request, true);
+                let moduleContext;
+                try {
+                  moduleContext = await this.context(request, true);
+                } catch (e) {
+                  console.error(e);
+                  throw e;
+                }
                 info.schema = this.schema;
                 return resolver.call(typeResolvers, root, args, moduleContext, info);
               };
@@ -418,7 +424,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
                 const request = info.request || appContext.request;
                 info.request = request;
                 this.checkIfResolverCalledSafely(`${type}.${prop}`, request, info);
-                const moduleContext = await this.context(request, true);
+                let moduleContext;
+                try {
+                  moduleContext = await this.context(request, true);
+                } catch (e) {
+                  console.error(e);
+                  throw e;
+                }
                 info.schema = this.schema;
                 return resolver.call(typeResolvers, root, moduleContext, info);
               };
@@ -440,7 +452,13 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           const request = info.request || appContext.request;
           info.request = request;
           this.checkIfResolverCalledSafely(path, request, info);
-          const moduleContext = await this.context(request, true);
+          let moduleContext;
+          try {
+            moduleContext = await this.context(request, true);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           info.schema = this.schema;
           return next(root, args, moduleContext, info);
         },
@@ -613,43 +631,52 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
 
     this._cache.contextBuilder = async (request, excludeRequest = false) => {
-      const moduleNameContextMap = this.getModuleNameContextMap(request);
-      if (!(moduleNameContextMap.has(this.name))) {
-        const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(request, true));
-        const importsContextArr = await Promise.all(importsContextArr$);
-        const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const applicationInjector = this.injector;
-        const sessionInjector = applicationInjector.getSessionInjector(request);
-        const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, request);
-        let moduleContext = {};
-        const moduleContextDeclaration = this._options.context;
-        if (moduleContextDeclaration) {
-          if (moduleContextDeclaration instanceof Function) {
-            moduleContext = await moduleContextDeclaration(request, { ...importsContext, injector }, moduleSessionInfo);
-          } else {
-            moduleContext = await moduleContextDeclaration;
+      try {
+
+        const moduleNameContextMap = this.getModuleNameContextMap(request);
+        if (!(moduleNameContextMap.has(this.name))) {
+          const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(request, true));
+          const importsContextArr = await Promise.all(importsContextArr$);
+          const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
+          const applicationInjector = this.injector;
+          const sessionInjector = applicationInjector.getSessionInjector(request);
+          const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, request);
+          let moduleContext = {};
+          const moduleContextDeclaration = this._options.context;
+          if (moduleContextDeclaration) {
+            if (moduleContextDeclaration instanceof Function) {
+              moduleContext = await moduleContextDeclaration(request, { ...importsContext, injector }, moduleSessionInfo);
+            } else {
+              moduleContext = await moduleContextDeclaration;
+            }
           }
+          moduleNameContextMap.set(this.name, {
+            ...importsContext,
+            ...moduleContext,
+            injector: sessionInjector,
+          });
+          const requestHooks$ = [
+            ...applicationInjector.scopeSet,
+            ...sessionInjector.scopeSet,
+          ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
+          );
+          await Promise.all(requestHooks$);
         }
-        moduleNameContextMap.set(this.name, {
-          ...importsContext,
-          ...moduleContext,
-          injector: sessionInjector,
-        });
-        const requestHooks$ = [
-          ...applicationInjector.scopeSet,
-          ...sessionInjector.scopeSet,
-        ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
-        );
-        await Promise.all(requestHooks$);
-      }
-      const moduleContext = moduleNameContextMap.get(this.name);
-      if (excludeRequest) {
-        return moduleContext;
-      } else {
-        return {
-          ...moduleContext,
-          request,
-        };
+        const moduleContext = moduleNameContextMap.get(this.name);
+        if (excludeRequest) {
+          return moduleContext;
+        } else {
+          return {
+            ...moduleContext,
+            request,
+          };
+        }
+      } catch (e) {
+        if (e instanceof ContextBuilderError) {
+          throw e;
+        } else {
+          throw new ContextBuilderError(this.name, e);
+        }
       }
     };
 
