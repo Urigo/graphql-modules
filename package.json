@@ -26,7 +26,7 @@
     "graphql": "14.0.2",
     "jest": "23.6.0",
     "lerna": "2.11.0",
-    "rimraf": "2.6.2",
+    "rimraf": "2.6.3",
     "ts-jest": "23.10.5",
     "typedoc": "0.13.0",
     "typedoc-plugin-docusaurus": "1.0.14",
