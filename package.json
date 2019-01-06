@@ -22,7 +22,7 @@
   "devDependencies": {
     "reflect-metadata": "0.1.12",
     "@types/graphql": "14.0.4",
-    "@types/jest": "23.3.11",
+    "@types/jest": "23.3.12",
     "graphql": "14.0.2",
     "jest": "23.6.0",
     "lerna": "2.11.0",
