@@ -34,7 +34,11 @@
   "devDependencies": {
     "jest": "23.6.0",
     "tslint": "5.12.0",
-    "typescript": "3.2.2"
+    "typescript": "3.2.2",
+    "reflect-metadata": "0.1.12"
+  },
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.12"
   },
   "dependencies": {
     "tslib": "1.9.3"
