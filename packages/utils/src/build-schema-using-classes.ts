@@ -9,7 +9,7 @@ export const DESIGN_TYPE = 'design:type';
 
 export function FieldResolve<TSource, TContext, TArgs>(resolve: GraphQLFieldResolver<TSource, TContext, TArgs>) {
   return (target, propertyKey) => {
-    const existingConfig = getObjectTypeConfigFromClass(target);
+    const existingConfig = getObjectTypeConfigFromClass(target.constructor);
     existingConfig.fields = existingConfig.fields || {};
     existingConfig.fields[propertyKey] = {
       ...(existingConfig.fields[propertyKey] || {}),

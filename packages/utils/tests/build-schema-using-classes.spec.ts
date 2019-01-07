@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { ObjectType, FieldType, GRAPHQL_NAMED_TYPE, getNamedTypeFromClass, getObjectTypeConfigFromClass } from '../src/build-schema-using-classes';
-import { GraphQLString, printType } from 'graphql';
+import { ObjectType, FieldType, GRAPHQL_NAMED_TYPE, getNamedTypeFromClass, getObjectTypeConfigFromClass, FieldResolve } from '../src/build-schema-using-classes';
+import { GraphQLString, printType, graphql, GraphQLSchema, GraphQLObjectType } from 'graphql';
 function stripWhitespaces(str: string): string {
   return str.replace(/\s+/g, ' ').trim();
 }
@@ -26,5 +26,19 @@ describe('Build Schema using Classes', async () => {
         bar: String
       }
     `));
+  });
+  it('should add resolvers to the fields using FieldResolve decorator', async () => {
+    @ObjectType()
+    class Query {
+      @FieldResolve(() => {
+        return 'BAR';
+      })
+      @FieldType(GraphQLString)
+      bar: string;
+    }
+    const result = await graphql(new GraphQLSchema({
+      query: getNamedTypeFromClass(Query) as GraphQLObjectType,
+    }), `{ bar }`);
+    expect(result.data.bar).toBe('BAR');
   });
 });
