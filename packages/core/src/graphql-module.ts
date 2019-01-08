@@ -406,12 +406,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           if (typeof resolver === 'function') {
             if (prop !== '__resolveType') {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-                const Session = info.Session || appContext.Session;
-                info.Session = Session;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, Session, info);
+                const session = info.session || appContext.session;
+                info.session = session;
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(Session, true);
+                  moduleContext = await this.context(session, true);
                 } catch (e) {
                   console.error(e);
                   throw e;
@@ -421,12 +421,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               };
             } else {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-                const Session = info.Session || appContext.Session;
-                info.Session = Session;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, Session, info);
+                const session = info.session || appContext.session;
+                info.session = session;
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(Session, true);
+                  moduleContext = await this.context(session, true);
                 } catch (e) {
                   console.error(e);
                   throw e;
@@ -449,12 +449,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const Session = info.Session || appContext.Session;
-          info.Session = Session;
-          this.checkIfResolverCalledSafely(path, Session, info);
+          const session = info.session || appContext.session;
+          info.session = session;
+          this.checkIfResolverCalledSafely(path, session, info);
           let moduleContext;
           try {
-            moduleContext = await this.context(Session, true);
+            moduleContext = await this.context(session, true);
           } catch (e) {
             console.error(e);
             throw e;
@@ -499,7 +499,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const importsTypeDefs = new Set<DocumentNode>();
     const importsResolvers = new Set<IResolvers<any, any>>();
     const importsInjectors = new Set<Injector>();
-    const importsContextBuilders = new Set<(req: Session, excludeSession?: boolean) => Promise<Context>>();
+    const importsContextBuilders = new Set<(session: Session, excludeSession?: boolean) => Promise<Context>>();
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
     const importsExtraSchemas = new Set<GraphQLSchema>();
     const importsDirectiveResolvers = new Set<IDirectiveResolvers>();
@@ -630,22 +630,22 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
     }
 
-    this._cache.contextBuilder = async (Session, excludeSession = false) => {
+    this._cache.contextBuilder = async (session, excludeSession = false) => {
       try {
 
-        const moduleNameContextMap = this.getModuleNameContextMap(Session);
+        const moduleNameContextMap = this.getModuleNameContextMap(session);
         if (!(moduleNameContextMap.has(this.name))) {
-          const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(Session, true));
+          const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(session, true));
           const importsContextArr = await Promise.all(importsContextArr$);
           const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
           const applicationInjector = this.injector;
-          const sessionInjector = applicationInjector.getSessionInjector(Session);
-          const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, Session);
+          const sessionInjector = applicationInjector.getSessionInjector(session);
+          const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, session);
           let moduleContext = {};
           const moduleContextDeclaration = this._options.context;
           if (moduleContextDeclaration) {
             if (moduleContextDeclaration instanceof Function) {
-              moduleContext = await moduleContextDeclaration(Session, { ...importsContext, injector }, moduleSessionInfo);
+              moduleContext = await moduleContextDeclaration(session, { ...importsContext, injector }, moduleSessionInfo);
             } else {
               moduleContext = await moduleContextDeclaration;
             }
@@ -668,7 +668,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         } else {
           return {
             ...moduleContext,
-            Session,
+            session,
           };
         }
       } catch (e) {
@@ -686,13 +686,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     }
   }
 
-  private static SessionModuleNameContextMap = new WeakMap<any, Map<string, any>>();
+  private static sessionModuleNameContextMap = new WeakMap<any, Map<string, any>>();
 
-  getModuleNameContextMap(Session: Session) {
-    if (!GraphQLModule.SessionModuleNameContextMap.has(Session)) {
-      GraphQLModule.SessionModuleNameContextMap.set(Session, new Map());
+  getModuleNameContextMap(session: Session) {
+    if (!GraphQLModule.sessionModuleNameContextMap.has(session)) {
+      GraphQLModule.sessionModuleNameContextMap.set(session, new Map());
     }
-    return GraphQLModule.SessionModuleNameContextMap.get(Session);
+    return GraphQLModule.sessionModuleNameContextMap.get(session);
   }
 
   /**
