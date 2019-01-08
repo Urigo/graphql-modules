@@ -456,7 +456,7 @@ describe('GraphQLModule', () => {
   });
   describe('onRequest Hook', async () => {
 
-    it('should call onRequest hook on each request', async () => {
+    it('should call onRequest hook on each session', async () => {
       let counter = 0;
       @Injectable()
       class FooProvider implements OnRequest {
@@ -500,16 +500,16 @@ describe('GraphQLModule', () => {
       expect(counter).toBe(3);
     });
 
-    it('should pass network request to onRequest hook', async () => {
-      const fooRequest = {
+    it('should pass network session to onRequest hook', async () => {
+      const fooSession = {
         foo: 'bar',
       };
-      let receivedRequest;
+      let receivedSession;
 
       @Injectable()
       class FooProvider implements OnRequest {
-        onRequest(moduleInfo) {
-          receivedRequest = moduleInfo.request;
+        onRequest(moduleInfo: ModuleSessionInfo) {
+          receivedSession = moduleInfo.session;
         }
       }
 
@@ -521,7 +521,7 @@ describe('GraphQLModule', () => {
         `,
         resolvers: {
           Query: {
-            foo: (root, args, { injector }: ModuleContext, info) => injector.get(ModuleSessionInfo).request.foo,
+            foo: (root, args, { injector }: ModuleContext, info) => injector.get(ModuleSessionInfo).session.foo,
           },
         },
         providers: [
@@ -531,11 +531,11 @@ describe('GraphQLModule', () => {
       const result = await execute({
         schema,
         document: gql`query { foo }`,
-        contextValue: await context(fooRequest),
+        contextValue: await context(fooSession),
       });
       expect(result.errors).toBeFalsy();
-      expect(receivedRequest).toBe(fooRequest);
-      expect(result.data.foo).toBe(fooRequest.foo);
+      expect(receivedSession).toBe(fooSession);
+      expect(result.data.foo).toBe(fooSession.foo);
     });
   });
   describe('Resolvers Composition', async () => {
@@ -709,7 +709,7 @@ describe('GraphQLModule', () => {
     });
   });
   describe('Providers Scope', async () => {
-    it('should construct session scope on each network request', async () => {
+    it('should construct session scope on each network session', async () => {
       let counter = 0;
 
       @Injectable({
@@ -764,7 +764,7 @@ describe('GraphQLModule', () => {
       expect(result2.data['test']).toBe(true);
       expect(counter).toBe(2);
     });
-    it('should construct request scope on each injector request independently from network request', async () => {
+    it('should construct request scope on each injector request independently from network session', async () => {
       let counter = 0;
       @Injectable({
         scope: ProviderScope.Request,
@@ -783,8 +783,8 @@ describe('GraphQLModule', () => {
       injector.get(ProviderA);
       expect(counter).toBe(2);
     });
-    it('should inject network request with moduleSessionInfo in session and request scope providers', async () => {
-      const testRequest = {
+    it('should inject network session with moduleSessionInfo in session and request scope providers', async () => {
+      const testSession = {
         foo: 'BAR',
       };
       @Injectable({
@@ -793,7 +793,7 @@ describe('GraphQLModule', () => {
       class ProviderA {
         constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
-          return this.moduleInfo.request.foo;
+          return this.moduleInfo.session.foo;
         }
       }
       @Injectable({
@@ -802,7 +802,7 @@ describe('GraphQLModule', () => {
       class ProviderB {
         constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
-          return this.moduleInfo.request.foo;
+          return this.moduleInfo.session.foo;
         }
       }
       const { schema, context } = new GraphQLModule({
@@ -833,7 +833,7 @@ describe('GraphQLModule', () => {
             testB
           }
         `,
-        contextValue: await context(testRequest),
+        contextValue: await context(testSession),
       });
       expect(result.errors).toBeFalsy();
       expect(result.data['testA']).toBe('BAR');
@@ -1056,12 +1056,12 @@ describe('GraphQLModule', () => {
       await app.context({ req: {} });
     });
   });
-  it('should exclude network request', async () => {
+  it('should exclude network session', async () => {
     const { schema, context } = new GraphQLModule({
       context: {
-        request: { foo: 'BAR' },
-        // this request is not request that is internally passed by GraphQLModules
-        // this request must be passed instead of Network Request
+        session: { foo: 'BAR' },
+        // this session is not request that is internally passed by GraphQLModules
+        // this session must be passed instead of Network Session
       },
       typeDefs: gql`
         type Query {
@@ -1071,7 +1071,7 @@ describe('GraphQLModule', () => {
       resolvers: {
         Query: {
           foo: (_, __, context) => {
-            return context.request.foo;
+            return context.session.foo;
           },
         },
       },

@@ -1,7 +1,7 @@
 import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, GraphQLResolveInfo } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';
 import { DepGraph } from 'dependency-graph';
 import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
@@ -696,19 +696,19 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   }
 
   /**
-   * Build a GraphQL `context` object based on a network Session.
+   * Build a GraphQL `context` object based on a network session.
    * It iterates over all modules by their dependency-based order, and executes
    * `contextBuilder` method.
    * It also in charge of injecting a reference to the application `Injector` to
    * the `context`.
-   * The network Session is passed to each `contextBuilder` method, and the return
+   * The network session is passed to each `contextBuilder` method, and the return
    * value of each `contextBuilder` is merged into a unified `context` object.
    *
    * This method should be in use with your GraphQL manager, such as Apollo-Server.
    *
-   * @param Session - the network Session from `connect`, `express`, etc...
+   * @param session - the network session from `connect`, `express`, etc...
    */
-  get context(): (Session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>> {
+  get context(): (session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
       this.buildSchemaAndInjector();
     }
@@ -887,9 +887,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const resolvers = mergeResolvers([...resolversSet]);
     const context = [...contextBuilderSet].reduce(
       (accContextBuilder, currentContextBuilder) => {
-        return async (Session, currentContext, injector) => {
-          const accContext = await accContextBuilder(Session, currentContext, injector);
-          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(Session, currentContext, injector) : (currentContextBuilder || {});
+        return async (session, currentContext, injector) => {
+          const accContext = await accContextBuilder(session, currentContext, injector);
+          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(session, currentContext, injector) : (currentContextBuilder || {});
           return {
             ...accContext,
             ...moduleContext,
