@@ -78,11 +78,10 @@ export function FieldMethod<TSource, TContext, TArgs extends any[], TResult>(fie
 export function ObjectType<TSource, TContext>(config ?: GraphQLObjectTypeConfig<TSource, TContext>): ClassDecorator {
   return target => {
     const existingConfig = getObjectTypeConfigFromClass(target);
-    Reflect.defineMetadata(GRAPHQL_OBJECT_TYPE_CONFIG, {
+    Reflect.defineMetadata(GRAPHQL_NAMED_TYPE, new GraphQLObjectType({
       ...existingConfig,
       ...(config || {}),
-    }, target);
-    getNamedTypeFromClass(target);
+    }), target);
   };
 }
 
@@ -98,8 +97,5 @@ export function getObjectTypeConfigFromClass<TSource, TContext>(target: Function
 
 // tslint:disable-next-line:ban-types
 export function getNamedTypeFromClass(target: Function): GraphQLNamedType {
-  if (!Reflect.hasMetadata(GRAPHQL_NAMED_TYPE, target)) {
-    Reflect.defineMetadata(GRAPHQL_NAMED_TYPE, new GraphQLObjectType(getObjectTypeConfigFromClass(target)), target);
-  }
   return Reflect.getMetadata(GRAPHQL_NAMED_TYPE, target);
 }
