@@ -37,7 +37,7 @@
   "devDependencies": {
     "jest": "23.6.0",
     "reflect-metadata": "0.1.12",
-    "tslint": "5.12.0",
+    "tslint": "5.12.1",
     "typescript": "3.2.2"
   },
   "dependencies": {
