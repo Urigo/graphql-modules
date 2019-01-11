@@ -13,26 +13,26 @@ import { ModuleContext } from './types';
 /**
  * A context builder method signature for `contextBuilder`.
  */
-export type BuildContextFn<Config, Request, Context> = (
-  request: Request,
+export type BuildContextFn<Config, Session, Context> = (
+  session: Session,
   currentContext: ModuleContext<Context>,
-  moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
+  moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>,
 ) => Promise<Context> | Context;
 
 export interface ISchemaDirectives {
   [name: string]: typeof SchemaDirectiveVisitor;
 }
 
-export type ModulesMap<Request> = Map<string, GraphQLModule<any, Request, any>>;
+export type ModulesMap<Session> = Map<string, GraphQLModule<any, Session, any>>;
 
 /**
  * Defines the structure of a dependency as it declared in each module's `dependencies` field.
  */
-export type ModuleDependency<Config, Request, Context> = GraphQLModule<Config, Request, Context> | string;
+export type ModuleDependency<Config, Session, Context> = GraphQLModule<Config, Session, Context> | string;
 
-export type GraphQLModuleOption<Option, Config, Request, Context> = Option | ((module: GraphQLModule<Config, Request, Context>, ...args: any[]) => Option);
+export type GraphQLModuleOption<Option, Config, Session, Context> = Option | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Option);
 
-export type GraphQLModuleMiddleware<Request, Context> = (moduleCache: ModuleCache<Request, Context>) => Partial<ModuleCache<Request, Context>> | void;
+export type GraphQLModuleMiddleware<Session, Context> = (moduleCache: ModuleCache<Session, Context>) => Partial<ModuleCache<Session, Context>> | void;
 
 export interface KeyValueCache {
   get(key: string): Promise<string | undefined>;
@@ -43,7 +43,7 @@ export interface KeyValueCache {
 /**
  * Defined the structure of GraphQL module options object.
  */
-export interface GraphQLModuleOptions<Config, Request, Context> {
+export interface GraphQLModuleOptions<Config, Session, Context> {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
@@ -55,43 +55,43 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: GraphQLModuleOption<string | string[] | DocumentNode | DocumentNode[], Config, Request, Context>;
+  typeDefs?: GraphQLModuleOption<string | string[] | DocumentNode | DocumentNode[], Config, Session, Context>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>>, Config, Request, Context>;
+  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>>, Config, Session, Context>;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  context?: BuildContextFn<Config, Request, Context> | Promise<Context> | Context;
+  context?: BuildContextFn<Config, Session, Context> | Promise<Context> | Context;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  imports?: GraphQLModuleOption<Array<ModuleDependency<any, Request, Context>>, Config, Request, Context>;
+  imports?: GraphQLModuleOption<Array<ModuleDependency<any, Session, Context>>, Config, Session, Context>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
    * All loaded class will be loaded as Singletons, and the instance will be
    * shared across all GraphQL executions.
    */
-  providers?: GraphQLModuleOption<Provider[], Config, Request, Context>;
+  providers?: GraphQLModuleOption<Provider[], Config, Session, Context>;
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
-  resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Request, Context>;
-  schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Request, Context>;
-  directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Request, Context>;
-  logger?: GraphQLModuleOption<ILogger, Config, Request, Context>;
-  extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Request, Context>;
-  middleware?: GraphQLModuleMiddleware<Request, Context>;
+  resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Session, Context>;
+  schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Session, Context>;
+  directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Session, Context>;
+  logger?: GraphQLModuleOption<ILogger, Config, Session, Context>;
+  extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Session, Context>;
+  middleware?: GraphQLModuleMiddleware<Session, Context>;
   cache?: KeyValueCache;
   mergeCircularImports?: boolean;
   warnCircularImports?: boolean;
   configRequired?: boolean;
-  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Request, Context>;
+  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
 }
 
 /**
@@ -105,14 +105,14 @@ export interface GraphQLModuleOptions<Config, Request, Context> {
 export const ModuleConfig = (module: string | GraphQLModule) =>
   Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
-export interface ModuleCache<Request, Context> {
+export interface ModuleCache<Session, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
   resolvers: IResolvers<any, ModuleContext<Context>>;
   schemaDirectives: ISchemaDirectives;
-  contextBuilder: (req: Request, excludeRequest?: boolean) => Promise<Context>;
-  modulesMap: ModulesMap<Request>;
+  contextBuilder: (session: Session, excludeSession?: boolean) => Promise<Context>;
+  modulesMap: ModulesMap<Session>;
   extraSchemas: GraphQLSchema[];
   directiveResolvers: IDirectiveResolvers;
 }
@@ -124,9 +124,9 @@ export interface ModuleCache<Request, Context> {
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `forRoot`
  */
-export class GraphQLModule<Config = any, Request = any, Context = any> {
+export class GraphQLModule<Config = any, Session = any, Context = any> {
 
-  private _cache: ModuleCache<Request, Context> = {
+  private _cache: ModuleCache<Session, Context> = {
     injector: undefined,
     schema: undefined,
     typeDefs: undefined,
@@ -143,7 +143,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * @param options - module configuration
    */
   constructor(
-    private _options: GraphQLModuleOptions<Config, Request, Context> = {},
+    private _options: GraphQLModuleOptions<Config, Session, Context> = {},
     private _moduleConfig?: Config,
   ) {
     _options.name = _options.name || Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
@@ -172,8 +172,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
    * Creates another instance of the module using a configuration
    * @param config - the config object
    */
-  forRoot(config: Config): GraphQLModule<Config, Request, Context> {
-    return new GraphQLModule<Config, Request, Context>(this._options, config);
+  forRoot(config: Config): GraphQLModule<Config, Session, Context> {
+    return new GraphQLModule<Config, Session, Context>(this._options, config);
   }
 
   forChild(): string {
@@ -316,7 +316,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   get selfImports() {
-    let imports = new Array<ModuleDependency<any, Request, any>>();
+    let imports = new Array<ModuleDependency<any, Session, any>>();
     if (this._options.imports) {
       if (typeof this._options.imports === 'function') {
         imports = this._options.imports(this);
@@ -385,9 +385,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return directiveResolvers;
   }
 
-  private checkIfResolverCalledSafely(resolverPath: string, request: any, info: any) {
-    if (typeof request === 'undefined') {
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Request hasn't been passed!`);
+  private checkIfResolverCalledSafely(resolverPath: string, Session: any, info: any) {
+    if (typeof Session === 'undefined') {
+      throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
     }
     if (typeof info === 'undefined') {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `GraphQL Resolve Information hasn't been passed!`);
@@ -406,12 +406,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
           if (typeof resolver === 'function') {
             if (prop !== '__resolveType') {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-                const request = info.request || appContext.request;
-                info.request = request;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, request, info);
+                const session = info.session || appContext.session;
+                info.session = session;
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(request, true);
+                  moduleContext = await this.context(session, true);
                 } catch (e) {
                   console.error(e);
                   throw e;
@@ -421,12 +421,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
               };
             } else {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-                const request = info.request || appContext.request;
-                info.request = request;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, request, info);
+                const session = info.session || appContext.session;
+                info.session = session;
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(request, true);
+                  moduleContext = await this.context(session, true);
                 } catch (e) {
                   console.error(e);
                   throw e;
@@ -449,12 +449,12 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const request = info.request || appContext.request;
-          info.request = request;
-          this.checkIfResolverCalledSafely(path, request, info);
+          const session = info.session || appContext.session;
+          info.session = session;
+          this.checkIfResolverCalledSafely(path, session, info);
           let moduleContext;
           try {
-            moduleContext = await this.context(request, true);
+            moduleContext = await this.context(session, true);
           } catch (e) {
             console.error(e);
             throw e;
@@ -499,7 +499,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const importsTypeDefs = new Set<DocumentNode>();
     const importsResolvers = new Set<IResolvers<any, any>>();
     const importsInjectors = new Set<Injector>();
-    const importsContextBuilders = new Set<(req: Request, excludeRequest?: boolean) => Promise<Context>>();
+    const importsContextBuilders = new Set<(session: Session, excludeSession?: boolean) => Promise<Context>>();
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
     const importsExtraSchemas = new Set<GraphQLSchema>();
     const importsDirectiveResolvers = new Set<IDirectiveResolvers>();
@@ -630,22 +630,22 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       }
     }
 
-    this._cache.contextBuilder = async (request, excludeRequest = false) => {
+    this._cache.contextBuilder = async (session, excludeSession = false) => {
       try {
 
-        const moduleNameContextMap = this.getModuleNameContextMap(request);
+        const moduleNameContextMap = this.getModuleNameContextMap(session);
         if (!(moduleNameContextMap.has(this.name))) {
-          const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(request, true));
+          const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(session, true));
           const importsContextArr = await Promise.all(importsContextArr$);
           const importsContext = importsContextArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
           const applicationInjector = this.injector;
-          const sessionInjector = applicationInjector.getSessionInjector(request);
-          const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, request);
+          const sessionInjector = applicationInjector.getSessionInjector(session);
+          const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo<Config, any, Context>(this, session);
           let moduleContext = {};
           const moduleContextDeclaration = this._options.context;
           if (moduleContextDeclaration) {
             if (moduleContextDeclaration instanceof Function) {
-              moduleContext = await moduleContextDeclaration(request, { ...importsContext, injector }, moduleSessionInfo);
+              moduleContext = await moduleContextDeclaration(session, { ...importsContext, injector }, moduleSessionInfo);
             } else {
               moduleContext = await moduleContextDeclaration;
             }
@@ -655,20 +655,20 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
             ...moduleContext,
             injector: sessionInjector,
           });
-          const requestHooks$ = [
+          const SessionHooks$ = [
             ...applicationInjector.scopeSet,
             ...sessionInjector.scopeSet,
-          ].map(serviceIdentifier => moduleSessionInfo.callRequestHook(serviceIdentifier),
+          ].map(serviceIdentifier => moduleSessionInfo.callSessionHook(serviceIdentifier),
           );
-          await Promise.all(requestHooks$);
+          await Promise.all(SessionHooks$);
         }
         const moduleContext = moduleNameContextMap.get(this.name);
-        if (excludeRequest) {
+        if (excludeSession) {
           return moduleContext;
         } else {
           return {
             ...moduleContext,
-            request,
+            session,
           };
         }
       } catch (e) {
@@ -686,29 +686,29 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
   }
 
-  private static requestModuleNameContextMap = new WeakMap<any, Map<string, any>>();
+  private static sessionModuleNameContextMap = new WeakMap<any, Map<string, any>>();
 
-  getModuleNameContextMap(request: Request) {
-    if (!GraphQLModule.requestModuleNameContextMap.has(request)) {
-      GraphQLModule.requestModuleNameContextMap.set(request, new Map());
+  getModuleNameContextMap(session: Session) {
+    if (!GraphQLModule.sessionModuleNameContextMap.has(session)) {
+      GraphQLModule.sessionModuleNameContextMap.set(session, new Map());
     }
-    return GraphQLModule.requestModuleNameContextMap.get(request);
+    return GraphQLModule.sessionModuleNameContextMap.get(session);
   }
 
   /**
-   * Build a GraphQL `context` object based on a network request.
+   * Build a GraphQL `context` object based on a network session.
    * It iterates over all modules by their dependency-based order, and executes
    * `contextBuilder` method.
    * It also in charge of injecting a reference to the application `Injector` to
    * the `context`.
-   * The network request is passed to each `contextBuilder` method, and the return
+   * The network session is passed to each `contextBuilder` method, and the return
    * value of each `contextBuilder` is merged into a unified `context` object.
    *
    * This method should be in use with your GraphQL manager, such as Apollo-Server.
    *
-   * @param request - the network request from `connect`, `express`, etc...
+   * @param session - the network session from `connect`, `express`, etc...
    */
-  get context(): (request: Request, excludeRequest?: boolean) => Promise<ModuleContext<Context>> {
+  get context(): (session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
       this.buildSchemaAndInjector();
     }
@@ -725,8 +725,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
   }
 
   private createInitialModulesMap() {
-    const modulesMap = new Map<string, GraphQLModule<any, Request, any>>();
-    const visitModule = (module: GraphQLModule<any, Request, any>) => {
+    const modulesMap = new Map<string, GraphQLModule<any, Session, any>>();
+    const visitModule = (module: GraphQLModule<any, Session, any>) => {
       if (!modulesMap.has(module.name)) {
         modulesMap.set(module.name, module);
         for (const subModule of module.selfImports) {
@@ -749,8 +749,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     return modulesMap;
   }
 
-  private checkAndFixModulesMap(modulesMap: ModulesMap<Request>): Map<string, GraphQLModule<any, Request, any>> {
-    const graph = new DepGraph<GraphQLModule<any, Request, any>>();
+  private checkAndFixModulesMap(modulesMap: ModulesMap<Session>): Map<string, GraphQLModule<any, Session, any>> {
+    const graph = new DepGraph<GraphQLModule<any, Session, any>>();
 
     modulesMap.forEach(module => {
       const moduleName = module.name;
@@ -761,7 +761,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
 
     const visitedModulesToAddDependency = new Set<string>();
 
-    const visitModuleToAddDependency = (module: GraphQLModule<any, Request, any>) => {
+    const visitModuleToAddDependency = (module: GraphQLModule<any, Session, any>) => {
       for (let subModule of module.selfImports) {
         const subModuleOrigName = typeof subModule === 'string' ? subModule : subModule.name;
         subModule = modulesMap.get(subModuleOrigName);
@@ -815,7 +815,7 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         // if it is merged module, get one module, it will be enough to get merged one.
         return modulesMap.get(moduleName);
       });
-      const mergedModule = GraphQLModule.mergeModules<any, Request, any>(circularModules, this._options.warnCircularImports, modulesMap);
+      const mergedModule = GraphQLModule.mergeModules<any, Session, any>(circularModules, this._options.warnCircularImports, modulesMap);
       for (const moduleName of realPath) {
         modulesMap.set(moduleName, mergedModule);
         for (const subModuleName of moduleName.split('+')) {
@@ -825,8 +825,8 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
         }
       }
       modulesMap.set(mergedModule.name, mergedModule);
-      (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>)
-        = (mergedModule._options.imports as Array<ModuleDependency<any, Request, any>>).filter(
+      (mergedModule._options.imports as Array<ModuleDependency<any, Session, any>>)
+        = (mergedModule._options.imports as Array<ModuleDependency<any, Session, any>>).filter(
           module => {
             const moduleName = typeof module === 'string' ? module : module.name;
             module = modulesMap.get(moduleName);
@@ -837,22 +837,22 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     }
   }
 
-  static mergeModules<Config = any, Request = any, Context = any>(
-    modules: Array<GraphQLModule<any, Request, any>>,
+  static mergeModules<Config = any, Session = any, Context = any>(
+    modules: Array<GraphQLModule<any, Session, any>>,
     warnCircularImports = false,
-    modulesMap?: ModulesMap<Request>): GraphQLModule<Config, Request, Context> {
+    modulesMap?: ModulesMap<Session>): GraphQLModule<Config, Session, Context> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
     const resolversSet = new Set<IResolvers<any, any>>();
-    const contextBuilderSet = new Set<BuildContextFn<any, Request, any>>();
-    const importsSet = new Set<ModuleDependency<any, Request, any>>();
+    const contextBuilderSet = new Set<BuildContextFn<any, Session, any>>();
+    const importsSet = new Set<ModuleDependency<any, Session, any>>();
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();
     const schemaDirectivesSet = new Set<ISchemaDirectives>();
     const directiveResolversSet = new Set<IDirectiveResolvers>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
-    const middlewareSet = new Set<GraphQLModuleMiddleware<Request, any>>();
+    const middlewareSet = new Set<GraphQLModuleMiddleware<Session, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
       for (const subMergedModuleName of subMergedModuleNames) {
@@ -887,9 +887,9 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
     const resolvers = mergeResolvers([...resolversSet]);
     const context = [...contextBuilderSet].reduce(
       (accContextBuilder, currentContextBuilder) => {
-        return async (request, currentContext, injector) => {
-          const accContext = await accContextBuilder(request, currentContext, injector);
-          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(request, currentContext, injector) : (currentContextBuilder || {});
+        return async (session, currentContext, injector) => {
+          const accContext = await accContextBuilder(session, currentContext, injector);
+          const moduleContext = typeof currentContextBuilder === 'function' ? await currentContextBuilder(session, currentContext, injector) : (currentContextBuilder || {});
           return {
             ...accContext,
             ...moduleContext,
@@ -911,14 +911,14 @@ export class GraphQLModule<Config = any, Request = any, Context = any> {
       },
     };
     const extraSchemas = [...extraSchemasSet];
-    const middleware = (moduleCache: ModuleCache<Request, any>) => {
+    const middleware = (moduleCache: ModuleCache<Session, any>) => {
       let result = {};
       for (const subMiddleware of middlewareSet) {
         result = Object.assign(result, subMiddleware(moduleCache));
       }
       return result;
     };
-    return new GraphQLModule<Config, Request, Context>({
+    return new GraphQLModule<Config, Session, Context>({
       name,
       typeDefs,
       resolvers,

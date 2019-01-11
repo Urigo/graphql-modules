@@ -137,7 +137,7 @@ describe('Merge Schema', () => {
         }`));
     });
 
-    it('should skip printing schema definition object on request', () => {
+    it('should skip printing schema definition object on session', () => {
       const merged = mergeGraphQLSchemas([
         'type Query { f1: String }',
         'type Query { f2: String }',

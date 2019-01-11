@@ -186,7 +186,7 @@ GraphQL Modules give you some built-in injectables, and you can inject them into
 
 ### `OnRequest hook`
 
-With this, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network request.
+With this, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network session.
 
 ```typescript
 import { Injectable, OnRequest } from '@graphql-modules/core';
