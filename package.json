@@ -30,7 +30,7 @@
     "ts-jest": "23.10.5",
     "typedoc": "0.14.1",
     "typedoc-plugin-docusaurus": "1.0.14",
-    "replace-in-file": "3.4.2"
+    "replace-in-file": "3.4.3"
   },
   "publishConfig": {
     "access": "public"
