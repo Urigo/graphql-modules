@@ -10,6 +10,10 @@
 
 - **[Website](https://graphql-modules.com/docs/introduction/getting-started)**
 - **[Introducing GraphQL Modules - Feature based GraphQL Modules at scale](https://medium.com/the-guild/graphql-modules-feature-based-graphql-modules-at-scale-2d7b2b0da6da)**
+- **[Why is True Modular Encapsulation So Important in Large-Scale GraphQL Projects? ](https://medium.com/the-guild/why-is-true-modular-encapsulation-so-important-in-large-scale-graphql-projects-ed1778b03600)**
+- **[Why did we implement our own Dependency Injection library for GraphQL-Modules?](https://medium.com/the-guild/why-did-we-implement-our-own-dependency-injection-library-for-graphql-modules-f25a234a9762)**
+- **[Scoped Providers in GraphQL-Modules Dependency Injection](https://medium.com/the-guild/scoped-providers-in-graphql-modules-dependency-injection-system-949cd2588e0)**
+- **[Writing a GraphQL TypeScript project w/ GraphQL-Modules and GraphQL-Code-Generator](https://medium.com/the-guild/writing-strict-typed-graphql-typescript-project-w-graphql-modules-and-graphql-code-generator-c22f6caa17b8)**
 - **[Authentication and Authorization in GraphQL (and how GraphQL-Modules can help)](https://medium.com/the-guild/authentication-and-authorization-in-graphql-and-how-graphql-modules-can-help-fadc1ee5b0c2)**
 - **[Authentication with AccountsJS & GraphQL Modules](https://medium.com/the-guild/authentication-with-accountsjs-graphql-modules-e0fb9799a9da)**
 
