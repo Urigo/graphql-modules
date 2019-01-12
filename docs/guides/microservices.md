@@ -12,9 +12,9 @@ That means that you can still implement small servers and them use [Schema Stitc
 
 ## Communication Between Servers
 
-You can also use [`CommunicationBridge`](/TODO) to implement messaging mechanism between GraphQL Modules servers.
+You can also use [`PubSub`](/TODO) to implement messaging mechanism between GraphQL Modules servers.
 
-The default and built-in implementation of the `CommunicationBridge` is using `EventEmitter`, but because it's a very simple API you can implement your own way of sending those messages.
+The default and built-in implementation of the `PubSub` is using `EventEmitter`, but because it's a very simple API you can implement your own way of sending those messages.
 
 You can implement your own message transmitter by implementing `CommunicationBridge` interface:
 
