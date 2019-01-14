@@ -385,8 +385,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return directiveResolvers;
   }
 
-  private checkIfResolverCalledSafely(resolverPath: string, Session: any, info: any) {
-    if (typeof Session === 'undefined') {
+  private checkIfResolverCalledSafely(resolverPath: string, session: any, info: any) {
+    if (typeof session === 'undefined') {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
     }
     if (typeof info === 'undefined') {
@@ -655,12 +655,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             ...moduleContext,
             injector: sessionInjector,
           });
-          const SessionHooks$ = [
+          const sessionHooks$ = [
             ...applicationInjector.scopeSet,
             ...sessionInjector.scopeSet,
           ].map(serviceIdentifier => moduleSessionInfo.callSessionHook(serviceIdentifier),
           );
-          await Promise.all(SessionHooks$);
+          await Promise.all(sessionHooks$);
         }
         const moduleContext = moduleNameContextMap.get(this.name);
         if (excludeSession) {
