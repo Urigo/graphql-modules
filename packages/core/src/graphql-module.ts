@@ -8,7 +8,7 @@ import { DependencyModuleNotFoundError, SchemaNotValidError, DependencyModuleUnd
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { asArray } from './utils';
-import { ModuleContext } from './types';
+import { ModuleContext, ISubscriptionHooks } from './types';
 
 /**
  * A context builder method signature for `contextBuilder`.
@@ -92,6 +92,7 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
   warnCircularImports?: boolean;
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
+  subscriptions?: GraphQLModuleOption<ISubscriptionHooks, Config, Session, Context>;
 }
 
 /**
@@ -115,6 +116,7 @@ export interface ModuleCache<Session, Context> {
   modulesMap: ModulesMap<Session>;
   extraSchemas: GraphQLSchema[];
   directiveResolvers: IDirectiveResolvers;
+  subscriptionHooks: ISubscriptionHooks;
 }
 
 /**
@@ -136,6 +138,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     modulesMap: undefined,
     extraSchemas: undefined,
     directiveResolvers: undefined,
+    subscriptionHooks: undefined,
   };
 
   /**
@@ -265,6 +268,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return this._cache.schemaDirectives;
   }
 
+  get subscriptions(): ISubscriptionHooks {
+    if (typeof this._cache.subscriptionHooks === 'undefined') {
+      this.buildSchemaAndInjector();
+    }
+    return this._cache.subscriptionHooks;
+  }
+
   get selfExtraSchemas(): GraphQLSchema[] {
     let extraSchemas = new Array<GraphQLSchema>();
     const extraSchemasDefinitions = this._options.extraSchemas;
@@ -377,12 +387,25 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const directiveResolversDefinitions = this._options.directiveResolvers;
     if (directiveResolversDefinitions) {
       if (typeof directiveResolversDefinitions === 'function') {
-        directiveResolvers = directiveResolversDefinitions(this);
+        directiveResolvers = this.injector.call(directiveResolversDefinitions, this);
       } else {
         directiveResolvers = directiveResolversDefinitions;
       }
     }
     return directiveResolvers;
+  }
+
+  get selfSubscriptionHooks(): ISubscriptionHooks {
+    let subscriptionHooks: ISubscriptionHooks = {};
+    const subscriptionHooksDefinitions = this._options.subscriptions;
+    if (subscriptionHooksDefinitions) {
+      if (typeof subscriptionHooksDefinitions === 'function') {
+        subscriptionHooks = this.injector.call(subscriptionHooksDefinitions, this);
+      } else {
+        subscriptionHooks = subscriptionHooksDefinitions;
+      }
+    }
+    return subscriptionHooks;
   }
 
   private checkIfResolverCalledSafely(resolverPath: string, session: any, info: any) {
@@ -503,6 +526,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const importsSchemaDirectives = new Set<ISchemaDirectives>();
     const importsExtraSchemas = new Set<GraphQLSchema>();
     const importsDirectiveResolvers = new Set<IDirectiveResolvers>();
+    const importsSubscriptionHooks = new Set<ISubscriptionHooks>();
     for (let module of imports) {
       const moduleName = typeof module === 'string' ? module : module.name;
       module = modulesMap.get(moduleName);
@@ -518,11 +542,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           modulesMap,
           extraSchemas: undefined,
           directiveResolvers: undefined,
+          subscriptionHooks: undefined,
         };
       }
 
       const { injector, resolvers, typeDefs, schemaDirectives } = module;
-      const { contextBuilder, extraSchemas, directiveResolvers } = module._cache;
+      const { contextBuilder, extraSchemas, directiveResolvers, subscriptionHooks } = module._cache;
 
       importsInjectors.add(injector);
       importsResolvers.add(resolvers);
@@ -535,6 +560,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         importsExtraSchemas.add(extraSchema);
       }
       importsDirectiveResolvers.add(directiveResolvers);
+      if (subscriptionHooks) {
+        importsSubscriptionHooks.add(subscriptionHooks);
+      }
     }
 
     const injector = this._cache.injector = new Injector(this.name, ProviderScope.Application, importsInjectors);
@@ -678,6 +706,31 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           throw new ContextBuilderError(this.name, e);
         }
       }
+    };
+
+    const { onConnect, onDisconnect } = this.selfSubscriptionHooks;
+
+    this._cache.subscriptionHooks = {
+      onConnect: async (connectionParams, websocket, context) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect ? onConnect(connectionParams, websocket, context) : {});
+        const importsResultArr = await Promise.all(importsResultArr$);
+        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
+        const moduleResult = await onConnect(connectionParams, websocket, context);
+        return {
+          ...importsResult,
+          ...moduleResult,
+        };
+      },
+      onDisconnect: async (websocket, context) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect ? onDisconnect(websocket, context) : {});
+        const importsResultArr = await Promise.all(importsResultArr$);
+        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
+        const moduleResult = await onDisconnect(websocket, context);
+        return {
+          ...importsResult,
+          ...moduleResult,
+        };
+      },
     };
 
     if ('middleware' in this._options) {
