@@ -905,6 +905,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const directiveResolversSet = new Set<IDirectiveResolvers>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
+    const subscriptionsSet = new Set<ISubscriptionHooks>();
     const middlewareSet = new Set<GraphQLModuleMiddleware<Session, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
@@ -933,6 +934,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         extraSchemasSet.add(extraSchema);
       }
       loggerSet.add(module.selfLogger);
+      if (module.selfSubscriptionHooks) {
+        subscriptionsSet.add(module.selfSubscriptionHooks);
+      }
     }
 
     const name = [...nameSet].join('+');
@@ -956,6 +960,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const resolversComposition = deepmerge.all([...resolversCompositionSet]);
     const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
     const directiveResolvers = deepmerge.all([...directiveResolversSet]) as IDirectiveResolvers;
+    const subscriptions = [...subscriptionsSet].reduce(
+      (accSubscriptions, currentSubscriptions) => ({
+        onConnect: async (...args) => ({ ...( await accSubscriptions.onConnect(...args)), ...(await currentSubscriptions.onConnect(...args))}),
+        onDisconnect: async (...args) => ({ ...( await accSubscriptions.onDisconnect(...args)), ...(await currentSubscriptions.onDisconnect(...args))}),
+      }),
+      { onConnect: () => ({}), onDisconnect: () => ({}) } as ISubscriptionHooks,
+    );
     const logger = {
       log(message: string) {
         for (const logger of loggerSet) {
@@ -983,6 +994,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       directiveResolvers,
       logger,
       extraSchemas,
+      subscriptions,
       middleware,
       warnCircularImports,
       mergeCircularImports: true,
