@@ -72,7 +72,7 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  imports?: GraphQLModuleOption<Array<ModuleDependency<any, Session, Context>>, Config, Session, Context>;
+  imports?: GraphQLModuleOption<Array<ModuleDependency<any, any, any>>, Config, Session, Context>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
@@ -316,7 +316,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   }
 
   get selfImports() {
-    let imports = new Array<ModuleDependency<any, Session, any>>();
+    let imports = new Array<ModuleDependency<any, any, any>>();
     if (this._options.imports) {
       if (typeof this._options.imports === 'function') {
         imports = this._options.imports(this);
@@ -825,8 +825,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         }
       }
       modulesMap.set(mergedModule.name, mergedModule);
-      (mergedModule._options.imports as Array<ModuleDependency<any, Session, any>>)
-        = (mergedModule._options.imports as Array<ModuleDependency<any, Session, any>>).filter(
+      (mergedModule._options.imports as Array<ModuleDependency<any, any, any>>)
+        = (mergedModule._options.imports as Array<ModuleDependency<any, any, any>>).filter(
           module => {
             const moduleName = typeof module === 'string' ? module : module.name;
             module = modulesMap.get(moduleName);
@@ -838,14 +838,14 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   }
 
   static mergeModules<Config = any, Session = any, Context = any>(
-    modules: Array<GraphQLModule<any, Session, any>>,
+    modules: Array<GraphQLModule<any, any, any>>,
     warnCircularImports = false,
     modulesMap?: ModulesMap<Session>): GraphQLModule<Config, Session, Context> {
     const nameSet = new Set();
     const typeDefsSet = new Set();
     const resolversSet = new Set<IResolvers<any, any>>();
     const contextBuilderSet = new Set<BuildContextFn<any, Session, any>>();
-    const importsSet = new Set<ModuleDependency<any, Session, any>>();
+    const importsSet = new Set<ModuleDependency<any, any, any>>();
     const providersSet = new Set<Provider<any>>();
     const resolversCompositionSet = new Set<IResolversComposerMapping>();
     const schemaDirectivesSet = new Set<ISchemaDirectives>();
