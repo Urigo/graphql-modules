@@ -715,7 +715,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect ? onConnect(connectionParams, websocket, context) : {});
         const importsResultArr = await Promise.all(importsResultArr$);
         const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = await onConnect(connectionParams, websocket, context);
+        const moduleResult = onConnect ? await onConnect(connectionParams, websocket, context) : {};
         return {
           ...importsResult,
           ...moduleResult,
@@ -725,7 +725,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect ? onDisconnect(websocket, context) : {});
         const importsResultArr = await Promise.all(importsResultArr$);
         const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = await onDisconnect(websocket, context);
+        const moduleResult = onDisconnect ? await onDisconnect(websocket, context) : {};
         return {
           ...importsResult,
           ...moduleResult,
