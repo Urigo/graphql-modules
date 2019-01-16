@@ -6,8 +6,10 @@ export const PROVIDER_OPTIONS = 'provider-options';
 export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
   if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {
     return serviceIdentifier.name;
-  } else {
+  } else if (typeof serviceIdentifier !== 'undefined') {
     return serviceIdentifier.toString();
+  } else {
+    return 'undefined';
   }
 }
 
