@@ -78,7 +78,7 @@ const module = new GraphQLModule({
 Inside the `examples` directory you can find the following examples:
 
 - [Simple GraphQL-Modules example](./examples/basic)
-- [Using dependenecy injection in GraphQL Modules](./examples/basic-with-dependency-injection)
+- [Using dependency injection in GraphQL Modules](./examples/basic-with-dependency-injection)
 - You can also take a look at the [graphql-modules-seed](https://github.com/darkbasic/graphql-modules-seed) repository.
 
 ## GraphQL Code Generator integration
