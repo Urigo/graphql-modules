@@ -20,7 +20,7 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "reflect-metadata": "0.1.12",
+    "reflect-metadata": "0.1.13",
     "@types/graphql": "14.0.5",
     "@types/jest": "23.3.12",
     "graphql": "14.1.0",
