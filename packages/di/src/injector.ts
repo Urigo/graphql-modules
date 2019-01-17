@@ -1,7 +1,7 @@
 
 import { ProviderNotValidError, ServiceIdentifierNotFoundError, DependencyProviderNotFoundError, ProviderAlreadyDefinedError } from './errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
-import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES } from './utils';
+import { isTypeProvider, PROVIDER_OPTIONS, isValueProvider, isClassProvider, isFactoryProvider, DESIGN_PARAM_TYPES, DESIGN_TYPE, PROPERTY_KEYS } from './utils';
 
 export class Injector {
   private _classMap = new Map<ServiceIdentifier<any>, Type<any>>();
@@ -109,9 +109,18 @@ export class Injector {
       } else if (this._classMap.has(serviceIdentifier)) {
         const RealClazz = this._classMap.get(serviceIdentifier);
         try {
-          const dependencies = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz) || [];
-          const dependencyInstances = dependencies.map((dependency: ServiceIdentifier<any>) => this.get(dependency));
+          const dependencies: Array<ServiceIdentifier<any>> = Reflect.getMetadata(DESIGN_PARAM_TYPES, RealClazz) || [];
+          const dependencyInstances = dependencies.map(dependency => this.get(dependency));
           const instance = new RealClazz(...dependencyInstances);
+          const propertyKeys = Reflect.getMetadata(PROPERTY_KEYS, RealClazz.prototype) || [];
+          for (const propertyKey of propertyKeys) {
+            const dependency = Reflect.getMetadata(DESIGN_TYPE, RealClazz.prototype, propertyKey);
+            if (dependency) {
+              Object.defineProperty(instance, propertyKey, {
+                value: this.get(dependency),
+              });
+            }
+          }
           if (this.scopeSet.has(serviceIdentifier)) {
             this._instanceMap.set(serviceIdentifier, instance);
           }
