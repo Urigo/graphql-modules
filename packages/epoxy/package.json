@@ -33,7 +33,7 @@
     "tslib": "1.9.3"
   },
   "devDependencies": {
-    "graphql-tag": "2.10.0",
+    "graphql-tag": "2.10.1",
     "jest": "23.6.0",
     "tslint": "5.12.1",
     "typescript": "3.2.2"
