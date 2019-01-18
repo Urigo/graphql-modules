@@ -709,30 +709,50 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     };
 
     const subscriptionHooks = this.selfSubscriptionHooks;
-    const { onConnect, onDisconnect } = subscriptionHooks;
+    const { onConnect, onOperationComplete, onOperation, onDisconnect } = subscriptionHooks;
 
     this._cache.subscriptionHooks = {
-      onConnect: async (connectionParams, websocket, context) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect ? onConnect(connectionParams, websocket, context) : {});
+      onConnect: async (...args) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect ? onConnect(...args) : {});
         const importsResultArr = await Promise.all(importsResultArr$);
         const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onConnect ? await onConnect.call(subscriptionHooks, connectionParams, websocket, context) : {};
+        const moduleResult = onConnect ? await onConnect.call(subscriptionHooks, ...args) : {};
         return {
           ...importsResult,
           ...moduleResult,
         };
       },
-      onDisconnect: async (websocket, context) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect ? onDisconnect(websocket, context) : {});
+      onOperation: async (...args) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onOperation }) => onOperation ? onOperation(...args) : {});
         const importsResultArr = await Promise.all(importsResultArr$);
         const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onDisconnect ? await onDisconnect.call(subscriptionHooks, websocket, context) : {};
+        const moduleResult = onOperation ? await onOperation.call(subscriptionHooks, ...args) : {};
         return {
           ...importsResult,
           ...moduleResult,
         };
       },
-    };
+      onOperationComplete: async (...args) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onOperationComplete }) => onOperationComplete ? onOperationComplete(...args) : {});
+        const importsResultArr = await Promise.all(importsResultArr$);
+        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
+        const moduleResult = onOperationComplete ? await onOperationComplete.call(subscriptionHooks, ...args) : {};
+        return {
+          ...importsResult,
+          ...moduleResult,
+        };
+      },
+      onDisconnect: async (...args) => {
+        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect ? onDisconnect(...args) : {});
+        const importsResultArr = await Promise.all(importsResultArr$);
+        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
+        const moduleResult = onDisconnect ? await onDisconnect.call(subscriptionHooks, ...args) : {};
+        return {
+          ...importsResult,
+          ...moduleResult,
+        };
+      },
+    } as ISubscriptionHooks;
 
     if ('middleware' in this._options) {
       const middlewareResult = this._options.middleware(this._cache);
@@ -964,9 +984,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const subscriptions = [...subscriptionsSet].reduce(
       (accSubscriptions, currentSubscriptions) => ({
         onConnect: async (...args) => ({ ...( await accSubscriptions.onConnect(...args)), ...(await currentSubscriptions.onConnect(...args))}),
+        onOperationComplete: async (...args) => ({ ...( await accSubscriptions.onOperationComplete(...args)), ...(await currentSubscriptions.onOperationComplete(...args))}),
+        onOperation: async (...args) => ({ ...( await accSubscriptions.onOperation(...args)), ...(await currentSubscriptions.onOperation(...args))}),
         onDisconnect: async (...args) => ({ ...( await accSubscriptions.onDisconnect(...args)), ...(await currentSubscriptions.onDisconnect(...args))}),
       }),
-      { onConnect: () => ({}), onDisconnect: () => ({}) } as ISubscriptionHooks,
+      { onConnect: () => ({}), onOperationComplete: () => {}, onOperation: () => {}, onDisconnect: () => ({}) } as ISubscriptionHooks,
     );
     const logger = {
       log(message: string) {

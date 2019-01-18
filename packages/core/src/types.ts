@@ -13,5 +13,7 @@ export interface ISubscriptionHooks<ConnectionParams = object, WebSocket = any, 
     websocket: WebSocket,
     context: ConnectionContext,
   ) => SubscriptionContext | Promise<SubscriptionContext>;
+  onOperationComplete?: (websocket: WebSocket, opId: string) => any;
+  onOperation?: (message: any, params: any, webSocket: WebSocket) => any;
   onDisconnect?: (websocket: WebSocket, context: ConnectionContext) => any;
 }
