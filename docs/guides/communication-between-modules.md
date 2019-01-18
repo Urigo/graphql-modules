@@ -61,36 +61,32 @@ And provide it using `providers`:
 { provide: MY_CLASS_TOKEN, useClass: MyImplementation }
 ```
 
-## Communication Bridge
+## Communication Bridge - PubSub
 
-GraphQL Modules has a built-in mechanism for dealing with messages between modules.
+GraphQL Modules can work with `PubSub` mechanism for dealing with messages between modules.
 
 It's useful when you want to notify other module about something, without knowing it directly, and without depending on it.
 
-`CommunicationBridge` is implemented as a simple Pub/Sub mechanism, with the ability to publish and subscribe to messages.
+`PubSub` is implemented as a simple Pub/Sub mechanism, with the ability to publish and subscribe to messages.
 
-First, you need to tell `GraphQLModule` how do you wish to transmit your messages. GraphQL Modules provides a simple `CommunicationBridge` implementation based on `EventEmitter`.
+First, you need to tell `GraphQLModule` how do you wish to transmit your messages. Apollo Server provides a simple `PubSub` implementation based on `EventEmitter`.
 
 To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to a shared `GraphQLModule` instance:
 
 ```typescript
-import { GraphQLModule, EventEmitterCommunicationBridge } from '@graphql-modules/core';
-
-const communicationBridge = new EventEmitterCommunicationBridge();
+import { GraphQLModule } from '@graphql-modules/core';
+import { PubSub } from 'apollo-server';
 
 const CommunicationModule = new GraphQLModule({
     providers: [
-      {
-        provide: CommunicationBridge,
-        useValue: communicationBridge
-      }
+      PubSub
       /* ... */
     ]
     imports: [ /* ... */],
 });
 ```
 
-And don't forget to import this common module to the modules you want to use `CommunicationBridge`.
+And don't forget to import this common module to the modules you want to use `PubSub`.
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
@@ -115,15 +111,15 @@ export const BarModule = new GraphQLModule({
 })
 ```
 
-Then, to use `CommunicationBridge`, you can do the following:
+Then, to use `PubSub`, you can do the following:
 
 ```typescript
-import { CommunicationBridge } from '@graphql-modules/core';
+import { PubSub } from 'apollo-server';
 import { Injectable } from '@graphql-modules/di';
 
 @Injectable()
 export class MyProvider {
-    constructor(private pubsub: CommunicationBridge) {
+    constructor(private pubsub: PubSub) {
         // Listen to messages and handle them
         pubsub.subscribe('NOTIFY_USER', payload => {
             // Do something
@@ -138,7 +134,8 @@ export class MyProvider {
     }
 }
 ```
-
+S
 This kind of modules communication is useful for implementing notifications, auditing, logging and more.
 
-It's also useful for implementing communication between GraphQL Modules servers, [you can read more about it here](/TODO).
+It's also useful for implementing communication between GraphQL Modules servers. There are various PubSub implementations based on EventEmitter, Redis and RabbitMQ.
+[You can read more about PubSub mechanism in Apollo docs.](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)

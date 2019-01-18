@@ -1,16 +1,11 @@
 import { Injector } from './injector';
 
-export interface Newable<T> {
-  new (...args: any[]): T;
-}
 export interface Abstract<T> {
   prototype: T;
 }
-export type ServiceIdentifier<T> = (string | symbol | Newable<T> | Abstract<T>);
+export type ServiceIdentifier<T> = (string | symbol | Type<T> | Abstract<T>);
 
-export interface Type<T> extends Function {
-  new (...args: any[]): T;
-}
+export type Type<T> = new (...args: any[]) => T;
 
 export interface ValueProvider<T> extends BaseProvider<T> {
   useValue: T;
@@ -46,6 +41,6 @@ export enum ProviderScope {
 }
 
 export type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
-  [Key in keyof Dependencies]: Dependencies[Key] extends Newable<any> ? InstanceType<Dependencies[Key]> : any;
+  [Key in keyof Dependencies]: Dependencies[Key] extends Type<any> ? InstanceType<Dependencies[Key]> : any;
 };
 export type ExtendedSession<Session> = Session & { nameSessionInjectorMap: Map<string, Injector> };

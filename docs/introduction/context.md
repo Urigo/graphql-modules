@@ -39,7 +39,7 @@ export default {
 
 In addition to the added `injector`, GraphQL Modules let you add custom fields to the `context`.
 
-Each module can have it's own `context` function or object, which get's the network request, the current `context`, and the `injector` and can extend the GraphQL `context` with any field.
+Each module can have it's own `context` function or object, which get's the network session that contains request, the current `context`, and the `injector` and can extend the GraphQL `context` with any field.
 
 To add a custom `context` to your `GraphQLModule` do the following:
 
@@ -55,7 +55,7 @@ export interface IMyModuleContext {
 export const MyModule = new GraphQLModule<{}, {}, IMyModuleContext>({
     typeDefs,
     resolvers,
-    context: (networkRequest, currentContext, moduleSessionInfo) => {
+    context: (session, currentContext, moduleSessionInfo) => {
         return {
             myField: 'some-value',
         };
@@ -79,7 +79,7 @@ export default {
 };
 ```
 
-You can also use this feature to implement authentication easily, because you have access to the network request, you can write async code, and you can return the current user and add it to the `context`, for example:
+You can also use this feature to implement authentication easily, because you have access to the network session, you can write async code, and you can return the current user and add it to the `context`, for example:
 
 ```typescript
 import { GraphQLModule, Injector } from '@graphql-modules/core';
@@ -106,8 +106,8 @@ export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleC
     providers: [
       AuthenticationProvider,
     ],
-    async context(networkRequest, currentContext, { injector }) {
-        const authToken = networkRequest.req.headers.authentication;
+    async context(session, currentContext, { injector }) {
+        const authToken = session.req.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
         return {
             currentUser,

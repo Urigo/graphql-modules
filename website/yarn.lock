@@ -4679,6 +4679,11 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
+jwt-decode@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-2.2.0.tgz#7d86bd56679f58ce6a84704a657dd392bba81a79"
+  integrity sha1-fYa9VmefWM5qhHBKZX3TkruoGnk=
+
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-3.2.2.tgz#31ea21a734bab9bbb0f32466d893aea51e4a3c64"
@@ -5391,10 +5396,10 @@ neo-async@^2.5.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.0.tgz#b9d15e4d71c6762908654b5183ed38b753340835"
   integrity sha512-MFh0d/Wa7vkKO3Y3LlacqAEeHK0mckVqzDieUKTT+KGxi+zIpeVsFxymkIiRpbpDziHc290Xr9A1O4Om7otoRA==
 
-netlify-lambda@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/netlify-lambda/-/netlify-lambda-1.1.0.tgz#e90aeba39e2e427eb040df0522e6050280f68f56"
-  integrity sha512-ctZPhBWIu4/1aKdnraeLP1nNfdHug0J38rqOvEYeWNRB9bqMfTGf1A0wN+o4YLeuGPoCyKecfARWEB1E+flJFQ==
+netlify-lambda@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/netlify-lambda/-/netlify-lambda-1.2.0.tgz#8e9bf370c81e2b4e335442ccf67ff2583df34c48"
+  integrity sha512-hYbh/niRAB9347Ix7flWdtzfMvq0vyOOB2003Xt/UfV5+SSyzSM8Pksj+KIk3HMwc2zkj9W3P0EKv6nS3ie15w==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -5406,6 +5411,7 @@ netlify-lambda@1.1.0:
     commander "^2.17.1"
     express "^4.16.3"
     express-logging "^1.1.1"
+    jwt-decode "^2.2.0"
     toml "^2.3.3"
     webpack "^4.17.1"
     webpack-merge "^4.1.4"
@@ -7418,10 +7424,10 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@7.32.2:
-  version "7.32.2"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-7.32.2.tgz#bda42fe8a50f5f6445a1684ed80f87840e0f5dd1"
-  integrity sha512-BDdr3UdMi2PVLwNTbg8gXFDW0+ZAvO4r5aWbburfBuQEsszIYVM6Oh/A9bGIKQQczurFXx/HVINESszcBzPA0Q==
+sweetalert2@7.33.1:
+  version "7.33.1"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-7.33.1.tgz#7e3534d2c2962f875f419cfea5d75ee526d65cd4"
+  integrity sha512-69KYtyhtxejFG0HDb8aVhAwbpAWPSTZwaL5vxDHgojErD2KeFxTmRgmkbiLtMC8UdTFXRmvTPtZTF4459MUb7w==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"

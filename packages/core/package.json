@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -28,17 +28,17 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/di": "0.2.17",
-    "@graphql-modules/epoxy": "0.2.17",
-    "dependency-graph": "0.7.2",
+    "@graphql-modules/di": "0.2.18",
+    "@graphql-modules/epoxy": "0.2.18",
+    "dependency-graph": "0.8.0",
     "graphql-tools": "4.0.3",
     "tslib": "1.9.3"
   },
   "devDependencies": {
     "graphql-tag": "2.10.0",
     "jest": "23.6.0",
-    "tslint": "5.11.0",
-    "typescript": "3.2.2"
+    "tslint": "5.12.1",
+    "typescript": "3.2.4"
   },
   "typings": "./dist/index.d.ts",
   "typescript": {

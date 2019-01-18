@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@graphql-modules/core": "0.2.12",
+    "@graphql-modules/di": "0.2.18",
     "@graphql-modules/epoxy": "0.2.12",
     "@graphql-modules/sonar": "0.2.12",
     "apollo-server": "2.1.0",

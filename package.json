@@ -20,17 +20,17 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "reflect-metadata": "0.1.12",
-    "@types/graphql": "14.0.3",
-    "@types/jest": "23.3.10",
-    "graphql": "14.0.2",
+    "reflect-metadata": "0.1.13",
+    "@types/graphql": "14.0.5",
+    "@types/jest": "23.3.12",
+    "graphql": "14.1.1",
     "jest": "23.6.0",
     "lerna": "2.11.0",
-    "rimraf": "2.6.2",
+    "rimraf": "2.6.3",
     "ts-jest": "23.10.5",
-    "typedoc": "0.13.0",
+    "typedoc": "0.14.2",
     "typedoc-plugin-docusaurus": "1.0.14",
-    "replace-in-file": "3.4.2"
+    "replace-in-file": "3.4.3"
   },
   "publishConfig": {
     "access": "public"

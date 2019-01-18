@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/di",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "jest": "23.6.0",
-    "reflect-metadata": "0.1.12",
-    "tslint": "5.11.0",
-    "typescript": "3.2.2"
+    "reflect-metadata": "0.1.13",
+    "tslint": "5.12.1",
+    "typescript": "3.2.4"
   },
   "dependencies": {
     "tslib": "1.9.3"
