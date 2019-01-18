@@ -1,13 +1,17 @@
 import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, FactoryProvider, TypeProvider } from './types';
 
 export const DESIGN_PARAM_TYPES = 'design:paramtypes';
+export const DESIGN_TYPE = 'design:type';
 export const PROVIDER_OPTIONS = 'provider-options';
+export const PROPERTY_KEYS = 'property-keys';
 
 export function getServiceIdentifierName<T>(serviceIdentifier: ServiceIdentifier<T>) {
   if (typeof serviceIdentifier === 'function' && isType<T>(serviceIdentifier)) {
     return serviceIdentifier.name;
-  } else {
+  } else if (typeof serviceIdentifier !== 'undefined') {
     return serviceIdentifier.toString();
+  } else {
+    return 'undefined';
   }
 }
 

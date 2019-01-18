@@ -11,7 +11,7 @@ import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
-import { Injectable, Inject, Injector, ProviderScope, DependencyProviderNotFoundError } from '@graphql-modules/di';
+import { Injectable, Inject, InjectFunction, Injector, ProviderScope, DependencyProviderNotFoundError } from '@graphql-modules/di';
 
 describe('GraphQLModule', () => {
   // A
@@ -177,7 +177,7 @@ describe('GraphQLModule', () => {
         }
       `,
       providers: [ProviderA, ProviderB],
-      resolvers: Inject(ProviderA, ProviderB)((providerA, providerB) => ({
+      resolvers: InjectFunction(ProviderA, ProviderB)((providerA, providerB) => ({
         Query: {
           something: () => providerA.doSomething(),
           somethingElse: () => providerB.doSomethingElse(),
@@ -198,6 +198,25 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data.something).toBe('Test1');
     expect(result.data.somethingElse).toBe('Test2');
+  });
+
+  it('should inject properties of classes', async () => {
+    @Injectable()
+    class FooProvider {
+      message = 'FOO';
+    }
+    @Injectable()
+    class BarProvider {
+      @Inject()
+      fooProvider: FooProvider;
+    }
+    const { injector } = new GraphQLModule({
+      providers: [
+        FooProvider,
+        BarProvider,
+      ],
+    });
+    expect(injector.get(BarProvider).fooProvider).toBeInstanceOf(FooProvider);
   });
 
   describe('Schema merging', () => {
@@ -412,7 +431,7 @@ describe('GraphQLModule', () => {
               test: String
             }
           `,
-          resolvers: Inject(ProviderB)((providerB) => ({
+          resolvers: InjectFunction(ProviderB)((providerB) => ({
             Query: {
               test: () => providerB.test,
             },
