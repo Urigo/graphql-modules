@@ -15,7 +15,7 @@ import { ModuleContext } from './types';
  */
 export type BuildContextFn<Config, Request, Context> = (
   networkRequest: Request,
-  currentContext: ModuleContext<Context>,
+  currentContext: ModuleContext<any>,
   moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>,
 ) => Promise<Context> | Context;
 
