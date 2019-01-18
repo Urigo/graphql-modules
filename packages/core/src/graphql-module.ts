@@ -92,7 +92,6 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
   warnCircularImports?: boolean;
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
-  subscriptions?: GraphQLModuleOption<ISubscriptionHooks, Config, Session, Context>;
 }
 
 /**
@@ -395,19 +394,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return directiveResolvers;
   }
 
-  get selfSubscriptionHooks(): ISubscriptionHooks {
-    let subscriptionHooks: ISubscriptionHooks = {};
-    const subscriptionHooksDefinitions = this._options.subscriptions;
-    if (subscriptionHooksDefinitions) {
-      if (typeof subscriptionHooksDefinitions === 'function') {
-        subscriptionHooks = this.injector.call(subscriptionHooksDefinitions, this);
-      } else {
-        subscriptionHooks = subscriptionHooksDefinitions;
-      }
-    }
-    return subscriptionHooks;
-  }
-
   private checkIfResolverCalledSafely(resolverPath: string, session: any, info: any) {
     if (typeof session === 'undefined') {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
@@ -440,7 +426,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                   throw e;
                 }
                 info.schema = this.schema;
-                return resolver.call(typeResolvers, root, args, moduleContext, info);
+                return resolver.call(typeResolvers[prop], root, args, moduleContext, info);
               };
             } else {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
@@ -458,6 +444,22 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                 return resolver.call(typeResolvers, root, moduleContext, info);
               };
             }
+          } else if ('subscribe' in resolver) {
+            const subscriber = resolver['subscribe'];
+            typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
+              const session = info.session || appContext.session;
+              info.session = session;
+              this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+              let moduleContext;
+              try {
+                moduleContext = await this.context(session, true);
+              } catch (e) {
+                console.error(e);
+                throw e;
+              }
+              info.schema = this.schema;
+              return subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
+            };
           }
         }
       }
@@ -659,11 +661,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     }
 
     this._cache.contextBuilder = async (session, excludeSession = false) => {
-      if ('connection' in session) {
-        return session['connection'];
-      }
       try {
-
+        session = 'connection' in session ? session['connection']['context']['session'] : session;
         const moduleNameContextMap = this.getModuleNameContextMap(session);
         if (!(moduleNameContextMap.has(this.name))) {
           const importsContextArr$ = [...importsContextBuilders].map(contextBuilder => contextBuilder(session, true));
@@ -711,51 +710,52 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
     };
 
-    const subscriptionHooks = this.selfSubscriptionHooks;
-    const { onConnect, onOperationComplete, onOperation, onDisconnect } = subscriptionHooks;
-
     this._cache.subscriptionHooks = {
-      onConnect: async (...args) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect ? onConnect(...args) : {});
-        const importsResultArr = await Promise.all(importsResultArr$);
-        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onConnect ? await onConnect.call(subscriptionHooks, ...args) : {};
-        return {
+      onConnect: async (connectionParams, websocket, connectionSession) => {
+        const importsOnConnectHooks$ = [...importsSubscriptionHooks].map(async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession));
+        const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
+        const importsResult = importsOnConnectHooks.reduce(( acc, curr) => ({...acc, ...(curr || {})}), {});
+        const connectionContext = await this.context(connectionSession);
+        const applicationInjector = this.injector;
+        const sessionInjector = connectionContext.injector;
+        const sessionHooks$ = [
+          ...applicationInjector.scopeSet,
+          ...sessionInjector.scopeSet,
+        ].map(serviceIdentifier => sessionInjector.callHookWithArgs('onConnect', serviceIdentifier, connectionParams, websocket, connectionContext),
+        );
+        const results = await Promise.all(sessionHooks$);
+        const hookResult = results.reduce(( acc, curr) => ({...acc, ...(curr || {})}), {});
+        const finalResult = {
           ...importsResult,
-          ...moduleResult,
+          ...connectionContext,
+          ...hookResult,
         };
+        return finalResult;
       },
-      onOperation: async (...args) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onOperation }) => onOperation ? onOperation(...args) : {});
-        const importsResultArr = await Promise.all(importsResultArr$);
-        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onOperation ? await onOperation.call(subscriptionHooks, ...args) : {};
-        return {
+      onDisconnect: async (websocket, connectionSession) => {
+        const importsOnConnectHooks$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect && onDisconnect(websocket, connectionSession));
+        const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
+        const importsResult = importsOnConnectHooks.reduce(( acc, curr) => ({...acc, ...(curr || {})}), {});
+        const connectionContext = await this.context(connectionSession);
+        const applicationInjector = this.injector;
+        const sessionInjector = connectionContext.injector;
+        const sessionHooks$ = [
+          ...applicationInjector.scopeSet,
+          ...sessionInjector.scopeSet,
+        ].map(serviceIdentifier => sessionInjector.callHookWithArgs('onDisconnect', serviceIdentifier, websocket, connectionContext),
+        );
+        const results = await Promise.all(sessionHooks$);
+        const hookResult = results.reduce(( acc, curr) => ({...acc, ...(curr || {})}), {});
+        const finalResult = {
           ...importsResult,
-          ...moduleResult,
+          ...connectionContext,
+          ...hookResult,
         };
+        const moduleNameContextMap = this.getModuleNameContextMap(connectionSession);
+        moduleNameContextMap.set(this.name, finalResult);
+        return finalResult;
       },
-      onOperationComplete: async (...args) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onOperationComplete }) => onOperationComplete ? onOperationComplete(...args) : {});
-        const importsResultArr = await Promise.all(importsResultArr$);
-        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onOperationComplete ? await onOperationComplete.call(subscriptionHooks, ...args) : {};
-        return {
-          ...importsResult,
-          ...moduleResult,
-        };
-      },
-      onDisconnect: async (...args) => {
-        const importsResultArr$ = [...importsSubscriptionHooks].map(async ({ onDisconnect }) => onDisconnect ? onDisconnect(...args) : {});
-        const importsResultArr = await Promise.all(importsResultArr$);
-        const importsResult = importsResultArr.reduce((acc, curr) => ({ ...acc, ...curr}), {} as any);
-        const moduleResult = onDisconnect ? await onDisconnect.call(subscriptionHooks, ...args) : {};
-        return {
-          ...importsResult,
-          ...moduleResult,
-        };
-      },
-    } as ISubscriptionHooks;
+    };
 
     if ('middleware' in this._options) {
       const middlewareResult = this._options.middleware(this._cache);
@@ -929,7 +929,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const directiveResolversSet = new Set<IDirectiveResolvers>();
     const loggerSet = new Set<ILogger>();
     const extraSchemasSet = new Set<GraphQLSchema>();
-    const subscriptionsSet = new Set<ISubscriptionHooks>();
     const middlewareSet = new Set<GraphQLModuleMiddleware<Session, any>>();
     for (const module of modules) {
       const subMergedModuleNames = module.name.split('+');
@@ -958,9 +957,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         extraSchemasSet.add(extraSchema);
       }
       loggerSet.add(module.selfLogger);
-      if (module.selfSubscriptionHooks) {
-        subscriptionsSet.add(module.selfSubscriptionHooks);
-      }
     }
 
     const name = [...nameSet].join('+');
@@ -984,15 +980,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const resolversComposition = deepmerge.all([...resolversCompositionSet]);
     const schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
     const directiveResolvers = deepmerge.all([...directiveResolversSet]) as IDirectiveResolvers;
-    const subscriptions = [...subscriptionsSet].reduce(
-      (accSubscriptions, currentSubscriptions) => ({
-        onConnect: async (...args) => ({ ...( await accSubscriptions.onConnect(...args)), ...(await currentSubscriptions.onConnect(...args))}),
-        onOperationComplete: async (...args) => ({ ...( await accSubscriptions.onOperationComplete(...args)), ...(await currentSubscriptions.onOperationComplete(...args))}),
-        onOperation: async (...args) => ({ ...( await accSubscriptions.onOperation(...args)), ...(await currentSubscriptions.onOperation(...args))}),
-        onDisconnect: async (...args) => ({ ...( await accSubscriptions.onDisconnect(...args)), ...(await currentSubscriptions.onDisconnect(...args))}),
-      }),
-      { onConnect: () => ({}), onOperationComplete: () => {}, onOperation: () => {}, onDisconnect: () => ({}) } as ISubscriptionHooks,
-    );
     const logger = {
       log(message: string) {
         for (const logger of loggerSet) {
@@ -1020,7 +1007,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       directiveResolvers,
       logger,
       extraSchemas,
-      subscriptions,
       middleware,
       warnCircularImports,
       mergeCircularImports: true,
