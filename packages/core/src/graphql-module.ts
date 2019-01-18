@@ -659,6 +659,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     }
 
     this._cache.contextBuilder = async (session, excludeSession = false) => {
+      if ('connection' in session) {
+        return session['connection'];
+      }
       try {
 
         const moduleNameContextMap = this.getModuleNameContextMap(session);
