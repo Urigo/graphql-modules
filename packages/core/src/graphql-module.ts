@@ -730,6 +730,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           ...connectionContext,
           ...hookResult,
         };
+        const moduleNameContextMap = this.getModuleNameContextMap(connectionSession);
+        moduleNameContextMap.set(this.name, finalResult);
         return finalResult;
       },
       onDisconnect: async (websocket, connectionSession) => {
