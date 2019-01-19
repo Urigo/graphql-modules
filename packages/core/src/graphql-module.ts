@@ -119,7 +119,7 @@ export interface ModuleCache<Session, Context> {
 
 /**
  * Represents a GraphQL module that has it's own types, resolvers, context and business logic.
- * You can read more about it in the Documentation section. TODO: Add link
+ * You can read more about it in the Documentation section. {@link /docs/introduction/modules}
  *
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `forRoot`

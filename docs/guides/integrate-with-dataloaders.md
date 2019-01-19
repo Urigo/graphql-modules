@@ -4,7 +4,7 @@ title: Integrate With Data Loaders
 sidebar_label: Integrate With Data Loaders
 ---
 
-Data Loader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can [read more about DataLoaders](https://github.com/facebook/dataloader).
+Data Loader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can **[read more about DataLoaders](https://github.com/facebook/dataloader)**.
 
 Data Loaders can be used in GraphQL Modules with an easy setup. You can use them as providers or in providers. If you want to use them as providers, you can extend DataLoader class to benefit Dependency Injection or wrap factory function with `Inject`.
 

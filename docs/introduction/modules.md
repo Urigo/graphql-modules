@@ -10,7 +10,7 @@ In GraphQL Modules,Each module have it's own GraphQL type definitions and resolv
 
 GraphQL `type`s, `enum`s and `union`s that declared using GraphQL Modules are also extendable, so modules can re-declare types and extend them as they wish.
 
-The idea behind it to implement [Separation of Concerns](https://deviq.com/separation-of-concerns/) design pattern in GraphQL, and to allow you to write simple modules that does only what it needs. This way it's easier to write, maintain and test.
+The idea behind it to implement **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL, and to allow you to write simple modules that does only what it needs. This way it's easier to write, maintain and test.
 
 ## Module Structure
 

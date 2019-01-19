@@ -11,7 +11,7 @@ GraphQL-Modules has built-in support for Data Sources in its own encapsulation-b
 Let's assume you have a data source class for the communication between your external REST API. The only you do is to add `Injectable` decorator for this class to make it able to be part of GraphQL-Modules DI.
 
 To learn more about Data Sources, check Apollo docs;
-[Data sources - Apollo Server](https://www.apollographql.com/docs/apollo-server/features/data-sources.html)
+**[Data sources - Apollo Server](https://www.apollographql.com/docs/apollo-server/features/data-sources.html)**
 
 ## REST Data Source Example
 
@@ -23,10 +23,7 @@ To learn more about Data Sources, check Apollo docs;
     scope: ProviderScope.Session
   })
   export class MoviesAPI extends RESTDataSource {
-    constructor() {
-      super();
-      this.baseURL = 'https://movies-api.example.com/';
-    }
+    baseURL = 'https://movies-api.example.com/';
 
     async getMovie(id) {
       return this.get(`movies/${id}`);
@@ -127,4 +124,4 @@ You can share GraphQL-Modules cache mechanism with your GraphQL Server;
   });
 ```
 
-[Learn more about custom cache storage mechanism](https://www.apollographql.com/docs/apollo-server/features/data-sources.html#Using-Memcached-Redis-as-a-cache-storage-backend)
+**[Learn more about custom cache storage mechanism](https://www.apollographql.com/docs/apollo-server/features/data-sources.html#Using-Memcached-Redis-as-a-cache-storage-backend)**

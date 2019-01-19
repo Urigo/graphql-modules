@@ -58,13 +58,13 @@ Next, add the following scripts to your `package.json`:
 ```
 
 - `dev` will start your server in development mode.
-- `debug` will start it in debug mode ([read more about it here](https://nodejs.org/en/docs/guides/debugging-getting-started/)).
+- `debug` will start it in debug mode (**[read more about it here](https://nodejs.org/en/docs/guides/debugging-getting-started/)**).
 - `build` will use `tsc` compiler to compile your code to JavaScript.
 - `start` will run the compiled server using pure Node.
 
 ### `paths`
 
-TypeScript has an [aliasing mechanism](https://www.typescriptlang.org/docs/handbook/module-resolution.html) that can make it easier to work with modules directories.
+TypeScript has an **[aliasing mechanism](https://www.typescriptlang.org/docs/handbook/module-resolution.html)** that can make it easier to work with modules directories.
 
 To setup it quickly with GraphQL Modules, add the following module to your server:
 
@@ -72,7 +72,7 @@ To setup it quickly with GraphQL Modules, add the following module to your serve
 yarn add tsconfig-paths
 ```
 
-Then, update your scripts to load the [require extension](https://gist.github.com/jamestalmage/df922691475cff66c7e6) for TypeScript `paths`:
+Then, update your scripts to load the **[require extension](https://gist.github.com/jamestalmage/df922691475cff66c7e6)** for TypeScript `paths`:
 
 ```json
 {
@@ -108,7 +108,7 @@ import { SomeProvider } from '@modules/my-module';
 
 You can also treat `.graphql` files as text files and import from them easily. It's useful because most IDEs detects `.graphql` files and have syntax highlighting for it.
 
-You can use [graphql-import-node](https://github.com/ardatan/graphql-import-node) to make NodeJS able to import `.graphql` files;
+You can use **[graphql-import-node](https://github.com/ardatan/graphql-import-node)** to make NodeJS able to import `.graphql` files;
 
 ```bash
 yarn add graphql-import-node
@@ -121,9 +121,9 @@ import * as UserTypeDefs from './user.graphql';
 
 ## Webpack
 
-If you are using Webpack, we recommend to use [ts-loader](https://github.com/TypeStrong/ts-loader) or [awesome-typescript-loader](https://github.com/s-panferov/awesome-typescript-loader) to load your TypeScript files.
+If you are using Webpack, we recommend to use **[ts-loader](https://github.com/TypeStrong/ts-loader) or [awesome-typescript-loader](https://github.com/s-panferov/awesome-typescript-loader)** to load your TypeScript files.
 
-To load `.graphql` files, you can use [graphql-tag/loader](https://github.com/apollographql/graphql-tag#webpack-preprocessing-with-graphql-tagloader).
+To load `.graphql` files, you can use **[graphql-tag/loader](https://github.com/apollographql/graphql-tag#webpack-preprocessing-with-graphql-tagloader)**.
 
 Here is a simple `webpack.config.js` that should do the job:
 
@@ -151,11 +151,11 @@ module.exports = {
 
 ## JavaScript Usage
 
-If you are using JavaScript in your project and not TypeScript, you can either [add support for TypeScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html), or use GraphQL Modules with it's JavaScript API.
+If you are using JavaScript in your project and not TypeScript, you can either **[add support for TypeScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)**, or use GraphQL Modules with it's JavaScript API.
 
 ### With Babel
 
-If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use [babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators) to get decorators support, and then you can use decorators such as `@Inject` in a regular way.
+If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, you can use **[babel-plugin-transform-decorators](http://babeljs.io/docs/en/babel-plugin-transform-decorators)** to get decorators support, and then you can use decorators such as `@Inject` in a regular way.
 
 ### Without decorators
 

@@ -18,7 +18,7 @@ const resolvers = {
 };
 ```
 
-> You can read more about resolver in [Apollo Server documentation](https://www.apollographql.com/docs/graphql-tools/resolvers#Resolver-function-signature).
+> You can read more about resolver in **[Apollo Server documentation](https://www.apollographql.com/docs/graphql-tools/resolvers#Resolver-function-signature)**.
 
 GraphQL Modules also uses the `context`, and it add to the context a field called `injector`, which you can use to get access to the dependency injection container of your `GraphQLModule`.
 
@@ -116,4 +116,4 @@ export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleC
 });
 ```
 
-You can read more about [authentication and how to implement it here](https://medium.com/the-guild/authentication-and-authorization-in-graphql-and-how-graphql-modules-can-help-fadc1ee5b0c2).
+You can read more about **[authentication and how to implement it here](https://medium.com/the-guild/authentication-and-authorization-in-graphql-and-how-graphql-modules-can-help-fadc1ee5b0c2)**.

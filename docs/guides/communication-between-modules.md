@@ -71,7 +71,7 @@ It's useful when you want to notify other module about something, without knowin
 
 First, you need to tell `GraphQLModule` how do you wish to transmit your messages. Apollo Server provides a simple `PubSub` implementation based on `EventEmitter`.
 
-To use it, create an instance of `EventEmitterCommunicationBridge` and pass to to a shared `GraphQLModule` instance:
+To use it, pass `PubSub` class as a provider in a shared `GraphQLModule` instance:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
@@ -138,4 +138,4 @@ S
 This kind of modules communication is useful for implementing notifications, auditing, logging and more.
 
 It's also useful for implementing communication between GraphQL Modules servers. There are various PubSub implementations based on EventEmitter, Redis and RabbitMQ.
-[You can read more about PubSub mechanism in Apollo docs.](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)
+**[You can read more about PubSub mechanism in Apollo docs.](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)**

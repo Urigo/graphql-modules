@@ -200,7 +200,7 @@ export class MyProvider implements OnRequest {
 }
 ```
 
-`onRequest` hook [API is available here](/TODO)
+`onRequest` hook [API is available here](/docs/api/core/api-interfaces-onrequest)
 
 ### `ModuleConfig(moduleName: string)`
 
@@ -219,9 +219,9 @@ export class MyProvider {
 }
 ```
 
-### `CommunicationBridge`
+### `PubSub`
 
-GraphQL Module has a built-in Pub/Sub mechanism you can use to dispatch messages between modules, called `CommunicationBridge`.
+GraphQL Module has a built-in Pub/Sub mechanism you can use to dispatch messages between modules, called `PubSub`.
 
 The messages are built in a form of `string => any` - so the key of each message must be a `string`, and you can basically dispatch anything that you can send over network.
 
@@ -232,7 +232,7 @@ import { CommunicationBridge } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider {
-    constructor(private pubsub: CommunicationBridge) {
+    constructor(private pubsub: PubSub) {
         // Listen to messages and handle them
         pubsub.subscribe('NOTIFY_USER', payload => {
             // Do something
@@ -248,6 +248,5 @@ export class MyProvider {
 }
 ```
 
-You can read more about [communication between modules here](/TODO) and [microservices support here](/TODO).
+You can read more about [communication between modules here](/docs/guides/communication-between-modules) and [microservices support here](/docs/guides/microservices).
 
-`CommunicationBridge` [API is available here](/TODO)

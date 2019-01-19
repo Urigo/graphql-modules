@@ -8,20 +8,18 @@ sidebar_label: Microservices
 
 If you wish to separate your server to smaller parts and deploy them as microservices, you can use GraphQL Modules in they way you used to.
 
-That means that you can still implement small servers and them use [Schema Stitching](https://www.apollographql.com/docs/graphql-tools/schema-stitching.html) to merge your small GraphQL schemas into a unified schema.
+That means that you can still implement small servers and them use **[Schema Stitching](https://www.apollographql.com/docs/graphql-tools/schema-stitching.html)** to merge your small GraphQL schemas into a unified schema.
 
 ## Communication Between Servers
 
-You can also use [`PubSub`](/TODO) to implement messaging mechanism between GraphQL Modules servers.
+You can also use **[`PubSub`](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)** to implement messaging mechanism between GraphQL Modules servers.
 
 The default and built-in implementation of the `PubSub` is using `EventEmitter`, but because it's a very simple API you can implement your own way of sending those messages.
 
 You can implement your own message transmitter by implementing `CommunicationBridge` interface:
 
 ```typescript
-import { CommunicationBridge } from '@graphql-modules/core';
-
-export class MyCommunicationBridge implements CommunicationBridge {
+export class MyCommunicationBridge {
   subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void } {
     // 1. You need to keep a record between the event and the handler
 
@@ -58,7 +56,7 @@ Finally, you need to import this `CommunicationModule` to all other modules you 
 
 ### Redis PubSub
 
-Another useful trick is to use an external PubSub services, such as [Redis PubSub](https://redis.io/topics/pubsub).
+Another useful trick is to use an external PubSub services, such as **[Redis PubSub](https://redis.io/topics/pubsub)**.
 
 You can easily create a `RedisCommunicationBridge` this way:
 
@@ -66,7 +64,7 @@ You can easily create a `RedisCommunicationBridge` this way:
 import { CommunicationBridge } from '@graphql-modules/core';
 import * as redis from 'redis';
 
-export class MyCommunicationBridge implements CommunicationBridge {
+export class RedisCommunicationBridge {
   _client = null;
 
   constructor() {
@@ -96,3 +94,14 @@ export class MyCommunicationBridge implements CommunicationBridge {
   }
 }
 ```
+
+### Existing Implementations
+
+`PubSub` can be replaced by another implementations. There are some existing ready-to-use implementations;
+
+- **[Redis](https://github.com/davidyaha/graphql-redis-subscriptions)**
+- **[Google PubSub](https://github.com/axelspringer/graphql-google-pubsub)**
+- **[MQTT enabled broker](https://github.com/davidyaha/graphql-mqtt-subscriptions)**
+- **[RabbitMQ](https://github.com/cdmbase/graphql-rabbitmq-subscriptions)**
+- **[Kafka](https://github.com/ancashoria/graphql-kafka-subscriptions)**
+- **[Postgres](https://github.com/GraphQLCollege/graphql-postgres-subscriptions)**

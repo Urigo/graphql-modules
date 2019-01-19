@@ -4,7 +4,7 @@ title: Integrate With GraphQL Code Generator
 sidebar_label: Integrate With GraphQL Code Generator
 ---
 
-GraphQL Modules comes with a built-in support for [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator)
+GraphQL Modules comes with a built-in support for **[GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator)**
 
 To get started, add `graphql-code-generator` and necessary templates to your app:
 
@@ -24,7 +24,7 @@ export default AppModule.typeDefs;
 ```
 
 Then, create `codegen.yml` on your project root. In the example, TypeScript file is used.
-Check [GraphQL Code Generator](https://graphql-code-generator.com/) docs for more details.
+Check **[GraphQL Code Generator](https://graphql-code-generator.com/)** docs for more details.
 
 `codegen.yml`
 ```yaml
@@ -71,4 +71,4 @@ Then you can use these generated typings everywhere in your project;
 ```
 
 You can see the blog post about this integration from the link;
-[Writing Strict-Typed GraphQL TypeScript project w/ GraphQL-Modules and GraphQL Code Generator](https://medium.com/p/c22f6caa17b8)
+**[Writing Strict-Typed GraphQL TypeScript project w/ GraphQL-Modules and GraphQL Code Generator](https://medium.com/p/c22f6caa17b8)**

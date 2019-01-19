@@ -4,7 +4,7 @@ title: Integrate With Apollo-Server
 sidebar_label: Integrate With Apollo-Server
 ---
 
-GraphQLModules comes with a built-in support for [Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html).
+GraphQLModules comes with a built-in support for **[Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html)**.
 
 To get started, add `apollo-server` to your app:
 
@@ -33,5 +33,5 @@ server.listen().then(({ url }) => {
 });
 ```
 
-> To test your server, run `ts-node index.ts` and try to open `http://localhost:4000/`, you should see the [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) UI.
+> To test your server, run `ts-node index.ts` and try to open `http://localhost:4000/`, you should see the **[GraphQL Playground](https://github.com/prismagraphql/graphql-playground)** UI.
 
