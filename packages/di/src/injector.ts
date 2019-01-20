@@ -185,4 +185,15 @@ export class Injector {
     }
     return fn.call(thisArg, thisArg);
   }
+  async callHookWithArgs<T, Args extends any[]>(hook: string, serviceIdentifier: ServiceIdentifier<T>, ...args: Args) {
+    const instance = this.get<T>(serviceIdentifier);
+    if (
+      instance &&
+      typeof instance !== 'string' &&
+      typeof instance !== 'number' &&
+      hook in instance
+    ) {
+      return instance[hook](...args);
+    }
+  }
 }

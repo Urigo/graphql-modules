@@ -27,6 +27,12 @@ export class ModuleSessionInfo<Config = any, Session = any, Context = any> {
   get injector() {
     return this.module.injector.getSessionInjector(this.session);
   }
+  get config() {
+    return this.module.config;
+  }
+  get name() {
+    return this.module.name;
+  }
   public async callSessionHook<T extends OnRequest<Config, Session, Context>>(
     serviceIdentifier: ServiceIdentifier<T>,
     ): Promise<void> {
