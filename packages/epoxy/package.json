@@ -1,6 +1,7 @@
 {
   "name": "@graphql-modules/epoxy",
   "version": "0.3.0",
+  "homepage": "https://graphql-modules.com/",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
