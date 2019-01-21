@@ -15,7 +15,7 @@ To learn more about Data Sources, check Apollo docs;
 
 ## REST Data Source Example
 
-```ts
+```typescript
   import { RESTDataSource } from 'apollo-datasource-rest';
   import { Injectable } from '@graphql-modules/di';
 
@@ -66,7 +66,7 @@ To learn more about Data Sources, check Apollo docs;
 
 Then add this DataSource provider to our module, and you can use that data source in your resolvers just like other kind of providers.
 
-```ts
+```typescript
   import { MoviesAPI } from './movies-api.provider';
   import { GraphQLModule } from '@graphql-modules/core';
 
@@ -96,7 +96,7 @@ Then add this DataSource provider to our module, and you can use that data sourc
 
 As described in Apollo Server docs, GraphQL-Modules also uses in-memory caching mechanism by default. But you can also use other cache mechanism in your GraphQL-Modules application;
 
-```ts
+```typescript
   import { MemcachedCache } from 'apollo-server-cache-memcached';
 
   export const MoviesModule = new GraphQLModules({
@@ -114,7 +114,7 @@ As described in Apollo Server docs, GraphQL-Modules also uses in-memory caching 
 
 You can share GraphQL-Modules cache mechanism with your GraphQL Server;
 
-```ts
+```typescript
   const { schema, context, cache } = YourGraphQLModule;
 
   new ApolloServer({
