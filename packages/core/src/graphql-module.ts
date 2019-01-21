@@ -237,7 +237,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       this.checkConfiguration();
       try {
         const typeDefs = this.typeDefs;
-        const resolvers = this.resolvers as unknown as IResolvers<any, ModuleContext<Context>>;
+        const resolvers = this.resolvers;
         const schemaDirectives = this.schemaDirectives;
         const directiveResolvers = this.directiveResolvers;
         const logger = this.selfLogger;

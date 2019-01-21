@@ -1,7 +1,7 @@
 ---
 id: integrate-with-graphql-code-generator
 title: Integrate With GraphQL Code Generator
-sidebar_label: Integrate With GraphQL Code Generator
+sidebar_label: GraphQL Code Generator
 ---
 
 GraphQL Modules comes with a built-in support for **[GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator)**

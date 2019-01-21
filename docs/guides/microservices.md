@@ -16,10 +16,10 @@ You can also use **[`PubSub`](https://www.apollographql.com/docs/apollo-server/f
 
 The default and built-in implementation of the `PubSub` is using `EventEmitter`, but because it's a very simple API you can implement your own way of sending those messages.
 
-You can implement your own message transmitter by implementing `CommunicationBridge` interface:
+You can implement your own message transmitter by implementing `PubSub` interface:
 
 ```typescript
-export class MyCommunicationBridge {
+export class MyPubSub {
   subscribe<T = any>(event: string, handler: (payload: T) => void): { unsubscribe: () => void } {
     // 1. You need to keep a record between the event and the handler
 
@@ -39,32 +39,28 @@ export class MyCommunicationBridge {
 Then, make sure to use it in a `GraphQLModule` declaration:
 
 ```typescript
-import { GraphQLModule, CommunicationBridge } from '@graphql-modules/core';
+import { GraphQLModule } from '@graphql-modules/core';
 
 const CommunicationModule = new GraphQLModule({
     provider: [
-      {
-        provide: CommunicationBridge,
-        useValue: new MyCommunicationBridge()
-      }
+      MyPubSub
     ],
     /* ... */
 });
 ```
 
-Finally, you need to import this `CommunicationModule` to all other modules you want to use `CommunicationBridge` inside of their providers and resolvers.
+Finally, you need to import this `CommunicationModule` to all other modules you want to use `PubSub` inside of their providers and resolvers.
 
 ### Redis PubSub
 
 Another useful trick is to use an external PubSub services, such as **[Redis PubSub](https://redis.io/topics/pubsub)**.
 
-You can easily create a `RedisCommunicationBridge` this way:
+You can easily create a `RedisPubSub` this way:
 
 ```typescript
-import { CommunicationBridge } from '@graphql-modules/core';
 import * as redis from 'redis';
 
-export class RedisCommunicationBridge {
+export class PubSub {
   _client = null;
 
   constructor() {
