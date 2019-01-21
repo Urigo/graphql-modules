@@ -33,10 +33,10 @@ You can easily load all of your `.graphql` files and `.ts` resolvers files like 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 import { loadResolversFiles, loadSchemaFiles } from '@graphql-modules/sonar';
-import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
+import { mergeResolvers } from '@graphql-modules/epoxy';
 
 export const UserModule = new GraphQLModule({
-  typeDefs: mergeGraphQLSchemas(loadSchemaFiles(__dirname + '/schema/')),
+  typeDefs: loadSchemaFiles(__dirname + '/schema/'),
   resolvers: mergeResolvers(loadResolversFiles(__dirname + '/resolvers/')),
 });
 ```
@@ -45,7 +45,7 @@ This way, you don't have to specify each file and each resolver and import it - 
 
 ## Using Imports
 
-You can also write your schema and resolvers in different field, and import them:
+You can also write your schema and resolvers in different field, and import them using **[graphql-import-node](https://github.com/ardatan/graphql-import-node)**:
 
 `modules/my-module/index.ts`
 ```typescript

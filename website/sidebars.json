@@ -28,9 +28,9 @@
       "guides/communication-between-modules",
       "guides/testing-and-mocking",
       "guides/microservices",
-      "guides/integrate-with-graphql-code-generator",
-      "guides/integrate-with-data-sources",
-      "guides/integrate-with-data-loaders"
+      "guides/data-sources",
+      "guides/data-loaders",
+      "guides/graphql-code-generator"
     ]
   }
 }

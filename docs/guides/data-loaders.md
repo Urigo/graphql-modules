@@ -1,7 +1,7 @@
 ---
-id: integrate-with-data-loaders
-title: Integrate With Data Loaders
-sidebar_label: Integrate With Data Loaders
+id: data-loaders
+title: DataLoaders
+sidebar_label: DataLoaders
 ---
 
 Data Loader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can **[read more about DataLoaders](https://github.com/facebook/dataloader)**.

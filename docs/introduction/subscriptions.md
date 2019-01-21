@@ -6,8 +6,6 @@ sidebar_label: Subscriptions
 
 Subscriptions are GraphQL operations that watch events emitted from your backend. GraphQL-Modules supports GraphQL subscriptions with a little modification in your server code. You can **[read more](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html)** about subscriptions.
 
-## Subscriptions Example
-
 Subscriptions need to have defined `PubSub` implementation in your GraphQL-Modules application.
 
 ```typescript
@@ -131,7 +129,7 @@ export class AuthProvider implements OnConnect {
             // Additional event labels can be passed to asyncIterator creation
             subscribe: withFilter(
                 (root, args, { injector }) => injector.get(PubSub).asyncIterator([POST_ADDED]),
-                (payload, variables, { injector }) => payload.userId === injector.get(AuthProvider).user.id
+                (root, args, { injector }) => payload.userId === injector.get(AuthProvider).user.id
             )
           },
         },

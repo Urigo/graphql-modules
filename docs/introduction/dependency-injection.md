@@ -221,15 +221,13 @@ export class MyProvider {
 
 ### `PubSub`
 
-GraphQL Module has a built-in Pub/Sub mechanism you can use to dispatch messages between modules, called `PubSub`.
+GraphQL Module supports Pub/Sub mechanism you can use to dispatch messages between modules, called `PubSub`.
 
 The messages are built in a form of `string => any` - so the key of each message must be a `string`, and you can basically dispatch anything that you can send over network.
 
 It's useful to dispatch messages between modules without knowing who will handle the message (for implementing features like notifications and auditing).
 
 ```typescript
-import { CommunicationBridge } from '@graphql-modules/core';
-
 @Injectable()
 export class MyProvider {
     constructor(private pubsub: PubSub) {
