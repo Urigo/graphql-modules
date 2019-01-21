@@ -10,7 +10,7 @@ Data Loaders can be used in GraphQL Modules with an easy setup. You can use them
 
 ## As Providers
 
-```ts
+```typescript
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
   export const UserModule = new GraphQLModule({
     providers: [
@@ -31,7 +31,7 @@ Data Loaders can be used in GraphQL Modules with an easy setup. You can use them
 
 You can see how to generate DataLoaders in GraphQLModules using factory functions and dependency injection.
 
-```ts
+```typescript
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
   export const UserModule = new GraphQLModule({
     providers: [
@@ -58,7 +58,7 @@ You can see how to generate DataLoaders in GraphQLModules using factory function
 
 ## In Providers
 
-```ts
+```typescript
   export class UserProvider {
     private dataLoader = new DataLoader(keys => this.myDataProvider.findUsers(keys));
     constructor(private myDataProvider: MyExternalDataProvider){ }

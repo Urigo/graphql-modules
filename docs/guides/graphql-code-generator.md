@@ -58,7 +58,7 @@ You can add a script to `package.json`.
 
 Then you can use these generated typings everywhere in your project;
 
-```ts
+```typescript
   import { UsersProvider } from '../providers/users.provider';
   import { IResolvers } from '../../generated-models';
 
