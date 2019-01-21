@@ -1,6 +1,7 @@
 {
   "name": "@graphql-modules/sonar",
   "version": "0.3.0",
+  "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "main": "dist/index.js",
   "license": "MIT",
