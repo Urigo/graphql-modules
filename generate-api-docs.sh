@@ -1,7 +1,9 @@
 #/bin/sh
 
 typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api/core' 'packages/core/src' && \
+typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api/epoxy' 'packages/di/src' && \
 typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api/epoxy' 'packages/epoxy/src' && \
 typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api/sonar' 'packages/sonar/src' && \
+typedoc --module commonjs --excludeNotExported --excludePrivate --ignoreCompilerErrors --mode file --theme markdown --out 'docs/api/epoxy' 'packages/utils/src' && \
 yarn replace-in-file "/\.md\)/g" ")" "./docs/api/**/*.md" --isRegex && \
 yarn replace-in-file "/\.md#/g" "#" "./docs/api/**/*.md" --isRegex

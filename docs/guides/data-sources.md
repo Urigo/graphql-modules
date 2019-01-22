@@ -1,12 +1,12 @@
 ---
 id: data-sources
-title: Data Sources
-sidebar_label: Data Sources
+title: Data sources
+sidebar_label: Data sources
 ---
 
 As defined in Apollo Server documentation, data sources are specific classes that encapsulates fetching data from a particular service, with built-in support for caching, deduplication and error handling. A data source instance uses the cache of your GraphQL Server, and is passed through your Application Context in normal case.
 
-GraphQL-Modules has built-in support for Data Sources in its own encapsulation-based modular dependency injection system. GraphQL-Modules considers DataSources as session-scoped providers, and passes the cache logic of the module.
+GraphQL-Modules has built-in support for Data sources in its own encapsulation-based modular dependency injection system. GraphQL-Modules considers Data sources as session-scoped providers, and passes the cache logic of the module.
 
 Let's assume you have a data source class for the communication between your external REST API. The only you do is to add `Injectable` decorator for this class to make it able to be part of GraphQL-Modules DI.
 
@@ -64,7 +64,7 @@ To learn more about Data Sources, check Apollo docs;
 
 ## Accessing data sources from resolvers
 
-Then add this DataSource provider to our module, and you can use that data source in your resolvers just like other kind of providers.
+Then add this data source provider to our module, and you can use that data source in your resolvers just like other kind of providers.
 
 ```typescript
   import { MoviesAPI } from './movies-api.provider';

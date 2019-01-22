@@ -2,8 +2,10 @@
   "api": {
     "API Docs": [
       "api/core/api-readme",
+      "api/di/api-readme",
+      "api/epoxy/api-readme",
       "api/sonar/api-readme",
-      "api/epoxy/api-readme"
+      "api/utils/api-readme"
     ]
   },
   "docs": {
@@ -26,10 +28,9 @@
       "guides/development-environment",
       "guides/load-your-schema",
       "guides/communication-between-modules",
-      "guides/testing-and-mocking",
       "guides/microservices",
       "guides/data-sources",
-      "guides/data-loaders",
+      "guides/data-loader",
       "guides/graphql-code-generator"
     ]
   }

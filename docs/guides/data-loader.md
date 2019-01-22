@@ -1,12 +1,12 @@
 ---
-id: data-loaders
-title: DataLoaders
-sidebar_label: DataLoaders
+id: data-loader
+title: DataLoader
+sidebar_label: DataLoader
 ---
 
-Data Loader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can **[read more about DataLoaders](https://github.com/facebook/dataloader)**.
+DataLoader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can **[read more about DataLoader](https://github.com/facebook/dataloader)**.
 
-Data Loaders can be used in GraphQL Modules with an easy setup. You can use them as providers or in providers. If you want to use them as providers, you can extend DataLoader class to benefit Dependency Injection or wrap factory function with `Inject`.
+DataLoader can be used in GraphQL Modules with an easy setup. You can use them as providers or in providers. If you want to use them as providers, you can extend DataLoader class to benefit Dependency Injection or wrap factory function with `Inject`.
 
 ## As Providers
 
@@ -29,7 +29,7 @@ Data Loaders can be used in GraphQL Modules with an easy setup. You can use them
 
 ### With Authentication Token
 
-You can see how to generate DataLoaders in GraphQLModules using factory functions and dependency injection.
+You can see how to generate DataLoader in GraphQLModules using factory functions and dependency injection.
 
 ```typescript
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
