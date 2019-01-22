@@ -6,8 +6,6 @@ sidebar_label: Implement Your Providers
 
 When your app grows and becomes more complex, you can use **Providers** (it's just a class...) to implement your resolvers' logic.
 
-### With Basic Resolvers
-
 You can define a provider and add it to your module.
 
 `modules/my-module/user.provider`
@@ -51,15 +49,15 @@ And inject it using `injector` inside of your application's `context` in your re
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 import { UserProvider } from './user.provider';
-export default ({ injector }: GraphQLModule) => ({
+export default {
     Query: {
-        user: (root, { id }) => injector.get(UserProvider).getUserById(id), UserProvider),
+        user: (root, { id }, { injector }) => injector.get(UserProvider).getUserById(id), UserProvider),
     },
     User: {
         id: user => user._id,
         username: user => user.username,
     },
-});
+};
 ```
 
 Then add all these in your module definition.

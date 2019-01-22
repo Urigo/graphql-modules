@@ -31,7 +31,8 @@
       "guides/microservices",
       "guides/data-sources",
       "guides/data-loader",
-      "guides/graphql-code-generator"
+      "guides/graphql-code-generator",
+      "guides/graphql-inspector"
     ]
   }
 }

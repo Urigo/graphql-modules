@@ -27,34 +27,14 @@ And as your application grows, modules can have:
 
 ## Modules Example
 
-To get a better understanding of modules structure and it's extendability, let's take for example an app with 3 imports: 
+To get a better understanding of modules structure and it's extendability, let's take for example an app with 3 imports:
 
-- Authentication (defines only what it needs for users' authentication)
 - Users (define what user in our app should have)
+- Authentication (defines only what it needs for users' authentication)
 - Profile (define a user's profile)
 - Gallery (defined a users' photo gallery)
 
 Let's understand how to define each module's schema, and how to separate it to smaller pieces:
-
-#### Authentication Module
-
-This module can declare the authentication basics in `Mutation`, `Query` and `User` types, for example:
-
-```graphql
-type Query {
-    me: User
-}
-
-type Mutation {
-    login(username: String!, password: String!): User
-    signup(username: String!, password: String!): User
-}
-
-type User {
-    id: ID!
-    username: String!
-}
-```
 
 #### User Module
 
@@ -71,6 +51,25 @@ type User {
 }
 ```
 
+#### Authentication Module
+
+This module can declare the authentication basics in `Mutation`, `Query` and `User` types, for example:
+
+```graphql
+type Query {
+    me: User
+}
+
+type Mutation {
+    login(username: String!, password: String!): User
+    signup(username: String!, password: String!): User
+}
+
+extend type User {
+    username: String!
+}
+```
+
 #### User Profile Module
 
 The profile module can declare the profile `type`, and add the `profile` field to `User`:
@@ -81,7 +80,7 @@ type Profile {
     name: String!
 }
 
-type User {
+extend type User {
     profile: Profile!
 }
 ```
@@ -97,7 +96,7 @@ type Image {
     user: User!
 }
 
-type User {
+extend type User {
     gallery: [Image]
 }
 

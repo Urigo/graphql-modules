@@ -34,14 +34,14 @@ export const UserModule = new GraphQLModule({
       userById(id: String!): User
     }
   `,
-  resolvers: ({ injector }) => {
+  resolvers: {
     User: {
       id: user => user._id,
       username: user => user.username,
     },
     Query: {
       me: (root, args, { currentUser }) => currentUser,
-      userById: (root, { id }) =>
+      userById: (root, { id }, injector) =>
         injector.get(UsersProvider).getUserById(id),
     },
   },

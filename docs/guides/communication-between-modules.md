@@ -61,7 +61,7 @@ And provide it using `providers`:
 { provide: MY_CLASS_TOKEN, useClass: MyImplementation }
 ```
 
-## Communication Bridge - PubSub
+## Using a Communication Bridge - PubSub
 
 GraphQL Modules can work with `PubSub` mechanism for dealing with messages between modules.
 
@@ -77,7 +77,7 @@ To use it, pass `PubSub` class as a provider in a shared `GraphQLModule` instanc
 import { GraphQLModule } from '@graphql-modules/core';
 import { PubSub } from 'apollo-server';
 
-const CommunicationModule = new GraphQLModule({
+const CommonModule = new GraphQLModule({
     providers: [
       PubSub
       /* ... */
@@ -93,7 +93,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 
 export const FooModule = new GraphQLModule({
   imports: [
-    CommunicationModule
+    CommonModule
   ]
 })
 ```
@@ -103,7 +103,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 
 export const BarModule = new GraphQLModule({
   imports: [
-    CommunicationModule
+    CommonModule
   ],
   providers: [
     MyProvider
@@ -134,7 +134,7 @@ export class MyProvider {
     }
 }
 ```
-S
+
 This kind of modules communication is useful for implementing notifications, auditing, logging and more.
 
 It's also useful for implementing communication between GraphQL Modules servers. There are various PubSub implementations based on EventEmitter, Redis and RabbitMQ.
