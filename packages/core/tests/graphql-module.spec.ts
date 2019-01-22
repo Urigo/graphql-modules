@@ -278,75 +278,6 @@ describe('GraphQLModule', () => {
       expect(counter).toEqual(2);
     });
 
-    it('should init modules in the right order with multiple circular dependencies', async () => {
-      let counter = 0;
-
-      @Injectable()
-      class Provider1 {
-        count: number;
-
-        constructor() {
-          this.count = counter++;
-        }
-      }
-
-      @Injectable()
-      class Provider2 {
-        count: number;
-
-        constructor() {
-          this.count = counter++;
-        }
-      }
-
-      @Injectable()
-      class Provider3 {
-        count: number;
-
-        constructor() {
-          this.count = counter++;
-        }
-      }
-
-      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-      const module2 = new GraphQLModule({ imports: () => [module1], providers: [Provider2] });
-      const module3 = new GraphQLModule({ imports: () => [module1], providers: [Provider3] });
-      const { injector } = new GraphQLModule({ imports: [module2, module1, module3] });
-      expect(injector.get(Provider1).count).toEqual(1);
-      expect(injector.get(Provider2).count).toEqual(0);
-      expect(counter).toEqual(3);
-    });
-
-    it('should init modules in the right order with 2 circular dependencies', async () => {
-      let counter = 0;
-
-      @Injectable()
-      class Provider1 {
-        count: number;
-
-        constructor() {
-          this.count = counter++;
-        }
-      }
-
-      @Injectable()
-      class Provider2 {
-        count: number;
-
-        constructor() {
-          this.count = counter++;
-        }
-      }
-
-      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-      const module2 = new GraphQLModule({ imports: () => [module1], providers: [Provider2] });
-      const { injector } = new GraphQLModule({ imports: [module2, module1] });
-
-      expect(injector.get(Provider1).count).toEqual(1);
-      expect(injector.get(Provider2).count).toEqual(0);
-      expect(counter).toEqual(2);
-    });
-
     it('should set config per each module', async () => {
 
       interface IModuleConfig {
@@ -427,7 +358,7 @@ describe('GraphQLModule', () => {
       try {
         const moduleA = new GraphQLModule({
           typeDefs: gql`
-            type Query{
+            type Query {
               test: String
             }
           `,
@@ -453,24 +384,6 @@ describe('GraphQLModule', () => {
       } catch (e) {
         expect(e.message).toContain('ProviderB not provided in');
       }
-    });
-    it('should throw error if mergeCircularImports is disabled', async () => {
-      const moduleA = new GraphQLModule({
-        imports: () => [moduleA],
-      });
-      const moduleB = new GraphQLModule({
-        imports: () => [moduleB],
-      });
-      let errorMsg;
-      try {
-        const { schema, context } = new GraphQLModule({
-          imports: [moduleA, moduleB],
-          mergeCircularImports: false,
-        });
-      } catch (e) {
-        errorMsg = e.message;
-      }
-      expect(errorMsg).toContain('Dependency Cycle');
     });
   });
   describe('onRequest Hook', async () => {
@@ -621,6 +534,90 @@ describe('GraphQLModule', () => {
       expect(result.data.foo).toBe('Hello');
     });
 
+    it('should compose child resolvers with correct result and parameters', async () => {
+      const getFoo = () => 'FOO';
+      const FooModule = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: async () => getFoo(),
+          },
+        },
+      });
+      const { schema, context } = new GraphQLModule({
+        imports: [
+          FooModule,
+        ],
+        resolversComposition: {
+          'Query.foo': next => async (root, args, context, info) => {
+            const prevResult = await next(root, args, context, info);
+            return getFoo() + prevResult;
+          },
+        },
+      });
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(result.data.foo).toBe('FOOFOO');
+    });
+
+    it('a resolver can be composed by two different modules', async () => {
+      const FooModule = new GraphQLModule({
+        name: 'foo',
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: async () => 'FOO',
+          },
+        },
+      });
+      const BarModule = new GraphQLModule({
+        imports: [
+          FooModule,
+        ],
+        resolversComposition: {
+          'Query.foo': next => async (root, args, context, info) => {
+            const prevResult = await next(root, args, context, info);
+            return 'BAR' + prevResult;
+          },
+        },
+      });
+      const QuxModule = new GraphQLModule({
+        imports: [
+          BarModule,
+        ],
+        resolversComposition: {
+          'Query.foo': next => async (root, args, context, info) => {
+            const prevResult = await next(root, args, context, info);
+            return 'QUX' + prevResult;
+          },
+        },
+      });
+      const { schema, context } = new GraphQLModule({
+        imports: [
+          QuxModule,
+        ],
+      });
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: await context({ req: {} }),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(result.data.foo).toBe('QUXBARFOO');
+    });
+
     it('should inject context correctly into `__resolveType`', async () => {
       let hasInjector = false;
 
@@ -713,6 +710,69 @@ describe('GraphQLModule', () => {
         schemaDirectives: {
           date: FormattableDateDirective,
         },
+      });
+
+      const contextValue = await context({ req: {} });
+
+      const result = await execute({
+        schema,
+        document: gql`query { today }`,
+        contextValue,
+      });
+
+      expect(result.data['today']).toEqual(new Date().toLocaleDateString());
+
+    });
+    it('should handle child schema directives', async () => {
+
+      class FormattableDateDirective extends SchemaDirectiveVisitor {
+        public visitFieldDefinition(field) {
+          const { resolve = defaultFieldResolver } = field;
+
+          field.args.push({
+            name: 'format',
+            type: GraphQLString,
+          });
+
+          field.resolve = async function(
+            source,
+            args,
+            context,
+            info,
+          ) {
+            const date = await resolve.call(this, source, args, context, info);
+            return date.toLocaleDateString();
+          };
+
+          field.type = GraphQLString;
+        }
+      }
+
+      const DateDirectiveModule = new GraphQLModule({
+        typeDefs: gql`
+          directive @date on FIELD_DEFINITION
+        `,
+        schemaDirectives: {
+          date: FormattableDateDirective,
+        },
+      });
+
+      const { schema, context } = new GraphQLModule({
+        typeDefs: gql`
+        scalar Date
+
+        type Query {
+          today: Date @date
+        }
+        `,
+        resolvers: {
+          Query: {
+            today: () => new Date(),
+          },
+        },
+        imports: [
+          DateDirectiveModule,
+        ],
       });
 
       const contextValue = await context({ req: {} });
