@@ -1,5 +1,5 @@
 ---
-id: integrate-with-graphql-code-generator
+id: graphql-code-generator
 title: Integrate With GraphQL Code Generator
 sidebar_label: GraphQL Code Generator
 ---
