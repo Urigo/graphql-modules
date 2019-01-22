@@ -30,7 +30,7 @@
     "replace-in-file": "3.4.3",
     "rimraf": "2.6.3",
     "ts-jest": "23.10.5",
-    "typedoc": "0.13.0",
+    "typedoc": "0.14.2",
     "typedoc-plugin-docusaurus": "1.0.14"
   },
   "publishConfig": {
