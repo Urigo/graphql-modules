@@ -802,7 +802,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
 
       this._cache.contextBuilder = async (session, excludeSession = false) => {
         try {
-          session = 'connection' in session ? session['connection']['context']['session'] : session;
+          session = ('connection' in session && 'session' in session['connection']['context']) ? session['connection']['context']['session'] : session;
           const moduleNameContextMap = this.getModuleNameContextMap(session);
           if (!(moduleNameContextMap.has(this.name))) {
             const importsContextArr$ = [...contextBuilderSet].map(contextBuilder => contextBuilder(session, true));
