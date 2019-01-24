@@ -1,7 +1,7 @@
-import { IResolvers, SchemaDirectiveVisitor, mergeSchemas, IDirectiveResolvers } from 'graphql-tools';
+import { IResolvers, SchemaDirectiveVisitor, mergeSchemas, IDirectiveResolvers, makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools';
 import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, buildASTSchema } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { IResolversComposerMapping, composeResolvers, asArray } from '@graphql-modules/utils';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
@@ -88,6 +88,7 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
   middleware?: (module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Partial<ModuleCache<Session, Context>>;
   cache?: KeyValueCache;
   configRequired?: boolean;
+  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
 }
 
 /**
@@ -202,6 +203,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return this._moduleConfig;
   }
 
+/*
   private buildSchemaWithMergeSchemas() {
     const schemaSet = new Set<GraphQLSchema>();
     const selfImports = this.selfImports;
@@ -251,7 +253,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
     }
   }
-/*
+  */
   buildSchemaWithMakeExecutableSchema() {
     try {
       const typeDefs = this.typeDefs;
@@ -265,7 +267,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           typeDefs,
           resolvers,
           schemaDirectives,
-          logger,
+          logger: {
+            log: message => logger.log(message),
+          },
           resolverValidationOptions,
         });
         if (extraSchemas.length) {
@@ -289,7 +293,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
     }
   }
-*/
+
   /**
    * Gets the application `GraphQLSchema` object.
    * If the schema object is not built yet, it compiles
@@ -298,8 +302,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   get schema() {
     if (typeof this._cache.schema === 'undefined') {
       this.checkConfiguration();
-      // this.buildSchemaWithMakeExecutableSchema();
-      this.buildSchemaWithMergeSchemas();
+      this.buildSchemaWithMakeExecutableSchema();
+      // this.buildSchemaWithMergeSchemas();
       if ('middleware' in this._options) {
         const middlewareResult = this.injector.call(this._options.middleware, this);
         this._cache = Object.assign(this._cache, middlewareResult);
@@ -718,6 +722,19 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
     }
     return logger;
+  }
+
+  get selfResolverValidationOptions(): IResolverValidationOptions {
+    let resolverValidationOptions: IResolverValidationOptions = {};
+    const resolverValidationOptionsDefinitions = this._options.resolverValidationOptions;
+    if (resolverValidationOptionsDefinitions) {
+      if (resolverValidationOptionsDefinitions instanceof Function) {
+        resolverValidationOptions = this.injector.call(resolverValidationOptionsDefinitions as () => IResolverValidationOptions, this);
+      } else {
+        resolverValidationOptions = resolverValidationOptionsDefinitions as IResolverValidationOptions;
+      }
+    }
+    return resolverValidationOptions;
   }
 
   private static sessionModuleNameContextMap = new WeakMap<any, Map<string, any>>();
