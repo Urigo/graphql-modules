@@ -1163,4 +1163,56 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['foo']).toBe('BAR');
   });
+  it('should import types from submodules', async () => {
+    const foo = {
+      name: 'FOO',
+      get bar() {
+        return bar;
+      },
+    };
+    const bar = {
+      name: 'BAR',
+      foo,
+    };
+    const FooModule = new GraphQLModule({
+      typeDefs: gql`
+        type Foo {
+          name: String
+        }
+      `,
+    });
+    const BarModule = new GraphQLModule({
+      typeDefs: gql`
+        extend type Foo {
+          bar: Bar
+        }
+        type Bar {
+          name: String
+          foo: Foo
+        }
+        type Query {
+          foo: Foo
+          bar: Bar
+        }
+      `,
+      imports: [FooModule],
+      resolvers: {
+        Query: {
+          foo: () => foo,
+          bar: () => bar,
+        },
+      },
+    });
+    const { schema, context } = new GraphQLModule({
+      imports: [FooModule, BarModule],
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { foo { name } bar { name }}`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo'].name).toBe('FOO');
+    expect(result.data['bar'].name).toBe('BAR');
+  });
 });
