@@ -349,7 +349,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
 
   get extraSchemas(): GraphQLSchema[] {
     if (typeof this._cache.extraSchemas) {
-      this.checkConfiguration();
       const extraSchemasSet = new Set<GraphQLSchema>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
@@ -372,7 +371,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
    */
   get typeDefs(): DocumentNode {
     if (typeof this._cache.typeDefs === 'undefined') {
-      this.checkConfiguration();
       const typeDefsSet = new Set<DocumentNode>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
@@ -395,7 +393,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
 
   get resolvers(): IResolvers<any, ModuleContext<Context>> {
     if (typeof this._cache.resolvers === 'undefined') {
-      this.checkConfiguration();
       const resolversToBeComposed = new Set<IResolvers>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
@@ -416,7 +413,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
 
   get schemaDirectives(): ISchemaDirectives {
     if (typeof this._cache.schemaDirectives === 'undefined') {
-      this.checkConfiguration();
       const schemaDirectivesSet = new Set<ISchemaDirectives>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
@@ -493,6 +489,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const extraSchemasDefinitions = this._options.extraSchemas;
     if (extraSchemasDefinitions) {
       if (typeof extraSchemasDefinitions === 'function') {
+        this.checkConfiguration();
         extraSchemas = extraSchemasDefinitions(this);
       } else {
         extraSchemas = extraSchemasDefinitions;
@@ -510,6 +507,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     let typeDefsDefinitions = this._options.typeDefs;
     if (typeDefsDefinitions) {
       if (typeof typeDefsDefinitions === 'function') {
+        this.checkConfiguration();
         typeDefsDefinitions = typeDefsDefinitions(this);
       }
       if (typeof typeDefsDefinitions === 'string') {
@@ -530,6 +528,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     let resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
+        this.checkConfiguration();
         resolversDefinitions = this.injector.call(resolversDefinitions, this);
       }
       if (Array.isArray(resolversDefinitions)) {
@@ -544,6 +543,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     let imports = new Array<GraphQLModule<any, Session, any>>();
     if (this._options.imports) {
       if (typeof this._options.imports === 'function') {
+        this.checkConfiguration();
         imports = this._options.imports(this);
       } else {
         imports = this._options.imports;
@@ -560,6 +560,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const providersDefinitions = this._options.providers;
     if (providersDefinitions) {
       if (typeof providersDefinitions === 'function') {
+        this.checkConfiguration();
         providers = providersDefinitions(this);
       } else {
         providers = providersDefinitions;
@@ -579,6 +580,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (resolversCompositionDefinitions instanceof Function) {
+        this.checkConfiguration();
         resolversComposition = this.injector.call(resolversCompositionDefinitions, this);
       } else {
         resolversComposition = resolversCompositionDefinitions;
@@ -592,6 +594,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const schemaDirectivesDefinitions = this._options.schemaDirectives;
     if (schemaDirectivesDefinitions) {
       if (typeof schemaDirectivesDefinitions === 'function') {
+        this.checkConfiguration();
         schemaDirectives = this.injector.call(schemaDirectivesDefinitions, this);
       } else {
         schemaDirectives = schemaDirectivesDefinitions;
@@ -605,6 +608,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const directiveResolversDefinitions = this._options.directiveResolvers;
     if (directiveResolversDefinitions) {
       if (typeof directiveResolversDefinitions === 'function') {
+        this.checkConfiguration();
         directiveResolvers = this.injector.call(directiveResolversDefinitions, this);
       } else {
         directiveResolvers = directiveResolversDefinitions;
@@ -716,6 +720,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const loggerDefinitions = this._options.logger;
     if (loggerDefinitions) {
       if (logger instanceof Function) {
+        this.checkConfiguration();
         logger = this.injector.call(loggerDefinitions as () => ILogger, this);
       } else {
         logger = loggerDefinitions as ILogger;
@@ -729,6 +734,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     const resolverValidationOptionsDefinitions = this._options.resolverValidationOptions;
     if (resolverValidationOptionsDefinitions) {
       if (resolverValidationOptionsDefinitions instanceof Function) {
+        this.checkConfiguration();
         resolverValidationOptions = this.injector.call(resolverValidationOptionsDefinitions as () => IResolverValidationOptions, this);
       } else {
         resolverValidationOptions = resolverValidationOptionsDefinitions as IResolverValidationOptions;
@@ -761,7 +767,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
    */
   get context(): (session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
-      this.checkConfiguration();
       const contextBuilderSet = new Set<(session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>>>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
