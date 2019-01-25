@@ -78,3 +78,53 @@ export const MyModule = new GraphQLModule({
     ],
 });
 ```
+
+## Use Class Providers to implement Resolvers
+
+You can use classes to implement your resolvers to use Dependency Injection easily.
+
+You need to install `@graphql-modules/class-resolvers` first;
+
+  $ yarn add @graphql-modules/class-resolvers
+
+`query.resolvers.ts`
+```typescript
+import { Injectable, ProviderScope } from '@graphql-modules/di';
+
+@Injectable({
+  scope: ProviderScope.Session
+})
+export class QueryResolvers {
+  constructor(private usersProvider: UsersProvider, private moduleSessionInfo: ModuleSessionInfo) {}
+  async currentUser(root, args, context, info) {
+    const { authToken } = this.moduleSessionInfo.session;
+    const user = await this.usersProvider.getUserByToken(authToken);
+    return user;
+  }
+}
+```
+
+`my.module.ts`
+```typescript
+  import { GraphQLModule } from '@graphql-modules/core';
+  import { useClassProviderForTypeResolver } from '@graphql-modules/class-resolvers';
+  import { QueryResolvers } from './query.resolvers';
+  import { UserModule } from './user.module';
+
+  export const MyModule = new GraphQLModule({
+    imports: [
+      UsersModule // For User type and UserProviders
+    ],
+    typeDefs: gql`
+      type Query {
+        currentUser: User
+      }
+    `,
+    resolvers: {
+      Query: useClassProviderForTypeResolver(QueryResolvers), // Extract field resolvers
+    },
+    providers: [
+      QueryResolvers, // Define it as class provider for Dependency Injection
+    ]
+  });
+```

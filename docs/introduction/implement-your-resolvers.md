@@ -67,3 +67,4 @@ export const MyModule = new GraphQLModule({
 `Provider`s are first-class citizen in GraphQL Modules - they can interact easily with other modules, access the module's configuration, manage it's lifecycle easily and more.
 
 To get to know how to use `Provider`s, in the next step, we will take the previous example and change it to use `Provider`.
+
