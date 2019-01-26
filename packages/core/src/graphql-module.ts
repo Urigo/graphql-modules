@@ -292,6 +292,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         this._cache.schema = null;
       }
     }
+    if ('middleware' in this._options) {
+      const middlewareResult = this.injector.call(this._options.middleware, this);
+      this._cache = Object.assign(this._cache, middlewareResult);
+    }
   }
 
   /**
@@ -309,10 +313,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
       this.buildSchemaWithMakeExecutableSchema();
       // this.buildSchemaWithMergeSchemas();
-      if ('middleware' in this._options) {
-        const middlewareResult = this.injector.call(this._options.middleware, this);
-        this._cache = Object.assign(this._cache, middlewareResult);
-      }
     }
     return this._cache.schema;
   }
