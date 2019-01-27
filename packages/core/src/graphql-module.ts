@@ -256,6 +256,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   }
   */
   buildSchemaWithMakeExecutableSchema() {
+    this.checkConfiguration();
+    const selfImports = this.selfImports;
+    // Do iterations once
+    for ( const module of selfImports ) {
+      module.buildSchemaWithMakeExecutableSchema();
+    }
     try {
       const typeDefs = this.typeDefs;
       const resolvers = this.resolvers;
@@ -306,12 +312,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
    */
   get schema() {
     if (typeof this._cache.schema === 'undefined') {
-      this.checkConfiguration();
-      const selfImports = this.selfImports;
-      // Do iterations once
-      for ( const module of selfImports ) {
-        module.buildSchemaWithMakeExecutableSchema();
-      }
       this.buildSchemaWithMakeExecutableSchema();
       // this.buildSchemaWithMergeSchemas();
     }
