@@ -89,6 +89,7 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
   cache?: KeyValueCache;
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
+  defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
 }
 
 /**
@@ -332,6 +333,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       const injector = this._cache.injector = new Injector(
         this.name,
         ProviderScope.Application,
+        this.selfDefaultProviderScope,
         injectorsSet,
       );
 
@@ -487,6 +489,19 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       };
     }
     return this._cache.subscriptionHooks;
+  }
+
+  get selfDefaultProviderScope(): ProviderScope {
+    let defaultProviderScope = ProviderScope.Application;
+    const defaultProviderScopeDefinition = this._options.defaultProviderScope;
+    if (defaultProviderScopeDefinition) {
+      if (typeof defaultProviderScopeDefinition === 'function') {
+        defaultProviderScope = defaultProviderScopeDefinition(this);
+      } else {
+        defaultProviderScope = defaultProviderScopeDefinition;
+      }
+    }
+    return defaultProviderScope;
   }
 
   get selfExtraSchemas(): GraphQLSchema[] {

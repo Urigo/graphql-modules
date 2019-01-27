@@ -12,7 +12,8 @@ export class Injector {
   private _sessionScopeSet = new Set<ServiceIdentifier<any>>();
   constructor(
     private _name = Date.now().toString(),
-    private _providerScope = ProviderScope.Application,
+    private _injectorScope = ProviderScope.Application,
+    private _defaultProviderScope = _injectorScope,
     private _children = new Set<Injector>(),
   ) {}
   public addChild(...children: Injector[]) {
@@ -36,7 +37,7 @@ export class Injector {
         throw new ProviderAlreadyDefinedError(this._name, provider);
       }
       this._classMap.set(provider, provider);
-      switch ((options && options.scope) || this._providerScope) {
+      switch ((options && options.scope) || this._defaultProviderScope) {
         case ProviderScope.Application:
           this._applicationScopeSet.add(provider);
         break;
@@ -64,7 +65,7 @@ export class Injector {
       throw new ProviderNotValidError(this._name, provider['provide'] && provider);
     }
 
-    switch (provider.scope || this._providerScope) {
+    switch (provider.scope || this._defaultProviderScope) {
       case ProviderScope.Application:
         this._applicationScopeSet.add(provider.provide);
       break;
@@ -93,7 +94,7 @@ export class Injector {
   }
 
   public get scopeSet() {
-    switch (this._providerScope) {
+    switch (this._injectorScope) {
       case ProviderScope.Application:
       return this._applicationScopeSet;
       case ProviderScope.Request:
