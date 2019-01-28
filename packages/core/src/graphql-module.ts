@@ -693,23 +693,25 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             typeResolvers[prop]['subscribe'] = (root: any, variables: any, appContext: any, info: any) => {
               const asyncIterator: AsyncIterator<any> & { originalAsyncIterator?: AsyncIterator<any> } = {
                 next: async (...args) => {
-                   const session = info.session || appContext.session;
-                   info.session = session;
-                   this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
-                   let moduleContext;
-                   try {
-                     moduleContext = await this.context(session, true);
-                   } catch (e) {
-                     this.selfLogger.clientError(e);
-                     throw e;
-                   }
-                   info.schema = this.schema;
-                   asyncIterator.originalAsyncIterator = subscriber.call(typeResolvers[prop], root, variables, moduleContext, info);
-                   return asyncIterator.originalAsyncIterator.next(...args);
+                   if (!('originalAsyncIterator' in asyncIterator)) {
+                    const session = info.session || appContext.session;
+                    info.session = session;
+                    this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+                    let moduleContext;
+                    try {
+                      moduleContext = await this.context(session, true);
+                    } catch (e) {
+                      this.selfLogger.clientError(e);
+                      throw e;
+                    }
+                    info.schema = this.schema;
+                    asyncIterator.originalAsyncIterator = subscriber.call(typeResolvers[prop], root, variables, moduleContext, info);
+                  }
+                  return asyncIterator.originalAsyncIterator.next(...args);
                  },
                  return: (...args) => asyncIterator.originalAsyncIterator.return(...args),
                  throw: (...args) => asyncIterator.originalAsyncIterator.throw(...args),
-                 [$$asyncIterator]: () => asyncIterator,
+                 [$$asyncIterator]: () => 'originalAsyncIterator' in asyncIterator ? asyncIterator.originalAsyncIterator : asyncIterator,
               };
               return asyncIterator;
              };
