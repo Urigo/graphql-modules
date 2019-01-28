@@ -10,7 +10,7 @@ With GraphQL Modules and dependency injection it's much easier to test your modu
 
 So let's start with a basic module definition:
 
-`modules/user/index.ts`
+`modules/user/user.module.ts`
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
@@ -47,3 +47,67 @@ export const UserModule = new GraphQLModule({
   },
 });
 ```
+
+You can mock context and providers by importing the existing module together with resolvers into a new testing module like below;
+
+tests/user.module.spec.ts
+```typescript
+  import { UserModule } from '../modules/user/user.module';
+  import { execute } from 'graphql';
+  describe('UserModule', async () => {
+    it('FieldResolver of Query: me', async () => {
+      const { schema, context } = new GraphQLModule({
+        imports: [UserModule],
+        resolvers: UserModule.resolvers,
+        context: { currentUser: { id: 'ID', username: 'USERNAME' } }
+      });
+      const result = await execute({
+        schema,
+        document: gql`
+          query {
+            me {
+              id
+              username
+            }
+          }
+        `,
+        contextValue: await context({}),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(result.data['me']['id']).toBe('ID');
+      expect(result.data['me']['username']).toBe('USERNAME');
+    });
+    it('FieldResolver of Query: userById', async () => {
+      const { schema, context } = new GraphQLModule({
+        imports: [UserModule],
+        resolvers: UserModule.resolvers,
+        providers: [
+          {
+            provide: UserProvider,
+            overwrite: true,
+            useValue: {
+              userById: (id: string) => { id, username: 'NAME' }
+            }
+          }
+        ]
+      });
+      const result = await execute({
+        schema,
+        document: gql`
+          query {
+            userById(id: "ANOTHERID") {
+              id
+              username
+            }
+          }
+        `,
+        contextValue: await context({}),
+      });
+      expect(result.errors).toBeFalsy();
+      expect(result.data['userById']['id']).toBe('ANOTHERID');
+      expect(result.data['userById']['username']).toBe('USERNAME');
+    });
+  });
+```
+
+Then, run `jest` to get your test results.
