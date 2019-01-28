@@ -690,9 +690,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             }
           } else if ('subscribe' in resolver) {
             const subscriber = resolver['subscribe'];
-            typeResolvers[prop]['subscribe'] = (root: any, args: any, appContext: any, info: any) => {
-              const asyncIterator: AsyncIterator<any> = {
-                next: async () => {
+            typeResolvers[prop]['subscribe'] = (root: any, variables: any, appContext: any, info: any) => {
+              const asyncIterator: AsyncIterator<any> & { originalAsyncIterator?: AsyncIterator<any> } = {
+                next: async (...args) => {
                    const session = info.session || appContext.session;
                    info.session = session;
                    this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
@@ -704,11 +704,12 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                      throw e;
                    }
                    info.schema = this.schema;
-                   return subscriber.call(typeResolvers[prop], root, args, moduleContext, info).next();
+                   asyncIterator.originalAsyncIterator = subscriber.call(typeResolvers[prop], root, variables, moduleContext, info);
+                   return asyncIterator.originalAsyncIterator.next(...args);
                  },
-              };
-              asyncIterator[$$asyncIterator] = function() {
-                return this;
+                 return: (...args) => asyncIterator.originalAsyncIterator.return(...args),
+                 throw: (...args) => asyncIterator.originalAsyncIterator.throw(...args),
+                 [$$asyncIterator]: () => asyncIterator,
               };
               return asyncIterator;
              };
