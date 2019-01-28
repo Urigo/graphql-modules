@@ -8,6 +8,7 @@ import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
 import { getSchemaDirectiveFromDirectiveResolver } from '@graphql-modules/utils';
+import { $$asyncIterator } from 'iterall';
 
 export type LogMethod = (message: string | Error) => void;
 
@@ -689,20 +690,28 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             }
           } else if ('subscribe' in resolver) {
             const subscriber = resolver['subscribe'];
-            typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
-              const session = info.session || appContext.session;
-              info.session = session;
-              this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
-              let moduleContext;
-              try {
-                moduleContext = await this.context(session, true);
-              } catch (e) {
-                this.selfLogger.clientError(e);
-                throw e;
-              }
-              info.schema = this.schema;
-              return subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
-            };
+            typeResolvers[prop]['subscribe'] = (root: any, args: any, appContext: any, info: any) => {
+              const asyncIterator: AsyncIterator<any> = {
+                next: async () => {
+                   const session = info.session || appContext.session;
+                   info.session = session;
+                   this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+                   let moduleContext;
+                   try {
+                     moduleContext = await this.context(session, true);
+                   } catch (e) {
+                     this.selfLogger.clientError(e);
+                     throw e;
+                   }
+                   info.schema = this.schema;
+                   return subscriber.call(typeResolvers[prop], root, args, moduleContext, info).next();
+                 },
+              };
+              asyncIterator[$$asyncIterator] = function() {
+                return this;
+              };
+              return asyncIterator;
+             };
           }
         }
       }

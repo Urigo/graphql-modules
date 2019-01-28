@@ -34,6 +34,7 @@
     "@graphql-modules/epoxy": "0.3.0",
     "@graphql-modules/utils": "0.3.0",
     "graphql-tools": "4.0.3",
+    "iterall": "1.2.2",
     "tslib": "1.9.3"
   },
   "devDependencies": {
