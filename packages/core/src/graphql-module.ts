@@ -8,7 +8,6 @@ import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
 import { getSchemaDirectiveFromDirectiveResolver } from '@graphql-modules/utils';
-import { $$asyncIterator } from 'iterall';
 
 export type LogMethod = (message: string | Error) => void;
 
@@ -690,31 +689,20 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             }
           } else if ('subscribe' in resolver) {
             const subscriber = resolver['subscribe'];
-            typeResolvers[prop]['subscribe'] = (root: any, variables: any, appContext: any, info: any) => {
-              const asyncIterator: AsyncIterator<any> & { originalAsyncIterator?: AsyncIterator<any> } = {
-                next: async (...args) => {
-                   if (!('originalAsyncIterator' in asyncIterator)) {
-                    const session = info.session || appContext.session;
-                    info.session = session;
-                    this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
-                    let moduleContext;
-                    try {
-                      moduleContext = await this.context(session, true);
-                    } catch (e) {
-                      this.selfLogger.clientError(e);
-                      throw e;
-                    }
-                    info.schema = this.schema;
-                    asyncIterator.originalAsyncIterator = subscriber.call(typeResolvers[prop], root, variables, moduleContext, info);
-                  }
-                  return asyncIterator.originalAsyncIterator.next(...args);
-                 },
-                 return: (...args) => asyncIterator.originalAsyncIterator.return(...args),
-                 throw: (...args) => asyncIterator.originalAsyncIterator.throw(...args),
-                 [$$asyncIterator]: () => 'originalAsyncIterator' in asyncIterator ? asyncIterator.originalAsyncIterator : asyncIterator,
-              };
-              return asyncIterator;
-             };
+            typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
+              const session = info.session || appContext.session;
+              info.session = session;
+              this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+              let moduleContext;
+              try {
+                moduleContext = await this.context(session, true);
+              } catch (e) {
+                this.selfLogger.clientError(e);
+                throw e;
+              }
+              info.schema = this.schema;
+              return subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
+            };
           }
         }
       }
