@@ -6,11 +6,11 @@ sidebar_label: Load Your Schema and Resolvers
 
 There are multiple ways to load your schema, and GraphQL Modules tries to make it easier as possible for you.
 
-## Using Sonar
+## Using Sonar in `graphql-toolkit`
 
-One of the tools of GraphQL Modules is `@graphql-modules/sonar`, it has a power mechanism for finding and loading your schema and resolvers files.
+You can use `graphql-toolkit`, it has a power mechanism for finding and loading your schema and resolvers files.
 
-Along with `@graphql-modules/sonar`, you can separate your GraphQL schema definition and resolvers to smaller parts, and load without specifying each file.
+Along with `graphql-toolkit`'s `sonar`, you can separate your GraphQL schema definition and resolvers to smaller parts, and load without specifying each file.
 
 For example, given the following structure:
 
@@ -42,7 +42,7 @@ export const UserModule = new GraphQLModule({
 
 This way, you don't have to specify each file and each resolver and import it - these tools will do it for you.
 
-## Using Imports
+## Using Imports with `graphql-import-node`
 
 You can also write your schema and resolvers in different field, and import them using **[graphql-import-node](https://github.com/ardatan/graphql-import-node)**:
 
