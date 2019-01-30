@@ -660,7 +660,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   }
 
   private checkIfResolverCalledSafely(resolverPath: string, session: any, info: any) {
-    if (typeof session === 'undefined') {
+    if (typeof session === 'undefined' || 'connection' in session && !('session' in session['connection']['context'])) {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
     }
     if (typeof info === 'undefined') {
