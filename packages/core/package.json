@@ -33,12 +33,12 @@
     "@graphql-modules/di": "0.3.0",
     "graphql-toolkit": "0.0.3",
     "dependency-graph": "0.8.0",
-    "graphql-tools": "4.0.3",
+    "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
   },
   "devDependencies": {
     "graphql-tag": "2.10.1",
-    "jest": "23.6.0",
+    "jest": "24.0.0",
     "tslint": "5.12.1",
     "typescript": "3.2.4"
   },

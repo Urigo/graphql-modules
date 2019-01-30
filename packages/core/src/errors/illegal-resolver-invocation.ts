@@ -10,6 +10,10 @@ export class IllegalResolverInvocationError extends Error {
       -- Check if it is passed like below;
       ---  const { schema, context } = YourModule;
       ---  new ApolloServer({ schema, context });'
+      - If you're using subscriptions with GraphQL-Modules, you have to pass 'subscriptions' without overriding it as well.
+      -- Check if it is passed like below;
+      ---  const { schema, context, subscriptions } = YourModule;
+      ---  new ApolloServer({ schema, context, subscriptions });'
   `);
     Object.setPrototypeOf(this, IllegalResolverInvocationError.prototype);
     Error.captureStackTrace(this, IllegalResolverInvocationError);
