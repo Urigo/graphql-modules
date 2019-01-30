@@ -1,5 +1,5 @@
 import { IResolvers, makeExecutableSchema, SchemaDirectiveVisitor, ILogger, mergeSchemas, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
-import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
+import { mergeGraphQLSchemas, mergeResolvers } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, buildASTSchema } from 'graphql';
 import { IResolversComposerMapping, composeResolvers } from './resolvers-composition';

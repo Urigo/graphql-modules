@@ -8,9 +8,9 @@ There are multiple ways to load your schema, and GraphQL Modules tries to make i
 
 ## Using Sonar And Epoxy
 
-One of the tools of GraphQL Modules is `@graphql-modules/epoxy`, it has a power mechanism for finding and loading your schema and resolvers files.
+You can use Sonar and Epoxy libraries, from `graphql-toolkit` - it has a power mechanism for finding and loading your schema and resolvers files.
 
-Along with `@graphql-modules/epoxy`, you can separate your GraphQL schema definition and resolvers to smaller parts, and load without specifying each file.
+With `epoxy`, you can separate your GraphQL schema definition and resolvers to smaller parts, and load without specifying each file.
 
 For example, given the following structure:
 
@@ -32,8 +32,7 @@ You can easily load all of your `.graphql` files and `.ts` resolvers files like 
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
-import { loadResolversFiles, loadSchemaFiles } from '@graphql-modules/sonar';
-import { mergeResolvers } from '@graphql-modules/epoxy';
+import { loadResolversFiles, loadSchemaFiles, mergeResolvers } from 'graphql-toolkit';
 
 export const UserModule = new GraphQLModule({
   typeDefs: loadSchemaFiles(__dirname + '/schema/'),

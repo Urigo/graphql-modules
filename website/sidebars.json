@@ -1,12 +1,6 @@
 {
   "api": {
-    "API Docs": [
-      "api/core/api-readme",
-      "api/di/api-readme",
-      "api/epoxy/api-readme",
-      "api/sonar/api-readme",
-      "api/utils/api-readme"
-    ]
+    "API Docs": ["api/core/api-readme", "api/di/api-readme"]
   },
   "docs": {
     "Introduction": [
