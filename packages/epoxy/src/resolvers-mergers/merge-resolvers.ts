@@ -24,7 +24,7 @@ export function mergeResolvers<TSource, TContext, T extends ResolversDefinition<
     }
   }
   if (resolversFactories.length) {
-    return ((...args) => {
+    return ((...args: any[]) => {
       const resultsOfFactories = resolversFactories.map(factory => factory(...args));
       return deepMerge.all([...resolvers, ...resultsOfFactories]) as any;
     }) as any;

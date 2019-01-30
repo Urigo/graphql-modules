@@ -7,26 +7,27 @@ export class Injector {
   private _classMap = new Map<ServiceIdentifier<any>, Type<any>>();
   private _factoryMap = new Map<ServiceIdentifier<any>, Factory<any>>();
   private _instanceMap = new Map<ServiceIdentifier<any>, any>();
-  private _applicationScopeSet = new Set<ServiceIdentifier<any>>();
-  private _requestScopeSet = new Set<ServiceIdentifier<any>>();
-  private _sessionScopeSet = new Set<ServiceIdentifier<any>>();
+  private _applicationScopeServiceIdentifiers = new Array<ServiceIdentifier<any>>();
+  private _requestScopeServiceIdentifiers = new Array<ServiceIdentifier<any>>();
+  private _sessionScopeServiceIdentifiers = new Array<ServiceIdentifier<any>>();
   constructor(
     private _name = Date.now().toString(),
-    private _providerScope = ProviderScope.Application,
-    private _children = new Set<Injector>(),
+    private _injectorScope = ProviderScope.Application,
+    private _defaultProviderScope = _injectorScope,
+    private _children = new Array<Injector>(),
   ) {}
   public addChild(...children: Injector[]) {
     for (const child of children) {
-      this._children.add(child);
+      this._children.push(child);
     }
   }
   public removeChild(...children: Injector[]) {
     for (const child of children) {
-      this._children.delete(child);
+      this._children.splice(this._children.indexOf(child), 1);
     }
   }
   public hasChild(child: Injector) {
-    return this._children.has(child);
+    return this._children.includes(child);
   }
   public provide<T>(provider: Provider<T>): void {
 
@@ -36,15 +37,15 @@ export class Injector {
         throw new ProviderAlreadyDefinedError(this._name, provider);
       }
       this._classMap.set(provider, provider);
-      switch ((options && options.scope) || this._providerScope) {
+      switch ((options && options.scope) || this._defaultProviderScope) {
         case ProviderScope.Application:
-          this._applicationScopeSet.add(provider);
+          this._applicationScopeServiceIdentifiers.push(provider);
         break;
         case ProviderScope.Request:
-          this._requestScopeSet.add(provider);
+          this._requestScopeServiceIdentifiers.push(provider);
         break;
         case ProviderScope.Session:
-          this._sessionScopeSet.add(provider);
+          this._sessionScopeServiceIdentifiers.push(provider);
         break;
       }
       return;
@@ -64,15 +65,15 @@ export class Injector {
       throw new ProviderNotValidError(this._name, provider['provide'] && provider);
     }
 
-    switch (provider.scope || this._providerScope) {
+    switch (provider.scope || this._defaultProviderScope) {
       case ProviderScope.Application:
-        this._applicationScopeSet.add(provider.provide);
+        this._applicationScopeServiceIdentifiers.push(provider.provide);
       break;
       case ProviderScope.Request:
-        this._requestScopeSet.add(provider.provide);
+        this._requestScopeServiceIdentifiers.push(provider.provide);
       break;
       case ProviderScope.Session:
-        this._sessionScopeSet.add(provider.provide);
+        this._sessionScopeServiceIdentifiers.push(provider.provide);
       break;
     }
 
@@ -92,17 +93,16 @@ export class Injector {
     this._factoryMap.delete(serviceIdentifier);
   }
 
-  public get scopeSet() {
-    switch (this._providerScope) {
+  public get scopeServiceIdentifiers() {
+    switch (this._injectorScope) {
       case ProviderScope.Application:
-      return this._applicationScopeSet;
+      return this._applicationScopeServiceIdentifiers;
       case ProviderScope.Request:
-      return this._requestScopeSet;
+      return this._requestScopeServiceIdentifiers;
       case ProviderScope.Session:
-      return this._sessionScopeSet;
+      return this._sessionScopeServiceIdentifiers;
     }
   }
-
   public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
       if (this._instanceMap.has(serviceIdentifier)) {
         return this._instanceMap.get(serviceIdentifier);
@@ -121,7 +121,7 @@ export class Injector {
               });
             }
           }
-          if (this.scopeSet.has(serviceIdentifier)) {
+          if (this.scopeServiceIdentifiers.includes(serviceIdentifier)) {
             this._instanceMap.set(serviceIdentifier, instance);
           }
           return instance;
@@ -135,7 +135,7 @@ export class Injector {
       } else if (this._factoryMap.has(serviceIdentifier)) {
         const factory = this._factoryMap.get(serviceIdentifier);
         const instance = this.call(factory, this);
-        if (this.scopeSet.has(serviceIdentifier)) {
+        if (this.scopeServiceIdentifiers.includes(serviceIdentifier)) {
           this._instanceMap.set(serviceIdentifier, instance);
         }
         return instance;
@@ -163,16 +163,16 @@ export class Injector {
     if (!nameSessionInjectorMap.has(this._name)) {
       const sessionInjector = new Injector(this._name + '_SESSION', ProviderScope.Session);
       for ( const child of this._children ) {
-        sessionInjector._children.add(child.getSessionInjector(session));
+        sessionInjector._children.push(child.getSessionInjector(session));
       }
       for (const [serviceIdentifier, instance] of this._instanceMap) {
         sessionInjector._instanceMap.set(serviceIdentifier, instance);
       }
       sessionInjector._classMap = this._classMap;
       sessionInjector._factoryMap = this._factoryMap;
-      sessionInjector._applicationScopeSet = this._applicationScopeSet;
-      sessionInjector._requestScopeSet = this._requestScopeSet;
-      sessionInjector._sessionScopeSet = this._sessionScopeSet;
+      sessionInjector._applicationScopeServiceIdentifiers = this._applicationScopeServiceIdentifiers;
+      sessionInjector._requestScopeServiceIdentifiers = this._requestScopeServiceIdentifiers;
+      sessionInjector._sessionScopeServiceIdentifiers = this._sessionScopeServiceIdentifiers;
       nameSessionInjectorMap.set(this._name, sessionInjector);
     }
     return nameSessionInjectorMap.get(this._name);
