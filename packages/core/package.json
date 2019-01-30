@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "main": "dist/index.js",
@@ -30,9 +30,9 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/di": "0.3.0",
-    "@graphql-modules/epoxy": "0.3.0",
-    "@graphql-modules/utils": "0.3.0",
+    "@graphql-modules/di": "0.4.0",
+    "@graphql-modules/epoxy": "0.4.0",
+    "@graphql-modules/utils": "0.4.0",
     "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
   },
