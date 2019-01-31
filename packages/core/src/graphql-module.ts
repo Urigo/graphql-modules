@@ -709,7 +709,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                 return resolver.call(typeResolvers, root, moduleContext, info);
               };
             }
-          } else if ('subscribe' in resolver) {
+          } else if (typeof resolver === 'object' && 'subscribe' in resolver) {
             const subscriber = resolver['subscribe'];
             typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
               const session = info.session || appContext.session;
