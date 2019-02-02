@@ -659,8 +659,15 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return directiveResolvers;
   }
 
-  private checkIfResolverCalledSafely(resolverPath: string, session: any, info: any) {
+  private checkIfResolverCalledSafely(resolverPath: string, appContext: any, info: any) {
+    if (typeof appContext === 'undefined') {
+      throw new IllegalResolverInvocationError(resolverPath, this.name, `Module Context hasn't been passed!`);
+    }
+    const session = info.session || appContext.session;
+    info.session = session;
     if (typeof session === 'undefined' || 'connection' in session && !('session' in session['connection']['context'])) {
+      // tslint:disable-next-line:no-console
+      console.log(appContext);
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
     }
     if (typeof info === 'undefined') {
@@ -680,9 +687,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           if (typeof resolver === 'function') {
             if (prop !== '__resolveType') {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-                const session = info.session || appContext.session;
-                info.session = session;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+                if (appContext instanceof Promise) {
+                  appContext = await appContext;
+                }
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
+                const session = info.session;
                 let moduleContext;
                 try {
                   moduleContext = await this.context(session, true);
@@ -698,9 +707,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               };
             } else {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-                const session = info.session || appContext.session;
-                info.session = session;
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+                if (appContext instanceof Promise) {
+                  appContext = await appContext;
+                }
+                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
+                const session = info.session;
                 let moduleContext;
                 try {
                   moduleContext = await this.context(session, true);
@@ -718,9 +729,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           } else if ('subscribe' in resolver) {
             const subscriber = resolver['subscribe'];
             typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
-              const session = info.session || appContext.session;
-              info.session = session;
-              this.checkIfResolverCalledSafely(`${type}.${prop}`, session, info);
+              if (appContext instanceof Promise) {
+                appContext = await appContext;
+              }
+              this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
+              const session = info.session;
               let moduleContext;
               try {
                 moduleContext = await this.context(session, true);
@@ -748,9 +761,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       const compositionArr = asArray(resolversComposition[path]);
       resolversComposition[path] = [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
-          const session = info.session || appContext.session;
-          info.session = session;
-          this.checkIfResolverCalledSafely(path, session, info);
+          if (appContext instanceof Promise) {
+            appContext = await appContext;
+          }
+          this.checkIfResolverCalledSafely(path, appContext, info);
+          const session = info.session;
           let moduleContext;
           try {
             moduleContext = await this.context(session, true);
@@ -830,6 +845,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
       let hookProviders: Array<ServiceIdentifier<any>>;
       this._cache.contextBuilder = (session, excludeSession = false, excludeInjector = false) => {
+        // tslint:disable-next-line:no-console
         session = 'connection' in session ? session['connection']['context']['session'] : session;
         const moduleNameContext$Map = this.getModuleNameContext$Map(session);
         if (!(moduleNameContext$Map.has(this.name))) {
