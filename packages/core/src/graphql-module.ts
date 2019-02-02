@@ -278,9 +278,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           typeDefs,
           resolvers,
           schemaDirectives,
-          logger: {
+          logger: 'clientError' in logger ? {
             log: message => logger.clientError(message),
-          },
+          } : undefined,
           resolverValidationOptions,
         });
         if (extraSchemas.length) {
@@ -687,7 +687,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                 try {
                   moduleContext = await this.context(session, true);
                 } catch (e) {
-                  this.selfLogger.clientError(e);
+                  const logger = this.selfLogger;
+                  if ('clientError' in logger) {
+                    logger.clientError(e);
+                  }
                   throw e;
                 }
                 info.schema = this.schema;
@@ -702,7 +705,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                 try {
                   moduleContext = await this.context(session, true);
                 } catch (e) {
-                  this.selfLogger.clientError(e);
+                  const logger = this.selfLogger;
+                  if ('clientError' in logger) {
+                    logger.clientError(e);
+                  }
                   throw e;
                 }
                 info.schema = this.schema;
@@ -719,7 +725,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               try {
                 moduleContext = await this.context(session, true);
               } catch (e) {
-                this.selfLogger.clientError(e);
+                const logger = this.selfLogger;
+                if ('clientError' in logger) {
+                  logger.clientError(e);
+                }
                 throw e;
               }
               info.schema = this.schema;
@@ -746,7 +755,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           try {
             moduleContext = await this.context(session, true);
           } catch (e) {
-            this.selfLogger.clientError(e);
+            const logger = this.selfLogger;
+            if ('clientError' in logger) {
+              logger.clientError(e);
+            }
             throw e;
           }
           info.schema = this.schema;
