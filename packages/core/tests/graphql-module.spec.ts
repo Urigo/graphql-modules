@@ -12,6 +12,9 @@ import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
 import { Injectable, Inject, InjectFunction, Injector, ProviderScope, DependencyProviderNotFoundError } from '@graphql-modules/di';
+import { SchemaLink } from 'apollo-link-schema';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 
 describe('GraphQLModule', () => {
   // A
@@ -1214,5 +1217,35 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['foo'].name).toBe('FOO');
     expect(result.data['bar'].name).toBe('BAR');
+  });
+  it('should work with SchemaLink', async () => {
+    const { schema, context } = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          foo: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: () => 'FOO',
+        },
+      },
+    });
+    const schemaLink = new SchemaLink({
+      schema,
+      context,
+    });
+    const apolloClient = new ApolloClient({
+      link: schemaLink,
+      cache: new InMemoryCache(),
+    });
+    const { data } = await apolloClient.query({
+      query: gql`
+        {
+          foo
+        }
+      `,
+    });
+    expect(data.foo).toBe('FOO');
   });
 });
