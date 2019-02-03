@@ -1,13 +1,12 @@
 import { IResolvers, SchemaDirectiveVisitor, mergeSchemas, IDirectiveResolvers, makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools';
-import { mergeGraphQLSchemas, mergeResolvers } from '@graphql-modules/epoxy';
+import { mergeGraphQLSchemas, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
-import { IResolversComposerMapping, composeResolvers, asArray } from '@graphql-modules/utils';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
-import { getSchemaDirectiveFromDirectiveResolver } from '@graphql-modules/utils';
+import { asArray } from './helpers';
 
 export type LogMethod = (message: string | Error) => void;
 

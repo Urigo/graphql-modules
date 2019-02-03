@@ -31,8 +31,7 @@
   },
   "dependencies": {
     "@graphql-modules/di": "0.4.0",
-    "@graphql-modules/epoxy": "0.4.0",
-    "@graphql-modules/utils": "0.4.0",
+    "graphql-toolkit": "0.0.5",
     "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
   },
