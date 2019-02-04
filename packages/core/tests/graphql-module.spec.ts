@@ -130,8 +130,8 @@ describe('GraphQLModule', () => {
 
       type Query {
         a: A
-        b: B
         c: C
+        b: B
       }`));
   });
 
@@ -945,7 +945,7 @@ describe('GraphQLModule', () => {
       });
       const { schema, context } = new GraphQLModule({
         typeDefs: gql`
-        type Query {
+        extend type Query {
           bar: Bar
         }
         type Bar {

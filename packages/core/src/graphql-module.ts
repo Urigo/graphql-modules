@@ -284,7 +284,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         });
         if (extraSchemas.length) {
           this._cache.schema = mergeSchemas({
-            schemas: [localSchema, ...extraSchemas],
+            schemas: [...extraSchemas, localSchema],
           });
         } else {
           this._cache.schema = localSchema;
@@ -359,10 +359,14 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
 
   get extraSchemas(): GraphQLSchema[] {
     if (typeof this._cache.extraSchemas) {
-      let extraSchemas = this.selfExtraSchemas;
+      let extraSchemas = new Array<GraphQLSchema>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
         extraSchemas = extraSchemas.concat(module.extraSchemas);
+      }
+      const selfExtraSchemas = this.selfExtraSchemas;
+      if (selfExtraSchemas.length) {
+        extraSchemas = extraSchemas.concat(selfExtraSchemas);
       }
       this._cache.extraSchemas = extraSchemas;
     }
@@ -374,14 +378,17 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
    */
   get typeDefs(): DocumentNode {
     if (typeof this._cache.typeDefs === 'undefined') {
-      const selfTypeDefs = this.selfTypeDefs;
-      let typeDefsArr: Array<GraphQLSchema | DocumentNode> = selfTypeDefs ? [this.selfTypeDefs] : [];
+      let typeDefsArr = new Array<GraphQLSchema | DocumentNode>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
         const moduleTypeDefs = module.typeDefs;
         if (moduleTypeDefs) {
           typeDefsArr.push(moduleTypeDefs);
         }
+      }
+      const selfTypeDefs = this.selfTypeDefs;
+      if (selfTypeDefs) {
+        typeDefsArr.push(selfTypeDefs);
       }
       typeDefsArr = typeDefsArr.concat(this.extraSchemas);
       if (typeDefsArr.length) {
