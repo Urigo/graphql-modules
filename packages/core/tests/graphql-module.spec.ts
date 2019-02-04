@@ -130,8 +130,8 @@ describe('GraphQLModule', () => {
 
       type Query {
         a: A
-        b: B
         c: C
+        b: B
       }`));
   });
 
