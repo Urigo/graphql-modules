@@ -505,7 +505,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                       ('onDisconnect' in instance));
               });
           }
-          await Promise.all(importsOnDisconnectHooks.map(serviceIdentifier => sessionInjector.callHookWithArgs('onDisconnect', serviceIdentifier, websocket, connectionContext)));
+          await Promise.all(onDisconnectHookProviders.map(serviceIdentifier => sessionInjector.callHookWithArgs('onDisconnect', serviceIdentifier, websocket, connectionContext)));
           GraphQLModule.sessionModuleNameContext$Map.delete(connectionSession);
         },
       };
