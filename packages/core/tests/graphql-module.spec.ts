@@ -945,7 +945,7 @@ describe('GraphQLModule', () => {
       });
       const { schema, context } = new GraphQLModule({
         typeDefs: gql`
-        extend type Query {
+        type Query {
           bar: Bar
         }
         type Bar {

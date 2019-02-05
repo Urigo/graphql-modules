@@ -284,7 +284,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         });
         if (extraSchemas.length) {
           this._cache.schema = mergeSchemas({
-            schemas: [...extraSchemas, localSchema],
+            schemas: [localSchema, ...extraSchemas],
           });
         } else {
           this._cache.schema = localSchema;
