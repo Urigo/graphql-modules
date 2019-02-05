@@ -502,7 +502,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                   return (instance &&
                       typeof instance !== 'string' &&
                       typeof instance !== 'number' &&
-                      ('onConnect' in instance));
+                      ('onDisconnect' in instance));
               });
           }
           await Promise.all(importsOnDisconnectHooks.map(serviceIdentifier => sessionInjector.callHookWithArgs('onDisconnect', serviceIdentifier, websocket, connectionContext)));
