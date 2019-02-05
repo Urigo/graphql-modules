@@ -455,41 +455,35 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       let onConnectHookProviders: Array<ServiceIdentifier<any>>;
       let onDisconnectHookProviders: Array<ServiceIdentifier<any>>;
       this._cache.subscriptionHooks = {
-        onConnect: (connectionParams, websocket, connectionSession) => {
+        onConnect: async (connectionParams, websocket, connectionSession) => {
           const moduleNameContext$Map = this.getModuleNameContext$Map(connectionSession);
           if (!moduleNameContext$Map.has(this.name)) {
-            moduleNameContext$Map.set(this.name, new Promise(async (resolve, reject) => {
-              try {
-                const importsOnConnectHooks$ = subscriptionHooks.map(async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession));
-                const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
-                const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                const connectionContext = await this.context(connectionSession);
-                const applicationInjector = this.injector;
-                const sessionInjector = connectionContext.injector;
-                if (!onConnectHookProviders) {
-                  onConnectHookProviders = [
-                        ...applicationInjector.scopeServiceIdentifiers,
-                        ...sessionInjector.scopeServiceIdentifiers,
-                    ].filter(serviceIdentifier => {
-                        const instance = sessionInjector.get(serviceIdentifier);
-                        return (instance &&
-                            typeof instance !== 'string' &&
-                            typeof instance !== 'number' &&
-                            ('onConnect' in instance));
-                    });
-                }
-                const results = await Promise.all(onConnectHookProviders.map(serviceIdentifier => sessionInjector.callHookWithArgs('onConnect', serviceIdentifier, connectionParams, websocket, connectionContext)));
-                const hookResult = results.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                resolve({
-                  ...importsResult,
-                  ...connectionContext,
-                  ...hookResult,
+            const importsOnConnectHooks$ = subscriptionHooks.map(async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession));
+            const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
+            const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
+            const connectionContext = await this.context(connectionSession);
+            const applicationInjector = this.injector;
+            const sessionInjector = connectionContext.injector;
+            if (!onConnectHookProviders) {
+              onConnectHookProviders = [
+                    ...applicationInjector.scopeServiceIdentifiers,
+                    ...sessionInjector.scopeServiceIdentifiers,
+                ].filter(serviceIdentifier => {
+                    const instance = sessionInjector.get(serviceIdentifier);
+                    return (instance &&
+                        typeof instance !== 'string' &&
+                        typeof instance !== 'number' &&
+                        ('onConnect' in instance));
                 });
-              } catch (e) {
-                reject(e);
-              }
+            }
+            const results = await Promise.all(onConnectHookProviders.map(serviceIdentifier => sessionInjector.callHookWithArgs('onConnect', serviceIdentifier, connectionParams, websocket, connectionContext)));
+            const hookResult = results.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
+            moduleNameContext$Map.set(this.name, Promise.resolve({
+              ...importsResult,
+              ...connectionContext,
+              ...hookResult,
             }));
-          }
+        }
           return moduleNameContext$Map.get(this.name);
         },
         onDisconnect: async (websocket, connectionSession) => {
