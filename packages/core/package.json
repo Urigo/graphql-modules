@@ -40,7 +40,7 @@
     "apollo-client": "2.4.12",
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
-    "jest": "24.0.0",
+    "jest": "24.1.0",
     "tslint": "5.12.1",
     "typescript": "3.3.1"
   },
