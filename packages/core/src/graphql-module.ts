@@ -177,6 +177,19 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       ...this._moduleConfig,
       ...config,
     };
+    // clean cache
+    this._cache = {
+      injector: undefined,
+      schema: undefined,
+      typeDefs: undefined,
+      resolvers: undefined,
+      schemaDirectives: undefined,
+      contextBuilder: undefined,
+      extraSchemas: undefined,
+      directiveResolvers: undefined,
+      subscriptionHooks: undefined,
+      imports: undefined,
+    };
     return this;
   }
 
