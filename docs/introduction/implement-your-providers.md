@@ -17,7 +17,7 @@ import { Injectable } from '@graphql-modules/di';
 export class UserProvider {
   users = [
     {
-      _id: 0,
+      _id: '0',
       username: 'jhon',
     }
   ];
@@ -51,7 +51,7 @@ import { GraphQLModule } from '@graphql-modules/core';
 import { UserProvider } from './user.provider';
 export default {
     Query: {
-        user: (root, { id }, { injector }) => injector.get(UserProvider).getUserById(id), UserProvider),
+        user: (root, { id }, { injector }) => injector.get(UserProvider).getUserById(id),
     },
     User: {
         id: user => user._id,
