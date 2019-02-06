@@ -1,6 +1,6 @@
 {
   "name": "graphql-modules",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     "typescript": "3.3.1"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.4.1",
+    "@graphql-modules/core": "0.4.2",
     "tslib": "1.9.3"
   },
   "typings": "./dist/index.d.ts",
