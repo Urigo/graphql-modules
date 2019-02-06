@@ -20,7 +20,7 @@ export function Inject(dependency?: ServiceIdentifier<any>) {
   };
 }
 export function InjectFunction<Dependencies extends Array<ServiceIdentifier<any>>, Fn extends (...args: Instances<Dependencies>) => any>(...dependencies: Dependencies) {
-  return (target: Fn): (...args: any[]) => ReturnType<Fn> => {
+  return (target: Fn): any => {
     Reflect.defineMetadata(DESIGN_PARAM_TYPES, dependencies, target);
     return target;
   };

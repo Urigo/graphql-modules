@@ -21,7 +21,8 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "strictFunctionTypes": true
   },
   "files": ["src/index.ts"],
   "exclude": ["node_modules"]
