@@ -112,7 +112,7 @@ export class Injector {
           const dependencies: Array<ServiceIdentifier<any>> = Reflect.getMetadata(DESIGN_PARAMTYPES, RealClazz) || [];
           const dependencyInstances = dependencies.map(dependency => this.get(dependency));
           const instance = new RealClazz(...dependencyInstances);
-          const propertyKeys = Reflect.getMetadata(PROPERTY_KEYS, RealClazz.prototype) || [];
+          const propertyKeys = Reflect.getMetadata(PROPERTY_KEYS, RealClazz) || [];
           for (const propertyKey of propertyKeys) {
             const dependency = Reflect.getMetadata(DESIGN_TYPE, RealClazz.prototype, propertyKey);
             if (dependency) {

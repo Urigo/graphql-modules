@@ -37,10 +37,10 @@
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
-    "jest": "24.0.0",
+    "jest": "24.1.0",
     "reflect-metadata": "0.1.13",
     "tslint": "5.12.1",
-    "typescript": "3.3.1"
+    "typescript": "3.3.3"
   },
   "dependencies": {
     "tslib": "1.9.3"
