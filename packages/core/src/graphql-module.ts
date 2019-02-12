@@ -226,8 +226,8 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   get schema() {
     if (typeof this._cache.schema === 'undefined') {
       this.checkConfiguration();
+      const importsSchemas = this.selfImports.map(module => module.schema);
       try {
-        const importsSchemas = this.selfImports.map(module => module.schema);
         const selfTypeDefs = this.selfTypeDefs;
         const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext();
         const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
