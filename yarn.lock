@@ -1919,10 +1919,10 @@ graphql-tag@2.10.1:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
 
-graphql-toolkit@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.0.5.tgz#9e6ebe3d4b33fc329e5ee3b7775bfe7fba2f48a5"
-  integrity sha512-655RP1y8cn65mOa9EE/jnttczHE0lFXpOV1zYLTsE1A0b5j8RVuKWllSZBnnL2WHSAPPqLZ1oJEZV2uzSdV9VQ==
+graphql-toolkit@0.0.6-1630e8f.0:
+  version "0.0.6-1630e8f.0"
+  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.0.6-1630e8f.0.tgz#9a2404a45ec45cdbbaa0d26348ce412e8f220ba5"
+  integrity sha512-EPwQYDjnq9nCImqJoPVzGx0gvyPzmn28VyvL9XE2BX2a7rTrVKO8VzRVFcoB4C506GAdCQZEHiz7l1w8X9DHxw==
   dependencies:
     deepmerge "3.1.0"
     glob "7.1.3"
