@@ -7192,10 +7192,10 @@ svgo@^1.0.5:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@8.0.6:
-  version "8.0.6"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.0.6.tgz#9bb77e4220de936c8d93b2b67530421596f3b548"
-  integrity sha512-ymekWX+fV4X0zHRkbPVyTh7qhq31+8j+4uQl3oowIlpk1nclqMqrKeGihi8I5uNXvlo2ur4e9Nga7pxE+GIrmQ==
+sweetalert2@8.0.7:
+  version "8.0.7"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.0.7.tgz#c8208ac4d45906f620aca38c0c3f6734b9c34b66"
+  integrity sha512-UrCfHuz48XxIBef07rA3Mu536qWYjdMom3Yfc4tqO7pzNyoarNFWypflZv3AnaYNRGAege5giRrh//R3RmY2Hw==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"
