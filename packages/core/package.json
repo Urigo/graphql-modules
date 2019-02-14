@@ -32,15 +32,17 @@
   "dependencies": {
     "@graphql-modules/di": "0.4.2",
     "graphql-toolkit": "0.0.6-1630e8f.0",
-    "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
+  },
+  "peerDependencies": {
+    "graphql": "^14.1.1"
   },
   "devDependencies": {
     "apollo-cache-inmemory": "1.4.2",
     "apollo-client": "2.4.12",
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
-    "jest": "24.1.0",
+    "graphql-tools": "4.0.4",
     "tslint": "5.12.1",
     "typescript": "3.3.3"
   },

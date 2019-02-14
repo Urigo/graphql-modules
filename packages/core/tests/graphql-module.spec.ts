@@ -760,7 +760,7 @@ describe('GraphQLModule', () => {
         },
       });
 
-      const { schema, context } = new GraphQLModule({
+      const VisitedDateModule = new GraphQLModule({
         typeDefs: gql`
         scalar Date
 
@@ -775,6 +775,13 @@ describe('GraphQLModule', () => {
         },
         imports: [
           DateDirectiveModule,
+        ],
+      });
+
+      const { schema, context } = new GraphQLModule({
+        imports: [
+          DateDirectiveModule,
+          VisitedDateModule,
         ],
       });
 
