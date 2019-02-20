@@ -54,13 +54,16 @@ tests/user.module.spec.ts
   import { execute } from 'graphql';
   describe('UserModule', async () => {
     it('FieldResolver of Query: userById', async () => {
-      UserModule.injector.provide({
+      const { schema, context, injector } = UserModule;
+
+      injector.provide({
         provide: UserProvider,
         overwrite: true,
         useValue: {
           userById: (id: string) => { id, username: 'USERNAME' }
         }
       });
+
       const result = await execute({
         schema,
         document: gql`
