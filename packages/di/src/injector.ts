@@ -33,7 +33,7 @@ export class Injector {
 
     if (isTypeProvider(provider)) {
       const options: ProviderOptions = Reflect.getMetadata(PROVIDER_OPTIONS, provider);
-      if (options && !options.overwrite && this.has(provider)) {
+      if (this.has(provider)) {
         throw new ProviderAlreadyDefinedError(this._name, provider);
       }
       this._classMap.set(provider, provider);
@@ -51,8 +51,26 @@ export class Injector {
       return;
     }
 
-    if (!provider.overwrite && this.has(provider.provide)) {
-      throw new ProviderAlreadyDefinedError(this._name, provider.provide);
+    if (this.has(provider.provide)) {
+      if (!provider.overwrite) {
+        throw new ProviderAlreadyDefinedError(this._name, provider.provide);
+      } else {
+        this._classMap.delete(provider.provide);
+        this._factoryMap.delete(provider.provide);
+        this._instanceMap.delete(provider.provide);
+        this._applicationScopeServiceIdentifiers.splice(
+          this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
+          1,
+        );
+        this._sessionScopeServiceIdentifiers.splice(
+          this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
+          1,
+        );
+        this._requestScopeServiceIdentifiers.splice(
+          this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
+          1,
+        );
+      }
     }
 
     if (isValueProvider(provider)) {
