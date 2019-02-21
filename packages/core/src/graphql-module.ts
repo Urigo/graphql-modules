@@ -1,7 +1,7 @@
-import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
-import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver } from 'graphql-toolkit';
+import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions, makeExecutableSchema } from 'graphql-tools';
+import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, extractResolversFromSchema } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, printSchema } from 'graphql';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
@@ -243,20 +243,48 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         const selfExtraSchemas = this.selfExtraSchemas;
         const schemaDirectives = this.schemaDirectives;
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
-          this._cache.schema = mergeSchemas({
-            schemas: [
+          if (Object.keys(schemaDirectives).length) {
+            const schemas = [
               ...importsSchemas,
               ...selfExtraSchemas,
-            ],
-            typeDefs: selfTypeDefs,
-            resolvers: selfEncapsulatedResolvers,
-            resolversComposition: selfEncapsulatedResolversComposition,
-            schemaDirectives,
-            resolverValidationOptions: selfResolverValidationOptions,
-            logger: 'clientError' in selfLogger ? {
-              log: message => selfLogger.clientError(message),
-            } : undefined,
-          });
+            ];
+            const schemaWithSelfResolvers = makeExecutableSchema({
+              typeDefs: mergeTypeDefs(selfTypeDefs ? [
+                ...schemas,
+                selfTypeDefs,
+              ] : schemas),
+              resolvers: selfEncapsulatedResolvers,
+              schemaDirectives,
+            });
+            this._cache.schema = makeExecutableSchema({
+              typeDefs: printSchema(schemaWithSelfResolvers),
+              resolvers: composeResolvers(
+                mergeResolvers([
+                  ...schemas.map(schema => extractResolversFromSchema(schema)),
+                  extractResolversFromSchema(schemaWithSelfResolvers),
+                ]),
+                selfEncapsulatedResolversComposition,
+              ),
+              resolverValidationOptions: selfResolverValidationOptions,
+              logger: 'clientError' in selfLogger ? {
+                log: message => selfLogger.clientError(message),
+              } : undefined,
+            });
+          } else {
+            this._cache.schema = mergeSchemas({
+              schemas: [
+                ...importsSchemas,
+                ...selfExtraSchemas,
+              ],
+              typeDefs: selfTypeDefs,
+              resolvers: selfEncapsulatedResolvers,
+              resolversComposition: selfEncapsulatedResolversComposition,
+              resolverValidationOptions: selfResolverValidationOptions,
+              logger: 'clientError' in selfLogger ? {
+                log: message => selfLogger.clientError(message),
+              } : undefined,
+            });
+          }
         } else {
           this._cache.schema = null;
         }
