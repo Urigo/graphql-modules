@@ -40,7 +40,7 @@
     "jest": "24.1.0",
     "reflect-metadata": "0.1.13",
     "tslint": "5.12.1",
-    "typescript": "3.3.3"
+    "typescript": "3.3.3333"
   },
   "dependencies": {
     "tslib": "1.9.3"
