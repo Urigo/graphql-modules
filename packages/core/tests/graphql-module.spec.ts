@@ -992,18 +992,45 @@ describe('GraphQLModule', () => {
       `,
       resolvers: {
         Query: {
-          foo: (root, args, context, info) => !!info.schema['__DIRTY__'],
+          isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
       middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const result = await execute({
       schema,
-      document: gql`query { foo }`,
+      document: gql`query { isDirty }`,
       contextValue: await context({ req: {} }),
     });
     expect(result.errors).toBeFalsy();
-    expect(result.data['foo']).toBeTruthy();
+    expect(result.data['isDirty']).toBeTruthy();
+  });
+  it('should encapsulate the schema mutations using middleware', async () => {
+    const FooModule = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          isDirty: Boolean
+        }
+      `,
+      resolvers: {
+        Query: {
+          isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
+        },
+      },
+      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+    });
+    const { schema, context } = new GraphQLModule({
+      imports: [
+        FooModule,
+      ],
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { isDirty }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['isDirty']).toBeTruthy();
   });
   it('should avoid getting non-configured module', async () => {
     const FOO = Symbol('FOO');
