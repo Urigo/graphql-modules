@@ -987,7 +987,7 @@ describe('GraphQLModule', () => {
     const { schema, context } = new GraphQLModule({
       typeDefs: gql`
         type Query {
-          foo: Boolean
+          isDirty: Boolean
         }
       `,
       resolvers: {

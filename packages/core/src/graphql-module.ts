@@ -301,7 +301,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           this._cache.schema = null;
         }
       } catch (e) {
-        throw e;
         if (e.message === 'Must provide typeDefs') {
           this._cache.schema = null;
         } else if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
