@@ -1,7 +1,7 @@
 import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions, makeExecutableSchema } from 'graphql-tools';
 import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, extractResolversFromSchema } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, printSchema } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
@@ -242,12 +242,14 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
         const schemaDirectives = this.schemaDirectives;
+        // Workaround for schemaDirectives
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
           if (Object.keys(schemaDirectives).length) {
             const schemas = [
               ...importsSchemas,
               ...selfExtraSchemas,
             ];
+            // It creates an executable schema to visit only this module's type definitions
             const schemaWithSelfResolvers = makeExecutableSchema({
               typeDefs: mergeTypeDefs(selfTypeDefs ? [
                 ...schemas,
@@ -257,11 +259,14 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               schemaDirectives,
             });
             this._cache.schema = makeExecutableSchema({
-              typeDefs: printSchema(schemaWithSelfResolvers),
+              typeDefs: mergeTypeDefs([schemaWithSelfResolvers]),
               resolvers: composeResolvers(
                 mergeResolvers([
                   ...schemas.map(schema => extractResolversFromSchema(schema)),
-                  extractResolversFromSchema(schemaWithSelfResolvers),
+                  // extracts only this module's type definitions' resolvers
+                  extractResolversFromSchema(schemaWithSelfResolvers, {
+                    selectedTypeDefs: selfTypeDefs,
+                  }),
                 ]),
                 selfEncapsulatedResolversComposition,
               ),
