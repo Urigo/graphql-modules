@@ -1282,4 +1282,21 @@ describe('GraphQLModule', () => {
     });
     expect(data.foo).toBe('FOO');
   });
+  it('should generate schemaless module if empty typeDefs and resolvers specified', async () => {
+    const { schema: schemaA } = new GraphQLModule({
+      typeDefs: [],
+      resolvers: {},
+    });
+    expect(schemaA).toBeNull();
+    const { schema: schemaB } = new GraphQLModule({
+      typeDefs: '',
+      resolvers: {},
+    });
+    expect(schemaB).toBeNull();
+    const { schema: schemaC } = new GraphQLModule({
+      typeDefs: [''],
+      resolvers: {},
+    });
+    expect(schemaC).toBeNull();
+  });
 });

@@ -288,7 +288,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                 ...importsSchemas,
                 ...selfExtraSchemas,
               ],
-              typeDefs: selfTypeDefs,
+              typeDefs: selfTypeDefs || undefined,
               resolvers: selfEncapsulatedResolvers,
               resolversComposition: selfEncapsulatedResolversComposition,
               resolverValidationOptions: selfResolverValidationOptions,
@@ -552,9 +552,11 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
-        typeDefs = mergeTypeDefs(typeDefsDefinitions, {
-          useSchemaDefinition: false,
-        });
+        if (typeDefsDefinitions.length) {
+          typeDefs = mergeTypeDefs(typeDefsDefinitions, {
+            useSchemaDefinition: false,
+          });
+        }
       } else if (typeDefsDefinitions) {
         typeDefs = typeDefsDefinitions;
       }
