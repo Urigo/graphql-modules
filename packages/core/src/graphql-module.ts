@@ -53,7 +53,7 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: GraphQLModuleOption<string | string[] | DocumentNode | DocumentNode[], Config, Session, Context>;
+  typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
@@ -552,6 +552,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
+        typeDefsDefinitions = typeDefsDefinitions.filter(typeDefsDefinition => typeDefsDefinition);
         if (typeDefsDefinitions.length) {
           typeDefs = mergeTypeDefs(typeDefsDefinitions, {
             useSchemaDefinition: false,
