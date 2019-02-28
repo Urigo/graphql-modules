@@ -1282,21 +1282,25 @@ describe('GraphQLModule', () => {
     });
     expect(data.foo).toBe('FOO');
   });
-  it('should generate schemaless module if empty typeDefs and resolvers specified', async () => {
-    const { schema: schemaA } = new GraphQLModule({
+  it('should generate schemaless module if an empty array typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
       typeDefs: [],
       resolvers: {},
     });
-    expect(schemaA).toBeNull();
-    const { schema: schemaB } = new GraphQLModule({
+    expect(schema).toBeNull();
+  });
+  it('should generate schemaless module if empty string typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
       typeDefs: '',
       resolvers: {},
     });
-    expect(schemaB).toBeNull();
-    const { schema: schemaC } = new GraphQLModule({
+    expect(schema).toBeNull();
+  });
+  it('should generate schemaless module if an array with an empty string typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
       typeDefs: [''],
       resolvers: {},
     });
-    expect(schemaC).toBeNull();
+    expect(schema).toBeNull();
   });
 });
