@@ -1,7 +1,7 @@
 import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions, makeExecutableSchema } from 'graphql-tools';
-import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, extractResolversFromSchema } from 'graphql-toolkit';
+import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, extractResolversFromSchema, printSchema } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, print, printSchema } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
@@ -266,13 +266,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                   // extracts only this module's type definitions' resolvers
                   // but you need directives even for an invalid schema
                   extractResolversFromSchema(schemaWithSelfResolvers, {
-                    selectedTypeDefs: selfTypeDefs && mergeTypeDefs([
-                      selfTypeDefs,
-                      ...schemaWithSelfResolvers
-                      .getDirectives()
-                      .map(directive => directive.astNode ? print(directive.astNode) : null)
-                      .filter(e => e),
-                    ]),
+                    selectedTypeDefs: selfTypeDefs,
                   }),
                 ]),
                 selfEncapsulatedResolversComposition,
