@@ -13,6 +13,7 @@ Here is a quick example:
 `modules/my-first-module/index.ts`
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
+import gql from "graphql-tag";
 
 export const MyFirstModule = new GraphQLModule({
     typeDefs: gql`
