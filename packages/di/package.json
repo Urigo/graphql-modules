@@ -5,8 +5,10 @@
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "yarn clean",
+    "build": "tsc",
     "test": "jest",
-    "build": "tsc && tsc -p tsconfig.es2015.json",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
@@ -44,8 +46,8 @@
   "dependencies": {
     "tslib": "1.9.3"
   },
-  "main": "dist/index.js",
-  "module": "dist/es2015/index.js",
+  "main": "cjs/index.js",
+  "module": "dist/index.js",
   "typings": "./dist/index.d.ts",
   "typescript": {
     "definition": "./dist/index.d.ts"
