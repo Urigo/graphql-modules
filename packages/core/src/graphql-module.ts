@@ -1,5 +1,5 @@
 import { IResolvers, SchemaDirectiveVisitor, mergeSchemas, IDirectiveResolvers, makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools';
-import { mergeGraphQLSchemas, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver } from 'graphql-toolkit';
+import { mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, mergeTypeDefs } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
@@ -405,7 +405,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
       typeDefsArr = typeDefsArr.concat(this.extraSchemas);
       if (typeDefsArr.length) {
-        this._cache.typeDefs = mergeGraphQLSchemas(typeDefsArr, {
+        this._cache.typeDefs = mergeTypeDefs(typeDefsArr, {
           useSchemaDefinition: false,
         });
       } else {
@@ -568,7 +568,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
-        typeDefs = mergeGraphQLSchemas(typeDefsDefinitions, {
+        typeDefs = mergeTypeDefs(typeDefsDefinitions, {
           useSchemaDefinition: false,
         });
       } else if (typeDefsDefinitions) {
