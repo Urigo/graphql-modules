@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Injectable, Injector } from '../src';
 
-describe('Dependency Injection', async () => {
+describe('Dependency Injection', () => {
   it('clear instances if provider is overwritten', async () => {
     @Injectable()
     class FooProvider {

@@ -389,7 +389,7 @@ describe('GraphQLModule', () => {
       }
     });
   });
-  describe('onRequest Hook', async () => {
+  describe('onRequest Hook', () => {
 
     it('should call onRequest hook on each session', async () => {
       let counter = 0;
@@ -473,7 +473,7 @@ describe('GraphQLModule', () => {
       expect(result.data.foo).toBe(fooSession.foo);
     });
   });
-  describe('Resolvers Composition', async () => {
+  describe('Resolvers Composition', () => {
     it('should call resolvers composition with module context', async () => {
       const schema = app.schema;
       const context = await app.context({ req: {} });
@@ -667,7 +667,7 @@ describe('GraphQLModule', () => {
       expect(hasInjector).toBeTruthy();
     });
   });
-  describe('Schema Directives', async () => {
+  describe('Schema Directives', () => {
     it('should handle schema directives', async () => {
 
       const typeDefs = gql`
@@ -790,7 +790,7 @@ describe('GraphQLModule', () => {
 
     });
   });
-  describe('Providers Scope', async () => {
+  describe('Providers Scope', () => {
     it('should construct session scope on each network session', async () => {
       let counter = 0;
 
@@ -922,7 +922,7 @@ describe('GraphQLModule', () => {
       expect(result.data['testB']).toBe('BAR');
     });
   });
-  describe('Extra Schemas', async () => {
+  describe('Extra Schemas', () => {
     it('should handle extraSchemas together with local ones', async () => {
       const extraSchema = makeExecutableSchema({
         typeDefs: gql`

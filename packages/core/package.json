@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -31,8 +31,7 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/di": "0.5.0",
-    "esm": "3.2.16",
+    "@graphql-modules/di": "0.6.0",
     "graphql-toolkit": "0.2.6",
     "graphql-tools": "4.0.4",
     "tslib": "1.9.3"

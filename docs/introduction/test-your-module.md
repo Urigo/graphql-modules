@@ -52,7 +52,7 @@ tests/user.module.spec.ts
 ```typescript
   import { UserModule } from '../modules/user/user.module';
   import { execute } from 'graphql';
-  describe('UserModule', async () => {
+  describe('UserModule', () => {
     it('FieldResolver of Query: userById', async () => {
       const { schema, context, injector } = UserModule;
 
