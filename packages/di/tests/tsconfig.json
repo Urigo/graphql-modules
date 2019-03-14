@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "es2018",
+    "lib": [
+      "es2018",
+      "esnext.asynciterable"
+    ],
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "outDir": "../dist/tests",
+  }
+}

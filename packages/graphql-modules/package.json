@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
-    "build": "tsc",
+    "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
     "test": "jest",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
@@ -35,7 +35,7 @@
     ]
   },
   "devDependencies": {
-    "jest": "24.1.0",
+    "jest": "24.5.0",
     "tslint": "5.12.1",
     "typescript": "3.3.3"
   },
@@ -43,11 +43,11 @@
     "@graphql-modules/core": "0.4.2",
     "tslib": "1.9.3"
   },
-  "main": "cjs/index.js",
-  "module": "dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/esnext/index.js",
+  "typings": "dist/esnext/index.d.ts",
   "typescript": {
-    "definition": "./dist/index.d.ts"
+    "definition": "dist/esnext/index.d.ts"
   },
   "publishConfig": {
     "access": "public"
