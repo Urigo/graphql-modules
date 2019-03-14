@@ -2,7 +2,7 @@ import { IResolvers, SchemaDirectiveVisitor, mergeSchemas, IDirectiveResolvers, 
 import { mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, mergeTypeDefs } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
-import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
+import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
@@ -672,22 +672,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return directiveResolvers;
   }
 
-  private checkIfResolverCalledSafely(resolverPath: string, appContext: any, info: any) {
-    if (typeof appContext === 'undefined') {
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `Module Context hasn't been passed!`);
-    }
-    const session = info.session || appContext.session || appContext;
-    info.session = session;
-    if (typeof session === 'undefined' || 'connection' in session && !('session' in session['connection']['context'])) {
-      // tslint:disable-next-line:no-console
-      console.log(appContext);
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
-    }
-    if (typeof info === 'undefined') {
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `GraphQL Resolve Information hasn't been passed!`);
-    }
-  }
-
   private addSessionInjectorToSelfResolversContext() {
     const resolvers = this.selfResolvers;
     // tslint:disable-next-line:forin
@@ -702,12 +686,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;
+                } else if (typeof appContext === 'undefined') {
+                  appContext = info;
                 }
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-                const session = info.session;
+                info.session = info.session || appContext.session || appContext;
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(session, true);
+                  moduleContext = await this.context(info.session, true);
                 } catch (e) {
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
@@ -722,12 +707,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;
+                } else if (typeof appContext === 'undefined') {
+                  appContext = info;
                 }
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-                const session = info.session;
+                info.session = info.session || appContext.session || appContext;
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(session, true);
+                  moduleContext = await this.context(info.session, true);
                 } catch (e) {
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
@@ -744,12 +730,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
               if (appContext instanceof Promise) {
                 appContext = await appContext;
+              } else if (typeof appContext === 'undefined') {
+                appContext = info;
               }
-              this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-              const session = info.session;
+              info.session = info.session || appContext.session || appContext;
               let moduleContext;
               try {
-                moduleContext = await this.context(session, true);
+                moduleContext = await this.context(info.session, true);
               } catch (e) {
                 const logger = this.selfLogger;
                 if ('clientError' in logger) {
@@ -776,12 +763,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
             appContext = await appContext;
+          } else if (typeof appContext === 'undefined') {
+            appContext = info;
           }
-          this.checkIfResolverCalledSafely(path, appContext, info);
-          const session = info.session;
+          info.session = info.session || appContext.session || appContext;
           let moduleContext;
           try {
-            moduleContext = await this.context(session, true);
+            moduleContext = await this.context(info.session, true);
           } catch (e) {
             const logger = this.selfLogger;
             if ('clientError' in logger) {
@@ -859,7 +847,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       let hookProviders: Array<ServiceIdentifier<any>>;
       this._cache.contextBuilder = (session, excludeSession = false, excludeInjector = false) => {
         // tslint:disable-next-line:no-console
-        session = 'connection' in session ? session['connection']['context']['session'] : session;
+        session = ('connection' in session && 'context' in session['connection']) ? session['connection']['context']['session'] : session;
         const moduleNameContext$Map = this.getModuleNameContext$Map(session);
         if (!(moduleNameContext$Map.has(this.name))) {
             moduleNameContext$Map.set(this.name, new Promise(async (resolve, reject) => {
@@ -898,12 +886,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
                     resolve(moduleSessionInfo.context);
                 }
                 catch (e) {
-                    if (e instanceof ContextBuilderError) {
-                        reject(e);
-                    }
-                    else {
-                        reject(new ContextBuilderError(this.name, e));
-                    }
+                    reject(e);
                 }
             }));
         }

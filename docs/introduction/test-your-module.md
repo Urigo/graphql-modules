@@ -54,7 +54,7 @@ tests/user.module.spec.ts
   import { execute } from 'graphql';
   describe('UserModule', () => {
     it('FieldResolver of Query: userById', async () => {
-      const { schema, context, injector } = UserModule;
+      const { schema, injector } = UserModule;
 
       injector.provide({
         provide: UserProvider,
@@ -74,7 +74,6 @@ tests/user.module.spec.ts
             }
           }
         `,
-        contextValue: await context({}),
       });
       expect(result.errors).toBeFalsy();
       expect(result.data['userById']['id']).toBe('ANOTHERID');

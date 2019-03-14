@@ -26,7 +26,7 @@ const server = new ApolloServer({
   modules: [
     AppModule
   ],
-  context: session => ({ session }),
+  context: session => session,
 });
 
 server.listen().then(({ url }) => {

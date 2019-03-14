@@ -137,11 +137,10 @@ describe('GraphQLModule', () => {
 
   it('should trigger the correct GraphQL context builders and build the correct context', async () => {
     const schema = app.schema;
-    const context = await app.context({ req: {} });
     const result = await execute({
       schema,
+
       document: testQuery,
-      contextValue: context,
     });
     expect(result.errors).toBeFalsy();
     expect(result.data.b.f).toBe('1');
@@ -172,7 +171,7 @@ describe('GraphQLModule', () => {
   });
 
   it('should inject dependencies to factory functions using Inject', async () => {
-    const { schema, context } = new GraphQLModule({
+    const { schema } = new GraphQLModule({
       typeDefs: gql`
         type Query {
           something: String
@@ -187,7 +186,6 @@ describe('GraphQLModule', () => {
         },
       })),
     });
-    const contextValue = await context({ req: {} });
     const result = await execute({
       schema,
       document: gql`
@@ -196,7 +194,6 @@ describe('GraphQLModule', () => {
           somethingElse
         }
       `,
-      contextValue,
     });
     expect(result.errors).toBeFalsy();
     expect(result.data.something).toBe('Test1');
@@ -319,9 +316,10 @@ describe('GraphQLModule', () => {
     it('should not allow to use modules without configuration if required', async () => {
       let error;
       try {
-        const { injector } = new GraphQLModule({
+        const { context } = new GraphQLModule({
           configRequired: true,
         });
+        await context({});
       } catch (e) {
         error = e;
       }
@@ -336,7 +334,7 @@ describe('GraphQLModule', () => {
 
       @Injectable()
       class ProviderB {
-        constructor(providerA: ProviderA) {
+        constructor(public providerA: ProviderA) {
         }
       }
 
@@ -373,16 +371,14 @@ describe('GraphQLModule', () => {
         });
 
         const moduleB = new GraphQLModule({ providers: [ProviderB] });
-        const { schema, context } = new GraphQLModule({ imports: [moduleA, moduleB] });
-        const contextValue = await context({ req: {} });
-        const result = await execute({
+        const { schema } = new GraphQLModule({ imports: [moduleA, moduleB] });
+        await execute({
           schema,
           document: gql`
             query {
               test
             }
           `,
-          contextValue,
         });
       } catch (e) {
         expect(e.message).toContain('ProviderB not provided in');
@@ -400,7 +396,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query {
             foo: String
@@ -417,20 +413,20 @@ describe('GraphQLModule', () => {
       });
       await execute({
         schema,
+
         document: gql`query { foo }`,
-        contextValue: await context({}),
       });
       expect(counter).toBe(1);
       await execute({
         schema,
+
         document: gql`query { foo }`,
-        contextValue: await context({}),
       });
       expect(counter).toBe(2);
       await execute({
         schema,
+
         document: gql`query { foo }`,
-        contextValue: await context({}),
       });
       expect(counter).toBe(3);
     });
@@ -448,7 +444,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query {
             foo: String
@@ -456,7 +452,7 @@ describe('GraphQLModule', () => {
         `,
         resolvers: {
           Query: {
-            foo: (root, args, { injector }: ModuleContext, info) => injector.get(ModuleSessionInfo).session.foo,
+            foo: (root, args, { injector }: ModuleContext) => injector.get(ModuleSessionInfo).session.foo,
           },
         },
         providers: [
@@ -466,7 +462,7 @@ describe('GraphQLModule', () => {
       const result = await execute({
         schema,
         document: gql`query { foo }`,
-        contextValue: await context(fooSession),
+        contextValue: fooSession,
       });
       expect(result.errors).toBeFalsy();
       expect(receivedSession).toBe(fooSession);
@@ -476,11 +472,10 @@ describe('GraphQLModule', () => {
   describe('Resolvers Composition', () => {
     it('should call resolvers composition with module context', async () => {
       const schema = app.schema;
-      const context = await app.context({ req: {} });
-      const result = await execute({
+      await execute({
         schema,
+
         document: testQuery,
-        contextValue: context,
       });
       expect(resolverCompositionCalled).toBe(true);
     });
@@ -530,6 +525,7 @@ describe('GraphQLModule', () => {
       });
       const result = await execute({
         schema,
+          
         document: gql`query { foo }`,
         contextValue: await context({ req: {} }),
       });
@@ -551,7 +547,7 @@ describe('GraphQLModule', () => {
           },
         },
       });
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         imports: [
           FooModule,
         ],
@@ -564,8 +560,8 @@ describe('GraphQLModule', () => {
       });
       const result = await execute({
         schema,
+
         document: gql`query { foo }`,
-        contextValue: await context({ req: {} }),
       });
       expect(result.errors).toBeFalsy();
       expect(result.data.foo).toBe('FOOFOO');
@@ -607,15 +603,15 @@ describe('GraphQLModule', () => {
           },
         },
       });
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         imports: [
           QuxModule,
         ],
       });
       const result = await execute({
         schema,
+
         document: gql`query { foo }`,
-        contextValue: await context({ req: {} }),
       });
       expect(result.errors).toBeFalsy();
       expect(result.data.foo).toBe('QUXBARFOO');
@@ -624,7 +620,7 @@ describe('GraphQLModule', () => {
     it('should inject context correctly into `__resolveType`', async () => {
       let hasInjector = false;
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: `
           type Query {
             something: MyBase
@@ -656,12 +652,11 @@ describe('GraphQLModule', () => {
           },
         },
       });
-      const contextValue = await context({ req: {} });
 
       await execute({
         schema,
+
         document: gql`query { something { id } }`,
-        contextValue,
       });
 
       expect(hasInjector).toBeTruthy();
@@ -689,7 +684,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString,
           });
 
-          field.resolve = async function(
+          field.resolve = async function (
             source,
             args,
             context,
@@ -703,7 +698,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs,
         resolvers: {
           Query: {
@@ -715,12 +710,10 @@ describe('GraphQLModule', () => {
         },
       });
 
-      const contextValue = await context({ req: {} });
-
       const result = await execute({
         schema,
+
         document: gql`query { today }`,
-        contextValue,
       });
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
@@ -737,7 +730,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString,
           });
 
-          field.resolve = async function(
+          field.resolve = async function (
             source,
             args,
             context,
@@ -760,7 +753,7 @@ describe('GraphQLModule', () => {
         },
       });
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
         scalar Date
 
@@ -778,12 +771,10 @@ describe('GraphQLModule', () => {
         ],
       });
 
-      const contextValue = await context({ req: {} });
-
       const result = await execute({
         schema,
+
         document: gql`query { today }`,
-        contextValue,
       });
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
@@ -806,7 +797,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query{
             test: Boolean
@@ -825,23 +816,23 @@ describe('GraphQLModule', () => {
       expect(counter).toBe(0);
       const result1 = await execute({
         schema,
+
         document: gql`
           query {
             test
           }
         `,
-        contextValue: await context({ req: {} }),
       });
       expect(result1.data['test']).toBe(true);
       expect(counter).toBe(1);
       const result2 = await execute({
         schema,
+
         document: gql`
           query {
             test
           }
         `,
-        contextValue: await context({ req: {} }),
       });
       expect(result2.data['test']).toBe(true);
       expect(counter).toBe(2);
@@ -915,7 +906,7 @@ describe('GraphQLModule', () => {
             testB
           }
         `,
-        contextValue: await context(testSession),
+        contextValue: testSession,
       });
       expect(result.errors).toBeFalsy();
       expect(result.data['testA']).toBe('BAR');
@@ -968,8 +959,8 @@ describe('GraphQLModule', () => {
       const contextValue = await context({ req: {} });
       const result = await execute({
         schema,
+
         document: gql`query { foo { content } bar { content } }`,
-        contextValue,
       });
       expect(result.errors).toBeFalsy();
       expect(result.data['foo'].content).toBe('FOO');
@@ -988,7 +979,7 @@ describe('GraphQLModule', () => {
           foo: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
-      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+      middleware: ({ schema }) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const result = await execute({
       schema,
@@ -1001,7 +992,7 @@ describe('GraphQLModule', () => {
   it('should avoid getting non-configured module', async () => {
     const FOO = Symbol('FOO');
     const moduleA = new GraphQLModule<{ foo: string }>({
-      providers: ({config}) => [
+      providers: ({ config }) => [
         {
           provide: FOO,
           useValue: config.foo,
