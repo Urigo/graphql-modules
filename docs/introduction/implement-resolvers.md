@@ -1,7 +1,7 @@
 ---
-id: implement-your-resolvers
+id: implement-resolvers
 title: Implement Your Resolvers
-sidebar_label: Implement Your Resolvers
+sidebar_label: Implement Resolvers
 ---
 
 GraphQL Modules let you implement your GraphQL resolvers in a normal way, just like any other GraphQL application.

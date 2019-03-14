@@ -1,7 +1,7 @@
 ---
 id: integrate-with-apollo-server
 title: Integrate With Apollo-Server
-sidebar_label: Apollo-Server
+sidebar_label: Integrate With Apollo-Server
 ---
 
 GraphQLModules comes with a built-in support for **[Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html)**.
@@ -18,14 +18,15 @@ Then, create a new instance of `ApolloServer`, and use your `GraphQLModule` inst
 import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
-const { schema, context } = new GraphQLModule({
+const AppModule = new GraphQLModule({
     /*...*/
 });
 
 const server = new ApolloServer({
-  schema,
-  context,
-  /*...*/
+  modules: [
+    AppModule
+  ],
+  context: session => ({ session }),
 });
 
 server.listen().then(({ url }) => {
