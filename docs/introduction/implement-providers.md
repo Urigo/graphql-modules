@@ -1,7 +1,7 @@
 ---
-id: implement-your-providers
+id: implement-providers
 title: Implement Your Providers
-sidebar_label: Implement Your Providers
+sidebar_label: Implement Providers
 ---
 
 When your app grows and becomes more complex, you can use **Providers** (it's just a class...) to implement your resolvers' logic.

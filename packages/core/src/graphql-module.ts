@@ -676,7 +676,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     if (typeof appContext === 'undefined') {
       throw new IllegalResolverInvocationError(resolverPath, this.name, `Module Context hasn't been passed!`);
     }
-    const session = info.session || appContext.session;
+    const session = info.session || appContext.session || appContext;
     info.session = session;
     if (typeof session === 'undefined' || 'connection' in session && !('session' in session['connection']['context'])) {
       // tslint:disable-next-line:no-console
