@@ -31,7 +31,7 @@
     ]
   },
   "dependencies": {
-    "esm":"3.2.16",
+    "esm":"3.2.17",
     "@graphql-modules/di": "0.4.2",
     "graphql-toolkit": "0.0.5",
     "graphql-tools": "4.0.4",
