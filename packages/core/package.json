@@ -42,7 +42,7 @@
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
     "jest": "24.5.0",
-    "tslint": "5.12.1",
+    "tslint": "5.14.0",
     "typescript": "3.3.3333"
   },
   "main": "dist/commonjs/index.js",

@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "jest": "24.5.0",
-    "tslint": "5.12.1",
+    "tslint": "5.14.0",
     "typescript": "3.3.3333"
   },
   "dependencies": {
