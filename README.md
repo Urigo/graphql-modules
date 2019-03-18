@@ -16,7 +16,7 @@
 - **[Writing a GraphQL TypeScript project w/ GraphQL-Modules and GraphQL-Code-Generator](https://medium.com/the-guild/writing-strict-typed-graphql-typescript-project-w-graphql-modules-and-graphql-code-generator-c22f6caa17b8)**
 - **[Authentication and Authorization in GraphQL (and how GraphQL-Modules can help)](https://medium.com/the-guild/authentication-and-authorization-in-graphql-and-how-graphql-modules-can-help-fadc1ee5b0c2)**
 - **[Authentication with AccountsJS & GraphQL Modules](https://medium.com/the-guild/authentication-with-accountsjs-graphql-modules-e0fb9799a9da)**
-
+- **[Manage Circular Imports Hell in GraphQL-Modules](https://medium.com/the-guild/manage-circular-imports-hell-with-graphql-modules-4b1611dee781)**
 
 ## Highlights
 
@@ -35,9 +35,9 @@ To install graphql-modules, use the following:
 
 ```sh
 $ npm install @graphql-modules/core
-    
+
 # Or, with Yarn
-    
+
 $ yarn add @graphql-modules/core
 ```
 
@@ -65,13 +65,13 @@ const module = new GraphQLModule({
       title: String
       author: User
     }
-    
+
     type Query {
       posts: [Post]
     }
   `,
   resolvers: blogResolvers,
-  imports: [UserModule],
+  imports: [UserModule]
 });
 ```
 
