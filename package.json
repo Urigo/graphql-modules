@@ -44,10 +44,6 @@
     "*.{ts,tsx}": [
       "tslint --fix",
       "git add"
-    ],
-    "*.{js,json,css,md,ts,tsx}": [
-      "prettier --write",
-      "git add -f"
     ]
   },
   "prettier": {
