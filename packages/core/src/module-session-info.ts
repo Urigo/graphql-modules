@@ -1,8 +1,7 @@
 import { GraphQLModule } from './graphql-module';
-import { ServiceIdentifier } from '@graphql-modules/di';
-import { OnRequest, ModuleContext } from './types';
+import { ModuleContext } from './types';
 
-export class ModuleSessionInfo<Config = any, Session = any, Context = any> {
+export class ModuleSessionInfo<Config = any, Session extends object = any, Context = any> {
   constructor(
     private _module: GraphQLModule<Config, Session, Context>,
     private _session: Session,
@@ -30,24 +29,5 @@ export class ModuleSessionInfo<Config = any, Session = any, Context = any> {
   }
   get name() {
     return this.module.name;
-  }
-  async callSessionHook<T extends OnRequest<Config, Session, Context>>(
-    serviceIdentifier: ServiceIdentifier<T>,
-  ): Promise<void> {
-
-    const instance = this.injector.get<T>(serviceIdentifier);
-
-    if (
-      instance &&
-      typeof instance !== 'string' &&
-      typeof instance !== 'number'
-    ) {
-      if ('onRequest' in instance) {
-        return instance.onRequest(this);
-      }
-      if ('initialize' in instance) {
-        return instance['initialize'](this);
-      }
-    }
   }
 }

@@ -65,7 +65,7 @@ Subscriptions need to have defined `PubSub` implementation in your GraphQL-Modul
 You have to export `subscriptions` from your `AppModule`, and pass it to your GraphQL Server.
 
 ```typescript
-  const { schema, context, subscriptions } = new GraphQLModule({
+  const { schema, subscriptions } = new GraphQLModule({
     imports: [
       CommonModule,
       PostsModule
@@ -74,7 +74,7 @@ You have to export `subscriptions` from your `AppModule`, and pass it to your Gr
 
   const server = new ApolloServer({
     schema,
-    context,
+    context: session => session,
     subscriptions
   });
 

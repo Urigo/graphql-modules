@@ -1,8 +1,17 @@
 import { ModuleSessionInfo } from './module-session-info';
 import { Injector } from '@graphql-modules/di';
+import { GraphQLModule } from './graphql-module';
 
-export interface OnRequest<Config = any, Request = any, Context = any> {
-  onRequest(moduleSessionInfo: ModuleSessionInfo<Config, Request, Context>): Promise<void> | void;
+export interface OnInit<Config = any, Session extends object = any, Context = any> {
+  onInit(module: GraphQLModule<Config, Session, Context>): void;
+}
+
+export interface OnRequest<Config = any, Session extends object = any, Context = any> {
+  onRequest(moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>): Promise<void> | void;
+}
+
+export interface OnResponse<Config = any, Session extends object = any, Context = any> {
+  onResponse(moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>): Promise<void> | void;
 }
 
 export interface OnConnect<ConnectionParams = object, WebSocket = any, ConnectionSession = any, Result = any> {

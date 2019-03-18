@@ -1,28 +1,45 @@
-import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions, makeExecutableSchema } from 'graphql-tools';
-import { mergeSchemas, mergeTypeDefs, mergeResolvers, IResolversComposerMapping, composeResolvers , getSchemaDirectiveFromDirectiveResolver, extractResolversFromSchema, printSchema } from 'graphql-toolkit';
-import { Provider, Injector, ProviderScope, ServiceIdentifier } from '@graphql-modules/di';
+import {
+  IResolvers,
+  SchemaDirectiveVisitor,
+  IDirectiveResolvers,
+  IResolverValidationOptions,
+} from 'graphql-tools';
+import {
+  mergeResolvers,
+  IResolversComposerMapping,
+  composeResolvers,
+  mergeSchemas,
+  getSchemaDirectiveFromDirectiveResolver,
+  mergeTypeDefs,
+} from 'graphql-toolkit';
+import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
-import { SchemaNotValidError, DependencyModuleUndefinedError, TypeDefNotFoundError, ModuleConfigRequiredError, IllegalResolverInvocationError, ContextBuilderError } from './errors';
+import {
+  SchemaNotValidError,
+  DependencyModuleUndefinedError,
+  TypeDefNotFoundError,
+  ModuleConfigRequiredError,
+} from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
-import { asArray } from './helpers';
+import { asArray, normalizeSession } from './helpers';
 
 export type LogMethod = (message: string | Error) => void;
 
 export interface ILogger {
-  log ?: LogMethod;
-  error ?: LogMethod;
-  clientError ?: LogMethod;
-  warn ?: LogMethod;
+  log?: LogMethod;
+  error?: LogMethod;
+  clientError?: LogMethod;
+  warn?: LogMethod;
 }
 
 /**
  * A context builder method signature for `contextBuilder`.
  */
-export type BuildContextFn<Config, Session, Context> = (
+export type BuildContextFn<Config, Session extends object, Context, PreviousContext = any> = (
   session: Session,
-  currentContext: ModuleContext<any>,
+  currentContext: ModuleContext<PreviousContext>,
   moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>,
 ) => Promise<Context> | Context;
 
@@ -30,7 +47,9 @@ export interface ISchemaDirectives {
   [name: string]: typeof SchemaDirectiveVisitor;
 }
 
-export type GraphQLModuleOption<Option, Config, Session, Context> = Option | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Option);
+export type GraphQLModuleOption<Option, Config, Session extends object, Context> =
+  | Option
+  | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Option);
 
 export interface KeyValueCache {
   get(key: string): Promise<string | undefined>;
@@ -41,7 +60,7 @@ export interface KeyValueCache {
 /**
  * Defined the structure of GraphQL module options object.
  */
-export interface GraphQLModuleOptions<Config, Session, Context> {
+export interface GraphQLModuleOptions<Config, Session extends object, Context> {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
@@ -58,12 +77,17 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>, Config, Session, Context>;
+  resolvers?: GraphQLModuleOption<
+    IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>,
+    Config,
+    Session,
+    Context
+  >;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  context?: BuildContextFn<Config, Session, Context> | Promise<Context> | Context;
+  context?: BuildContextFn<Config, Session, Context>;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
@@ -84,7 +108,10 @@ export interface GraphQLModuleOptions<Config, Session, Context> {
   directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Session, Context>;
   logger?: GraphQLModuleOption<ILogger, Config, Session, Context>;
   extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Session, Context>;
-  middleware?: (module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Partial<ModuleCache<Session, Context>>;
+  middleware?: (
+    module: GraphQLModule<Config, Session, Context>,
+    ...args: any[]
+  ) => Partial<ModuleCache<Session, Context>> | void;
   cache?: KeyValueCache;
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
@@ -113,6 +140,7 @@ export interface ModuleCache<Session, Context> {
   directiveResolvers: IDirectiveResolvers;
   subscriptionHooks: ISubscriptionHooks;
   imports: GraphQLModule[];
+  formatResponse: <Response>(response: Response, session: Session) => Promise<Response>;
 }
 
 /**
@@ -122,8 +150,7 @@ export interface ModuleCache<Session, Context> {
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `forRoot`
  */
-export class GraphQLModule<Config = any, Session = any, Context = any> {
-
+export class GraphQLModule<Config = any, Session extends object = any, Context = any> {
   private _cache: ModuleCache<Session, Context> = {
     injector: undefined,
     schema: undefined,
@@ -135,16 +162,14 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     directiveResolvers: undefined,
     subscriptionHooks: undefined,
     imports: undefined,
+    formatResponse: undefined,
   };
 
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(
-    private _options: GraphQLModuleOptions<Config, Session, Context> = {},
-    private _moduleConfig?: Config,
-  ) {
+  constructor(private _options: GraphQLModuleOptions<Config, Session, Context> = {}, private _moduleConfig?: Config) {
     const getFilename = (id: string) => id.split('/').pop();
     const generateName = () => {
       const randomId = Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
@@ -153,8 +178,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       }
       return randomId;
     };
-    _options.name =
-      _options.name || generateName();
+    _options.name = _options.name || generateName();
     if (!('logger' in _options)) {
       _options.logger = console;
     }
@@ -162,7 +186,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       const storage = new Map<string, any>();
       _options.cache = {
         get: async key => storage.get(key),
-        set: async (key, value) => { storage.set(key, value); },
+        set: async (key, value) => {
+          storage.set(key, value);
+        },
         delete: async key => storage.delete(key),
       };
     }
@@ -189,6 +215,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       directiveResolvers: undefined,
       subscriptionHooks: undefined,
       imports: undefined,
+      formatResponse: undefined,
     };
     return this;
   }
@@ -241,56 +268,20 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         const selfLogger = this.selfLogger;
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
-        const schemaDirectives = this.schemaDirectives;
-        // Workaround for schemaDirectives
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
-          if (Object.keys(schemaDirectives).length) {
-            const schemas = [
+          this._cache.schema = mergeSchemas({
+            schemas: [
               ...importsSchemas,
               ...selfExtraSchemas,
-            ];
-            // It creates an executable schema to visit only this module's type definitions
-            const schemaWithSelfResolvers = makeExecutableSchema({
-              typeDefs: mergeTypeDefs(selfTypeDefs ? [
-                ...schemas,
-                selfTypeDefs,
-              ] : schemas),
-              resolvers: selfEncapsulatedResolvers,
-              schemaDirectives,
-            });
-            this._cache.schema = makeExecutableSchema({
-              typeDefs: printSchema(schemaWithSelfResolvers),
-              resolvers: composeResolvers(
-                mergeResolvers([
-                  ...schemas.map(schema => extractResolversFromSchema(schema)),
-                  // extracts only this module's type definitions' resolvers
-                  // but you need directives even for an invalid schema
-                  extractResolversFromSchema(schemaWithSelfResolvers, {
-                    selectedTypeDefs: selfTypeDefs,
-                  }),
-                ]),
-                selfEncapsulatedResolversComposition,
-              ),
-              resolverValidationOptions: selfResolverValidationOptions,
-              logger: 'clientError' in selfLogger ? {
-                log: message => selfLogger.clientError(message),
-              } : undefined,
-            });
-          } else {
-            this._cache.schema = mergeSchemas({
-              schemas: [
-                ...importsSchemas,
-                ...selfExtraSchemas,
-              ],
-              typeDefs: selfTypeDefs || undefined,
-              resolvers: selfEncapsulatedResolvers,
-              resolversComposition: selfEncapsulatedResolversComposition,
-              resolverValidationOptions: selfResolverValidationOptions,
-              logger: 'clientError' in selfLogger ? {
-                log: message => selfLogger.clientError(message),
-              } : undefined,
-            });
-          }
+            ],
+            typeDefs: selfTypeDefs || undefined,
+            resolvers: selfEncapsulatedResolvers,
+            resolversComposition: selfEncapsulatedResolversComposition,
+            resolverValidationOptions: selfResolverValidationOptions,
+            logger: 'clientError' in selfLogger ? {
+              log: message => selfLogger.clientError(message),
+            } : undefined,
+          });
         } else {
           this._cache.schema = null;
         }
@@ -318,28 +309,15 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
   get injector(): Injector {
     if (typeof this._cache.injector === 'undefined') {
       this.checkConfiguration();
-      const injectors = new Array<Injector>();
-      const selfImports = this.selfImports;
-      for (const module of selfImports) {
-        const moduleInjector = module.injector;
-        injectors.push(moduleInjector);
-      }
-      const injector = this._cache.injector = new Injector(
+      this._cache.injector = new Injector(
         this.name,
         ProviderScope.Application,
         this.selfDefaultProviderScope,
-        injectors,
+        ['onInit', 'onRequest', 'initialize', 'onResponse', 'onConnect', 'onDisconnect'],
+        this.selfProviders,
+        this.selfImports.map(module => module.injector),
       );
-
-      const selfProviders = this.selfProviders;
-
-      for (const provider of selfProviders) {
-        injector.provide(provider);
-      }
-
-      for (const serviceIdentifier of injector.scopeServiceIdentifiers) {
-        injector.get(serviceIdentifier);
-      }
+      this._cache.injector.callHookWithArgs('onInit', this);
     }
     return this._cache.injector;
   }
@@ -425,7 +403,9 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
       const selfDirectiveResolvers = this.selfDirectiveResolvers;
       // tslint:disable-next-line:forin
       for (const directiveName in selfDirectiveResolvers) {
-        selfSchemaDirectives[directiveName] = getSchemaDirectiveFromDirectiveResolver(selfDirectiveResolvers[directiveName]);
+        selfSchemaDirectives[directiveName] = getSchemaDirectiveFromDirectiveResolver(
+          selfDirectiveResolvers[directiveName],
+        );
       }
       schemaDirectivesSet.push(selfSchemaDirectives);
       this._cache.schemaDirectives = deepmerge.all([...schemaDirectivesSet]) as ISchemaDirectives;
@@ -443,61 +423,43 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
           subscriptionHooks.push(moduleSubscriptionHooks);
         }
       }
-      let onConnectHookProviders: Array<ServiceIdentifier<any>>;
-      let onDisconnectHookProviders: Array<ServiceIdentifier<any>>;
       this._cache.subscriptionHooks = {
         onConnect: async (connectionParams, websocket, connectionSession) => {
-          const moduleNameContext$Map = this.getModuleNameContext$Map(connectionSession);
-          if (!moduleNameContext$Map.has(this.name)) {
-            const importsOnConnectHooks$ = subscriptionHooks.map(async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession));
+          if (!this._sessionContext$Map.has(connectionSession)) {
+            const importsOnConnectHooks$ = subscriptionHooks.map(
+              async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession),
+            );
             const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
             const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
             const connectionContext = await this.context(connectionSession);
-            const applicationInjector = this.injector;
             const sessionInjector = connectionContext.injector;
-            if (!onConnectHookProviders) {
-              onConnectHookProviders = [
-                    ...applicationInjector.scopeServiceIdentifiers,
-                    ...sessionInjector.scopeServiceIdentifiers,
-                ].filter(serviceIdentifier => {
-                    const instance = sessionInjector.get(serviceIdentifier);
-                    return (instance &&
-                        typeof instance !== 'string' &&
-                        typeof instance !== 'number' &&
-                        ('onConnect' in instance));
-                });
-            }
-            const results = await Promise.all(onConnectHookProviders.map(serviceIdentifier => sessionInjector.callHookWithArgs('onConnect', serviceIdentifier, connectionParams, websocket, connectionContext)));
-            const hookResult = results.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-            moduleNameContext$Map.set(this.name, Promise.resolve({
-              ...importsResult,
-              ...connectionContext,
-              ...hookResult,
-            }));
-        }
-          return moduleNameContext$Map.get(this.name);
+            const hookResult = await sessionInjector.callHookWithArgs(
+              'onConnect',
+              connectionParams,
+              websocket,
+              connectionContext,
+            );
+            this._sessionContext$Map.set(
+              connectionSession,
+              Promise.resolve({
+                ...importsResult,
+                ...connectionContext,
+                ...hookResult,
+              }),
+            );
+          }
+          return this._sessionContext$Map.get(connectionSession);
         },
         onDisconnect: async (websocket, connectionSession) => {
-          const importsOnDisconnectHooks$ = subscriptionHooks.map(async ({ onDisconnect }) => onDisconnect && onDisconnect(websocket, connectionSession));
+          const importsOnDisconnectHooks$ = subscriptionHooks.map(
+            async ({ onDisconnect }) => onDisconnect && onDisconnect(websocket, connectionSession),
+          );
           const importsOnDisconnectHooks = await Promise.all(importsOnDisconnectHooks$);
           importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
           const connectionContext = await this.context(connectionSession);
-          const applicationInjector = this.injector;
-          const sessionInjector = this.injector.getSessionInjector(connectionSession);
-          if (!onDisconnectHookProviders) {
-            onDisconnectHookProviders = [
-                  ...applicationInjector.scopeServiceIdentifiers,
-                  ...sessionInjector.scopeServiceIdentifiers,
-              ].filter(serviceIdentifier => {
-                  const instance = sessionInjector.get(serviceIdentifier);
-                  return (instance &&
-                      typeof instance !== 'string' &&
-                      typeof instance !== 'number' &&
-                      ('onDisconnect' in instance));
-              });
-          }
-          await Promise.all(onDisconnectHookProviders.map(serviceIdentifier => sessionInjector.callHookWithArgs('onDisconnect', serviceIdentifier, websocket, connectionContext)));
-          GraphQLModule.sessionModuleNameContext$Map.delete(connectionSession);
+          const sessionInjector = connectionContext.injector;
+          await sessionInjector.callHookWithArgs('onDisconnect', websocket, connectionContext);
+          this.destroySessionContext(connectionSession);
         },
       };
     }
@@ -653,22 +615,6 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return directiveResolvers;
   }
 
-  private checkIfResolverCalledSafely(resolverPath: string, appContext: any, info: any) {
-    if (typeof appContext === 'undefined') {
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `Module Context hasn't been passed!`);
-    }
-    const session = info.session || appContext.session;
-    info.session = session;
-    if (typeof session === 'undefined' || 'connection' in session && !('session' in session['connection']['context'])) {
-      // tslint:disable-next-line:no-console
-      console.log(appContext);
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `Network Session hasn't been passed!`);
-    }
-    if (typeof info === 'undefined') {
-      throw new IllegalResolverInvocationError(resolverPath, this.name, `GraphQL Resolve Information hasn't been passed!`);
-    }
-  }
-
   private addSessionInjectorToSelfResolversContext() {
     const resolvers = this.selfResolvers;
     // tslint:disable-next-line:forin
@@ -683,12 +629,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;
+                } else if (typeof appContext === 'undefined') {
+                  appContext = info;
                 }
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-                const session = info.session;
+                info.session = info.session || appContext.session || appContext;
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(session, true);
+                  moduleContext = await this.context(info.session, true);
                 } catch (e) {
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
@@ -703,12 +650,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;
+                } else if (typeof appContext === 'undefined') {
+                  appContext = info;
                 }
-                this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-                const session = info.session;
+                info.session = info.session || appContext.session || appContext;
                 let moduleContext;
                 try {
-                  moduleContext = await this.context(session, true);
+                  moduleContext = await this.context(info.session, true);
                 } catch (e) {
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
@@ -725,12 +673,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
             typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
               if (appContext instanceof Promise) {
                 appContext = await appContext;
+              } else if (typeof appContext === 'undefined') {
+                appContext = info;
               }
-              this.checkIfResolverCalledSafely(`${type}.${prop}`, appContext, info);
-              const session = info.session;
+              info.session = info.session || appContext.session || appContext;
               let moduleContext;
               try {
-                moduleContext = await this.context(session, true);
+                moduleContext = await this.context(info.session, true);
               } catch (e) {
                 const logger = this.selfLogger;
                 if ('clientError' in logger) {
@@ -757,12 +706,13 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
             appContext = await appContext;
+          } else if (typeof appContext === 'undefined') {
+            appContext = info;
           }
-          this.checkIfResolverCalledSafely(path, appContext, info);
-          const session = info.session;
+          info.session = info.session || appContext.session || appContext;
           let moduleContext;
           try {
-            moduleContext = await this.context(session, true);
+            moduleContext = await this.context(info.session, true);
           } catch (e) {
             const logger = this.selfLogger;
             if ('clientError' in logger) {
@@ -798,7 +748,10 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     if (resolverValidationOptionsDefinitions) {
       if (resolverValidationOptionsDefinitions instanceof Function) {
         this.checkConfiguration();
-        resolverValidationOptions = this.injector.call(resolverValidationOptionsDefinitions as () => IResolverValidationOptions, this);
+        resolverValidationOptions = this.injector.call(
+          resolverValidationOptionsDefinitions as () => IResolverValidationOptions,
+          this,
+        );
       } else {
         resolverValidationOptions = resolverValidationOptionsDefinitions as IResolverValidationOptions;
       }
@@ -806,15 +759,7 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
     return resolverValidationOptions;
   }
 
-  private static sessionModuleNameContext$Map = new WeakMap<any, Map<string, Promise<any>>>();
-
-  getModuleNameContext$Map(session: Session): Map<string, Promise<ModuleContext<Context>>> {
-    if (!GraphQLModule.sessionModuleNameContext$Map.has(session)) {
-      GraphQLModule.sessionModuleNameContext$Map.set(session, new Map());
-    }
-
-    return GraphQLModule.sessionModuleNameContext$Map.get(session);
-  }
+  private _sessionContext$Map = new WeakMap<Session, Promise<ModuleContext<Context>>>();
 
   /**
    * Build a GraphQL `context` object based on a network session.
@@ -829,81 +774,96 @@ export class GraphQLModule<Config = any, Session = any, Context = any> {
    *
    * @param session - the network session from `connect`, `express`, etc...
    */
-  get context(): (session: Session, excludeSession?: boolean, excludeInjector?: boolean) => Promise<ModuleContext<Context>> {
+  get context(): (
+    session: Session,
+    excludeSession?: boolean,
+    excludeInjector?: boolean,
+  ) => Promise<ModuleContext<Context>> {
     if (!this._cache.contextBuilder) {
-      const contextBuilders = new Array<(session: Session, excludeSession?: boolean, excludeInjector?: boolean) => Promise<ModuleContext<Context>>>();
       const selfImports = this.selfImports;
-      for (const module of selfImports) {
-        const moduleContextBuilder = module.context;
-        contextBuilders.push(moduleContextBuilder);
-      }
-      let hookProviders: Array<ServiceIdentifier<any>>;
       this._cache.contextBuilder = (session, excludeSession = false, excludeInjector = false) => {
-        // tslint:disable-next-line:no-console
-        session = 'connection' in session ? session['connection']['context']['session'] : session;
-        const moduleNameContext$Map = this.getModuleNameContext$Map(session);
-        if (!(moduleNameContext$Map.has(this.name))) {
-            moduleNameContext$Map.set(this.name, new Promise(async (resolve, reject) => {
-                try {
-                    const importsContext = {};
-                    for (const contextBuilder of contextBuilders) {
-                        Object.assign(importsContext, await contextBuilder(session, true));
-                    }
-                    const applicationInjector = this.injector;
-                    const sessionInjector = applicationInjector.getSessionInjector(session);
-                    const moduleSessionInfo = sessionInjector.has(ModuleSessionInfo) ? sessionInjector.get(ModuleSessionInfo) : new ModuleSessionInfo(this, session);
-                    let moduleContext;
-                    const moduleContextDeclaration = this._options.context;
-                    if (moduleContextDeclaration) {
-                        if (moduleContextDeclaration instanceof Function) {
-                            moduleContext = await moduleContextDeclaration(session, Object.assign(importsContext, { injector: sessionInjector }), moduleSessionInfo);
-                        }
-                        else {
-                            moduleContext = await moduleContextDeclaration;
-                        }
-                    }
-                    if (!hookProviders) {
-                        hookProviders = [
-                            ...applicationInjector.scopeServiceIdentifiers,
-                            ...sessionInjector.scopeServiceIdentifiers,
-                        ].filter(serviceIdentifier => {
-                            const instance = sessionInjector.get(serviceIdentifier);
-                            return (instance &&
-                                typeof instance !== 'string' &&
-                                typeof instance !== 'number' &&
-                                ('onRequest' in instance || 'initialize' in instance));
-                        });
-                    }
-                    moduleSessionInfo.context = Object.assign(importsContext, moduleContext);
-                    await Promise.all(hookProviders.map(serviceIdentifier => moduleSessionInfo.callSessionHook(serviceIdentifier)));
-                    resolve(moduleSessionInfo.context);
+        session = normalizeSession(session);
+        if (!this._sessionContext$Map.has(session)) {
+          this._sessionContext$Map.set(
+            session,
+            new Promise(async (resolve, reject) => {
+              try {
+                const importsContext = {};
+                if (selfImports.length) {
+                  const importsContexts = await Promise.all(selfImports.map(module => module.context(session, true)));
+                  Object.assign(importsContext, ...importsContexts);
                 }
-                catch (e) {
-                    if (e instanceof ContextBuilderError) {
-                        reject(e);
-                    }
-                    else {
-                        reject(new ContextBuilderError(this.name, e));
-                    }
+                const applicationInjector = this.injector;
+                const sessionInjector = applicationInjector.getSessionInjector(session);
+                const moduleSessionInfo = new ModuleSessionInfo(this, session);
+                let moduleContext;
+                const moduleContextDeclaration = this._options.context;
+                if (moduleContextDeclaration) {
+                  if (moduleContextDeclaration instanceof Function) {
+                    moduleContext = await moduleContextDeclaration(
+                      session,
+                      { ...importsContext, injector: sessionInjector },
+                      moduleSessionInfo,
+                    );
+                  } else {
+                    moduleContext = await moduleContextDeclaration;
+                  }
                 }
-            }));
+                moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
+                await Promise.all([
+                  sessionInjector.callHookWithArgs('onRequest', moduleSessionInfo),
+                  sessionInjector.callHookWithArgs('initialize', moduleSessionInfo),
+                ]);
+                resolve(moduleSessionInfo.context);
+              } catch (e) {
+                reject(e);
+              }
+            }),
+          );
         }
         if (excludeInjector && excludeSession) {
-            return moduleNameContext$Map.get(this.name);
+          return this._sessionContext$Map.get(session);
         }
-        return moduleNameContext$Map.get(this.name).then(moduleContext => {
-            const finalContext = Object.assign({}, moduleContext);
-            if (!excludeInjector) {
-                finalContext.injector = this.injector.getSessionInjector(session);
-            }
-            if (!excludeSession) {
-                finalContext['session'] = session;
-            }
-            return finalContext;
+        return this._sessionContext$Map.get(session).then(moduleContext => {
+          const finalContext = Object.assign({}, moduleContext);
+          if (!excludeInjector) {
+            finalContext.injector = this.injector.getSessionInjector(session);
+          }
+          if (!excludeSession) {
+            finalContext['session'] = session;
+          }
+          return finalContext;
         });
       };
     }
     return this._cache.contextBuilder;
   }
 
+  private destroySessionContext(session: Session) {
+    this.injector.destroySessionInjector(session);
+    this._sessionContext$Map.delete(session);
+  }
+
+  get formatResponse() {
+    if (!this._cache.formatResponse) {
+      const responseFormatters = new Array<(response: any, session: Session) => Promise<any>>();
+      const selfImports = this.selfImports;
+      for (const module of selfImports) {
+        const moduleFormatResponse = module.formatResponse;
+        responseFormatters.push(moduleFormatResponse);
+      }
+      this._cache.formatResponse = async <Response>(response: Response, session: Session) => {
+        session = normalizeSession(session);
+        for (const moduleFormatResponse of responseFormatters) {
+          await moduleFormatResponse(response, session);
+        }
+        const applicationInjector = this.injector;
+        const sessionInjector = applicationInjector.getSessionInjector(session);
+        await sessionInjector.callHookWithArgs('onResponse', sessionInjector.get(ModuleSessionInfo));
+        this.destroySessionContext(session);
+        return response;
+      };
+    }
+    return this._cache.formatResponse;
+  }
 }

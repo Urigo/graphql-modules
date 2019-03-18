@@ -5157,10 +5157,10 @@ neo-async@^2.5.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.0.tgz#b9d15e4d71c6762908654b5183ed38b753340835"
   integrity sha512-MFh0d/Wa7vkKO3Y3LlacqAEeHK0mckVqzDieUKTT+KGxi+zIpeVsFxymkIiRpbpDziHc290Xr9A1O4Om7otoRA==
 
-netlify-lambda@1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/netlify-lambda/-/netlify-lambda-1.4.2.tgz#cd4972c942e449c64b30d58ca7d7725a58547fb7"
-  integrity sha512-Iy9SoS0sAyAHP8Bg93kLO+/RJkSf8Q0NqzBchMNAa6xKbDmcTxqg6crMk3mRNkCewgWhvN5uGSWmaA7FZHN1sQ==
+netlify-lambda@1.4.3:
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/netlify-lambda/-/netlify-lambda-1.4.3.tgz#99f4999e31b54bbab8dd167382a3e2e73f749911"
+  integrity sha512-mxZiSeuAW0K9s41RFr1Fw2ZmX/786pUOx0AJbyEpKamtl+CyviRohj8id+fZEkAZqwCd+HkVxYqCcCjShNBsZQ==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -7192,10 +7192,10 @@ svgo@^1.0.5:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@8.2.1:
-  version "8.2.1"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.2.1.tgz#641cb3db8a9a957dc15d07d8efc58bfd02a5cd11"
-  integrity sha512-ozle0Jek8Nua7FTW9Q5wi0jMbzKnR+TeJjh8nK59+vJ5w9Yxf3agrihaUvzq3t4Xx1PPEB50mJaTBVDi3tf7xw==
+sweetalert2@8.5.0:
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.5.0.tgz#453ee0b3dd4ab5b8d89b1588c48ea90d74b16d63"
+  integrity sha512-cvGitYfnutaRIWuLJ+p+eLXieJyodWpB9F8AtD6Y5uNWN5OcQD1dDwN7VPDo4U7y4ni3rgK9gDYmkz9RCf4PSA==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"

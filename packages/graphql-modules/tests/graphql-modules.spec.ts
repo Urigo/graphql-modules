@@ -1,4 +1,4 @@
-describe('GraphQL-Modules', async () => {
+describe('GraphQL-Modules', () => {
   it('some test', async () => {
     expect('').toBe('');
   });

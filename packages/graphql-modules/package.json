@@ -1,13 +1,14 @@
 {
   "name": "graphql-modules",
-  "version": "0.4.2",
+  "version": "0.6.5",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
-  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "yarn clean",
+    "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
     "test": "jest",
-    "build": "tsc",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
@@ -34,17 +35,19 @@
     ]
   },
   "devDependencies": {
-    "jest": "24.1.0",
-    "tslint": "5.12.1",
-    "typescript": "3.3.3"
+    "jest": "24.5.0",
+    "tslint": "5.14.0",
+    "typescript": "3.3.3333"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.4.2",
+    "@graphql-modules/core": "0.6.5",
     "tslib": "1.9.3"
   },
-  "typings": "./dist/index.d.ts",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/esnext/index.js",
+  "typings": "dist/esnext/index.d.ts",
   "typescript": {
-    "definition": "./dist/index.d.ts"
+    "definition": "dist/esnext/index.d.ts"
   },
   "publishConfig": {
     "access": "public"

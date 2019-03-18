@@ -1,13 +1,14 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.4.2",
+  "version": "0.6.5",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
-  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "yarn clean",
+    "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
     "test": "jest",
-    "build": "tsc",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
@@ -30,8 +31,9 @@
     ]
   },
   "dependencies": {
-    "@graphql-modules/di": "0.4.2",
-    "graphql-toolkit": "0.0.6-3080cc3.0",
+    "@graphql-modules/di": "0.6.5",
+    "graphql-toolkit": "0.2.6",
+    "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
   },
   "peerDependencies": {
@@ -42,13 +44,16 @@
     "apollo-client": "2.4.12",
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
-    "graphql-tools": "4.0.4",
-    "tslint": "5.12.1",
-    "typescript": "3.3.3"
+    "jest": "24.5.0",
+    "tslint": "5.14.0",
+    "typescript": "3.3.3333"
   },
-  "typings": "./dist/index.d.ts",
+  "sideEffects": false,
+  "main": "dist/commonjs/index.js",
+  "module": "dist/esnext/index.js",
+  "typings": "dist/esnext/index.d.ts",
   "typescript": {
-    "definition": "./dist/index.d.ts"
+    "definition": "dist/esnext/index.d.ts"
   },
   "publishConfig": {
     "access": "public"

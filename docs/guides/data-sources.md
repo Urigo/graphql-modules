@@ -115,11 +115,10 @@ As described in Apollo Server docs, GraphQL-Modules also uses in-memory caching 
 You can share GraphQL-Modules cache mechanism with your GraphQL Server;
 
 ```typescript
-  const { schema, context, cache } = YourGraphQLModule;
+  const { schema, cache } = YourGraphQLModule;
 
   new ApolloServer({
     schema,
-    context,
     cache
   });
 ```
