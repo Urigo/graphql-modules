@@ -269,7 +269,7 @@ export class Injector<Session extends object = any> {
     if (serviceIdentifiers) {
       Object.assign(
         finalResult,
-        Promise.all(
+        ...await Promise.all(
           serviceIdentifiers.map(async serviceIdentifier => {
             const instance = this.get(serviceIdentifier);
             if (instance) {

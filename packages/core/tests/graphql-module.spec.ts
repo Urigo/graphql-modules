@@ -116,7 +116,7 @@ describe('GraphQLModule', () => {
     const schema = app.schema;
 
     expect(schema).toBeDefined();
-    expect((schema as any) instanceof GraphQLSchema).toBeTruthy();
+    expect(schema instanceof GraphQLSchema).toBeTruthy();
     expect(stripWhitespaces(printSchema(schema))).toBe(stripWhitespaces(`
       type A {
         f: String
@@ -141,7 +141,6 @@ describe('GraphQLModule', () => {
     const schema = app.schema;
     const result = await execute({
       schema,
-
       document: testQuery,
     });
     expect(result.errors).toBeFalsy();
@@ -472,7 +471,7 @@ describe('GraphQLModule', () => {
     });
   });
   describe('onResponse Hook', () => {
-    
+
     it('should call onResponse hook on each session', async () => {
       let counter = 0;
       const fooSession = {};
@@ -643,7 +642,7 @@ describe('GraphQLModule', () => {
       });
       const result = await execute({
         schema,
-          
+
         document: gql`query { foo }`,
         contextValue: await context({ req: {} }),
       });
@@ -802,7 +801,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString,
           });
 
-          field.resolve = async function (
+          field.resolve = async function(
             source,
             args,
             context,
@@ -848,7 +847,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString,
           });
 
-          field.resolve = async function (
+          field.resolve = async function(
             source,
             args,
             context,

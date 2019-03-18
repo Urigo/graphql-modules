@@ -849,10 +849,10 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
             session,
             new Promise(async (resolve, reject) => {
               try {
-                let importsContext = {};
+                const importsContext = {};
                 if (selfImports.length) {
                   const importsContexts = await Promise.all(selfImports.map(module => module.context(session, true)));
-                  importsContext = Object.assign(importsContext, importsContexts);
+                  Object.assign(importsContext, ...importsContexts);
                 }
                 const applicationInjector = this.injector;
                 const sessionInjector = applicationInjector.getSessionInjector(session);
@@ -863,7 +863,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   if (moduleContextDeclaration instanceof Function) {
                     moduleContext = await moduleContextDeclaration(
                       session,
-                      Object.assign(importsContext, { injector: sessionInjector }),
+                      { ...importsContext, injector: sessionInjector },
                       moduleSessionInfo,
                     );
                   } else {
