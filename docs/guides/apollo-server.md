@@ -23,6 +23,11 @@ const AppModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
+  schema: AppModule.schema,
+  context: session => session,
+})
+// or use `modules` in `ApolloServer`
+const server = new ApolloServer({
   modules: [
     AppModule
   ],

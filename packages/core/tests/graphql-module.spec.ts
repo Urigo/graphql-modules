@@ -5,6 +5,8 @@ import {
   ModuleContext,
   OnRequest,
   ModuleConfigRequiredError,
+  OnResponse,
+  OnInit,
 } from '../src';
 import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print, GraphQLScalarType, Kind } from 'graphql';
 import { stripWhitespaces } from './utils';
@@ -249,23 +251,23 @@ describe('GraphQLModule', () => {
   });
 
   describe('Module Dependencies', () => {
-    it('should init modules in the right order', async () => {
+    it('should init modules in the right order with onInit hook', async () => {
       let counter = 0;
 
       @Injectable()
-      class Provider1 {
+      class Provider1 implements OnInit {
         count: number;
 
-        constructor() {
+        onInit() {
           this.count = counter++;
         }
       }
 
       @Injectable()
-      class Provider2 {
+      class Provider2 implements OnInit {
         count: number;
 
-        constructor() {
+        onInit() {
           this.count = counter++;
         }
       }
@@ -467,6 +469,122 @@ describe('GraphQLModule', () => {
       expect(result.errors).toBeFalsy();
       expect(receivedSession).toBe(fooSession);
       expect(result.data.foo).toBe(fooSession.foo);
+    });
+  });
+  describe('onResponse Hook', () => {
+    
+    it('should call onResponse hook on each session', async () => {
+      let counter = 0;
+      const fooSession = {};
+      @Injectable()
+      class FooProvider implements OnResponse {
+        onResponse() {
+          counter++;
+        }
+      }
+
+      const { schema, formatResponse } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => '',
+          },
+        },
+        providers: [
+          FooProvider,
+        ],
+      });
+      await execute({
+        schema,
+        contextValue: fooSession,
+        document: gql`query { foo }`,
+      });
+      await formatResponse({}, fooSession);
+      expect(counter).toBe(1);
+      await execute({
+        schema,
+        contextValue: fooSession,
+        document: gql`query { foo }`,
+      });
+      await formatResponse({}, fooSession);
+      expect(counter).toBe(2);
+      await execute({
+        schema,
+        contextValue: fooSession,
+        document: gql`query { foo }`,
+      });
+      await formatResponse({}, fooSession);
+      expect(counter).toBe(3);
+    });
+
+    it('should pass network session to onResponse hook', async () => {
+      const fooSession = {
+        foo: 'bar',
+      };
+      let receivedSession;
+
+      @Injectable()
+      class FooProvider implements OnResponse {
+        onResponse(moduleInfo: ModuleSessionInfo) {
+          receivedSession = moduleInfo.session;
+        }
+      }
+
+      const { schema, formatResponse } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (root, args, { injector }: ModuleContext) => injector.get(ModuleSessionInfo).session.foo,
+          },
+        },
+        providers: [
+          FooProvider,
+        ],
+      });
+      const result = await execute({
+        schema,
+        document: gql`query { foo }`,
+        contextValue: fooSession,
+      });
+      await formatResponse({}, fooSession);
+      expect(result.errors).toBeFalsy();
+      expect(receivedSession).toBe(fooSession);
+      expect(result.data.foo).toBe(fooSession.foo);
+    });
+    it('should destroy session context after response', async () => {
+      const fooSession = {
+        foo: 'bar',
+      };
+
+      const myModule = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (root, args, { injector }: ModuleContext) => injector.get(ModuleSessionInfo).session.foo,
+          },
+        },
+      });
+      const result = await execute({
+        schema: myModule.schema,
+        document: gql`query { foo }`,
+        contextValue: fooSession,
+      });
+      await myModule.formatResponse({}, fooSession);
+      expect(result.errors).toBeFalsy();
+      expect(myModule['_sessionContext$Map'].has(fooSession)).toBeFalsy();
+      expect(myModule.injector['_sessionSessionInjectorMap'].has(fooSession)).toBeFalsy();
     });
   });
   describe('Resolvers Composition', () => {
@@ -1130,11 +1248,11 @@ describe('GraphQLModule', () => {
   });
   it('should exclude network session', async () => {
     const { schema, context } = new GraphQLModule({
-      context: {
+      context: () => ({
         session: { foo: 'BAR' },
         // this session is not request that is internally passed by GraphQLModules
         // this session must be passed instead of Network Session
-      },
+      }),
       typeDefs: gql`
         type Query {
           foo: String

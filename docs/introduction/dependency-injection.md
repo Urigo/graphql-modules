@@ -220,18 +220,44 @@ export const MyModule = new GraphQLModule({
 
 ## Hooks
 
-### `OnRequest hook`
+### `OnInit` hook
+
+This hook is called once when your application is started.
+
+Example;
+
+```typescript
+import { Injectable } from '@graphql-modules/di';
+import { OnRequest } from '@graphql-modules/core';
+@Injectable()
+export class DatabaseProvider implements OnInit {
+    constructor(private dbClient: DbClient) {}
+    onInit() {
+        this.dbClient.connect();
+        console.info('Database Client is connected!');
+    }
+}
+```
+
+### `OnRequest` hook
 
 You can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network session by defining this hook as a method in your class provider.
 
 ```typescript
 import { Injectable, OnRequest } from '@graphql-modules/core';
 
-@Injectable()
-export class MyProvider implements OnRequest {
+Example;
 
+@Injectable({
+    scope: ProviderScope.Session
+})
+export class AuthProvider implements OnRequest {
+    userId: string;
     onRequest(moduleSessionInfo: ModuleSessionInfo) {
         // ...do your magic...
+        // Let's assume you have your network request object under req property of network session
+        const authToken = moduleSessionInfo.session.req.headers.authentication;
+        this.userId = someFnForTokenExchange(authToken);
     }
 }
 ```
@@ -240,26 +266,93 @@ export class MyProvider implements OnRequest {
 [API of `OnRequest` is available here](/docs/api/core/api-interfaces-onrequest)
 [API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
 
+### `OnResponse` hook (experimental)
+
+It takes same parameter like `OnRequest` hook but it gets called even before the server sends HTTP response to the client.
+
+Example;
+
+```typescript
+import { Injectable, OnResponse } from '@graphql-modules/core';
+
+@Injectable()
+export class MyProvider implements OnResponse {
+
+    onResponse(moduleSessionInfo: ModuleSessionInfo) {
+        // ...do your magic...
+        clearDatabasePool(moduleSessionInfo.session);
+    }
+}
+```
+
+#### Note:
+> For now it only works with Apollo-Server, and you need to pass `formatResponse` from GraphQL-Modules.
+```typescript
+const { schema, formatResponse } = new GraphQLModule({
+    providers: [MyProvider],
+    ...
+});
+
+new ApolloServer({
+    schema,
+    context: session => session,
+    formatResponse
+});
+```
+
+
+> `OnResponse` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
+[API of `OnResponse` is available here](/docs/api/core/api-interfaces-onresponse)
+[API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
+
 ### `OnConnect hook`
 
 This hook is similar to `OnRequest` hook, but this is called on the initialization of WebSockets connection. It is exactly same with `OnConnect` hook that is passed to `subscriptions` in **Apollo Server**.
 
 [You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
 
+Example;
+
 ```typescript
 import { Injectable, OnConnect } from '@graphql-modules/core';
 
-@Injectable()
-export class MyProvider implements OnConnect {
-
-    onConnect(connectionParams, webSocket) {
+@Injectable({
+    scope: ProviderScope.Session
+})
+export class AuthProvider implements OnConnect {
+    userId: string;
+    onConnect(connectionParams) {
         // ...do your magic...
+        const authToken = connectionParams.authentication;
+        this.userId = someFnForTokenExchange(authToken);
     }
 }
 ```
 
 > `OnConnect` hook is called once for each WebSocket GraphQL connection.
-[API of `OnConnect` is available here](/docs/api/core/api-interfaces-onrequest)
+[API of `OnConnect` is available here](/docs/api/core/api-interfaces-onconnct)
+
+### `OnDisconnect hook`
+
+This hook is similar to `OnResponse` hook, but this is called on the termination of WebSockets connection. It is exactly same with `OnDisconnect` hook that is passed to `subscriptions` in **Apollo Server**.
+
+[You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
+
+```typescript
+import { Injectable, OnDisconnect } from '@graphql-modules/core';
+
+@Injectable()
+export class MyProvider implements OnDisconnect {
+
+    onDisconnect(connectionParams, webSocket) {
+        // ...do your magic...
+        clearSomeSubscriptions(moduleSessionInfo.session);
+    }
+}
+```
+
+> `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
+[API of `OnDisconnect` is available here](/docs/api/core/api-interfaces-ondisconnect)
 
 ## Provider Scopes
 

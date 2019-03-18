@@ -92,21 +92,18 @@ export interface User {
   lastName: string;
 }
 
-export interface IAuthModuleContext {
-  currentUser: User;
-}
-
-export interface IAuthModuleRequest {
+export interface ISession {
   req: express.Request;
+  res: express.Response;
 }
 
-export const AuthModule = new GraphQLModule<{}, IAuthModuleRequest, IAuthModuleContext>({
+export const AuthModule = new GraphQLModule({
     typeDefs,
     resolvers,
     providers: [
       AuthenticationProvider,
     ],
-    async context(session, currentContext, { injector }) {
+    async context(session: ISession, currentContext, { injector }) {
         const authToken = session.req.headers.authentication;
         const currentUser = injector.get(AuthenticationProvider).authorizeUser(authToken);
         return {

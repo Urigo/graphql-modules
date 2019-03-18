@@ -13,6 +13,7 @@
       "introduction/implement-server",
       "introduction/implement-resolvers",
       "introduction/implement-providers",
+      "introduction/understanding-session",
       "introduction/dependencies",
       "introduction/dependency-injection",
       "introduction/configuration",
