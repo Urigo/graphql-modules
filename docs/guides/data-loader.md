@@ -39,7 +39,7 @@ You can see how to generate DataLoader in GraphQLModules using factory functions
         scope: ProviderScope.Session
         provide: MY_DATA_LOADER,
         useFactory:
-          Inject(ModuleSessionInfo)( 
+          InjectFunction(ModuleSessionInfo)( 
             // Use Dependency Injection to get ModuleSessionInfo to access network session
             ({ session }) => new DataLoader(
               ids => genUsers(session.req.authToken, ids)

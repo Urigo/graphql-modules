@@ -228,7 +228,7 @@ Example;
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
-import { OnRequest } from '@graphql-modules/core';
+import { OnInit } from '@graphql-modules/core';
 @Injectable()
 export class DatabaseProvider implements OnInit {
     constructor(private dbClient: DbClient) {}
@@ -244,7 +244,8 @@ export class DatabaseProvider implements OnInit {
 You can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network session by defining this hook as a method in your class provider.
 
 ```typescript
-import { Injectable, OnRequest } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
+import { OnRequest } from '@graphql-modules/core';
 
 Example;
 
@@ -273,7 +274,8 @@ It takes same parameter like `OnRequest` hook but it gets called even before the
 Example;
 
 ```typescript
-import { Injectable, OnResponse } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
+import { OnResponse } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnResponse {
@@ -314,7 +316,8 @@ This hook is similar to `OnRequest` hook, but this is called on the initializati
 Example;
 
 ```typescript
-import { Injectable, OnConnect } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
+import { OnConnect } from '@graphql-modules/core';
 
 @Injectable({
     scope: ProviderScope.Session
@@ -339,7 +342,8 @@ This hook is similar to `OnResponse` hook, but this is called on the termination
 [You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
 
 ```typescript
-import { Injectable, OnDisconnect } from '@graphql-modules/core';
+import { Injectable } from '@graphql-modules/di';
+import { OnDisconnect } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnDisconnect {
@@ -396,4 +400,4 @@ You can see more about scoped providers;
 
 ## Built-in `ModuleSessionInfo` Provider
 
-Every GraphQL-Module creates a `ModuleSessionInfo` instance in each network request that contains raw Request from the GraphQL Server, `SessionInjector` that contains Session-scoped instances together with Application-scoped ones and `Context` object which is constructed with `contextBuilder` of the module. But, notice that you cannot use this built-in provider.
+Every GraphQL-Module creates a `ModuleSessionInfo` instance in each network request that contains raw Request from the GraphQL Server, `SessionInjector` that contains Session-scoped instances together with Application-scoped ones and `Context` object which is constructed with `contextBuilder` of the module. But, notice that you cannot use this built-in provider in Application Scope.
