@@ -11,6 +11,7 @@ import {
   mergeSchemas,
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
+  ResolversCompositionFn,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
@@ -699,10 +700,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
 
   private addSessionInjectorToSelfResolversCompositionContext() {
     const resolversComposition = this.selfResolversComposition;
-    // tslint:disable-next-line:forin
-    for (const path in resolversComposition) {
-      const compositionArr = asArray(resolversComposition[path]);
-      resolversComposition[path] = [
+    const visitResolversCompositionElem = (compositionArr: Array<ResolversCompositionFn<any>>) => {
+      return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
             appContext = await appContext;
@@ -725,6 +724,19 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         },
         ...compositionArr,
       ];
+    };
+    // tslint:disable-next-line:forin
+    for (const path in resolversComposition) {
+      if (resolversComposition[path] instanceof Function || resolversComposition[path] instanceof Array) {
+        const compositionArr = asArray(resolversComposition[path] as any);
+        resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+      } else {
+        // tslint:disable-next-line: forin
+        for (const subPath in resolversComposition[path]) {
+          const compositionArr = asArray(resolversComposition[path][subPath]);
+          resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+        }
+      }
     }
     return resolversComposition;
   }
