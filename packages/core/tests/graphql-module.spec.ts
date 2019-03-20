@@ -815,7 +815,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema } = new GraphQLModule({
+      const { schema, schemaDirectives } = new GraphQLModule({
         typeDefs,
         resolvers: {
           Query: {
@@ -826,6 +826,8 @@ describe('GraphQLModule', () => {
           date: FormattableDateDirective,
         },
       });
+
+      SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives);
 
       const result = await execute({
         schema,
@@ -870,7 +872,7 @@ describe('GraphQLModule', () => {
         },
       });
 
-      const { schema } = new GraphQLModule({
+      const VisitedDateModule = new GraphQLModule({
         typeDefs: gql`
         scalar Date
 
@@ -888,9 +890,17 @@ describe('GraphQLModule', () => {
         ],
       });
 
+      const { schema, schemaDirectives } = new GraphQLModule({
+        imports: [
+          DateDirectiveModule,
+          VisitedDateModule,
+        ],
+      });
+
+      SchemaDirectiveVisitor.visitSchemaDirectives(schema, schemaDirectives);
+
       const result = await execute({
         schema,
-
         document: gql`query { today }`,
       });
 
@@ -1088,23 +1098,50 @@ describe('GraphQLModule', () => {
     const { schema, context } = new GraphQLModule({
       typeDefs: gql`
         type Query {
-          foo: Boolean
+          isDirty: Boolean
         }
       `,
       resolvers: {
         Query: {
-          foo: (root, args, context, info) => !!info.schema['__DIRTY__'],
+          isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
       middleware: ({ schema }) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const result = await execute({
       schema,
-      document: gql`query { foo }`,
+      document: gql`query { isDirty }`,
       contextValue: await context({ req: {} }),
     });
     expect(result.errors).toBeFalsy();
-    expect(result.data['foo']).toBeTruthy();
+    expect(result.data['isDirty']).toBeTruthy();
+  });
+  it('should encapsulate the schema mutations using middleware', async () => {
+    const FooModule = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          isDirty: Boolean
+        }
+      `,
+      resolvers: {
+        Query: {
+          isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
+        },
+      },
+      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+    });
+    const { schema, context } = new GraphQLModule({
+      imports: [
+        FooModule,
+      ],
+    });
+    const result = await execute({
+      schema,
+      document: gql`query { isDirty }`,
+      contextValue: await context({ req: {} }),
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['isDirty']).toBeTruthy();
   });
   it('should avoid getting non-configured module', async () => {
     const FOO = Symbol('FOO');
@@ -1355,5 +1392,26 @@ describe('GraphQLModule', () => {
       `,
     });
     expect(data.foo).toBe('FOO');
+  });
+  it('should generate schemaless module if an empty array typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
+      typeDefs: [],
+      resolvers: {},
+    });
+    expect(schema).toBeNull();
+  });
+  it('should generate schemaless module if empty string typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
+      typeDefs: '',
+      resolvers: {},
+    });
+    expect(schema).toBeNull();
+  });
+  it('should generate schemaless module if an array with an empty string typeDefs specified', async () => {
+    const { schema } = new GraphQLModule({
+      typeDefs: [''],
+      resolvers: {},
+    });
+    expect(schema).toBeNull();
   });
 });

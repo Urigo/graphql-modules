@@ -1,17 +1,17 @@
 import {
   IResolvers,
   SchemaDirectiveVisitor,
-  mergeSchemas,
   IDirectiveResolvers,
-  makeExecutableSchema,
   IResolverValidationOptions,
 } from 'graphql-tools';
 import {
   mergeResolvers,
   IResolversComposerMapping,
   composeResolvers,
+  mergeSchemas,
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
+  ResolversCompositionFn,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
@@ -73,7 +73,7 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: GraphQLModuleOption<string | string[] | DocumentNode | DocumentNode[], Config, Session, Context>;
+  typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
@@ -246,114 +246,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._moduleConfig;
   }
 
-  /*
-    private buildSchemaWithMergeSchemas() {
-      const schemaSet = new Set<GraphQLSchema>();
-      const selfImports = this.selfImports;
-      for (const module of selfImports) {
-        if (typeof module === 'undefined') {
-          throw new DependencyModuleUndefinedError(this.name);
-        }
-        const moduleSchema = module.schema;
-        if (moduleSchema) {
-          schemaSet.add(moduleSchema);
-        }
-      }
-      const selfTypeDefs = this.selfTypeDefs;
-      let resolvers = {};
-      const schemaDirectives = this.schemaDirectives;
-      try {
-        if (selfTypeDefs) {
-          const localSchema = buildASTSchema(selfTypeDefs, {
-            assumeValid: true,
-            assumeValidSDL: true,
-          });
-          schemaSet.add(localSchema);
-        }
-        const selfResolversComposition = this.selfResolversComposition;
-        if (Object.keys(selfResolversComposition).length) {
-          resolvers = this.resolvers;
-        } else {
-          resolvers = this.addSessionInjectorToSelfResolversContext();
-        }
-        const selfExtraSchemas = this.selfExtraSchemas;
-        const schemas = [...selfExtraSchemas, ...schemaSet];
-        if (schemas.length) {
-          this._cache.schema = mergeSchemas({
-            schemas,
-            resolvers,
-            schemaDirectives,
-          });
-        } else {
-          this._cache.schema = null;
-        }
-      } catch (e) {
-        if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
-          const typeDef = e.message.replace('Type "', '').replace('" not found in document.', '');
-          throw new TypeDefNotFoundError(typeDef, this.name);
-        } else {
-          throw new SchemaNotValidError(this.name, e.message);
-        }
-      }
-    }
-    */
-  buildSchemaWithMakeExecutableSchema() {
-    this.checkConfiguration();
-    const selfImports = this.selfImports;
-    // Do iterations once
-    for (const module of selfImports) {
-      if (typeof module._cache.schema === 'undefined') {
-        module.buildSchemaWithMakeExecutableSchema();
-      }
-    }
-    try {
-      const typeDefs = this.typeDefs;
-      const resolvers = this.resolvers;
-      const schemaDirectives = this.schemaDirectives;
-      const logger = this.selfLogger;
-      const resolverValidationOptions = this.selfResolverValidationOptions;
-      const extraSchemas = this.extraSchemas;
-      if (typeDefs) {
-        const localSchema = makeExecutableSchema<ModuleContext<Context>>({
-          typeDefs,
-          resolvers,
-          schemaDirectives,
-          logger:
-            'clientError' in logger
-              ? {
-                  log: message => logger.clientError(message),
-                }
-              : undefined,
-          resolverValidationOptions,
-        });
-        if (extraSchemas.length) {
-          this._cache.schema = mergeSchemas({
-            schemas: [localSchema, ...extraSchemas],
-          });
-        } else {
-          this._cache.schema = localSchema;
-        }
-      } else {
-        this._cache.schema = null;
-      }
-    } catch (e) {
-      if (e.message === 'Must provide typeDefs') {
-        this._cache.schema = null;
-      } else if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
-        const typeDef = e.message.replace('Type "', '').replace('" not found in document.', '');
-        throw new TypeDefNotFoundError(typeDef, this.name);
-      } else {
-        throw new SchemaNotValidError(this.name, e.message);
-      }
-    }
-    if ('middleware' in this._options) {
-      const middlewareResult = this.injector.call(this._options.middleware, this);
-      if (middlewareResult) {
-        Object.assign(this._cache, middlewareResult);
-      }
-    }
-  }
-
   /**
    * Gets the application `GraphQLSchema` object.
    * If the schema object is not built yet, it compiles
@@ -361,8 +253,53 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
    */
   get schema() {
     if (typeof this._cache.schema === 'undefined') {
-      this.buildSchemaWithMakeExecutableSchema();
-      // this.buildSchemaWithMergeSchemas();
+      this.checkConfiguration();
+      const importsSchemas = new Array<GraphQLSchema>();
+      const selfImports = this.selfImports;
+      for (const module of selfImports) {
+        const moduleSchema = module.schema;
+        if (moduleSchema) {
+          importsSchemas.push(moduleSchema);
+        }
+      }
+      try {
+        const selfTypeDefs = this.selfTypeDefs;
+        const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext();
+        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
+        const selfLogger = this.selfLogger;
+        const selfResolverValidationOptions = this.selfResolverValidationOptions;
+        const selfExtraSchemas = this.selfExtraSchemas;
+        if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
+          this._cache.schema = mergeSchemas({
+            schemas: [
+              ...importsSchemas,
+              ...selfExtraSchemas,
+            ],
+            typeDefs: selfTypeDefs || undefined,
+            resolvers: selfEncapsulatedResolvers,
+            resolversComposition: selfEncapsulatedResolversComposition,
+            resolverValidationOptions: selfResolverValidationOptions,
+            logger: 'clientError' in selfLogger ? {
+              log: message => selfLogger.clientError(message),
+            } : undefined,
+          });
+        } else {
+          this._cache.schema = null;
+        }
+      } catch (e) {
+        if (e.message === 'Must provide typeDefs') {
+          this._cache.schema = null;
+        } else if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
+          const typeDef = e.message.replace('Type "', '').replace('" not found in document.', '');
+          throw new TypeDefNotFoundError(typeDef, this.name);
+        } else {
+          throw new SchemaNotValidError(this.name, e.message);
+        }
+      }
+      if ('middleware' in this._options) {
+        const middlewareResult = this.injector.call(this._options.middleware, this);
+        Object.assign(this._cache, middlewareResult);
+      }
     }
     return this._cache.schema;
   }
@@ -572,9 +509,12 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
-        typeDefs = mergeTypeDefs(typeDefsDefinitions, {
-          useSchemaDefinition: false,
-        });
+        typeDefsDefinitions = typeDefsDefinitions.filter(typeDefsDefinition => typeDefsDefinition);
+        if (typeDefsDefinitions.length) {
+          typeDefs = mergeTypeDefs(typeDefsDefinitions, {
+            useSchemaDefinition: false,
+          });
+        }
       } else if (typeDefsDefinitions) {
         typeDefs = typeDefsDefinitions;
       }
@@ -760,10 +700,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
 
   private addSessionInjectorToSelfResolversCompositionContext() {
     const resolversComposition = this.selfResolversComposition;
-    // tslint:disable-next-line:forin
-    for (const path in resolversComposition) {
-      const compositionArr = asArray(resolversComposition[path]);
-      resolversComposition[path] = [
+    const visitResolversCompositionElem = (compositionArr: Array<ResolversCompositionFn<any>>) => {
+      return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
             appContext = await appContext;
@@ -786,6 +724,19 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         },
         ...compositionArr,
       ];
+    };
+    // tslint:disable-next-line:forin
+    for (const path in resolversComposition) {
+      if (resolversComposition[path] instanceof Function || resolversComposition[path] instanceof Array) {
+        const compositionArr = asArray(resolversComposition[path] as any);
+        resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+      } else {
+        // tslint:disable-next-line: forin
+        for (const subPath in resolversComposition[path]) {
+          const compositionArr = asArray(resolversComposition[path][subPath]);
+          resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+        }
+      }
     }
     return resolversComposition;
   }
