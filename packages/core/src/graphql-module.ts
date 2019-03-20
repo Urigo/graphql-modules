@@ -871,7 +871,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         }
         const applicationInjector = this.injector;
         const sessionInjector = applicationInjector.getSessionInjector(session);
-        await sessionInjector.callHookWithArgs('onResponse', sessionInjector.get(ModuleSessionInfo));
+        if (sessionInjector.has(ModuleSessionInfo)) {
+          await sessionInjector.callHookWithArgs('onResponse', sessionInjector.get(ModuleSessionInfo));
+        }
         this.destroySessionContext(session);
         return response;
       };
