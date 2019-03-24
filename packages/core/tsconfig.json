@@ -4,8 +4,7 @@
     "module": "esnext",
     "target": "es2018",
     "lib": [
-      "es2018",
-      "esnext.asynciterable"
+      "esnext"
     ],
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",

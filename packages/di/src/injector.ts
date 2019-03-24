@@ -230,10 +230,13 @@ export class Injector<Session extends object = any> {
       throw new ServiceIdentifierNotFoundError(serviceIdentifier, this._name);
     }
   }
-  private _sessionSessionInjectorMap = new WeakMap<any, Injector>();
-  public getSessionInjector(session: Session): Injector {
+  private _sessionSessionInjectorMap = new WeakMap<Session, Injector>();
+  public hasSessionInjector(session: Session) {
+    return this._sessionSessionInjectorMap.has(session);
+  }
+  public getSessionInjector(session: Session): Injector<Session> {
     if (!this._sessionSessionInjectorMap.has(session)) {
-      const sessionInjector = new Injector(
+      const sessionInjector = new Injector<Session>(
         this._name + '_SESSION',
         ProviderScope.Session,
         ProviderScope.Session,
