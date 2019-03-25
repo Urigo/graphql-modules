@@ -6,12 +6,12 @@ import {
 } from 'graphql-tools';
 import {
   mergeResolvers,
-  IResolversComposerMapping,
+  ResolversComposerMapping,
   composeResolvers,
   mergeSchemas,
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
-  ResolversCompositionFn,
+  ResolversComposition,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, ExecutionResult } from 'graphql';
@@ -49,9 +49,9 @@ export interface ISchemaDirectives {
   [name: string]: typeof SchemaDirectiveVisitor;
 }
 
-export type GraphQLModuleOption<Option, Config, Session extends object, Context> =
+export type GraphQLModuleOption<Option, Config, Session extends object, Context, Resolvers extends IResolvers<any, ModuleContext<Context>>> =
   | Option
-  | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Option);
+  | ((module: GraphQLModule<Config, Session, Context, Resolvers>, ...args: any[]) => Option);
 
 export interface KeyValueCache {
   get(key: string): Promise<string | undefined>;
@@ -64,7 +64,7 @@ export type FormatResponseFn<Session, TData = ExecutionResultDataDefault> = (res
 /**
  * Defined the structure of GraphQL module options object.
  */
-export interface GraphQLModuleOptions<Config, Session extends object, Context> {
+export interface GraphQLModuleOptions<Config, Session extends object, Context, Resolvers extends IResolvers<any, ModuleContext<Context>>> {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
    * a dependency to this module (in another module)
@@ -76,16 +76,17 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
+  typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context, Resolvers>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
   resolvers?: GraphQLModuleOption<
-    IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>,
+    Resolvers,
     Config,
     Session,
-    Context
+    Context,
+    Resolvers
   >;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
@@ -98,28 +99,28 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * Adding a dependency will effect the order of the type definition building, resolvers building and context
    * building.
    */
-  imports?: GraphQLModuleOption<Array<GraphQLModule<any, Session, any>>, Config, Session, Context>;
+  imports?: GraphQLModuleOption<Array<GraphQLModule<any, Session, any>>, Config, Session, Context, Resolvers>;
   /**
    * A list of `Providers` to load into the GraphQL module.
    * It could be either a `class` or a value/class instance.
    * All loaded class will be loaded as Singletons, and the instance will be
    * shared across all GraphQL executions.
    */
-  providers?: GraphQLModuleOption<Provider[], Config, Session, Context>;
+  providers?: GraphQLModuleOption<Provider[], Config, Session, Context, Resolvers>;
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
-  resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Session, Context>;
-  schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Session, Context>;
-  directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Session, Context>;
-  logger?: GraphQLModuleOption<ILogger, Config, Session, Context>;
-  extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Session, Context>;
+  resolversComposition?: GraphQLModuleOption<ResolversComposerMapping<Resolvers>, Config, Session, Context, Resolvers>;
+  schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Session, Context, Resolvers>;
+  directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Session, Context, Resolvers>;
+  logger?: GraphQLModuleOption<ILogger, Config, Session, Context, Resolvers>;
+  extraSchemas?: GraphQLModuleOption<GraphQLSchema[], Config, Session, Context, Resolvers>;
   middleware?: (
     module: GraphQLModule<Config, Session, Context>,
     ...args: any[]
-  ) => Partial<ModuleCache<Session, Context>> | void;
+  ) => Partial<ModuleCache<Session, Context, Resolvers>> | void;
   cache?: KeyValueCache;
   configRequired?: boolean;
-  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
-  defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
+  resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context, Resolvers>;
+  defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context, Resolvers>;
   formatResponse?: FormatResponseFn<Session>;
 }
 
@@ -134,11 +135,11 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
 export const ModuleConfig = (module: string | GraphQLModule) =>
   Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
-export interface ModuleCache<Session, Context> {
+export interface ModuleCache<Session, Context, Resolvers> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
-  resolvers: IResolvers<any, ModuleContext<Context>>;
+  resolvers: Resolvers;
   schemaDirectives: ISchemaDirectives;
   contextBuilder: (session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>>;
   extraSchemas: GraphQLSchema[];
@@ -155,8 +156,8 @@ export interface ModuleCache<Session, Context> {
  * You can also specific `Config` generic to tell TypeScript what's the structure of your
  * configuration object to use later with `forRoot`
  */
-export class GraphQLModule<Config = any, Session extends object = any, Context = any> {
-  private _cache: ModuleCache<Session, Context> = {
+export class GraphQLModule<Config = any, Session extends object = any, Context = any, Resolvers extends IResolvers<any, ModuleContext<Context>> = IResolvers<any, ModuleContext<Context>>> {
+  private _cache: ModuleCache<Session, Context, Resolvers> = {
     injector: undefined,
     schema: undefined,
     typeDefs: undefined,
@@ -174,7 +175,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
    */
-  constructor(private _options: GraphQLModuleOptions<Config, Session, Context> = {}, private _moduleConfig?: Config) {
+  constructor(private _options: GraphQLModuleOptions<Config, Session, Context, Resolvers> = {}, private _moduleConfig?: Config) {
     const getFilename = (id: string) => id.split('/').pop();
     const generateName = () => {
       const randomId = Math.floor(Math.random() * Math.floor(Number.MAX_SAFE_INTEGER)).toString();
@@ -328,7 +329,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
   get extraSchemas(): GraphQLSchema[] {
     if (typeof this._cache.extraSchemas) {
       const selfImports = this.selfImports;
-      const importsExtraSchemas = selfImports.map(module => module.extraSchemas).flat();
+      const importsExtraSchemas = selfImports.map(module => module.extraSchemas).reduce((extraSchemas, moduleExtraSchemas) => extraSchemas.concat(moduleExtraSchemas), []);
       const selfExtraSchemas = this.selfExtraSchemas;
       this._cache.extraSchemas = importsExtraSchemas.concat(selfExtraSchemas);
     }
@@ -364,9 +365,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._cache.typeDefs;
   }
 
-  get resolvers(): IResolvers<any, ModuleContext<Context>> {
+  get resolvers(): Resolvers {
     if (typeof this._cache.resolvers === 'undefined') {
-      const resolversToBeComposed = new Array<IResolvers>();
+      const resolversToBeComposed = new Array();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
         const moduleResolvers = module.resolvers;
@@ -375,7 +376,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       const resolvers = this.addSessionInjectorToSelfResolversContext();
       const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
       resolversToBeComposed.push(resolvers);
-      const composedResolvers = composeResolvers<any, ModuleContext<Context>>(
+      const composedResolvers = composeResolvers(
         mergeResolvers(resolversToBeComposed),
         resolversComposition,
       );
@@ -514,18 +515,18 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return typeDefs;
   }
 
-  get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
-    let resolvers: IResolvers<any, ModuleContext<Context>> = {};
+  get selfResolvers(): Resolvers {
+    let resolvers = {} as Resolvers;
     let resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
         this.checkConfiguration();
-        resolversDefinitions = this.injector.call(resolversDefinitions, this);
+        resolversDefinitions = this.injector.call(resolversDefinitions as (module: this) => Resolvers, this);
       }
       if (Array.isArray(resolversDefinitions)) {
         resolversDefinitions = mergeResolvers(resolversDefinitions);
       }
-      resolvers = resolversDefinitions;
+      resolvers = resolversDefinitions as Resolvers;
     }
     return resolvers;
   }
@@ -566,8 +567,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     ];
   }
 
-  get selfResolversComposition(): IResolversComposerMapping {
-    let resolversComposition: IResolversComposerMapping = {};
+  get selfResolversComposition(): ResolversComposerMapping {
+    let resolversComposition: ResolversComposerMapping = {};
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (resolversCompositionDefinitions instanceof Function) {
@@ -612,7 +613,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     const resolvers = this.selfResolvers;
     // tslint:disable-next-line:forin
     for (const type in resolvers) {
-      const typeResolvers = resolvers[type];
+      const typeResolvers: any = resolvers[type];
       if (!(typeResolvers instanceof GraphQLScalarType)) {
         // tslint:disable-next-line:forin
         for (const prop in resolvers[type]) {
@@ -692,7 +693,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
 
   private addSessionInjectorToSelfResolversCompositionContext() {
     const resolversComposition = this.selfResolversComposition;
-    const visitResolversCompositionElem = (compositionArr: Array<ResolversCompositionFn<any>>) => {
+    const visitResolversCompositionElem = (compositionArr: Array<ResolversComposition<any>>) => {
       return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
