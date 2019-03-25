@@ -82,7 +82,7 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context, R
    * return the resolvers object.
    */
   resolvers?: GraphQLModuleOption<
-    Resolvers,
+    Resolvers | Resolvers[],
     Config,
     Session,
     Context,
@@ -135,8 +135,8 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context, R
 export const ModuleConfig = (module: string | GraphQLModule) =>
   Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
 
-export interface ModuleCache<Session, Context, Resolvers> {
-  injector: Injector;
+export interface ModuleCache<Session extends object, Context, Resolvers> {
+  injector: Injector<Session>;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
   resolvers: Resolvers;
@@ -306,7 +306,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
   /**
    * Gets the application dependency-injection injector
    */
-  get injector(): Injector {
+  get injector(): Injector<Session> {
     if (typeof this._cache.injector === 'undefined') {
       this.checkConfiguration();
       this._cache.injector = new Injector(
@@ -567,8 +567,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     ];
   }
 
-  get selfResolversComposition(): ResolversComposerMapping {
-    let resolversComposition: ResolversComposerMapping = {};
+  get selfResolversComposition(): ResolversComposerMapping<Resolvers> {
+    let resolversComposition: ResolversComposerMapping<Resolvers> = {};
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (resolversCompositionDefinitions instanceof Function) {
@@ -684,6 +684,28 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
               info.schema = this.schema;
               return subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
             };
+          } else if (resolver && typeof resolver === 'object' && 'resolve' in resolver) {
+            const realResolver = resolver['resolve'];
+            typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
+              if (appContext instanceof Promise) {
+                appContext = await appContext;
+              } else if (typeof appContext === 'undefined') {
+                appContext = info;
+              }
+              info.session = info.session || appContext.session || appContext;
+              let moduleContext;
+              try {
+                moduleContext = await this.context(info.session, true);
+              } catch (e) {
+                const logger = this.selfLogger;
+                if ('clientError' in logger) {
+                  logger.clientError(e);
+                }
+                throw e;
+              }
+              info.schema = this.schema;
+              return realResolver.call(typeResolvers[prop], root, args, moduleContext, info);
+            };
           }
         }
       }
@@ -693,7 +715,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
 
   private addSessionInjectorToSelfResolversCompositionContext() {
     const resolversComposition = this.selfResolversComposition;
-    const visitResolversCompositionElem = (compositionArr: Array<ResolversComposition<any>>) => {
+    const visitResolversCompositionElem = (compositionArr: ResolversComposition[]) => {
       return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
@@ -721,13 +743,13 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     // tslint:disable-next-line:forin
     for (const path in resolversComposition) {
       if (resolversComposition[path] instanceof Function || resolversComposition[path] instanceof Array) {
-        const compositionArr = asArray(resolversComposition[path] as any);
+        const compositionArr = asArray(resolversComposition[path] as ResolversComposition[]);
         resolversComposition[path] = visitResolversCompositionElem(compositionArr);
       } else {
         // tslint:disable-next-line: forin
         for (const subPath in resolversComposition[path]) {
-          const compositionArr = asArray(resolversComposition[path][subPath]);
-          resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+          const compositionArr = asArray(resolversComposition[path][subPath]) as ResolversComposition[];
+        resolversComposition[path][subPath] = visitResolversCompositionElem(compositionArr);
         }
       }
     }
