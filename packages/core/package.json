@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@graphql-modules/di": "0.6.6",
-    "graphql-toolkit": "0.2.9-1061ab1.0",
+    "graphql-toolkit": "0.2.9-2f74a63.0",
     "graphql-tools": "4.0.4",
     "tslib": "1.9.3"
   },
