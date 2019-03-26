@@ -1063,7 +1063,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         session = normalizeSession(session);
         const applicationInjector = this.injector;
         let moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>;
-        if (applicationInjector.hasSessionInjector(session) && applicationInjector.hasSessionInjector(session)) {
+        if (applicationInjector.hasSessionInjector(session)
+         && applicationInjector.getSessionInjector(session).has(ModuleSessionInfo)
+         && applicationInjector.getSessionInjector(session).get(ModuleSessionInfo).module === this) {
           moduleSessionInfo = applicationInjector.getSessionInjector(session).get(ModuleSessionInfo);
         } else {
           moduleSessionInfo = new ModuleSessionInfo(this, session);
@@ -1071,7 +1073,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         if (moduleSessionInfo.response) {
           return response;
         }
-        Object.assign(response, ...await Promise.all(responseFormatters.map(moduleFormatResponse => moduleFormatResponse(response, session))));
         Object.defineProperty(moduleSessionInfo, 'response', {
           get() {
             return response;
@@ -1080,6 +1081,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
             response = newResponse;
           },
         });
+        Object.assign(response, ...await Promise.all(responseFormatters.map(moduleFormatResponse => moduleFormatResponse(response, session))));
         await moduleSessionInfo.injector.callHookWithArgs('onResponse', moduleSessionInfo);
         this.destroySessionContext(session);
         return response;
