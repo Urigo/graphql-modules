@@ -301,7 +301,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                     schemas: [
                       ...importsSchemas,
                       ...selfExtraSchemas,
-                    ],
+                    ].filter(s => s),
                     typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
                     resolversComposition: selfEncapsulatedResolversComposition,
