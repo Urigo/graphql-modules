@@ -865,7 +865,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         // tslint:disable-next-line: forin
         for (const subPath in resolversComposition[path]) {
           const compositionArr = asArray(resolversComposition[path][subPath]);
-          resolversComposition[path] = visitResolversCompositionElem(compositionArr);
+          resolversComposition[path][subPath] = visitResolversCompositionElem(compositionArr);
         }
       }
     }
