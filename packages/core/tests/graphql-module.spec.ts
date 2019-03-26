@@ -1497,7 +1497,7 @@ describe('GraphQLModule', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('should lazily instantiate providers (when those are extended)', async () => {
+  it('should lazily instantiate providers (when those are extended and have a hook)', async () => {
     const initSpy = jest.fn();
     const onRequestSpy = jest.fn();
 
