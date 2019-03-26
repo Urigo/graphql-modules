@@ -653,7 +653,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return new Promise(async (resolve, reject) => {
       try {
         let resolvers: IResolvers<any, ModuleContext<Context>> = {};
-        let resolversDefinitions = await this._options.resolvers;
+        let resolversDefinitions = await this._options.resolversAsync;
         if (resolversDefinitions) {
           if (typeof resolversDefinitions === 'function') {
             this.checkConfiguration();
