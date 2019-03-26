@@ -279,18 +279,19 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
             if (!this._cache.schema) {
               this.checkConfiguration();
               const selfImports = this.selfImports;
-              const importsSchemas$ = selfImports.map(module => module.schemaAsync);
-              const importsSchemas = await Promise.all(importsSchemas$);
+              const importsSchemas$Arr = selfImports.map(module => module.schemaAsync);
               try {
-                const selfTypeDefs = this.selfTypeDefs;
-                const selfTypeDefsFromAsync = await this.selfTypeDefsAsync;
-                const allSelfTypeDefs = mergeTypeDefs([selfTypeDefs, selfTypeDefsFromAsync]);
-                const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(
-                  mergeResolvers([
-                    this.selfResolvers,
-                    await this.selfResolversAsync,
-                  ]),
-                );
+                const selfTypeDefs$ = this.selfTypeDefsAsync;
+                const selfEncapsulatedResolvers$ = this.selfResolversAsync.then(selfResolvers => this.addSessionInjectorToSelfResolversContext(selfResolvers));
+                const [
+                  selfTypeDefs,
+                  selfEncapsulatedResolvers,
+                  ...importsSchemas
+                ] = await Promise.all([
+                  selfTypeDefs$,
+                  selfEncapsulatedResolvers$,
+                  ...importsSchemas$Arr as any,
+                ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
@@ -301,7 +302,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                       ...importsSchemas,
                       ...selfExtraSchemas,
                     ],
-                    typeDefs: allSelfTypeDefs || undefined,
+                    typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
                     resolversComposition: selfEncapsulatedResolversComposition,
                     resolverValidationOptions: selfResolverValidationOptions,
