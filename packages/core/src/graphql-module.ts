@@ -1000,6 +1000,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         } else {
           moduleSessionInfo = new ModuleSessionInfo(this, session);
         }
+        if (moduleSessionInfo.response) {
+          return response;
+        }
         Object.defineProperty(moduleSessionInfo, 'response', {
           get() {
             return response;
