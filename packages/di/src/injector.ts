@@ -274,6 +274,17 @@ export class Injector<Session extends object = any> {
         finalResult,
         ...await Promise.all(
           serviceIdentifiers.map(async serviceIdentifier => {
+            // session
+            const isPartOfSession = this._sessionScopeServiceIdentifiers.includes(serviceIdentifier);
+            const wasCreatedBySession = this._sessionScopeInstanceMap.has(serviceIdentifier);
+            // application
+            const isPartOfApplication = this._sessionScopeServiceIdentifiers.includes(serviceIdentifier);
+            const wasCreatedByApplication = this._applicationScopeInstanceMap.has(serviceIdentifier);
+
+            if ((isPartOfSession && !wasCreatedBySession) || (isPartOfApplication && !wasCreatedByApplication)) {
+              return {};
+            }
+
             const instance = this.get(serviceIdentifier);
             if (instance) {
               const result = await instance[hook](...args);
