@@ -13,6 +13,7 @@ import {
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
   ResolversComposition,
+  printSchemaWithDirectives,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, ExecutionResult } from 'graphql';
@@ -82,8 +83,8 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * You can also pass a function that will get the module's config as argument, and should return
    * the type definitions.
    */
-  typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
-  typeDefsAsync?: GraphQLModuleOptionAsync<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
+  typeDefs?: GraphQLModuleOption<string | DocumentNode | GraphQLSchema | Array<string | DocumentNode | GraphQLSchema>, Config, Session, Context>;
+  typeDefsAsync?: GraphQLModuleOptionAsync<string | DocumentNode | GraphQLSchema | Array<string | DocumentNode | GraphQLSchema>, Config, Session, Context>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
@@ -281,29 +282,36 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
               const selfImports = this.selfImports;
               const importsSchemas$Arr = selfImports.map(module => module.schemaAsync);
               try {
-                const selfTypeDefs$ = this.selfTypeDefsAsync;
-                const selfEncapsulatedResolvers$ = this.selfResolversAsync.then(selfResolvers => this.addSessionInjectorToSelfResolversContext(selfResolvers));
+                const selfTypeDefs$ = Promise.resolve().then(() => this.selfTypeDefs);
+                const selfEncapsulatedResolvers$ = Promise.resolve().then(() => this.selfResolvers).then(selfResolvers => this.addSessionInjectorToSelfResolversContext(selfResolvers));
+                const selfTypeDefsAsync$ = this.selfTypeDefsAsync;
+                const selfEncapsulatedResolversAsync$ = this.selfResolversAsync.then(selfResolvers => this.addSessionInjectorToSelfResolversContext(selfResolvers));
                 const [
                   selfTypeDefs,
                   selfEncapsulatedResolvers,
+                  selfTypeDefsAsync,
+                  selfEncapsulatedResolversAsync,
                   ...importsSchemas
                 ] = await Promise.all([
                   selfTypeDefs$,
                   selfEncapsulatedResolvers$,
+                  selfTypeDefsAsync$,
+                  selfEncapsulatedResolversAsync$,
                   ...importsSchemas$Arr as any,
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
                 const selfExtraSchemas = this.selfExtraSchemas;
-                if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
+                if (importsSchemas.length || selfTypeDefs || selfTypeDefsAsync || selfExtraSchemas.length) {
+                  const allSelfTypeDefsArr = [selfTypeDefs, selfTypeDefsAsync].filter(t => t);
                   this._cache.schema = await mergeSchemasAsync({
                     schemas: [
                       ...importsSchemas,
                       ...selfExtraSchemas,
                     ].filter(s => s),
-                    typeDefs: selfTypeDefs || undefined,
-                    resolvers: selfEncapsulatedResolvers,
+                    typeDefs: allSelfTypeDefsArr.length ? allSelfTypeDefsArr : undefined,
+                    resolvers: [selfEncapsulatedResolvers, selfEncapsulatedResolversAsync],
                     resolversComposition: selfEncapsulatedResolversComposition,
                     resolverValidationOptions: selfResolverValidationOptions,
                     logger: 'clientError' in selfLogger ? {
@@ -596,6 +604,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
             useSchemaDefinition: false,
           });
         }
+      } else if (typeDefsDefinitions instanceof GraphQLSchema) {
+        typeDefs = parse(printSchemaWithDirectives(typeDefsDefinitions));
       } else if (typeDefsDefinitions) {
         typeDefs = typeDefsDefinitions;
       }
@@ -622,6 +632,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 useSchemaDefinition: false,
               });
             }
+          } else if (typeDefsDefinitions instanceof GraphQLSchema) {
+            typeDefs = parse(printSchemaWithDirectives(typeDefsDefinitions));
           } else if (typeDefsDefinitions) {
             typeDefs = typeDefsDefinitions;
           }
@@ -992,7 +1004,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       const responseFormatters = selfImports.map(module => module.formatResponse);
       this._cache.formatResponse = async (response, session) => {
         session = normalizeSession(session);
-        Object.assign(response, ...await Promise.all(responseFormatters.map(moduleFormatResponse => moduleFormatResponse(response, session))));
         const applicationInjector = this.injector;
         let moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>;
         if (applicationInjector.hasSessionInjector(session) && applicationInjector.hasSessionInjector(session)) {
@@ -1003,6 +1014,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         if (moduleSessionInfo.response) {
           return response;
         }
+        Object.assign(response, ...await Promise.all(responseFormatters.map(moduleFormatResponse => moduleFormatResponse(response, session))));
         Object.defineProperty(moduleSessionInfo, 'response', {
           get() {
             return response;
