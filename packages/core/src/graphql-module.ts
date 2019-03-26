@@ -6,12 +6,13 @@ import {
 } from 'graphql-tools';
 import {
   mergeResolvers,
-  IResolversComposerMapping,
+  ResolversComposerMapping,
   composeResolvers,
   mergeSchemas,
+  mergeSchemasAsync,
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
-  ResolversCompositionFn,
+  ResolversComposition,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, ExecutionResult } from 'graphql';
@@ -119,7 +120,7 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    */
   providers?: GraphQLModuleOption<Provider[], Config, Session, Context>;
   /** Object map between `Type.field` to a function(s) that will wrap the resolver of the field  */
-  resolversComposition?: GraphQLModuleOption<IResolversComposerMapping, Config, Session, Context>;
+  resolversComposition?: GraphQLModuleOption<ResolversComposerMapping, Config, Session, Context>;
   schemaDirectives?: GraphQLModuleOption<ISchemaDirectives, Config, Session, Context>;
   directiveResolvers?: GraphQLModuleOption<IDirectiveResolvers, Config, Session, Context>;
   logger?: GraphQLModuleOption<ILogger, Config, Session, Context>;
@@ -295,7 +296,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
                 const selfExtraSchemas = this.selfExtraSchemas;
                 if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
-                  this._cache.schema = mergeSchemas({
+                  this._cache.schema = await mergeSchemasAsync({
                     schemas: [
                       ...importsSchemas,
                       ...selfExtraSchemas,
@@ -305,7 +306,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                     resolversComposition: selfEncapsulatedResolversComposition,
                     resolverValidationOptions: selfResolverValidationOptions,
                     logger: 'clientError' in selfLogger ? {
-                      log: message => selfLogger.clientError(message),
+                      log: (message: string | Error) => selfLogger.clientError(message),
                     } : undefined,
                   });
                 } else {
@@ -462,7 +463,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       const resolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
       const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
       resolversToBeComposed.push(resolvers);
-      const composedResolvers = composeResolvers<any, ModuleContext<Context>>(
+      const composedResolvers = composeResolvers(
         mergeResolvers(resolversToBeComposed),
         resolversComposition,
       );
@@ -705,8 +706,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     ];
   }
 
-  get selfResolversComposition(): IResolversComposerMapping {
-    let resolversComposition: IResolversComposerMapping = {};
+  get selfResolversComposition(): ResolversComposerMapping {
+    let resolversComposition: ResolversComposerMapping = {};
     const resolversCompositionDefinitions = this._options.resolversComposition;
     if (resolversCompositionDefinitions) {
       if (resolversCompositionDefinitions instanceof Function) {
@@ -828,8 +829,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return resolvers;
   }
 
-  private addSessionInjectorToSelfResolversCompositionContext(resolversComposition: IResolversComposerMapping<IResolvers<any, any>>) {
-    const visitResolversCompositionElem = (compositionArr: Array<ResolversCompositionFn<any>>) => {
+  private addSessionInjectorToSelfResolversCompositionContext(resolversComposition: ResolversComposerMapping<IResolvers<any, any>>) {
+    const visitResolversCompositionElem = (compositionArr: Array<ResolversComposition<any>>) => {
       return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
           if (appContext instanceof Promise) {
