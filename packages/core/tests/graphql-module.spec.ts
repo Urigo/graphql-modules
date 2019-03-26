@@ -8,7 +8,7 @@ import {
   OnResponse,
   OnInit,
 } from '../src';
-import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print, GraphQLScalarType, Kind } from 'graphql';
+import { execute, GraphQLSchema, printSchema, GraphQLString, defaultFieldResolver, print, GraphQLScalarType, Kind, parse } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
@@ -1413,5 +1413,179 @@ describe('GraphQLModule', () => {
       resolvers: {},
     });
     expect(schema).toBeNull();
+  });
+
+  it('should lazily instantiate providers', async () => {
+    const spy = jest.fn();
+
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class ArticlesProvider {
+      constructor() {
+        spy('ArticlesProvider');
+      }
+
+      all() {
+        return [{ title: 'Foo', author: 1 }, { title: 'Bar', author: 2 }];
+      }
+    }
+
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class UsersProvider {
+      constructor() {
+        spy('UsersProvider');
+      }
+
+      get(id: number) {
+        return {
+          id,
+        };
+      }
+    }
+
+    const module = new GraphQLModule({
+      providers: [ArticlesProvider, UsersProvider],
+      typeDefs: [/* GraphQL */`
+        type Article {
+          title: String!
+          author: User!
+        }
+
+        type User {
+          id: ID!
+          name: String!
+        }
+
+        type Query {
+          articles: [Article]
+        }
+      `],
+      resolvers: {
+        Query: {
+          articles(_, __, ctx) {
+            return ctx.injector.get(ArticlesProvider).all();
+          },
+        },
+        Article: {
+          author({ author }, _, ctx) {
+            return ctx.injector.get(UsersProvider).get(author);
+          },
+        },
+      },
+    });
+
+    const app = new GraphQLModule({
+      imports: [module],
+    });
+
+    const result = await execute({
+      schema: app.schema,
+      contextValue: await app.context({}),
+      document: parse(/* GraphQL */`
+        {
+          articles {
+            id
+          }
+        }
+      `),
+    });
+
+    expect(result.data.articles).toHaveLength(2);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should lazily instantiate providers (when those are extended)', async () => {
+    const initSpy = jest.fn();
+    const onRequestSpy = jest.fn();
+
+    class Base {
+      onRequest() {
+        onRequestSpy();
+      }
+    }
+
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class ArticlesProvider extends Base {
+      constructor() {
+        super();
+        initSpy('ArticlesProvider');
+      }
+
+      all() {
+        return [{ title: 'Foo', author: 1 }, { title: 'Bar', author: 2 }];
+      }
+    }
+
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class UsersProvider extends Base {
+      constructor() {
+        super();
+        initSpy('UsersProvider');
+      }
+
+      get(id: number) {
+        return {
+          id,
+        };
+      }
+    }
+
+    const module = new GraphQLModule({
+      providers: [ArticlesProvider, UsersProvider],
+      typeDefs: [/* GraphQL */`
+        type Article {
+          title: String!
+          author: User!
+        }
+
+        type User {
+          id: ID!
+          name: String!
+        }
+
+        type Query {
+          articles: [Article]
+        }
+      `],
+      resolvers: {
+        Query: {
+          articles(_, __, ctx) {
+            return ctx.injector.get(ArticlesProvider).all();
+          },
+        },
+        Article: {
+          author({ author }, _, ctx) {
+            return ctx.injector.get(UsersProvider).get(author);
+          },
+        },
+      },
+    });
+
+    const app = new GraphQLModule({
+      imports: [module],
+    });
+
+    const result = await execute({
+      schema: app.schema,
+      contextValue: await app.context({}),
+      document: parse(/* GraphQL */`
+        {
+          articles {
+            id
+          }
+        }
+      `),
+    });
+
+    expect(result.data.articles).toHaveLength(2);
+    expect(initSpy).toHaveBeenCalledTimes(1);
+    expect(onRequestSpy).toHaveBeenCalledTimes(1);
   });
 });
