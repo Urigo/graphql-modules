@@ -53,6 +53,11 @@ export type GraphQLModuleOption<Option, Config, Session extends object, Context>
   | Option
   | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Option);
 
+export type GraphQLModuleOptionAsync<Option, Config, Session extends object, Context> =
+  GraphQLModuleOption<Option, Config, Session, Context>
+  | Promise<Option>
+  | ((module: GraphQLModule<Config, Session, Context>, ...args: any[]) => Promise<Option>);
+
 export interface KeyValueCache {
   get(key: string): Promise<string | undefined>;
   set(key: string, value: string, options?: { ttl?: number }): Promise<void>;
@@ -77,11 +82,18 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * the type definitions.
    */
   typeDefs?: GraphQLModuleOption<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
+  typeDefsAsync?: GraphQLModuleOptionAsync<string | DocumentNode | Array<string | DocumentNode>, Config, Session, Context>;
   /**
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
   resolvers?: GraphQLModuleOption<
+    IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>,
+    Config,
+    Session,
+    Context
+  >;
+  resolversAsync?: GraphQLModuleOptionAsync<
     IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>,
     Config,
     Session,
@@ -148,6 +160,10 @@ export interface ModuleCache<Session, Context> {
   formatResponse: FormatResponseFn<Session>;
 }
 
+export interface ModuleCacheAsync {
+  schemaAsync: Promise<GraphQLSchema>;
+}
+
 /**
  * Represents a GraphQL module that has it's own types, resolvers, context and business logic.
  * You can read more about it in the Documentation section. {@link /docs/introduction/modules}
@@ -168,6 +184,10 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     subscriptionHooks: undefined,
     imports: undefined,
     formatResponse: undefined,
+  };
+
+  private _cacheAsync: ModuleCacheAsync = {
+    schemaAsync: undefined,
   };
 
   /**
@@ -250,6 +270,73 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._moduleConfig;
   }
 
+  get schemaAsync(): Promise<GraphQLSchema> {
+    if (typeof this._cache.schema === 'undefined') {
+      if (typeof this._cacheAsync.schemaAsync === 'undefined') {
+        this._cacheAsync.schemaAsync = new Promise(async (resolve, reject) => {
+          try {
+            if (!this._cache.schema) {
+              this.checkConfiguration();
+              const selfImports = this.selfImports;
+              const importsSchemas$ = selfImports.map(module => module.schemaAsync);
+              const importsSchemas = await Promise.all(importsSchemas$);
+              try {
+                const selfTypeDefs = this.selfTypeDefs;
+                const selfTypeDefsFromAsync = await this.selfTypeDefsAsync;
+                const allSelfTypeDefs = mergeTypeDefs([selfTypeDefs, selfTypeDefsFromAsync]);
+                const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(
+                  mergeResolvers([
+                    this.selfResolvers,
+                    await this.selfResolversAsync,
+                  ]),
+                );
+                const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
+                const selfLogger = this.selfLogger;
+                const selfResolverValidationOptions = this.selfResolverValidationOptions;
+                const selfExtraSchemas = this.selfExtraSchemas;
+                if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
+                  this._cache.schema = mergeSchemas({
+                    schemas: [
+                      ...importsSchemas,
+                      ...selfExtraSchemas,
+                    ],
+                    typeDefs: allSelfTypeDefs || undefined,
+                    resolvers: selfEncapsulatedResolvers,
+                    resolversComposition: selfEncapsulatedResolversComposition,
+                    resolverValidationOptions: selfResolverValidationOptions,
+                    logger: 'clientError' in selfLogger ? {
+                      log: message => selfLogger.clientError(message),
+                    } : undefined,
+                  });
+                } else {
+                  this._cache.schema = null;
+                }
+              } catch (e) {
+                if (e.message === 'Must provide typeDefs') {
+                  this._cache.schema = null;
+                } else if (e.message.includes(`Type "`) && e.message.includes(`" not found in document.`)) {
+                  const typeDef = e.message.replace('Type "', '').replace('" not found in document.', '');
+                  throw new TypeDefNotFoundError(typeDef, this.name);
+                } else {
+                  throw new SchemaNotValidError(this.name, e.message);
+                }
+              }
+              if ('middleware' in this._options) {
+                const middlewareResult = this.injector.call(this._options.middleware, this);
+                Object.assign(this._cache, middlewareResult);
+              }
+            }
+            resolve(this._cache.schema);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      return this._cacheAsync.schemaAsync;
+    }
+    return Promise.resolve(this._cache.schema);
+  }
+
   /**
    * Gets the application `GraphQLSchema` object.
    * If the schema object is not built yet, it compiles
@@ -262,8 +349,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       const importsSchemas = selfImports.map(module => module.schema).filter(schema => schema);
       try {
         const selfTypeDefs = this.selfTypeDefs;
-        const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext();
-        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
+        const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
+        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
         const selfLogger = this.selfLogger;
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
@@ -372,8 +459,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         const moduleResolvers = module.resolvers;
         resolversToBeComposed.push(moduleResolvers);
       }
-      const resolvers = this.addSessionInjectorToSelfResolversContext();
-      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext();
+      const resolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
+      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
       resolversToBeComposed.push(resolvers);
       const composedResolvers = composeResolvers<any, ModuleContext<Context>>(
         mergeResolvers(resolversToBeComposed),
@@ -514,6 +601,36 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return typeDefs;
   }
 
+  get selfTypeDefsAsync(): Promise<DocumentNode> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let typeDefs = null;
+        let typeDefsDefinitions = await this._options.typeDefsAsync;
+        if (typeDefsDefinitions) {
+          if (typeof typeDefsDefinitions === 'function') {
+            this.checkConfiguration();
+            typeDefsDefinitions = await typeDefsDefinitions(this);
+          }
+          if (typeof typeDefsDefinitions === 'string') {
+            typeDefs = parse(typeDefsDefinitions);
+          } else if (Array.isArray(typeDefsDefinitions)) {
+            typeDefsDefinitions = typeDefsDefinitions.filter(typeDefsDefinition => typeDefsDefinition);
+            if (typeDefsDefinitions.length) {
+              typeDefs = mergeTypeDefs(typeDefsDefinitions, {
+                useSchemaDefinition: false,
+              });
+            }
+          } else if (typeDefsDefinitions) {
+            typeDefs = typeDefsDefinitions;
+          }
+        }
+        resolve(typeDefs);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
     let resolvers: IResolvers<any, ModuleContext<Context>> = {};
     let resolversDefinitions = this._options.resolvers;
@@ -528,6 +645,28 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       resolvers = resolversDefinitions;
     }
     return resolvers;
+  }
+
+  get selfResolversAsync(): Promise<IResolvers<any, ModuleContext<Context>>> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let resolvers: IResolvers<any, ModuleContext<Context>> = {};
+        let resolversDefinitions = await this._options.resolvers;
+        if (resolversDefinitions) {
+          if (typeof resolversDefinitions === 'function') {
+            this.checkConfiguration();
+            resolversDefinitions = await this.injector.call(resolversDefinitions, this);
+          }
+          if (Array.isArray(resolversDefinitions)) {
+            resolversDefinitions = mergeResolvers(resolversDefinitions);
+          }
+          resolvers = resolversDefinitions;
+        }
+        resolve(resolvers);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   get selfImports() {
@@ -608,8 +747,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return directiveResolvers;
   }
 
-  private addSessionInjectorToSelfResolversContext() {
-    const resolvers = this.selfResolvers;
+  private addSessionInjectorToSelfResolversContext(resolvers: IResolvers<any, ModuleContext<Context>>) {
     // tslint:disable-next-line:forin
     for (const type in resolvers) {
       const typeResolvers = resolvers[type];
@@ -690,8 +828,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return resolvers;
   }
 
-  private addSessionInjectorToSelfResolversCompositionContext() {
-    const resolversComposition = this.selfResolversComposition;
+  private addSessionInjectorToSelfResolversCompositionContext(resolversComposition: IResolversComposerMapping<IResolvers<any, any>>) {
     const visitResolversCompositionElem = (compositionArr: Array<ResolversCompositionFn<any>>) => {
       return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
