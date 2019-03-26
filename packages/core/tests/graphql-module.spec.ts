@@ -1414,4 +1414,23 @@ describe('GraphQLModule', () => {
     });
     expect(schema).toBeNull();
   });
+  it('should throw an error if promises are used without schemaAsync', async () => {
+    const MyAsyncModule = new GraphQLModule({
+      typeDefs: async () => `type Query { test: Boolean }`,
+      resolvers: async () => ({ Query: { test: () => true }}),
+    });
+    expect(() => MyAsyncModule.schema).toThrow();
+  });
+  it('should support promises with schemaAsync', async () => {
+    const { schemaAsync } = new GraphQLModule({
+      typeDefs: async () => `type Query { test: Boolean }`,
+      resolvers: async () => ({ Query: { test: () => true }}),
+    });
+    const result = await execute({
+      schema: await schemaAsync,
+      document: gql`query { test }`,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['test']).toBe(true);
+  });
 });
