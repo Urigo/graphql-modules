@@ -1433,4 +1433,60 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['test']).toBe(true);
   });
+  it('should inject ModuleSession in session-scope using properties in case of inheritance', async () => {
+
+    @Injectable()
+    class QuxProvider {
+      getQux() {
+        return 'QUX';
+      }
+    }
+
+    @Injectable()
+    class FooProvider {
+      @Inject() moduleSessionInfo: ModuleSessionInfo;
+      get request() {
+        return this.moduleSessionInfo.session.req;
+      }
+    }
+
+    @Injectable()
+    class BarProvider extends FooProvider {
+      @Inject() quxProvider: QuxProvider;
+      get authorizationHeader() {
+        return this.request.headers.authorization;
+      }
+      getQux() {
+        return this.quxProvider.getQux();
+      }
+    }
+
+    const { schema } = new GraphQLModule({
+      providers: [
+        BarProvider,
+        QuxProvider,
+      ],
+      typeDefs: gql`
+        type Query {
+          authorization: String
+          qux: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          authorization: (_, __, { injector }) => injector.get(BarProvider).authorizationHeader,
+          qux: (_, __, { injector }) => injector.get(BarProvider).getQux(),
+        },
+      },
+    });
+
+    const result = await execute({
+      schema,
+      contextValue: { req: { headers: { authorization: 'Bearer TOKEN' } } },
+      document: gql`query { authorization qux }`,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['authorization']).toBe('Bearer TOKEN');
+    expect(result.data['qux']).toBe('QUX');
+  });
 });

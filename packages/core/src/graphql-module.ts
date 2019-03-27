@@ -338,16 +338,17 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 const [
                   selfTypeDefs,
                   selfEncapsulatedResolvers,
+                  selfExtraSchemas,
                   ...importsSchemas
                 ] = await Promise.all([
                   selfTypeDefsAsync$,
                   selfEncapsulatedResolversAsync$,
+                  Promise.resolve().then(() => this.selfExtraSchemas),
                   ...importsSchemas$Arr as any,
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this.selfResolversComposition);
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
-                const selfExtraSchemas = this.selfExtraSchemas;
                 if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
                   this._cache.schema = await mergeSchemasAsync({
                     schemas: [
@@ -458,13 +459,19 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       if (typeof this._cacheAsync.typeDefsAsync) {
         this._cacheAsync.typeDefsAsync = new Promise(async (resolve, reject) => {
           try {
-            const typeDefsArr = (await Promise.all([
-              ...this.selfImports.map<any>(module => module.typeDefsAsync),
-              Promise.resolve().then(() => this.extraSchemas),
-              this.selfTypeDefsAsync,
-            ])).filter(s => s);
+            const [
+              extraSchemas,
+              typeDefsArr,
+            ] = await Promise.all([
+              Promise.resolve().then(() => this.selfExtraSchemas),
+              Promise.all([
+                ...this.selfImports.map<any>(module => module.typeDefsAsync),
+                this.selfTypeDefsAsync,
+              ]),
+            ]);
+            typeDefsArr.push(...extraSchemas);
             if (typeDefsArr.length) {
-              this._cache.typeDefs = mergeTypeDefs(typeDefsArr, {
+              this._cache.typeDefs = mergeTypeDefs(typeDefsArr.filter(s => s), {
                 useSchemaDefinition: false,
               });
             } else {
