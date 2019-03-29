@@ -16,7 +16,7 @@ import {
   printSchemaWithDirectives,
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, ExecutionResult } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import {
   SchemaNotValidError,
   DependencyModuleUndefinedError,
@@ -27,7 +27,6 @@ import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, ISubscriptionHooks } from './types';
 import { asArray, normalizeSession } from './helpers';
-import { ExecutionResultDataDefault } from 'graphql/execution/execute';
 
 type MaybePromise<T> = Promise<T> | T;
 
@@ -67,8 +66,6 @@ export interface KeyValueCache {
   set(key: string, value: string, options?: { ttl?: number }): Promise<void>;
   delete(key: string): Promise<boolean | void>;
 }
-
-export type FormatResponseFn<Session, TData = ExecutionResultDataDefault> = (response: ExecutionResult<TData>, session: Session) => ExecutionResult<TData> | Promise<ExecutionResult<TData>>;
 
 /**
  * Defined the structure of GraphQL module options object.
@@ -129,7 +126,6 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
   defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
-  formatResponse?: FormatResponseFn<Session>;
 }
 
 /**
@@ -140,8 +136,15 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
  * @param module
  * @constructor
  */
-export const ModuleConfig = (module: string | GraphQLModule) =>
-  Symbol.for(`ModuleConfig.${typeof module === 'string' ? module : module.name}`);
+export const ModuleConfig = (module: string | GraphQLModule | ((module?: void) => (GraphQLModule | string))) => {
+  if (module instanceof Function) {
+    module = module();
+  }
+  if (module instanceof GraphQLModule) {
+    module = module.name;
+  }
+  return Symbol.for(`ModuleConfig.${module}`);
+};
 
 export interface ModuleCache<Session, Context> {
   injector: Injector;
@@ -154,7 +157,6 @@ export interface ModuleCache<Session, Context> {
   directiveResolvers: IDirectiveResolvers;
   subscriptionHooks: ISubscriptionHooks;
   imports: GraphQLModule[];
-  formatResponse: FormatResponseFn<Session>;
 }
 
 export interface ModuleCacheAsync<Context> {
@@ -182,7 +184,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     directiveResolvers: undefined,
     subscriptionHooks: undefined,
     imports: undefined,
-    formatResponse: undefined,
   };
 
   private _cacheAsync: ModuleCacheAsync<Context> = {
@@ -241,7 +242,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       directiveResolvers: undefined,
       subscriptionHooks: undefined,
       imports: undefined,
-      formatResponse: undefined,
     };
     return this;
   }
@@ -601,7 +601,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
           const connectionContext = await this.context(connectionSession);
           const sessionInjector = connectionContext.injector;
           await sessionInjector.callHookWithArgs('onDisconnect', websocket, connectionContext);
-          this.destroySessionContext(connectionSession);
+          this.destroySelfSession(connectionSession);
         },
       };
     }
@@ -1027,6 +1027,13 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   }
                 }
                 moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
+                if ('res' in session && 'on' in session['res']) {
+                  session['res'].on('finish', () => {
+                    const onResponse$ = sessionInjector.callHookWithArgs('onResponse', moduleSessionInfo);
+                    this.destroySelfSession(session);
+                    return onResponse$;
+                  });
+                }
                 await Promise.all([
                   sessionInjector.callHookWithArgs('onRequest', moduleSessionInfo),
                   sessionInjector.callHookWithArgs('initialize', moduleSessionInfo),
@@ -1056,43 +1063,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._cache.contextBuilder;
   }
 
-  private destroySessionContext(session: Session) {
+  private destroySelfSession(session: Session) {
     this.injector.destroySessionInjector(session);
     this._sessionContext$Map.delete(session);
-  }
-
-  get formatResponse(): FormatResponseFn<Session> {
-    if (!this._cache.formatResponse) {
-      const selfImports = this.selfImports;
-      const responseFormatters = selfImports.map(module => module.formatResponse);
-      this._cache.formatResponse = async (response, session) => {
-        session = normalizeSession(session);
-        const applicationInjector = this.injector;
-        let moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>;
-        if (applicationInjector.hasSessionInjector(session)
-         && applicationInjector.getSessionInjector(session).has(ModuleSessionInfo)
-         && applicationInjector.getSessionInjector(session).get(ModuleSessionInfo).module === this) {
-          moduleSessionInfo = applicationInjector.getSessionInjector(session).get(ModuleSessionInfo);
-        } else {
-          moduleSessionInfo = new ModuleSessionInfo(this, session);
-        }
-        if (moduleSessionInfo.response) {
-          return response;
-        }
-        Object.defineProperty(moduleSessionInfo, 'response', {
-          get() {
-            return response;
-          },
-          set(newResponse) {
-            response = newResponse;
-          },
-        });
-        Object.assign(response, ...await Promise.all(responseFormatters.map(moduleFormatResponse => moduleFormatResponse(response, session))));
-        await moduleSessionInfo.injector.callHookWithArgs('onResponse', moduleSessionInfo);
-        this.destroySessionContext(session);
-        return response;
-      };
-    }
-    return this._cache.formatResponse;
   }
 }
