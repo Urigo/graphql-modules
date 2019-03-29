@@ -113,11 +113,11 @@ describe('GraphQLModule', () => {
   const testQuery = gql`query { b { f }}`;
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
-  const createMockSession = <T>(customProps?: T): { res: EventEmitter } & T => {
+  const createMockSession = <T>(customProps?: T) => {
     const finishListeners: Array<((...args: any[]) => Promise<void>)> = [];
     return {
       res: {
-        on: (event, listener) => {
+        once: (event, listener) => {
           if (event === 'finish') {
             finishListeners.push(listener);
           }
@@ -127,7 +127,7 @@ describe('GraphQLModule', () => {
             await Promise.all(finishListeners.map(finishListener => finishListener()));
           }
         },
-      } as any as EventEmitter,
+      },
       ...customProps,
     };
   };
