@@ -49,7 +49,7 @@ import { MyModule } from './my-module.ts';
 
 @Injectable()
 export class MyProvider {
-    constructor(@Inject(ModuleConfig(MyModule)) private config: MyModuleConfig) {
+    constructor(@Inject(ModuleConfig(module => MyModule)) private config: MyModuleConfig) {
 
     }
 

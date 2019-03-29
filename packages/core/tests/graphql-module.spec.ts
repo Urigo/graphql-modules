@@ -17,6 +17,7 @@ import { Injectable, Inject, InjectFunction, Injector, ProviderScope, Dependency
 import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import { EventEmitter } from 'events';
 
 describe('GraphQLModule', () => {
   // A
@@ -111,6 +112,25 @@ describe('GraphQLModule', () => {
   // Queries
   const testQuery = gql`query { b { f }}`;
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
+
+  const createMockSession = <T>(customProps?: T): { res: EventEmitter } & T => {
+    const finishListeners: Array<((...args: any[]) => Promise<void>)> = [];
+    return {
+      res: {
+        on: (event, listener) => {
+          if (event === 'finish') {
+            finishListeners.push(listener);
+          }
+        },
+        emit: async event => {
+          if (event === 'finish') {
+            await Promise.all(finishListeners.map(finishListener => finishListener()));
+          }
+        },
+      } as any as EventEmitter,
+      ...customProps,
+    };
+  };
 
   it('should return the correct GraphQLSchema', async () => {
     const schema = app.schema;
@@ -295,7 +315,7 @@ describe('GraphQLModule', () => {
       class Provider1 {
         test: number;
 
-        constructor(@Inject(ModuleConfig(module1)) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig(module => module1)) config: IModuleConfig) {
           this.test = config.test;
         }
       }
@@ -304,7 +324,7 @@ describe('GraphQLModule', () => {
       class Provider2 {
         test: number;
 
-        constructor(@Inject(ModuleConfig(module2)) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig(module => module2)) config: IModuleConfig) {
           this.test = config.test;
         }
       }
@@ -474,7 +494,6 @@ describe('GraphQLModule', () => {
 
     it('should call onResponse hook on each session', async () => {
       let counter = 0;
-      const fooSession = {};
       @Injectable()
       class FooProvider implements OnResponse {
         onResponse() {
@@ -482,7 +501,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, formatResponse } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query {
             foo: String
@@ -497,33 +516,36 @@ describe('GraphQLModule', () => {
           FooProvider,
         ],
       });
+      const session1 = createMockSession({});
       await execute({
         schema,
-        contextValue: fooSession,
+        contextValue: session1,
         document: gql`query { foo }`,
       });
-      await formatResponse({}, fooSession);
+      session1.res.emit('finish');
       expect(counter).toBe(1);
+      const session2 = createMockSession({});
       await execute({
         schema,
-        contextValue: fooSession,
+        contextValue: session2,
         document: gql`query { foo }`,
       });
-      await formatResponse({}, fooSession);
+      session2.res.emit('finish');
       expect(counter).toBe(2);
+      const session3 = createMockSession({});
       await execute({
         schema,
-        contextValue: fooSession,
+        contextValue: session3,
         document: gql`query { foo }`,
       });
-      await formatResponse({}, fooSession);
+      session3.res.emit('finish');
       expect(counter).toBe(3);
     });
 
     it('should pass network session to onResponse hook', async () => {
-      const fooSession = {
-        foo: 'bar',
-      };
+      const fooSession = createMockSession({
+        foo: 'FOO',
+      });
       let receivedSession;
 
       @Injectable()
@@ -533,7 +555,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, formatResponse } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query {
             foo: String
@@ -553,15 +575,15 @@ describe('GraphQLModule', () => {
         document: gql`query { foo }`,
         contextValue: fooSession,
       });
-      await formatResponse({}, fooSession);
+      await fooSession.res.emit('finish');
       expect(result.errors).toBeFalsy();
       expect(receivedSession).toBe(fooSession);
       expect(result.data.foo).toBe(fooSession.foo);
     });
     it('should destroy session context after response', async () => {
-      const fooSession = {
+      const fooSession = createMockSession({
         foo: 'bar',
-      };
+      });
 
       const myModule = new GraphQLModule({
         typeDefs: gql`
@@ -580,7 +602,7 @@ describe('GraphQLModule', () => {
         document: gql`query { foo }`,
         contextValue: fooSession,
       });
-      await myModule.formatResponse({}, fooSession);
+      await fooSession.res.emit('finish');
       expect(result.errors).toBeFalsy();
       expect(myModule['_sessionContext$Map'].has(fooSession)).toBeFalsy();
       expect(myModule.injector['_sessionSessionInjectorMap'].has(fooSession)).toBeFalsy();
@@ -1413,5 +1435,80 @@ describe('GraphQLModule', () => {
       resolvers: {},
     });
     expect(schema).toBeNull();
+  });
+  it('should throw an error if promises are used without schemaAsync', async () => {
+    const MyAsyncModule = new GraphQLModule({
+      typeDefs: async () => `type Query { test: Boolean }`,
+      resolvers: async () => ({ Query: { test: () => true }}),
+    });
+    expect(() => MyAsyncModule.schema).toThrow();
+  });
+  it('should support promises with schemaAsync', async () => {
+    const { schemaAsync } = new GraphQLModule({
+      typeDefs: async () => `type Query { test: Boolean }`,
+      resolvers: async () => ({ Query: { test: () => true }}),
+    });
+    const result = await execute({
+      schema: await schemaAsync,
+      document: gql`query { test }`,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['test']).toBe(true);
+  });
+  it('should inject ModuleSession in session-scope using properties in case of inheritance', async () => {
+
+    @Injectable()
+    class QuxProvider {
+      getQux() {
+        return 'QUX';
+      }
+    }
+
+    @Injectable()
+    class FooProvider {
+      @Inject() moduleSessionInfo: ModuleSessionInfo;
+      get request() {
+        return this.moduleSessionInfo.session.req;
+      }
+    }
+
+    @Injectable()
+    class BarProvider extends FooProvider {
+      @Inject() quxProvider: QuxProvider;
+      get authorizationHeader() {
+        return this.request.headers.authorization;
+      }
+      getQux() {
+        return this.quxProvider.getQux();
+      }
+    }
+
+    const { schema } = new GraphQLModule({
+      providers: [
+        BarProvider,
+        QuxProvider,
+      ],
+      typeDefs: gql`
+        type Query {
+          authorization: String
+          qux: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          authorization: (_, __, { injector }) => injector.get(BarProvider).authorizationHeader,
+          qux: (_, __, { injector }) => injector.get(BarProvider).getQux(),
+        },
+      },
+    });
+
+    const result = await execute({
+      schema,
+      contextValue: { req: { headers: { authorization: 'Bearer TOKEN' } } },
+      document: gql`query { authorization qux }`,
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['authorization']).toBe('Bearer TOKEN');
+    expect(result.data['qux']).toBe('QUX');
   });
 });

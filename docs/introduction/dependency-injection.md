@@ -287,22 +287,6 @@ export class MyProvider implements OnResponse {
 }
 ```
 
-#### Note:
-> For now it only works with Apollo-Server, and you need to pass `formatResponse` from GraphQL-Modules.
-```typescript
-const { schema, formatResponse } = new GraphQLModule({
-    providers: [MyProvider],
-    ...
-});
-
-new ApolloServer({
-    schema,
-    context: session => session,
-    formatResponse
-});
-```
-
-
 > `OnResponse` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
 [API of `OnResponse` is available here](/docs/api/core/api-interfaces-onresponse)
 [API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
