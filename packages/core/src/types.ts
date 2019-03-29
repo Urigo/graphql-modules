@@ -26,7 +26,7 @@ export interface OnDisconnect<WebSocket = any, ConnectionContext = any, OnDiscon
   onDisconnect?: (websocket: WebSocket, connectionSession: ConnectionContext) => OnDisconnectResult;
 }
 
-export interface ISubscriptionHooks<
+export interface SubscriptionHooks<
   ConnectionParams = object,
   WebSocket = any,
   ConnectionSession = any,

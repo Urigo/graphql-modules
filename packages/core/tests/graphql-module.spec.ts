@@ -18,6 +18,7 @@ import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { EventEmitter } from 'events';
+import { KeyValueCache } from 'apollo-server-caching';
 
 describe('GraphQLModule', () => {
   // A
@@ -1268,15 +1269,12 @@ describe('GraphQLModule', () => {
     expect(result.data['today']).toBe(today.getTime());
   });
   describe('Apollo DataSources Integration', () => {
-    it('Should pass props correctly to initialize method', async () => {
-      @Injectable({
-        scope: ProviderScope.Session,
-      })
+    it('Should pass cache correctly to initialize method of application scoped provider', async () => {
+      @Injectable()
       class TestDataSourceAPI {
-        public initialize(initParams: ModuleSessionInfo) {
-          expect(initParams.context['myField']).toBe('some-value');
-          expect(initParams.module).toBe(moduleA);
-          expect(initParams.cache).toBe(moduleA.cache);
+        cache: KeyValueCache;
+        initialize({ cache }: { cache: KeyValueCache}) {
+          this.cache = cache;
         }
       }
       const testQuery = gql`
@@ -1300,8 +1298,49 @@ describe('GraphQLModule', () => {
         },
         providers: [TestDataSourceAPI],
       });
-      const app = new GraphQLModule({ imports: [moduleA] });
-      await app.context({ req: {} });
+      const { injector } = new GraphQLModule({ imports: [moduleA] });
+      expect(injector.get(TestDataSourceAPI).cache).toBe(moduleA.selfCache);
+    });
+    it('Should pass context correctly to initialize method of session scoped provider', async () => {
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class TestDataSourceAPI {
+        context: any;
+        cache: KeyValueCache;
+        public initialize({ context, cache }: { context: any, cache: KeyValueCache}) {
+          this.context = context;
+          this.cache = cache;
+        }
+      }
+      const testQuery = gql`
+        query {
+          a {
+            f
+          }
+        }
+      `;
+      const typesA = [`type Query { myField: String }`];
+      const moduleA = new GraphQLModule({
+        name: 'A',
+        typeDefs: typesA,
+        resolvers: {
+          Query: { myField: (_, __, { injector }) => injector.get(TestDataSourceAPI).context.myField },
+        },
+        context: () => {
+          return {
+            myField: 'some-value',
+          };
+        },
+        providers: [TestDataSourceAPI],
+      });
+      const { schema } = new GraphQLModule({ imports: [moduleA] });
+      const result = await execute({
+        schema,
+        contextValue: createMockSession(),
+        document: gql`{ myField }`,
+      });
+      expect(await result.data['myField']).toBe('some-value');
     });
   });
   it('should exclude network session', async () => {
@@ -1328,7 +1367,7 @@ describe('GraphQLModule', () => {
     const result = await execute({
       schema,
       document: gql`query { foo }`,
-      contextValue: await context({ req: {} }),
+      contextValue: createMockSession({ req: {} }),
     });
     expect(result.errors).toBeFalsy();
     expect(result.data['foo']).toBe('BAR');
