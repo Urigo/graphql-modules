@@ -1028,7 +1028,13 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 }
                 moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
                 if ('res' in session && 'on' in session['res']) {
-                  session['res'].on('finish', () => {
+                  if (!('_onceFinishListeners' in session['res'])) {
+                    session['res']['_onceFinishListeners'] = [];
+                    session['res'].once('finish', () => {
+                      Promise.all(session['res']['_onceFinishListeners']);
+                    });
+                  }
+                  session['res']['_onceFinishListeners'].push(() => {
                     const onResponse$ = sessionInjector.callHookWithArgs('onResponse', moduleSessionInfo);
                     this.destroySelfSession(session);
                     return onResponse$;
