@@ -1027,7 +1027,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   }
                 }
                 moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
-                if ('res' in session && 'on' in session['res']) {
+                if ('res' in session && 'once' in session['res']) {
                   if (!('_onceFinishListeners' in session['res'])) {
                     session['res']['_onceFinishListeners'] = [];
                     session['res'].once('finish', () => {

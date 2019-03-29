@@ -117,7 +117,7 @@ describe('GraphQLModule', () => {
     const finishListeners: Array<((...args: any[]) => Promise<void>)> = [];
     return {
       res: {
-        on: (event, listener) => {
+        once: (event, listener) => {
           if (event === 'finish') {
             finishListeners.push(listener);
           }
