@@ -461,17 +461,16 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
           try {
             const [
               extraSchemas,
-              typeDefsArr,
+              importsTypeDefs,
+              selfTypeDefs,
             ] = await Promise.all([
               Promise.resolve().then(() => this.selfExtraSchemas),
-              Promise.all([
-                ...this.selfImports.map<any>(module => module.typeDefsAsync),
-                this.selfTypeDefsAsync,
-              ]),
+              Promise.all(this.selfImports.map<any>(module => module.typeDefsAsync)),
+              this.selfTypeDefsAsync,
             ]);
-            typeDefsArr.push(...extraSchemas);
-            if (typeDefsArr.length) {
-              this._cache.typeDefs = mergeTypeDefs(typeDefsArr.filter(s => s), {
+            const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
+            if (typeDefs.length) {
+              this._cache.typeDefs = mergeTypeDefs(typeDefs.filter(s => s), {
                 useSchemaDefinition: false,
               });
             } else {
