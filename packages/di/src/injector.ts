@@ -266,6 +266,9 @@ export class Injector<Session extends object = any> {
     }
     return fn.call(thisArg, thisArg);
   }
+  async hasHook(hook: string) {
+    return this._hookServiceIdentifiersMap.has(hook);
+  }
   async callHookWithArgs<Args extends any[]>(hook: string, ...args: Args) {
     const finalResult = {};
     const serviceIdentifiers = this._hookServiceIdentifiersMap.get(hook);
