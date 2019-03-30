@@ -60,7 +60,7 @@ tests/user.module.spec.ts
         provide: UserProvider,
         overwrite: true,
         useValue: {
-          userById: (id: string) => { id, username: 'USERNAME' }
+          userById: (id: string) => ({ id, username: 'USERNAME' })
         }
       });
 
