@@ -961,12 +961,11 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return resolversComposition;
   }
 
-  static defaultLogger: Logger;
+  static defaultLogger: Logger = console;
 
   get selfLogger(): Logger {
-    if (!this._cache.selfLogger) {
-      GraphQLModule.defaultLogger = GraphQLModule.defaultLogger || console;
-      this._cache.selfLogger = GraphQLModule.defaultLogger;
+    let logger: Logger = GraphQLModule.defaultLogger;
+    if (typeof this._cache.selfLogger === 'undefined') {
       const loggerDefinition = this._options.logger;
       if (loggerDefinition) {
         if (loggerDefinition instanceof Function) {
@@ -975,23 +974,30 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         } else {
           this._cache.selfLogger = loggerDefinition as Logger;
         }
+        logger = this._cache.selfLogger;
+      } else {
+        this._cache.selfLogger = null;
       }
     }
-    return this._cache.selfLogger;
+    return logger;
   }
 
-  static defaultCache: KeyValueCache;
+  static defaultCache: KeyValueCache = new InMemoryLRUCache();
 
   get selfCache(): KeyValueCache {
-    GraphQLModule.defaultCache = GraphQLModule.defaultCache || new InMemoryLRUCache();
     let cache: KeyValueCache = GraphQLModule.defaultCache;
-    const cacheDefinition = this._options.cache;
-    if (cacheDefinition) {
-      if (cache instanceof Function) {
-        this.checkConfiguration();
-        cache = this.injector.call(cacheDefinition as () => KeyValueCache, this);
+    if (typeof this._cache.selfKeyValueCache === 'undefined') {
+      const cacheDefinition = this._options.cache;
+      if (cacheDefinition) {
+        if (cacheDefinition instanceof Function) {
+          this.checkConfiguration();
+          this._cache.selfKeyValueCache = this.injector.call(cacheDefinition as () => KeyValueCache, this);
+        } else {
+          this._cache.selfKeyValueCache = cacheDefinition as KeyValueCache;
+        }
+        cache = this._cache.selfKeyValueCache;
       } else {
-        cache = cacheDefinition as KeyValueCache;
+        this._cache.selfKeyValueCache = null;
       }
     }
     return cache;
