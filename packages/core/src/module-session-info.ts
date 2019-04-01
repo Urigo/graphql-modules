@@ -18,7 +18,7 @@ export class ModuleSessionInfo<Config = any, Session extends object = any, Conte
     return this._session;
   }
   get cache() {
-    return this.module.cache;
+    return this.module.selfCache;
   }
   context: ModuleContext<Context>;
   get injector() {
