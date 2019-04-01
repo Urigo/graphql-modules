@@ -20,6 +20,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
 import { iterate } from 'leakage';
 
+jest.setTimeout(60000 * 5);
 describe('GraphQLModule', () => {
   // A
   @Injectable()
@@ -1550,8 +1551,8 @@ describe('GraphQLModule', () => {
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
   });
+
   it('should not have memory leak over multiple sessions with session-scoped providers', async () => {
-    jest.setTimeout(60000 * 5);
     @Injectable({
       scope: ProviderScope.Session,
     })
@@ -1619,6 +1620,87 @@ describe('GraphQLModule', () => {
       console.log(`Iteration: ${i} start`);
       await iterate.async(async () => {
         await doIteration();
+      });
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${i} end`);
+    }
+
+  });
+  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', async () => {
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class AProvider {
+      getA() {
+        return 'A';
+      }
+    }
+    const moduleA = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          a: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          a: (_, __, { injector }) => injector.get(AProvider).getA(),
+        },
+      },
+      providers: [
+        AProvider,
+      ],
+    });
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class BProvider {
+      getB() {
+        return 'B';
+      }
+    }
+    const moduleB = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          b: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          b: (_, __, { injector }) => injector.get(BProvider).getB(),
+        },
+      },
+      providers: [
+        BProvider,
+      ],
+    });
+    const { schema } = new GraphQLModule({
+      imports: [
+        moduleA,
+        moduleB,
+      ],
+    });
+
+    const mockedRequests = [
+      createMockSession(),
+      createMockSession(),
+      createMockSession(),
+    ];
+
+    async function doIteration(mockRequest) {
+      // Log not to have timeout in CI
+      await execute({
+        schema,
+        contextValue: mockRequest,
+        document: gql`{ a b }`,
+      });
+    }
+
+    // tslint:disable-next-line: forin
+    for (const i in mockedRequests) {
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${i} start`);
+      await iterate.async(async () => {
+        await doIteration(mockedRequests[i]);
       });
       // tslint:disable-next-line: no-console
       console.log(`Iteration: ${i} end`);
