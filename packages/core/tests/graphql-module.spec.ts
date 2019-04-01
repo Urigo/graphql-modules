@@ -1152,7 +1152,7 @@ describe('GraphQLModule', () => {
           isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
-      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+      middleware: ({ schema }) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const { schema, context } = new GraphQLModule({
       imports: [
@@ -1274,7 +1274,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class TestDataSourceAPI {
         cache: KeyValueCache;
-        initialize({ cache }: { cache: KeyValueCache}) {
+        initialize({ cache }: { cache: KeyValueCache }) {
           this.cache = cache;
         }
       }
@@ -1309,7 +1309,7 @@ describe('GraphQLModule', () => {
       class TestDataSourceAPI {
         context: any;
         cache: KeyValueCache;
-        public initialize({ context, cache }: { context: any, cache: KeyValueCache}) {
+        public initialize({ context, cache }: { context: any, cache: KeyValueCache }) {
           this.context = context;
           this.cache = cache;
         }
@@ -1479,14 +1479,14 @@ describe('GraphQLModule', () => {
   it('should throw an error if promises are used without schemaAsync', async () => {
     const MyAsyncModule = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true }}),
+      resolvers: async () => ({ Query: { test: () => true } }),
     });
     expect(() => MyAsyncModule.schema).toThrow();
   });
   it('should support promises with schemaAsync', async () => {
     const { schemaAsync } = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true }}),
+      resolvers: async () => ({ Query: { test: () => true } }),
     });
     const result = await execute({
       schema: await schemaAsync,
@@ -1552,158 +1552,170 @@ describe('GraphQLModule', () => {
     expect(result.data['qux']).toBe('QUX');
   });
 
-  it('should not have memory leak over multiple sessions with session-scoped providers', async () => {
-    @Injectable({
-      scope: ProviderScope.Session,
-    })
-    class AProvider {
-      getA() {
-        return 'A';
+  it('should not have memory leak over multiple sessions with session-scoped providers', async (done) => {
+
+    try {
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class AProvider {
+        getA() {
+          return 'A';
+        }
       }
-    }
-    const moduleA = new GraphQLModule({
-      typeDefs: gql`
+      const moduleA = new GraphQLModule({
+        typeDefs: gql`
         type Query {
           a: String
         }
       `,
-      resolvers: {
-        Query: {
-          a: (_, __, { injector }) => injector.get(AProvider).getA(),
+        resolvers: {
+          Query: {
+            a: (_, __, { injector }) => injector.get(AProvider).getA(),
+          },
         },
-      },
-      providers: [
-        AProvider,
-      ],
-    });
-    @Injectable({
-      scope: ProviderScope.Session,
-    })
-    class BProvider {
-      getB() {
-        return 'B';
+        providers: [
+          AProvider,
+        ],
+      });
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class BProvider {
+        getB() {
+          return 'B';
+        }
       }
-    }
-    const moduleB = new GraphQLModule({
-      typeDefs: gql`
+      const moduleB = new GraphQLModule({
+        typeDefs: gql`
         type Query {
           b: String
         }
       `,
-      resolvers: {
-        Query: {
-          b: (_, __, { injector }) => injector.get(BProvider).getB(),
+        resolvers: {
+          Query: {
+            b: (_, __, { injector }) => injector.get(BProvider).getB(),
+          },
         },
-      },
-      providers: [
-        BProvider,
-      ],
-    });
-    const { schema } = new GraphQLModule({
-      imports: [
-        moduleA,
-        moduleB,
-      ],
-    });
-
-    async function doIteration() {
-      // Log not to have timeout in CI
-      await execute({
-        schema,
-        contextValue: {},
-        document: gql`{ a b }`,
+        providers: [
+          BProvider,
+        ],
       });
-    }
-
-    for (let i = 0; i < 3; i++) {
-      // tslint:disable-next-line: no-console
-      console.log(`Iteration: ${i} start`);
-      await iterate.async(async () => {
-        await doIteration();
+      const { schema } = new GraphQLModule({
+        imports: [
+          moduleA,
+          moduleB,
+        ],
       });
-      // tslint:disable-next-line: no-console
-      console.log(`Iteration: ${i} end`);
+
+      async function doIteration() {
+        // Log not to have timeout in CI
+        await execute({
+          schema,
+          contextValue: {},
+          document: gql`{ a b }`,
+        });
+      }
+
+      for (let i = 0; i < 3; i++) {
+        // tslint:disable-next-line: no-console
+        console.log(`Iteration: ${i} start`);
+        await iterate.async(async () => {
+          await doIteration();
+        });
+        // tslint:disable-next-line: no-console
+        console.log(`Iteration: ${i} end`);
+      }
+      done();
+    } catch (e) {
+      done.fail(e);
     }
 
   });
-  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', async () => {
-    @Injectable({
-      scope: ProviderScope.Session,
-    })
-    class AProvider {
-      getA() {
-        return 'A';
-      }
-    }
-    const moduleA = new GraphQLModule({
-      typeDefs: gql`
-        type Query {
-          a: String
+  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', async (done) => {
+
+    try {
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class AProvider {
+        getA() {
+          return 'A';
         }
-      `,
-      resolvers: {
-        Query: {
-          a: (_, __, { injector }) => injector.get(AProvider).getA(),
-        },
-      },
-      providers: [
-        AProvider,
-      ],
-    });
-    @Injectable({
-      scope: ProviderScope.Session,
-    })
-    class BProvider {
-      getB() {
-        return 'B';
       }
-    }
-    const moduleB = new GraphQLModule({
-      typeDefs: gql`
-        type Query {
-          b: String
-        }
-      `,
-      resolvers: {
-        Query: {
-          b: (_, __, { injector }) => injector.get(BProvider).getB(),
+      const moduleA = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            a: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            a: (_, __, { injector }) => injector.get(AProvider).getA(),
+          },
         },
-      },
-      providers: [
-        BProvider,
-      ],
-    });
-    const { schema } = new GraphQLModule({
-      imports: [
-        moduleA,
-        moduleB,
-      ],
-    });
-
-    const mockedRequests = [
-      createMockSession(),
-      createMockSession(),
-      createMockSession(),
-    ];
-
-    async function doIteration(mockRequest) {
-      // Log not to have timeout in CI
-      await execute({
-        schema,
-        contextValue: mockRequest,
-        document: gql`{ a b }`,
+        providers: [
+          AProvider,
+        ],
       });
-    }
-
-    // tslint:disable-next-line: forin
-    for (const i in mockedRequests) {
-      // tslint:disable-next-line: no-console
-      console.log(`Iteration: ${i} start`);
-      await iterate.async(async () => {
-        await doIteration(mockedRequests[i]);
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class BProvider {
+        getB() {
+          return 'B';
+        }
+      }
+      const moduleB = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            b: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            b: (_, __, { injector }) => injector.get(BProvider).getB(),
+          },
+        },
+        providers: [
+          BProvider,
+        ],
       });
-      // tslint:disable-next-line: no-console
-      console.log(`Iteration: ${i} end`);
+      const { schema } = new GraphQLModule({
+        imports: [
+          moduleA,
+          moduleB,
+        ],
+      });
+
+      const mockedRequests = [
+        createMockSession(),
+        createMockSession(),
+        createMockSession(),
+      ];
+
+      async function doIteration(mockRequest) {
+        // Log not to have timeout in CI
+        await execute({
+          schema,
+          contextValue: mockRequest,
+          document: gql`{ a b }`,
+        });
+      }
+
+      // tslint:disable-next-line: forin
+      for (const i in mockedRequests) {
+        // tslint:disable-next-line: no-console
+        console.log(`Iteration: ${i} start`);
+        await iterate.async(async () => {
+          await doIteration(mockedRequests[i]);
+        });
+        // tslint:disable-next-line: no-console
+        console.log(`Iteration: ${i} end`);
+      }
+      done();
+    } catch (e) {
+      done.fail(e);
     }
 
   });

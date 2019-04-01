@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
     "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
@@ -41,6 +41,7 @@
     "graphql": "^14.1.1"
   },
   "devDependencies": {
+    "@types/leakage": "0.4.0",
     "apollo-cache-inmemory": "1.4.2",
     "apollo-client": "2.4.12",
     "apollo-link-schema": "1.1.6",
