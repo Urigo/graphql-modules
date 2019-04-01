@@ -115,17 +115,18 @@ describe('GraphQLModule', () => {
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
   const createMockSession = <T>(customProps?: T) => {
-    const finishListeners: Array<((...args: any[]) => Promise<void>)> = [];
+    let onceFinishListeners: Array<((...args: any[]) => Promise<void>)> = [];
     return {
       res: {
         once: (event, listener) => {
           if (event === 'finish') {
-            finishListeners.push(listener);
+            onceFinishListeners.push(listener);
           }
         },
         emit: async event => {
           if (event === 'finish') {
-            await Promise.all(finishListeners.map(finishListener => finishListener()));
+            await Promise.all(onceFinishListeners.map(finishListener => finishListener()));
+            onceFinishListeners = [];
           }
         },
       },
@@ -1549,5 +1550,55 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
+  });
+  it('should not have _onceFinishListeners on response object', async () => {
+      let counter = 0;
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class FooProvider implements OnResponse {
+        onResponse() {
+          counter++;
+        }
+        getCounter() {
+          return counter;
+        }
+      }
+
+      const module = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: Int
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: (_, __, { injector }) => injector.get(FooProvider).getCounter(),
+          },
+        },
+        providers: [
+          FooProvider,
+        ],
+      });
+      const session = createMockSession({});
+      const { data } = await execute({
+        schema: module.schema,
+        contextValue: session,
+        document: gql`query { foo }`,
+      });
+      // Result
+      expect(data.foo).toBe(0);
+      // Before onResponse
+      expect(counter).toBe(0);
+      await session.res.emit('finish');
+      // After onResponse
+      expect(counter).toBe(1);
+      // Check if the listener is triggered again
+      await session.res.emit('finish');
+      expect(counter).toBe(1);
+      // Response object must be cleared
+      expect(session.res['_onceFinishListeners']).toBeUndefined();
+      expect(module.injector.hasSessionInjector(session)).toBeFalsy();
+      expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
   });
 });
