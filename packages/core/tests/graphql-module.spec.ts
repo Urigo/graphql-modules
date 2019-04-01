@@ -1552,7 +1552,7 @@ describe('GraphQLModule', () => {
     expect(result.data['qux']).toBe('QUX');
   });
 
-  it('should not have memory leak over multiple sessions with session-scoped providers', async (done) => {
+  it.skip('should not have memory leak over multiple sessions with session-scoped providers', async (done) => {
 
     try {
       @Injectable({
