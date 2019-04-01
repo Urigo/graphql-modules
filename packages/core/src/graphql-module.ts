@@ -961,12 +961,10 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return resolversComposition;
   }
 
-  static defaultLogger: Logger;
+  static defaultLogger: Logger = console;
 
   get selfLogger(): Logger {
     if (!this._cache.selfLogger) {
-      GraphQLModule.defaultLogger = GraphQLModule.defaultLogger || console;
-      this._cache.selfLogger = GraphQLModule.defaultLogger;
       const loggerDefinition = this._options.logger;
       if (loggerDefinition) {
         if (loggerDefinition instanceof Function) {
@@ -980,10 +978,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._cache.selfLogger;
   }
 
-  static defaultCache: KeyValueCache;
+  static defaultCache: KeyValueCache = new InMemoryLRUCache();
 
   get selfCache(): KeyValueCache {
-    GraphQLModule.defaultCache = GraphQLModule.defaultCache || new InMemoryLRUCache();
     let cache: KeyValueCache = GraphQLModule.defaultCache;
     const cacheDefinition = this._options.cache;
     if (cacheDefinition) {
