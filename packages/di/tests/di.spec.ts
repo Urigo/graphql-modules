@@ -31,8 +31,10 @@ describe('Dependency Injection', () => {
     iterate(() => {
       const injector = new Injector();
       for (let i = 0; i < 3; i++) {
-        const session = {};
-        injector.getSessionInjector(session);
+        iterate(() => {
+          const session = {};
+          injector.getSessionInjector(session);
+        });
       }
     });
   });
@@ -52,9 +54,11 @@ describe('Dependency Injection', () => {
         ],
       });
       for (let i = 0; i < 3; i++) {
-        const session = {};
-        const sessionInjector = injector.getSessionInjector(session);
-        sessionInjector.get(FooProvider).getFoo();
+        iterate(() => {
+          const session = {};
+          const sessionInjector = injector.getSessionInjector(session);
+          sessionInjector.get(FooProvider).getFoo();
+        });
       }
     });
   });
