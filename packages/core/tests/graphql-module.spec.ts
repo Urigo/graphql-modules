@@ -20,7 +20,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
 import { iterate } from 'leakage';
 
-jest.setTimeout(60000 * 5);
+jest.setTimeout(60000 * 10);
 describe('GraphQLModule', () => {
   // A
   @Injectable()
