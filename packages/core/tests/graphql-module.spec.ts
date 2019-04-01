@@ -1608,24 +1608,19 @@ describe('GraphQLModule', () => {
         ],
       });
 
-      async function doIteration() {
-        // Log not to have timeout in CI
+      let counter = 0;
+      await iterate.async(async () => {
+        // tslint:disable-next-line: no-console
+        console.log(`Iteration: ${counter} start`);
         await execute({
           schema,
           contextValue: {},
           document: gql`{ a b }`,
         });
-      }
-
-      for (let i = 0; i < 3; i++) {
         // tslint:disable-next-line: no-console
-        console.log(`Iteration: ${i} start`);
-        await iterate.async(async () => {
-          await doIteration();
-        });
-        // tslint:disable-next-line: no-console
-        console.log(`Iteration: ${i} end`);
-      }
+        console.log(`Iteration: ${counter} end`);
+        counter++;
+      });
       done();
     } catch (e) {
       done.fail(e);
@@ -1688,31 +1683,26 @@ describe('GraphQLModule', () => {
         ],
       });
 
-      const mockedRequests = [
-        createMockSession(),
-        createMockSession(),
-        createMockSession(),
-      ];
+      const mockedSessions = [];
+      for (let i = 0; i < 1000; i++) {
+        mockedSessions.push(createMockSession({ i }));
+      }
 
-      async function doIteration(mockRequest) {
-        // Log not to have timeout in CI
+      let counter = 0;
+      await iterate.async(async () => {
+// tslint:disable-next-line: no-console
+        console.info(`Iteration ${counter} started`);
+        const mockRequest = mockedSessions[counter];
         await execute({
           schema,
           contextValue: mockRequest,
           document: gql`{ a b }`,
         });
-      }
-
-      // tslint:disable-next-line: forin
-      for (const i in mockedRequests) {
-        // tslint:disable-next-line: no-console
-        console.log(`Iteration: ${i} start`);
-        await iterate.async(async () => {
-          await doIteration(mockedRequests[i]);
-        });
-        // tslint:disable-next-line: no-console
-        console.log(`Iteration: ${i} end`);
-      }
+        await mockRequest.res.emit('finish');
+// tslint:disable-next-line: no-console
+        console.info(`Iteration ${counter} finished`);
+        counter++;
+      });
       done();
     } catch (e) {
       done.fail(e);
