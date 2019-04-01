@@ -17,8 +17,8 @@ import { Injectable, Inject, InjectFunction, Injector, ProviderScope, Dependency
 import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { EventEmitter } from 'events';
 import { KeyValueCache } from 'apollo-server-caching';
+import { iterate } from 'leakage';
 
 describe('GraphQLModule', () => {
   // A
@@ -1549,5 +1549,80 @@ describe('GraphQLModule', () => {
     expect(result.errors).toBeFalsy();
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
+  });
+  it('should not have memory leak over multiple sessions with session-scoped providers', async () => {
+    jest.setTimeout(60000 * 5);
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class AProvider {
+      getA() {
+        return 'A';
+      }
+    }
+    const moduleA = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          a: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          a: (_, __, { injector }) => injector.get(AProvider).getA(),
+        },
+      },
+      providers: [
+        AProvider,
+      ],
+    });
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class BProvider {
+      getB() {
+        return 'B';
+      }
+    }
+    const moduleB = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          b: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          b: (_, __, { injector }) => injector.get(BProvider).getB(),
+        },
+      },
+      providers: [
+        BProvider,
+      ],
+    });
+    const { schema } = new GraphQLModule({
+      imports: [
+        moduleA,
+        moduleB,
+      ],
+    });
+
+    async function doIteration() {
+      // Log not to have timeout in CI
+      await execute({
+        schema,
+        contextValue: {},
+        document: gql`{ a b }`,
+      });
+    }
+
+    for (let i = 0; i < 3; i++) {
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${i} start`);
+      await iterate.async(async () => {
+        await doIteration();
+      });
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${i} end`);
+    }
+
   });
 });
