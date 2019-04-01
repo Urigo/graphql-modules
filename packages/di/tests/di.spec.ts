@@ -28,38 +28,34 @@ describe('Dependency Injection', () => {
     expect(injector.get(FooProvider).foo()).toBe('BAR');
   });
   it('should not have a memory leak over multiple sessions', () => {
-    iterate(() => {
-      const injector = new Injector();
-      for (let i = 0; i < 3; i++) {
-        iterate(() => {
-          const session = {};
-          injector.getSessionInjector(session);
-        });
-      }
-    });
+    const injector = new Injector();
+    for (let i = 0; i < 3; i++) {
+      iterate(() => {
+        const session = {};
+        injector.getSessionInjector(session);
+      });
+    }
   });
   it('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
-    iterate(() => {
-      @Injectable({
-        scope: ProviderScope.Session,
-      })
-      class FooProvider {
-        getFoo() {
-          return 'FOO';
-        }
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class FooProvider {
+      getFoo() {
+        return 'FOO';
       }
-      const injector = new Injector({
-        initialProviders: [
-          FooProvider,
-        ],
-      });
-      for (let i = 0; i < 3; i++) {
-        iterate(() => {
-          const session = {};
-          const sessionInjector = injector.getSessionInjector(session);
-          sessionInjector.get(FooProvider).getFoo();
-        });
-      }
+    }
+    const injector = new Injector({
+      initialProviders: [
+        FooProvider,
+      ],
     });
+    for (let i = 0; i < 3; i++) {
+      iterate(() => {
+        const session = {};
+        const sessionInjector = injector.getSessionInjector(session);
+        sessionInjector.get(FooProvider).getFoo();
+      });
+    }
   });
 });
