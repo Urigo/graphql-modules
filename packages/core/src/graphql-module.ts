@@ -979,7 +979,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         this._cache.selfLogger = null;
       }
     }
-    return this._cache.selfLogger;
+    return logger;
   }
 
   static defaultCache: KeyValueCache = new InMemoryLRUCache();
