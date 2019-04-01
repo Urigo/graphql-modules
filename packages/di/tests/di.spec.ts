@@ -1,13 +1,48 @@
 import 'reflect-metadata';
-import { Injectable, Injector } from '../src';
+import { Injectable, Injector, ProviderScope } from '../src';
 import { iterate } from 'leakage';
 
 describe('Dependency Injection', () => {
   it('clear instances if provider is overwritten', () => {
-    iterate(() => {
-      @Injectable()
-      class FooProvider {
+    @Injectable()
+    class FooProvider {
+      foo() {
+        return 'FOO';
+      }
+    }
+    const injector = new Injector({
+      initialProviders: [
+        FooProvider,
+      ],
+    });
+    expect(injector.get(FooProvider).foo()).toBe('FOO');
+    injector.provide({
+      provide: FooProvider,
+      overwrite: true,
+      useValue: {
         foo() {
+          return 'BAR';
+        },
+      },
+    });
+    expect(injector.get(FooProvider).foo()).toBe('BAR');
+  });
+  it('should not have a memory leak over multiple sessions', () => {
+    iterate(() => {
+      const injector = new Injector();
+      for (let i = 0; i < 3; i++) {
+        const session = {};
+        injector.getSessionInjector(session);
+      }
+    });
+  });
+  it('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
+    iterate(() => {
+      @Injectable({
+        scope: ProviderScope.Session,
+      })
+      class FooProvider {
+        getFoo() {
           return 'FOO';
         }
       }
@@ -16,17 +51,11 @@ describe('Dependency Injection', () => {
           FooProvider,
         ],
       });
-      expect(injector.get(FooProvider).foo()).toBe('FOO');
-      injector.provide({
-        provide: FooProvider,
-        overwrite: true,
-        useValue: {
-          foo() {
-            return 'BAR';
-          },
-        },
-      });
-      expect(injector.get(FooProvider).foo()).toBe('BAR');
+      for (let i = 0; i < 3; i++) {
+        const session = {};
+        const sessionInjector = injector.getSessionInjector(session);
+        sessionInjector.get(FooProvider).getFoo();
+      }
     });
   });
 });

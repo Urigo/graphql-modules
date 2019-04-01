@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
     "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
-    "test": "jest --runInBand",
+    "test": "jest",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {

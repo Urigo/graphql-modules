@@ -17,10 +17,102 @@ import { Injectable, Inject, InjectFunction, Injector, ProviderScope, Dependency
 import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { iterate } from 'leakage';
+import { EventEmitter } from 'events';
 import { KeyValueCache } from 'apollo-server-caching';
 
 describe('GraphQLModule', () => {
+  // A
+  @Injectable()
+  class ProviderA {
+    doSomething() {
+      return 'Test1';
+    }
+  }
+
+  // B
+  @Injectable()
+  class ProviderB {
+    doSomethingElse() {
+      return 'Test2';
+    }
+  }
+
+  const typesA = [`type A { f: String}`, `type Query { a: A }`];
+  const moduleA = new GraphQLModule({
+    name: 'A',
+    typeDefs: typesA,
+    resolvers: ({ injector }) => ({
+      Query: { a: () => ({}) },
+      A: { f: () => injector.get(ProviderA).doSomething() },
+    }),
+    providers: [ProviderA],
+  });
+
+  // B
+  const typesB = [`type B { f: String}`, `type Query { b: B }`];
+  const resolversB = {
+    Query: { b: () => ({}) },
+    B: { f: (root, args, context) => context.user.id },
+  };
+  let resolverCompositionCalled = false;
+  const moduleB = new GraphQLModule({
+    name: 'B',
+    typeDefs: typesB,
+    resolvers: resolversB,
+    resolversComposition: {
+      'B.f': next => async (root, args, context: ModuleContext, info) => {
+        if (context.injector && context.injector.get(ModuleConfig(moduleB))) {
+          resolverCompositionCalled = true;
+        }
+        return next(root, args, context, info);
+      },
+    },
+    imports: () => [
+      moduleC,
+    ],
+  });
+
+  // C (with context building fn)
+  const cContextBuilder = () => ({ user: { id: 1 } });
+  const typesC = [`type C { f: String}`, `type Query { c: C }`];
+  const moduleC = new GraphQLModule({
+    name: 'C',
+    typeDefs: typesC,
+    context: cContextBuilder,
+  });
+
+  // D
+  const moduleD = new GraphQLModule({
+    name: 'D',
+    typeDefs: typesC,
+    context: () => {
+      throw new Error('oops');
+    },
+  });
+
+  // E
+  const moduleE = new GraphQLModule({
+    name: 'E',
+    typeDefs: typesC,
+  });
+
+  // F
+  const typeDefsFnMock = jest.fn().mockReturnValue(typesC);
+  const resolversFnMock = jest.fn().mockReturnValue({ C: {} });
+  const moduleF = new GraphQLModule({
+    name: 'F',
+    typeDefs: typeDefsFnMock,
+    resolvers: resolversFnMock,
+  });
+
+  afterEach(() => {
+    typeDefsFnMock.mockClear();
+    resolversFnMock.mockClear();
+  });
+
+  // Queries
+  const testQuery = gql`query { b { f }}`;
+  const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
   const createMockSession = <T>(customProps?: T) => {
     const finishListeners: Array<((...args: any[]) => Promise<void>)> = [];
@@ -41,37 +133,12 @@ describe('GraphQLModule', () => {
     };
   };
 
-  it('should return the correct GraphQLSchema', () => {
-    iterate(() => {
+  it('should return the correct GraphQLSchema', async () => {
+    const schema = app.schema;
 
-      const typesA = [`type A { f: String}`, `type Query { a: A }`];
-      const moduleA = new GraphQLModule({
-        name: 'A',
-        typeDefs: typesA,
-      });
-
-      // B
-      const typesB = [`type B { f: String}`, `type Query { b: B }`];
-      const moduleB = new GraphQLModule({
-        name: 'B',
-        typeDefs: typesB,
-        imports: () => [
-          moduleC,
-        ],
-      });
-
-      const typesC = [`type C { f: String}`, `type Query { c: C }`];
-      const moduleC = new GraphQLModule({
-        name: 'C',
-        typeDefs: typesC,
-      });
-
-      const app = new GraphQLModule({ imports: [moduleA, moduleB, moduleC] });
-      const schema = app.schema;
-
-      expect(schema).toBeDefined();
-      expect(schema instanceof GraphQLSchema).toBeTruthy();
-      expect(stripWhitespaces(printSchema(schema))).toBe(stripWhitespaces(`
+    expect(schema).toBeDefined();
+    expect(schema instanceof GraphQLSchema).toBeTruthy();
+    expect(stripWhitespaces(printSchema(schema))).toBe(stripWhitespaces(`
       type A {
         f: String
       }
@@ -89,369 +156,255 @@ describe('GraphQLModule', () => {
         c: C
         b: B
       }`));
-    });
   });
 
   it('should trigger the correct GraphQL context builders and build the correct context', async () => {
-    await iterate.async(async () => {
-      const typesA = [`type A { f: String}`, `type Query { a: A }`];
-      const moduleA = new GraphQLModule({
-        name: 'A',
-        typeDefs: typesA,
-        resolvers: ({ injector }) => ({
-          Query: { a: () => ({}) },
-        }),
-      });
-
-      // B
-      const typesB = [`type B { f: String}`, `type Query { b: B }`];
-      const resolversB = {
-        Query: { b: () => ({}) },
-      };
-      const moduleB = new GraphQLModule({
-        name: 'B',
-        typeDefs: typesB,
-        resolvers: resolversB,
-        imports: () => [
-          moduleC,
-        ],
-      });
-
-      // C (with context building fn)
-      const cContextBuilder = () => ({ user: { id: 1 } });
-      const typesC = [`type C { f: String}`, `type Query { c: C }`];
-      const moduleC = new GraphQLModule({
-        name: 'C',
-        typeDefs: typesC,
-        context: cContextBuilder,
-      });
-
-      // Queries
-      const testQuery = gql`query { b { f }}`;
-      const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
-
-      const schema = app.schema;
-      const result = await execute({
-        schema,
-        document: testQuery,
-      });
-      expect(result.errors).toBeFalsy();
-      expect(result.data.b.f).toBe('1');
+    const schema = app.schema;
+    const result = await execute({
+      schema,
+      document: testQuery,
     });
-
+    expect(result.errors).toBeFalsy();
+    expect(result.data.b.f).toBe('1');
   });
 
-  it('should work without a GraphQL schema and set providers', () => {
-    iterate(() => {
-      const provider = {};
-      const token = Symbol.for('provider');
-      const module = new GraphQLModule({
-        providers: [{
-          provide: token,
-          useValue: provider,
-        }],
-      });
-      const { injector } = new GraphQLModule({ imports: [module] });
-
-      expect(injector.get(token)).toBe(provider);
+  it('should work without a GraphQL schema and set providers', async () => {
+    const provider = {};
+    const token = Symbol.for('provider');
+    const module = new GraphQLModule({
+      providers: [{
+        provide: token,
+        useValue: provider,
+      }],
     });
+    const { injector } = new GraphQLModule({ imports: [module] });
+
+    expect(injector.get(token)).toBe(provider);
   });
 
-  it('should put the correct providers to the injector', () => {
-    iterate(() => {
+  it('should put the correct providers to the injector', async () => {
 
-      // A
-      @Injectable()
-      class ProviderA {
-        doSomething() {
-          return 'Test1';
-        }
-      }
+    expect(app.injector.get(ProviderA) instanceof ProviderA).toBe(true);
+  });
 
-      const typesA = [`type A { f: String}`, `type Query { a: A }`];
-      const moduleA = new GraphQLModule({
-        name: 'A',
-        typeDefs: typesA,
-        resolvers: ({ injector }) => ({
-          Query: { a: () => ({}) },
-          A: { f: () => injector.get(ProviderA).doSomething() },
-        }),
-        providers: [ProviderA],
-      });
+  it('should allow to get schema', async () => {
 
-      // B
-      const typesB = [`type B { f: String}`, `type Query { b: B }`];
-      const resolversB = {
-        Query: { b: () => ({}) },
-        B: { f: (root, args, context) => context.user.id },
-      };
-      const moduleB = new GraphQLModule({
-        name: 'B',
-        typeDefs: typesB,
-        resolvers: resolversB,
-        imports: () => [
-          moduleC,
-        ],
-      });
-
-      // C (with context building fn)
-      const cContextBuilder = () => ({ user: { id: 1 } });
-      const typesC = [`type C { f: String}`, `type Query { c: C }`];
-      const moduleC = new GraphQLModule({
-        name: 'C',
-        typeDefs: typesC,
-        context: cContextBuilder,
-      });
-
-      const app = new GraphQLModule({ imports: [moduleA, moduleB, moduleC] });
-
-      expect(app.injector.get(ProviderA) instanceof ProviderA).toBe(true);
-    });
+    expect(app.schema).toBeDefined();
   });
 
   it('should inject dependencies to factory functions using Inject', async () => {
-    await iterate.async(async () => {
-      @Injectable()
-      class ProviderA {
-        doSomething() {
-          return 'Test1';
-        }
-      }
-
-      // B
-      @Injectable()
-      class ProviderB {
-        doSomethingElse() {
-          return 'Test2';
-        }
-      }
-      const { schema } = new GraphQLModule({
-        typeDefs: gql`
+    const { schema } = new GraphQLModule({
+      typeDefs: gql`
         type Query {
           something: String
           somethingElse: String
         }
       `,
-        providers: [ProviderA, ProviderB],
-        resolvers: InjectFunction(ProviderA, ProviderB)((providerA, providerB) => ({
-          Query: {
-            something: () => providerA.doSomething(),
-            somethingElse: () => providerB.doSomethingElse(),
-          },
-        })),
-      });
-      const result = await execute({
-        schema,
-        document: gql`
+      providers: [ProviderA, ProviderB],
+      resolvers: InjectFunction(ProviderA, ProviderB)((providerA, providerB) => ({
+        Query: {
+          something: () => providerA.doSomething(),
+          somethingElse: () => providerB.doSomethingElse(),
+        },
+      })),
+    });
+    const result = await execute({
+      schema,
+      document: gql`
         query {
           something
           somethingElse
         }
       `,
-      });
-      expect(result.errors).toBeFalsy();
-      expect(result.data.something).toBe('Test1');
-      expect(result.data.somethingElse).toBe('Test2');
     });
+    expect(result.errors).toBeFalsy();
+    expect(result.data.something).toBe('Test1');
+    expect(result.data.somethingElse).toBe('Test2');
   });
 
-  it('should inject properties of classes', () => {
-    iterate(() => {
-      @Injectable()
-      class FooProvider {
-        message = 'FOO';
-      }
-      @Injectable()
-      class BarProvider {
-        @Inject()
-        fooProvider: FooProvider;
-      }
-      const { injector } = new GraphQLModule({
-        providers: [
-          FooProvider,
-          BarProvider,
-        ],
-      });
-      expect(injector.get(BarProvider).fooProvider).toBeInstanceOf(FooProvider);
+  it('should inject properties of classes', async () => {
+    @Injectable()
+    class FooProvider {
+      message = 'FOO';
+    }
+    @Injectable()
+    class BarProvider {
+      @Inject()
+      fooProvider: FooProvider;
+    }
+    const { injector } = new GraphQLModule({
+      providers: [
+        FooProvider,
+        BarProvider,
+      ],
     });
+    expect(injector.get(BarProvider).fooProvider).toBeInstanceOf(FooProvider);
   });
 
   describe('Schema merging', () => {
-    it('should merge types and directives correctly', () => {
-      iterate(() => {
-        const m1 = new GraphQLModule({
-          typeDefs: [
-            `directive @entity on OBJECT`,
-            `directive @field on FIELD_DEFINITION`,
-            `type A @entity { f: String }`,
-            `type Query { a: [A!] }`,
-          ],
-        });
-        const m2 = new GraphQLModule({
-          typeDefs: [
-            `directive @entity on OBJECT`,
-            `directive @field on FIELD_DEFINITION`,
-            `type A @entity { f: String @field }`,
-            `type Query { a: [A!] }`,
-          ],
-        });
-
-        const app = new GraphQLModule({
-          imports: [m1, m2],
-        });
-
-        const aFields = app.schema.getTypeMap()['A']['getFields']();
-        const node = aFields['f'].astNode;
-        expect(node.directives.length).toBe(1);
+    it('should merge types and directives correctly', async () => {
+      const m1 = new GraphQLModule({
+        typeDefs: [
+          `directive @entity on OBJECT`,
+          `directive @field on FIELD_DEFINITION`,
+          `type A @entity { f: String }`,
+          `type Query { a: [A!] }`,
+        ],
       });
+      const m2 = new GraphQLModule({
+        typeDefs: [
+          `directive @entity on OBJECT`,
+          `directive @field on FIELD_DEFINITION`,
+          `type A @entity { f: String @field }`,
+          `type Query { a: [A!] }`,
+        ],
+      });
+
+      const app = new GraphQLModule({
+        imports: [m1, m2],
+      });
+
+      const aFields = app.schema.getTypeMap()['A']['getFields']();
+      const node = aFields['f'].astNode;
+      expect(node.directives.length).toBe(1);
     });
   });
 
   describe('Module Dependencies', () => {
-    it('should init modules in the right order with onInit hook', () => {
-      iterate(() => {
-        let counter = 0;
+    it('should init modules in the right order with onInit hook', async () => {
+      let counter = 0;
 
-        @Injectable()
-        class Provider1 implements OnInit {
-          count: number;
+      @Injectable()
+      class Provider1 implements OnInit {
+        count: number;
 
-          onInit() {
-            this.count = counter++;
-          }
+        onInit() {
+          this.count = counter++;
         }
+      }
 
-        @Injectable()
-        class Provider2 implements OnInit {
-          count: number;
+      @Injectable()
+      class Provider2 implements OnInit {
+        count: number;
 
-          onInit() {
-            this.count = counter++;
-          }
+        onInit() {
+          this.count = counter++;
         }
+      }
 
-        const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
-        const module2 = new GraphQLModule({ providers: [Provider2] });
-        const { injector } = new GraphQLModule({ imports: [module2, module1] });
-        expect(injector.get(Provider1).count).toEqual(1);
-        expect(injector.get(Provider2).count).toEqual(0);
-        expect(counter).toEqual(2);
-      });
+      const module1 = new GraphQLModule({ imports: () => [module2], providers: [Provider1] });
+      const module2 = new GraphQLModule({ providers: [Provider2] });
+      const { injector } = new GraphQLModule({ imports: [module2, module1] });
+      expect(injector.get(Provider1).count).toEqual(1);
+      expect(injector.get(Provider2).count).toEqual(0);
+      expect(counter).toEqual(2);
     });
 
-    it('should set config per each module', () => {
-      iterate(() => {
+    it('should set config per each module', async () => {
 
-        interface IModuleConfig {
-          test: number;
+      interface IModuleConfig {
+        test: number;
+      }
+
+      const module1 = new GraphQLModule({
+        imports: () => [module2],
+        providers: () => [Provider1],
+      }).forRoot({ test: 1 });
+      const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({ test: 2 });
+
+      @Injectable()
+      class Provider1 {
+        test: number;
+
+        constructor(@Inject(ModuleConfig(module => module1)) config: IModuleConfig) {
+          this.test = config.test;
         }
+      }
 
-        const module1 = new GraphQLModule({
-          imports: () => [module2],
-          providers: () => [Provider1],
-        }).forRoot({ test: 1 });
-        const module2 = new GraphQLModule({ providers: () => [Provider2] }).forRoot({ test: 2 });
+      @Injectable()
+      class Provider2 {
+        test: number;
 
-        @Injectable()
-        class Provider1 {
-          test: number;
-
-          constructor(@Inject(ModuleConfig(module => module1)) config: IModuleConfig) {
-            this.test = config.test;
-          }
+        constructor(@Inject(ModuleConfig(module => module2)) config: IModuleConfig) {
+          this.test = config.test;
         }
+      }
 
-        @Injectable()
-        class Provider2 {
-          test: number;
+      const { injector } = new GraphQLModule({ imports: [module2, module1] });
 
-          constructor(@Inject(ModuleConfig(module => module2)) config: IModuleConfig) {
-            this.test = config.test;
-          }
-        }
-
-        const { injector } = new GraphQLModule({ imports: [module2, module1] });
-
-        expect(injector.get(Provider1).test).toEqual(1);
-        expect(injector.get(Provider2).test).toEqual(2);
-      });
+      expect(injector.get(Provider1).test).toEqual(1);
+      expect(injector.get(Provider2).test).toEqual(2);
     });
     it('should not allow to use modules without configuration if required', async () => {
-      await iterate.async(async () => {
-        let error;
-        try {
-          const { context } = new GraphQLModule({
-            configRequired: true,
-          });
-          await context({});
-        } catch (e) {
-          error = e;
-        }
-        expect(error).toBeInstanceOf(ModuleConfigRequiredError);
-      });
+      let error;
+      try {
+        const { context } = new GraphQLModule({
+          configRequired: true,
+        });
+        await context({});
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeInstanceOf(ModuleConfigRequiredError);
     });
-    it('should encapsulate between providers from different non-dependent modules', () => {
-      iterate(() => {
-        class ProviderA {
-          test = 0;
+    it('should encapsulate between providers from different non-dependent modules', async () => {
+      class ProviderA {
+        test = 0;
+      }
+
+      const moduleB = new GraphQLModule({ providers: [ProviderA] });
+
+      @Injectable()
+      class ProviderB {
+        constructor(public providerA: ProviderA) {
         }
+      }
 
-        const moduleB = new GraphQLModule({ providers: [ProviderA] });
+      const moduleA = new GraphQLModule({ providers: [ProviderB] });
 
-        @Injectable()
-        class ProviderB {
-          constructor(public providerA: ProviderA) {
-          }
-        }
-
-        const moduleA = new GraphQLModule({ providers: [ProviderB] });
-
-        try {
-          const { injector } = new GraphQLModule({ imports: [moduleA, moduleB] });
-          injector.get(ProviderB);
-        } catch (e) {
-          expect(e instanceof DependencyProviderNotFoundError).toBeTruthy();
-          expect(e.dependent === ProviderB).toBeTruthy();
-          expect(e.dependency === ProviderA).toBeTruthy();
-        }
-      });
+      try {
+        const { injector } = new GraphQLModule({ imports: [moduleA, moduleB] });
+        injector.get(ProviderB);
+      } catch (e) {
+        expect(e instanceof DependencyProviderNotFoundError).toBeTruthy();
+        expect(e.dependent === ProviderB).toBeTruthy();
+        expect(e.dependency === ProviderA).toBeTruthy();
+      }
     });
     it('should encapsulate resolvers', async () => {
-      await iterate.async(async () => {
 
-        @Injectable()
-        class ProviderB {
-          test = 1;
-        }
+      @Injectable()
+      class ProviderB {
+        test = 1;
+      }
 
-        try {
-          const moduleA = new GraphQLModule({
-            typeDefs: gql`
+      try {
+        const moduleA = new GraphQLModule({
+          typeDefs: gql`
             type Query {
               test: String
             }
           `,
-            resolvers: InjectFunction(ProviderB)((providerB) => ({
-              Query: {
-                test: () => providerB.test,
-              },
-            })),
-          });
+          resolvers: InjectFunction(ProviderB)((providerB) => ({
+            Query: {
+              test: () => providerB.test,
+            },
+          })),
+        });
 
-          const moduleB = new GraphQLModule({ providers: [ProviderB] });
-          const { schema } = new GraphQLModule({ imports: [moduleA, moduleB] });
-          await execute({
-            schema,
-            document: gql`
+        const moduleB = new GraphQLModule({ providers: [ProviderB] });
+        const { schema } = new GraphQLModule({ imports: [moduleA, moduleB] });
+        await execute({
+          schema,
+          document: gql`
             query {
               test
             }
           `,
-          });
-        } catch (e) {
-          expect(e.message).toContain('ProviderB not provided in');
-        }
-      });
+        });
+      } catch (e) {
+        expect(e.message).toContain('ProviderB not provided in');
+      }
     });
   });
   describe('onRequest Hook', () => {
@@ -658,65 +611,10 @@ describe('GraphQLModule', () => {
   });
   describe('Resolvers Composition', () => {
     it('should call resolvers composition with module context', async () => {
-      // A
-      @Injectable()
-      class ProviderA {
-        doSomething() {
-          return 'Test1';
-        }
-      }
-
-      const typesA = [`type A { f: String}`, `type Query { a: A }`];
-      const moduleA = new GraphQLModule({
-        name: 'A',
-        typeDefs: typesA,
-        resolvers: ({ injector }) => ({
-          Query: { a: () => ({}) },
-          A: { f: () => injector.get(ProviderA).doSomething() },
-        }),
-        providers: [ProviderA],
-      });
-
-      // B
-      const typesB = [`type B { f: String}`, `type Query { b: B }`];
-      const resolversB = {
-        Query: { b: () => ({}) },
-        B: { f: (root, args, context) => context.user.id },
-      };
-      let resolverCompositionCalled = false;
-      const moduleB = new GraphQLModule({
-        name: 'B',
-        typeDefs: typesB,
-        resolvers: resolversB,
-        resolversComposition: {
-          'B.f': next => async (root, args, context: ModuleContext, info) => {
-            if (context.injector && context.injector.get(ModuleConfig(moduleB))) {
-              resolverCompositionCalled = true;
-            }
-            return next(root, args, context, info);
-          },
-        },
-        imports: () => [
-          moduleC,
-        ],
-      });
-
-      // C (with context building fn)
-      const cContextBuilder = () => ({ user: { id: 1 } });
-      const typesC = [`type C { f: String}`, `type Query { c: C }`];
-      const moduleC = new GraphQLModule({
-        name: 'C',
-        typeDefs: typesC,
-        context: cContextBuilder,
-      });
-
-      // Queries
-      const testQuery = gql`query { b { f }}`;
-      const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
-
       const schema = app.schema;
       await execute({
         schema,
+
         document: testQuery,
       });
       expect(resolverCompositionCalled).toBe(true);
@@ -1253,7 +1151,7 @@ describe('GraphQLModule', () => {
           isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
-      middleware: ({ schema }) => { schema['__DIRTY__'] = true; return { schema }; },
+      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const { schema, context } = new GraphQLModule({
       imports: [
@@ -1375,7 +1273,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class TestDataSourceAPI {
         cache: KeyValueCache;
-        initialize({ cache }: { cache: KeyValueCache }) {
+        initialize({ cache }: { cache: KeyValueCache}) {
           this.cache = cache;
         }
       }
@@ -1410,7 +1308,7 @@ describe('GraphQLModule', () => {
       class TestDataSourceAPI {
         context: any;
         cache: KeyValueCache;
-        public initialize({ context, cache }: { context: any, cache: KeyValueCache }) {
+        public initialize({ context, cache }: { context: any, cache: KeyValueCache}) {
           this.context = context;
           this.cache = cache;
         }
@@ -1580,14 +1478,14 @@ describe('GraphQLModule', () => {
   it('should throw an error if promises are used without schemaAsync', async () => {
     const MyAsyncModule = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true } }),
+      resolvers: async () => ({ Query: { test: () => true }}),
     });
     expect(() => MyAsyncModule.schema).toThrow();
   });
   it('should support promises with schemaAsync', async () => {
     const { schemaAsync } = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true } }),
+      resolvers: async () => ({ Query: { test: () => true }}),
     });
     const result = await execute({
       schema: await schemaAsync,
