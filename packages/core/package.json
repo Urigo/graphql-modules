@@ -8,7 +8,7 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
     "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
   },
   "jest": {
@@ -46,6 +46,7 @@
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
     "jest": "24.5.0",
+    "leakage": "0.4.0",
     "tslint": "5.14.0",
     "typescript": "3.4.1"
   },

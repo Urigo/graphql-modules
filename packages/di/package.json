@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "jest": "24.5.0",
+    "leakage": "0.4.0",
     "reflect-metadata": "0.1.13",
     "tslint": "5.14.0",
     "typescript": "3.4.1"
