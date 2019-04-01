@@ -382,6 +382,11 @@
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.1.tgz#8945411140e7cdfd5ea76380e5f5fa7bf17646ea"
   integrity sha512-4KNToPz5SAVa0GZrYAL3Q43p5MY/QBmYclYAmqPeqAmbgQ4lXkgKK0mYtr9S+N2Az0JvFaYJECztHZuFGhG3zw==
 
+"@types/leakage@0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@types/leakage/-/leakage-0.4.0.tgz#731f8b74f4b06c45b390367ad4ff0691b23b8e13"
+  integrity sha512-Zyssj+artDfCzevwG0IPhoPFWkxuee0Q+mTzP1n46xi5iCHhOY9J2SOHyZjmlfjkQOoz/xL+e3XIfkWKIGQqxw==
+
 "@types/lodash@^4.14.110":
   version "4.14.120"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.120.tgz#cf265d06f6c7a710db087ed07523ab8c1a24047b"
