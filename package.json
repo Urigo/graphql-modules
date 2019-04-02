@@ -26,7 +26,7 @@
     "@types/graphql": "14.2.0",
     "@types/jest": "24.0.11",
     "graphql": "14.2.1",
-    "jest": "24.5.0",
+    "jest": "24.6.0",
     "lerna": "2.11.0",
     "reflect-metadata": "0.1.13",
     "replace-in-file": "3.4.4",
