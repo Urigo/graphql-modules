@@ -19,6 +19,8 @@ import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
 import { iterate } from 'leakage';
+import { EventEmitter } from 'events';
+import { writeFile } from 'fs';
 
 jest.setTimeout(60000 * 10);
 describe('GraphQLModule', () => {
@@ -115,22 +117,12 @@ describe('GraphQLModule', () => {
   const testQuery = gql`query { b { f }}`;
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
-  const createMockSession = <T>(customProps?: T) => {
-    let onceFinishListeners: Array<((...args: any[]) => Promise<void>)> = [];
+  type MockResponse<T> = {
+    res: EventEmitter,
+  } & T;
+  const createMockSession = <T>(customProps?: T): MockResponse<T> => {
     return {
-      res: {
-        once: (event, listener) => {
-          if (event === 'finish') {
-            onceFinishListeners.push(listener);
-          }
-        },
-        emit: async event => {
-          if (event === 'finish') {
-            await Promise.all(onceFinishListeners.map(finishListener => finishListener()));
-            onceFinishListeners = [];
-          }
-        },
-      },
+      res: new EventEmitter(),
       ...customProps,
     };
   };
@@ -1552,7 +1544,7 @@ describe('GraphQLModule', () => {
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
   });
-  it('should not have _onceFinishListeners on response object', async () => {
+  it('should not have _onceFinishListeners on response object', async (done) => {
     let counter = 0;
     @Injectable({
       scope: ProviderScope.Session,
@@ -1595,12 +1587,17 @@ describe('GraphQLModule', () => {
     // After onResponse
     expect(counter).toBe(1);
     // Check if the listener is triggered again
-    await session.res.emit('finish');
-    expect(counter).toBe(1);
-    // Response object must be cleared
-    expect(session.res['_onceFinishListeners']).toBeUndefined();
-    expect(module.injector.hasSessionInjector(session)).toBeFalsy();
-    expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
+    session.res.once('finish', async () => {
+      setTimeout(() => {
+        expect(counter).toBe(1);
+        // Response object must be cleared
+        expect(session.res['_onceFinishListeners']).toBeUndefined();
+        expect(module.injector.hasSessionInjector(session)).toBeFalsy();
+        expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
+        done();
+      }, 1000);
+    });
+    session.res.emit('finish');
   });
   it.skip('should not have memory leak over multiple sessions with session-scoped providers', done => {
 
@@ -1679,7 +1676,7 @@ describe('GraphQLModule', () => {
     }).then(done).catch(done.fail);
 
   });
-  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
+  it.skip('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
 
     let counter = 0;
     @Injectable({
@@ -1751,28 +1748,39 @@ describe('GraphQLModule', () => {
         moduleB,
       ],
     });
-    const mockRequests = [];
+    const mockRequests: Array<MockResponse<{ hugeLoad: number[]}>> = [];
     for (let i = 0; i < 1000; i++) {
       mockRequests.push(createMockSession({ hugeLoad: new Array(1000).fill(1000) }));
     }
-    iterate.async(async () => {
+    iterate.async(() => new Promise(async resolve => {
       // tslint:disable-next-line: no-console
       console.log(`Iteration started`);
-      const mockRequest = mockRequests.pop();
+      const mockRequest = mockRequests[Math.floor(Math.random() * mockRequests.length)];
       const { data } = await execute({
         schema,
         contextValue: mockRequest,
         document: gql`{ aLoadLength bLoadLength abLoadLength baLoadLength }`,
       });
-      await mockRequest.res.emit('finish');
+      mockRequest.res.once('finish', () => {
+        setTimeout(() => {
+          // tslint:disable-next-line: no-console
+                  console.log('resolved');
+// tslint:disable-next-line: no-console
+                  console.time('GC');
+                  (global.gc as any)(true);
+// tslint:disable-next-line: no-console
+                  console.timeEnd('GC');
+                  resolve();
+        }, 60000);
+      });
+      mockRequest.res.emit('finish');
       expect(data.aLoadLength).toBe(1000);
       expect(data.bLoadLength).toBe(1000);
       expect(data.abLoadLength).toBe(1000);
       expect(data.baLoadLength).toBe(1000);
-      mockRequests.unshift(mockRequest);
       // tslint:disable-next-line: no-console
       console.log(counter);
-    }).then(() => {
+    })).then(() => {
       done();
     }).catch(done.fail);
 
