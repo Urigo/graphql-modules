@@ -114,22 +114,10 @@ describe('GraphQLModule', () => {
   const testQuery = gql`query { b { f }}`;
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
-  const createMockSession = <T>(customProps?: T) => {
-    let onceFinishListeners: Array<((...args: any[]) => Promise<void>)> = [];
+  type MockSession<T> = { res: EventEmitter } & T;
+  const createMockSession = <T>(customProps?: T): MockSession<T> => {
     return {
-      res: {
-        once: (event, listener) => {
-          if (event === 'finish') {
-            onceFinishListeners.push(listener);
-          }
-        },
-        emit: async event => {
-          if (event === 'finish') {
-            await Promise.all(onceFinishListeners.map(finishListener => finishListener()));
-            onceFinishListeners = [];
-          }
-        },
-      },
+      res: new EventEmitter(),
       ...customProps,
     };
   };
@@ -1551,7 +1539,7 @@ describe('GraphQLModule', () => {
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
   });
-  it('should not have _onceFinishListeners on response object', async () => {
+  it('should not have _onceFinishListeners on response object', async (done) => {
       let counter = 0;
       @Injectable({
         scope: ProviderScope.Session,
@@ -1590,15 +1578,22 @@ describe('GraphQLModule', () => {
       expect(data.foo).toBe(0);
       // Before onResponse
       expect(counter).toBe(0);
-      await session.res.emit('finish');
+      session.res.emit('finish');
       // After onResponse
       expect(counter).toBe(1);
       // Check if the listener is triggered again
-      await session.res.emit('finish');
+      session.res.emit('finish');
       expect(counter).toBe(1);
-      // Response object must be cleared
-      expect(session.res['_onceFinishListeners']).toBeUndefined();
-      expect(module.injector.hasSessionInjector(session)).toBeFalsy();
-      expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
+      setTimeout(() => {
+        try {
+          // Response object must be cleared
+          expect(session.res['_onceFinishListeners']).toBeUndefined();
+          expect(module.injector.hasSessionInjector(session)).toBeFalsy();
+          expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
+          done();
+        } catch (e) {
+          done.fail(e);
+        }
+      }, 1000);
   });
 });
