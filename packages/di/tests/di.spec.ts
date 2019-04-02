@@ -29,12 +29,12 @@ describe('Dependency Injection', () => {
   });
   it('should not have a memory leak over multiple sessions', () => {
     const injector = new Injector();
-    for (let i = 0; i < 3; i++) {
-      iterate(() => {
-        const session = {};
-        injector.getSessionInjector(session);
-      });
-    }
+    iterate(() => {
+      const session = {
+        hugeLoad: new Array(1000).fill(1000),
+      };
+      injector.getSessionInjector(session);
+    });
   });
   it('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
     @Injectable({
@@ -50,12 +50,12 @@ describe('Dependency Injection', () => {
         FooProvider,
       ],
     });
-    for (let i = 0; i < 3; i++) {
-      iterate(() => {
-        const session = {};
-        const sessionInjector = injector.getSessionInjector(session);
-        sessionInjector.get(FooProvider).getFoo();
-      });
-    }
+    iterate(() => {
+      const session = {
+        hugeLoad: new Array(1000).fill(1000),
+      };
+      const sessionInjector = injector.getSessionInjector(session);
+      sessionInjector.get(FooProvider).getFoo();
+    });
   });
 });
