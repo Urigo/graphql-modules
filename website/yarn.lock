@@ -2672,10 +2672,10 @@ dkim-signer@^0.2.2:
   dependencies:
     libmime "^2.0.3"
 
-docusaurus@1.7.2:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.7.2.tgz#2de7323a8b27da3a4e54cab90fc397c786326a9a"
-  integrity sha512-bPuEvejWaDNrsivt3G9aLX+byhfEjwu3j23c0E3Cn5KRUDkEouHwDvrWXtiWqAl05le321opkhOWGidbe0eG9Q==
+docusaurus@1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.8.0.tgz#d82eeb426c1f0fb69411f141fa9311213254ad1a"
+  integrity sha512-Hn+/simu3yiX+5ucqNvX6yTyXtH3BFu2UIeGiXcKiRG8Khos206SsQQ2B7DrBzeJ0duhPxi/I7zYMFyaF23UUQ==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -7192,10 +7192,10 @@ svgo@^1.0.5:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@8.5.0:
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.5.0.tgz#453ee0b3dd4ab5b8d89b1588c48ea90d74b16d63"
-  integrity sha512-cvGitYfnutaRIWuLJ+p+eLXieJyodWpB9F8AtD6Y5uNWN5OcQD1dDwN7VPDo4U7y4ni3rgK9gDYmkz9RCf4PSA==
+sweetalert2@8.8.0:
+  version "8.8.0"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-8.8.0.tgz#131d7f6c2bfb9e944f5ef187b2cc402b02a89d8c"
+  integrity sha512-z6042JdwNaTtITSvZAGIoHIXEcnkWjgR5LGqhtTHexmeXu9lH16fEGojTf/pbf7+ve73Nns3Pr0Cr8Qt+jcxsA==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"

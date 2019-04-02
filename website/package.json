@@ -10,12 +10,12 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "1.7.2",
+    "docusaurus": "1.8.0",
     "netlify-lambda": "1.4.3"
   },
   "dependencies": {
     "babel-preset-minify": "0.5.0",
     "sendmail": "1.4.1",
-    "sweetalert2": "8.5.0"
+    "sweetalert2": "8.8.0"
   }
 }

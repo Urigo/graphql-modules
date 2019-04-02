@@ -42,13 +42,12 @@
   },
   "devDependencies": {
     "@types/leakage": "0.4.0",
-    "apollo-cache-inmemory": "1.4.2",
-    "apollo-client": "2.4.12",
-    "apollo-link-schema": "1.1.6",
+    "apollo-cache-inmemory": "1.5.1",
+    "apollo-client": "2.5.1",
+    "apollo-link-schema": "1.2.2",
     "graphql-tag": "2.10.1",
-    "jest": "24.5.0",
-    "leakage": "0.4.0",
-    "tslint": "5.14.0",
+    "jest": "24.6.0",
+    "tslint": "5.15.0",
     "typescript": "3.4.1"
   },
   "sideEffects": false,
