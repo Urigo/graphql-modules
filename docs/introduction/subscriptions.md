@@ -4,11 +4,12 @@ title: Subscriptions
 sidebar_label: Subscriptions
 ---
 
-Subscriptions are GraphQL operations that watch events emitted from your backend. GraphQL-Modules supports GraphQL subscriptions with a little modification in your server code. You can **[read more](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html)** about subscriptions.
+Subscriptions are GraphQL operations that watch events emitted from your backend. GraphQL-Modules supports GraphQL subscriptions with a little modification in your server code. You can **[read more](https://github.com/apollographql/subscriptions-transport-ws)** about subscriptions.
 
 Subscriptions need to have defined `PubSub` implementation in your GraphQL-Modules application.
 
 ```typescript
+  import { PubSub } from 'graphql-subscriptions';
   export const CommonModule = new GraphQLModule({
     providers: [
       PubSub
@@ -72,11 +73,36 @@ You have to export `subscriptions` from your `AppModule`, and pass it to your Gr
     ]
   });
 
-  const server = new ApolloServer({
-    schema,
-    context: session => session,
-    subscriptions
+  import { createServer } from 'http';
+  import { SubscriptionServer } from 'subscriptions-transport-ws';
+  import { execute, subscribe } from 'graphql';
+  import { schema } from './my-schema';
+
+  const WS_PORT = 5000;
+
+  // Create WebSocket listener server
+  const websocketServer = createServer((request, response) => {
+    response.writeHead(404);
+    response.end();
   });
+
+  // Bind it to port and start listening
+  websocketServer.listen(WS_PORT, () => console.log(
+    `Websocket Server is now running on http://localhost:${WS_PORT}`
+  ));
+
+  const subscriptionServer = SubscriptionServer.create(
+    {
+      schema,
+      execute,
+      subscribe,
+      ...subscriptions,
+    },
+    {
+      server: websocketServer,
+      path: '/graphql',
+    },
+  );
 
   server.listen().then(({ url, subscriptionsUrl }) => {
     console.log(`🚀 Server ready at ${url}`);
