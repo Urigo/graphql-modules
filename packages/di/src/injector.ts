@@ -260,7 +260,7 @@ export class Injector<Session extends object = any> {
       sessionInjector._factoryMap = this._factoryMap;
       sessionInjector._applicationScopeServiceIdentifiers = this._applicationScopeServiceIdentifiers;
       sessionInjector._requestScopeServiceIdentifiers = this._requestScopeServiceIdentifiers;
-      sessionInjector._sessionScopeServiceIdentifiers = this._sessionScopeServiceIdentifiers;
+      sessionInjector._sessionScopeServiceIdentifiers = [...this._sessionScopeServiceIdentifiers];
       this._sessionSessionInjectorMap.set(session, sessionInjector);
     }
     return this._sessionSessionInjectorMap.get(session);

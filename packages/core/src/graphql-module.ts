@@ -1076,10 +1076,11 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 if ('res' in session && 'once' in session['res']) {
                   if (!('_onceFinishListeners' in session['res'])) {
                     session['res']['_onceFinishListeners'] = [];
-                    session['res'].once('finish', async (e: any) => {
+                    session['res'].once('finish', (e: any) => {
                       if ('_onceFinishListeners' in session['res']) {
-                        await Promise.all(session['res']['_onceFinishListeners'].map((onceFinishListener: any) => onceFinishListener(e)));
-                        delete session['res']['_onceFinishListeners'];
+                        Promise.all(session['res']['_onceFinishListeners'].map((onceFinishListener: any) => onceFinishListener(e))).then(() => {
+                          delete session['res']['_onceFinishListeners'];
+                        });
                       }
                     });
                   }
