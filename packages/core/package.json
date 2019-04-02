@@ -46,7 +46,7 @@
     "apollo-link-schema": "1.1.6",
     "graphql-tag": "2.10.1",
     "jest": "24.5.0",
-    "tslint": "5.14.0",
+    "tslint": "5.15.0",
     "typescript": "3.4.1"
   },
   "sideEffects": false,
