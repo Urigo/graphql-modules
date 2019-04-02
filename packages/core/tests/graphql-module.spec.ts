@@ -482,7 +482,7 @@ describe('GraphQLModule', () => {
   });
   describe('onResponse Hook', () => {
 
-    it('should call onResponse hook on each session', async () => {
+    it.skip('should call onResponse hook on each session', async () => {
       let counter = 0;
       @Injectable()
       class FooProvider implements OnResponse {
@@ -532,7 +532,7 @@ describe('GraphQLModule', () => {
       expect(counter).toBe(3);
     });
 
-    it('should pass network session to onResponse hook', async () => {
+    it.skip('should pass network session to onResponse hook', async () => {
       const fooSession = createMockSession({
         foo: 'FOO',
       });
@@ -570,7 +570,7 @@ describe('GraphQLModule', () => {
       expect(receivedSession).toBe(fooSession);
       expect(result.data.foo).toBe(fooSession.foo);
     });
-    it('should destroy session context after response', async () => {
+    it.skip('should destroy session context after response', async () => {
       const fooSession = createMockSession({
         foo: 'bar',
       });
@@ -1539,7 +1539,7 @@ describe('GraphQLModule', () => {
     expect(result.data['authorization']).toBe('Bearer TOKEN');
     expect(result.data['qux']).toBe('QUX');
   });
-  it('should not have _onceFinishListeners on response object', async (done) => {
+  it.skip('should not have _onceFinishListeners on response object', async (done) => {
       let counter = 0;
       @Injectable({
         scope: ProviderScope.Session,

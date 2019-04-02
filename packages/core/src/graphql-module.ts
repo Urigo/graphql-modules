@@ -1073,23 +1073,24 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   }
                 }
                 moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
-                if ('res' in session && 'once' in session['res']) {
-                    if (!('_onceFinishListeners' in session['res'])) {
-                      session['res']['_onceFinishListeners'] = [];
-                      session['res'].once('finish', (e: any) => {
-                          const onceFinishListeners = session['res']['_onceFinishListeners'];
-                          onceFinishListeners.map((onceFinishListener: any) => onceFinishListener(e));
-                          delete session['res']['_onceFinishListeners'];
-                      });
-                    }
-                    session['res']['_onceFinishListeners'].push(() => {
-                        sessionInjector.callHookWithArgsAsync({
-                            hook: 'onResponse',
-                            args: [moduleSessionInfo],
-                            instantiate: true,
-                        }).then(() => this.destroySelfSession(session));
-                    });
-                }
+                /// XXX: Dotan - We need to implement it in another way in the future.
+                // if ('res' in session && 'once' in session['res']) {
+                //     if (!('_onceFinishListeners' in session['res'])) {
+                //       session['res']['_onceFinishListeners'] = [];
+                //       session['res'].once('finish', (e: any) => {
+                //           const onceFinishListeners = session['res']['_onceFinishListeners'];
+                //           onceFinishListeners.map((onceFinishListener: any) => onceFinishListener(e));
+                //           delete session['res']['_onceFinishListeners'];
+                //       });
+                //     }
+                //     session['res']['_onceFinishListeners'].push(() => {
+                //         sessionInjector.callHookWithArgsAsync({
+                //             hook: 'onResponse',
+                //             args: [moduleSessionInfo],
+                //             instantiate: true,
+                //         }).then(() => this.destroySelfSession(session));
+                //     });
+                // }
                 sessionInjector.onInstanceCreated = ({ instance }) => {
                   if (
                     typeof instance !== 'number' &&
