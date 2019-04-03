@@ -6,7 +6,7 @@ sidebar_label: Development Environment
 
 ## TypeScript
 
-### Basic Configuration
+### TS-Node ***(recommended way)***
 
 To setup your development environment easily, we recommend to use [TypeScript](http://www.typescriptlang.org/).
 
@@ -62,7 +62,7 @@ Next, add the following scripts to your `package.json`:
 - `build` will use `tsc` compiler to compile your code to JavaScript.
 - `start` will run the compiled server using pure Node.
 
-### `paths`
+#### `paths`
 
 TypeScript has an **[aliasing mechanism](https://www.typescriptlang.org/docs/handbook/module-resolution.html)** that can make it easier to work with modules directories.
 
@@ -104,7 +104,7 @@ This way, you can now import files between modules like that:
 import { SomeProvider } from '@modules/my-module';
 ```
 
-### Import from `.graphql` files
+#### Import from `.graphql` files
 
 You can also treat `.graphql` files as text files and import from them easily. It's useful because most IDEs detects `.graphql` files and have syntax highlighting for it.
 
@@ -119,7 +119,7 @@ import 'graphql-import-node'; // You should add this at the begininng of your en
 import * as UserTypeDefs from './user.graphql';
 ```
 
-## Webpack
+### Webpack
 
 If you are using Webpack, we recommend to use **[ts-loader](https://github.com/TypeStrong/ts-loader) or [awesome-typescript-loader](https://github.com/s-panferov/awesome-typescript-loader)** to load your TypeScript files.
 
@@ -149,6 +149,20 @@ module.exports = {
 };
 ```
 
+### Babel-TypeScript
+
+You can use Babel for TypeScript with GraphQL-Modules. [Check out this boilerplate](https://github.com/Microsoft/TypeScript-Babel-Starter)
+
+But if you use DI, you have to decorate each property and argument in the providers manually even for the classes like below;
+
+```ts
+import { Injectable, Inject } from '@graphql-modules/di';
+@Injectable()
+export class SomeProvider {
+  constructor(@Inject(OtherProvider) private otherProvider: OtherProvider){}
+}
+```
+
 ## JavaScript Usage
 
 If you are using JavaScript in your project and not TypeScript, you can either **[add support for TypeScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)**, or use GraphQL Modules with it's JavaScript API.
@@ -159,7 +173,7 @@ If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, 
 
 ### Without decorators
 
-You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes.
+You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes from `tslib
 
 ## Testing Environment
 

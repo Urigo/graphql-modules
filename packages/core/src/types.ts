@@ -14,30 +14,48 @@ export interface OnResponse<Config = any, Session extends object = any, Context 
   onResponse(moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>): Promise<void> | void;
 }
 
-export interface OnConnect<ConnectionParams = object, WebSocket = any, ConnectionSession = any, Result = any> {
-  onConnect: (
-    connectionParams: ConnectionParams,
-    websocket: WebSocket,
-    connectionSession: ConnectionSession,
-  ) => Result | Promise<Result>;
+export type OnConnectFn<ConnectionParams = object, WebSocket = any, ConnectionContext = any, Result = any> = (
+  connectionParams: ConnectionParams,
+  websocket: WebSocket,
+  connectionContext: ConnectionContext,
+) => Result | Promise<Result>;
+export interface OnConnect<ConnectionParams = object, WebSocket = any, ConnectionContext = any, Result = any> {
+  onConnect: OnConnectFn<ConnectionParams, WebSocket, ConnectionContext, Result>;
 }
 
-export interface OnDisconnect<WebSocket = any, ConnectionContext = any, OnDisconnectResult = any> {
-  onDisconnect?: (websocket: WebSocket, connectionSession: ConnectionContext) => OnDisconnectResult;
+export type OnOperationFn<SubscriptionMessage = any, SubscriptionOptions = any, WebSocket = any, Result = any> =
+  (message: SubscriptionMessage, params: SubscriptionOptions, WebSocket: WebSocket) => Result;
+export interface OnOperation<SubscriptionMessage = any, SubscriptionOptions = any, WebSocket = any, Result = any> {
+  onOperation: OnOperationFn<SubscriptionMessage, SubscriptionOptions, WebSocket, Result>;
+}
+
+export type OnOperationCompleteFn<WebSocket = any, OpId = string, OnOperationCompleteResult = any> =
+  (websocket: WebSocket, opId: OpId) => OnOperationCompleteResult;
+export interface OnOperationComplete<WebSocket = any, OpId = string, OnOperationCompleteResult = any> {
+  onOperationComplete?: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
+}
+
+export type OnDisconnectFn<WebSocket = any, ConnectionContext = any, Result = any>
+ = (websocket: WebSocket, connectionContext: ConnectionContext) => Result;
+export interface OnDisconnect<WebSocket = any, ConnectionContext = any, Result = any> {
+  onDisconnect?: OnDisconnectFn<WebSocket, ConnectionContext, Result>;
 }
 
 export interface SubscriptionHooks<
   ConnectionParams = object,
   WebSocket = any,
-  ConnectionSession = any,
+  ConnectionContext = any,
+  SubscriptionMessage = any,
+  SubscriptionOptions = any,
+  OpId = string,
   OnConnectResult = any,
+  OnOperationResult = any,
+  OnOperationCompleteResult = any,
   OnDisconnectResult = any> {
-  onConnect?: (
-    connectionParams: ConnectionParams,
-    websocket: WebSocket,
-    connectionSession: ConnectionSession,
-  ) => OnConnectResult | Promise<OnConnectResult>;
-  onDisconnect?: (websocket: WebSocket, connectionSession: ConnectionSession) => OnDisconnectResult;
+  onConnect: OnConnectFn<ConnectionParams, WebSocket, ConnectionContext, OnConnectResult>;
+  onOperation: OnOperationFn<SubscriptionMessage, SubscriptionOptions, WebSocket, OnOperationResult>;
+  onOperationComplete: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
+  onDisconnect: OnDisconnectFn<WebSocket, ConnectionContext, OnDisconnectResult>;
 }
 
 export type ModuleContext<Context = { [key: string]: any }> = Context & { injector: Injector };
