@@ -114,7 +114,7 @@ export const ImageModule = new GraphQLModule({
     resolvers: {
         Mutation: {
             uploadImage: (root, { name, file }) => {
-                const { filename, mimetype, createReadStream } = await image
+                const { filename, mimetype, createReadStream } = await file;
                 const stream = createReadStream()
                 // Promisify the stream and store the file, then…
                 return true;
