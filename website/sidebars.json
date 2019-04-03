@@ -30,6 +30,7 @@
       "guides/microservices",
       "guides/data-sources",
       "guides/data-loader",
+      "guides/database-connection-pooling",
       "guides/graphql-code-generator",
       "guides/graphql-inspector"
     ]
