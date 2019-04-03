@@ -117,10 +117,8 @@ describe('GraphQLModule', () => {
   const testQuery = gql`query { b { f }}`;
   const app = new GraphQLModule({ imports: [moduleA, moduleB.forRoot({}), moduleC] });
 
-  type MockResponse<T> = {
-    res: EventEmitter,
-  } & T;
-  const createMockSession = <T>(customProps?: T): MockResponse<T> => {
+  type MockSession<T> = { res: EventEmitter } & T;
+  const createMockSession = <T>(customProps?: T): MockSession<T> => {
     return {
       res: new EventEmitter(),
       ...customProps,
@@ -1587,7 +1585,7 @@ describe('GraphQLModule', () => {
     // After onResponse
     expect(counter).toBe(1);
     // Check if the listener is triggered again
-    session.res.once('finish', async () => {
+    session.res.once('finish', () => {
       setTimeout(() => {
         expect(counter).toBe(1);
         // Response object must be cleared
@@ -1676,7 +1674,7 @@ describe('GraphQLModule', () => {
     }).then(done).catch(done.fail);
 
   });
-  it.skip('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
+  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
 
     let counter = 0;
     @Injectable({
@@ -1748,7 +1746,7 @@ describe('GraphQLModule', () => {
         moduleB,
       ],
     });
-    const mockRequests: Array<MockResponse<{ hugeLoad: number[]}>> = [];
+    const mockRequests: Array<MockResponse<{ hugeLoad: number[] }>> = [];
     for (let i = 0; i < 1000; i++) {
       mockRequests.push(createMockSession({ hugeLoad: new Array(1000).fill(1000) }));
     }
@@ -1764,14 +1762,14 @@ describe('GraphQLModule', () => {
       mockRequest.res.once('finish', () => {
         setTimeout(() => {
           // tslint:disable-next-line: no-console
-                  console.log('resolved');
-// tslint:disable-next-line: no-console
-                  console.time('GC');
-                  (global.gc as any)(true);
-// tslint:disable-next-line: no-console
-                  console.timeEnd('GC');
-                  resolve();
-        }, 60000);
+          console.log('resolved');
+          // tslint:disable-next-line: no-console
+          console.time('GC');
+          (global.gc as any)(true);
+          // tslint:disable-next-line: no-console
+          console.timeEnd('GC');
+          resolve();
+        }, 1000);
       });
       mockRequest.res.emit('finish');
       expect(data.aLoadLength).toBe(1000);
