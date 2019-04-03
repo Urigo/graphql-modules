@@ -28,6 +28,7 @@ import { ModuleSessionInfo } from './module-session-info';
 import { ModuleContext, SubscriptionHooks } from './types';
 import { asArray, normalizeSession } from './helpers';
 import { KeyValueCache, InMemoryLRUCache } from 'apollo-server-caching';
+import { ServerResponse } from 'http';
 
 type MaybePromise<T> = Promise<T> | T;
 
@@ -1152,21 +1153,26 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   }
                 }
                 moduleSessionInfo.context = Object.assign<any, Context>(importsContext, moduleContext);
-                if ('res' in session && 'once' in session['res']) {
-                    if (!('_onceFinishListeners' in session['res'])) {
-                      session['res']['_onceFinishListeners'] = [];
-                      session['res'].once('finish', (e: any) => {
-                          const onceFinishListeners = session['res']['_onceFinishListeners'];
-                          onceFinishListeners.map((onceFinishListener: any) => onceFinishListener(e));
-                          delete session['res']['_onceFinishListeners'];
+                const res: ServerResponse = session && session['res'];
+                if (res && 'once' in res) {
+                    if (!('_onceFinishListeners' in res)) {
+                      res['_onceFinishListeners'] = [];
+                      res.once('finish', () => {
+                          const onceFinishListeners = res['_onceFinishListeners'];
+                          for (const onceFinishListener of onceFinishListeners) {
+                            onceFinishListener();
+                          }
+                          delete res['_onceFinishListeners'];
                       });
                     }
-                    session['res']['_onceFinishListeners'].push(() => {
-                        sessionInjector.callHookWithArgsAsync({
+                    res['_onceFinishListeners'].push(() => {
+                        sessionInjector.callHookWithArgs({
                             hook: 'onResponse',
                             args: [moduleSessionInfo],
                             instantiate: true,
-                        }).then(() => this.destroySelfSession(session));
+                            async: false,
+                        });
+                        this.destroySelfSession(session);
                     });
                 }
                 sessionInjector.onInstanceCreated = ({ instance }) => {
