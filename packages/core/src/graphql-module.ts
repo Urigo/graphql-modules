@@ -391,7 +391,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         name: this.name,
         injectorScope: ProviderScope.Application,
         defaultProviderScope: this.selfDefaultProviderScope,
-        hooks: ['onInit', 'onRequest', 'onResponse', 'onConnect', 'onDisconnect'],
+        hooks: ['onInit', 'onRequest', 'onResponse', 'onError', 'onConnect', 'onDisconnect'],
         initialProviders: this.selfProviders,
         children: this.selfImports.map(module => module.injector),
       });
