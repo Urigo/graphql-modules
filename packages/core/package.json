@@ -41,6 +41,7 @@
     "graphql": "^14.1.1"
   },
   "devDependencies": {
+    "@types/leakage": "0.4.0",
     "apollo-cache-inmemory": "1.5.1",
     "apollo-client": "2.5.1",
     "apollo-link-schema": "1.2.2",
