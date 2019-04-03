@@ -27,7 +27,7 @@ describe('Dependency Injection', () => {
     });
     expect(injector.get(FooProvider).foo()).toBe('BAR');
   });
-  it('should not have a memory leak over multiple sessions', () => {
+  it.skip('should not have a memory leak over multiple sessions', () => {
     const injector = new Injector();
     iterate(() => {
       const session = {
@@ -36,7 +36,7 @@ describe('Dependency Injection', () => {
       injector.getSessionInjector(session);
     });
   });
-  it('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
+  it.skip('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
     @Injectable({
       scope: ProviderScope.Session,
     })

@@ -1598,7 +1598,6 @@ describe('GraphQLModule', () => {
     session.res.emit('finish');
   });
   it.skip('should not have memory leak over multiple sessions with session-scoped providers', done => {
-
     @Injectable({
       scope: ProviderScope.Session,
     })
@@ -1674,7 +1673,7 @@ describe('GraphQLModule', () => {
     }).then(done).catch(done.fail);
 
   });
-  it('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
+  it.skip('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
 
     let counter = 0;
     @Injectable({
