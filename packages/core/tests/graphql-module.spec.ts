@@ -17,9 +17,12 @@ import { Injectable, Inject, InjectFunction, Injector, ProviderScope, Dependency
 import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { EventEmitter } from 'events';
 import { KeyValueCache } from 'apollo-server-caching';
+import { iterate } from 'leakage';
+import { EventEmitter } from 'events';
+import { writeFile } from 'fs';
 
+jest.setTimeout(60000 * 10);
 describe('GraphQLModule', () => {
   // A
   @Injectable()
@@ -1140,7 +1143,7 @@ describe('GraphQLModule', () => {
           isDirty: (root, args, context, info) => !!info.schema['__DIRTY__'],
         },
       },
-      middleware: ({schema}) => { schema['__DIRTY__'] = true; return { schema }; },
+      middleware: ({ schema }) => { schema['__DIRTY__'] = true; return { schema }; },
     });
     const { schema, context } = new GraphQLModule({
       imports: [
@@ -1262,7 +1265,7 @@ describe('GraphQLModule', () => {
       @Injectable()
       class TestDataSourceAPI {
         cache: KeyValueCache;
-        initialize({ cache }: { cache: KeyValueCache}) {
+        initialize({ cache }: { cache: KeyValueCache }) {
           this.cache = cache;
         }
       }
@@ -1297,7 +1300,7 @@ describe('GraphQLModule', () => {
       class TestDataSourceAPI {
         context: any;
         cache: KeyValueCache;
-        public initialize({ context, cache }: { context: any, cache: KeyValueCache}) {
+        public initialize({ context, cache }: { context: any, cache: KeyValueCache }) {
           this.context = context;
           this.cache = cache;
         }
@@ -1467,14 +1470,14 @@ describe('GraphQLModule', () => {
   it('should throw an error if promises are used without schemaAsync', async () => {
     const MyAsyncModule = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true }}),
+      resolvers: async () => ({ Query: { test: () => true } }),
     });
     expect(() => MyAsyncModule.schema).toThrow();
   });
   it('should support promises with schemaAsync', async () => {
     const { schemaAsync } = new GraphQLModule({
       typeDefs: async () => `type Query { test: Boolean }`,
-      resolvers: async () => ({ Query: { test: () => true }}),
+      resolvers: async () => ({ Query: { test: () => true } }),
     });
     const result = await execute({
       schema: await schemaAsync,
@@ -1540,60 +1543,232 @@ describe('GraphQLModule', () => {
     expect(result.data['qux']).toBe('QUX');
   });
   it('should not have _onceFinishListeners on response object', async (done) => {
-      let counter = 0;
-      @Injectable({
-        scope: ProviderScope.Session,
-      })
-      class FooProvider implements OnResponse {
-        onResponse() {
-          counter++;
-        }
-        getCounter() {
-          return counter;
-        }
+    let counter = 0;
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class FooProvider implements OnResponse {
+      onResponse() {
+        counter++;
       }
+      getCounter() {
+        return counter;
+      }
+    }
 
-      const module = new GraphQLModule({
-        typeDefs: gql`
-          type Query {
-            foo: Int
-          }
-        `,
-        resolvers: {
-          Query: {
-            foo: (_, __, { injector }) => injector.get(FooProvider).getCounter(),
-          },
-        },
-        providers: [
-          FooProvider,
-        ],
-      });
-      const session = createMockSession({});
-      const { data } = await execute({
-        schema: module.schema,
-        contextValue: session,
-        document: gql`query { foo }`,
-      });
-      // Result
-      expect(data.foo).toBe(0);
-      // Before onResponse
-      expect(counter).toBe(0);
-      session.res.emit('finish');
-      // After onResponse
-      expect(counter).toBe(1);
-      // Check if the listener is triggered again
-      session.res.emit('finish');
-      expect(counter).toBe(1);
-      setTimeout(() => {
-        try {
-          // Response object must be cleared
-          expect(session.res['_onceFinishListeners']).toBeUndefined();
-          expect(module.injector.hasSessionInjector(session)).toBeFalsy();
-          expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
-          done();
-        } catch (e) {
-          done.fail(e);
+    const module = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          foo: Int
         }
+      `,
+      resolvers: {
+        Query: {
+          foo: (_, __, { injector }) => injector.get(FooProvider).getCounter(),
+        },
+      },
+      providers: [
+        FooProvider,
+      ],
+    });
+    const session = createMockSession({});
+    const { data } = await execute({
+      schema: module.schema,
+      contextValue: session,
+      document: gql`query { foo }`,
+    });
+    // Result
+    expect(data.foo).toBe(0);
+    // Before onResponse
+    expect(counter).toBe(0);
+    await session.res.emit('finish');
+    // After onResponse
+    expect(counter).toBe(1);
+    // Check if the listener is triggered again
+    session.res.once('finish', () => {
+      setTimeout(() => {
+        expect(counter).toBe(1);
+        // Response object must be cleared
+        expect(session.res['_onceFinishListeners']).toBeUndefined();
+        expect(module.injector.hasSessionInjector(session)).toBeFalsy();
+        expect(module['_sessionContext$Map'].has(session)).toBeFalsy();
+        done();
       }, 1000);
+    });
+    session.res.emit('finish');
+  });
+  it.skip('should not have memory leak over multiple sessions with session-scoped providers', done => {
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class AProvider {
+      constructor(private moduleSessionInfo: ModuleSessionInfo) { }
+      getLoadLength() {
+        return this.moduleSessionInfo.session.hugeLoad.length;
+      }
+    }
+    const moduleA = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          aLoadLength: Int
+        }
+      `,
+      resolvers: {
+        Query: {
+          aLoadLength: (_, __, { injector }) => injector.get(AProvider).getLoadLength(),
+        },
+      },
+      providers: [
+        AProvider,
+      ],
+    });
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class BProvider {
+      constructor(private moduleSessionInfo: ModuleSessionInfo) { }
+      getLoadLength() {
+        return this.moduleSessionInfo.session.hugeLoad.length;
+      }
+      getB() {
+        return 'B';
+      }
+    }
+    const moduleB = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          aLoadLength: Int
+        }
+      `,
+      resolvers: {
+        Query: {
+          bLoadLength: (_, __, { injector }) => injector.get(BProvider).getLoadLength(),
+        },
+      },
+      providers: [
+        BProvider,
+      ],
+    });
+    const { schema } = new GraphQLModule({
+      imports: [
+        moduleA,
+        moduleB,
+      ],
+    });
+
+    let counter = 0;
+    iterate.async(async () => {
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${counter} start`);
+      await execute({
+        schema,
+        contextValue: {
+          hugeLoad: new Array(1000).fill(1000),
+        },
+        document: gql`{ aLoadLength bLoadLength }`,
+      });
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration: ${counter} end`);
+      counter++;
+    }).then(done).catch(done.fail);
+
+  });
+  it.skip('should not memory leak over multiple sessions (not collected by GC but emitting finish event) with session-scoped providers', done => {
+
+    let counter = 0;
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class AProvider {
+      aHugeLoad = new Array(1000).fill(1000);
+
+      constructor(private moduleSessionInfo: ModuleSessionInfo) {
+        counter++;
+      }
+      getLoadLength() {
+        return this.moduleSessionInfo.session.hugeLoad.length;
+      }
+      getALoadLength() {
+        return this.aHugeLoad.length;
+      }
+    }
+    const moduleA = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          aLoadLength: Int
+          abLoadLength: Int
+        }
+      `,
+      resolvers: {
+        Query: {
+          aLoadLength: (_, __, { injector }) => injector.get(AProvider).getALoadLength(),
+          abLoadLength: (_, __, { injector }) => injector.get(AProvider).getLoadLength(),
+        },
+      },
+      providers: [
+        AProvider,
+      ],
+    });
+    @Injectable({
+      scope: ProviderScope.Session,
+    })
+    class BProvider {
+      bHugeLoad = new Array(1000).fill(1000);
+      constructor(private moduleSessionInfo: ModuleSessionInfo) { }
+      getLoadLength() {
+        return this.moduleSessionInfo.session.hugeLoad.length;
+      }
+      getBLoadLength() {
+        return this.bHugeLoad.length;
+      }
+    }
+    const moduleB = new GraphQLModule({
+      typeDefs: gql`
+        type Query {
+          bLoadLength: Int
+          baLoadLength: Int
+        }
+      `,
+      resolvers: {
+        Query: {
+          bLoadLength: (_, __, { injector }) => injector.get(BProvider).getBLoadLength(),
+          baLoadLength: (_, __, { injector }) => injector.get(BProvider).getLoadLength(),
+        },
+      },
+      providers: [
+        BProvider,
+      ],
+    });
+    const { schema } = new GraphQLModule({
+      imports: [
+        moduleA,
+        moduleB,
+      ],
+    });
+    const mockRequests: Array<MockSession<{ hugeLoad: number[] }>> = [];
+    for (let i = 0; i < 1000; i++) {
+      mockRequests.push(createMockSession({ hugeLoad: new Array(1000).fill(1000) }));
+    }
+    iterate.async(() => new Promise(async resolve => {
+      // tslint:disable-next-line: no-console
+      console.log(`Iteration started`);
+      const mockRequest = mockRequests[Math.floor(Math.random() * mockRequests.length)];
+      const { data } = await execute({
+        schema,
+        contextValue: mockRequest,
+        document: gql`{ aLoadLength bLoadLength abLoadLength baLoadLength }`,
+      });
+      mockRequest.res.emit('finish');
+      expect(data.aLoadLength).toBe(1000);
+      expect(data.bLoadLength).toBe(1000);
+      expect(data.abLoadLength).toBe(1000);
+      expect(data.baLoadLength).toBe(1000);
+      // tslint:disable-next-line: no-console
+      console.log(counter);
+      resolve();
+    })).then(() => {
+      done();
+    }).catch(done.fail);
+
   });
 });

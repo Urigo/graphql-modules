@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/di",
-  "version": "0.6.6",
+  "version": "0.7.0",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -38,7 +38,8 @@
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
-    "jest": "24.6.0",
+    "jest": "24.7.0",
+    "leakage": "0.4.0",
     "reflect-metadata": "0.1.13",
     "tslint": "5.15.0",
     "typescript": "3.4.1"
