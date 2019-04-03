@@ -554,6 +554,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._cache.schemaDirectives;
   }
 
+  private paramsOnOperationResult$Map = new WeakMap<any, Promise<any>>();
+  private opIdOnOperationCompleteResult$Map = new WeakMap<any, Promise<any>>();
   get subscriptions(): SubscriptionHooks {
     if (typeof this._cache.subscriptionHooks === 'undefined') {
       const subscriptionHooks = new Array<SubscriptionHooks>();
@@ -565,17 +567,17 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         }
       }
       this._cache.subscriptionHooks = {
-        onConnect: (connectionParams, websocket, connectionSession) => {
-          if (!this._sessionContext$Map.has(connectionSession)) {
-            this._sessionContext$Map.set(connectionSession, new Promise(async (resolve, reject) => {
+        onConnect: (connectionParams, websocket, connectionContext) => {
+          if (!this._sessionContext$Map.has(websocket)) {
+            this._sessionContext$Map.set(websocket, new Promise(async (resolve, reject) => {
               try {
                 const importsOnConnectHooks$ = subscriptionHooks.map(
-                  async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionSession),
+                  async ({ onConnect }) => onConnect && onConnect(connectionParams, websocket, connectionContext),
                 );
                 const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
                 const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                const connectionContext = await this.context(connectionSession);
-                const sessionInjector = connectionContext.injector;
+                const connectionModuleContext = await this.context(websocket);
+                const sessionInjector = connectionModuleContext.injector;
                 const hookResult = await sessionInjector.callHookWithArgs({
                   hook: 'onConnect',
                   args: [
@@ -588,7 +590,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 });
                 resolve({
                   ...importsResult,
-                  ...connectionContext,
+                  ...connectionModuleContext,
                   ...hookResult,
                 });
               } catch (e) {
@@ -596,26 +598,103 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
               }
             }));
           }
-          return this._sessionContext$Map.get(connectionSession);
+          return this._sessionContext$Map.get(websocket);
         },
-        onDisconnect: async (websocket, connectionSession) => {
-          const importsOnDisconnectHooks$ = subscriptionHooks.map(
-            async ({ onDisconnect }) => onDisconnect && onDisconnect(websocket, connectionSession),
-          );
-          const importsOnDisconnectHooks = await Promise.all(importsOnDisconnectHooks$);
-          importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-          const connectionContext = await this.context(connectionSession);
-          const sessionInjector = connectionContext.injector;
-          await sessionInjector.callHookWithArgs({
-            hook: 'onDisconnect',
-            args: [
-              websocket,
-              connectionContext,
-            ],
-            instantiate: true,
-            async: true,
-          });
-          this.destroySelfSession(connectionSession);
+        onOperation: (message, params, websocket) => {
+          if (!this.paramsOnOperationResult$Map.has(params)) {
+            this.paramsOnOperationResult$Map.set(params, new Promise(async (resolve, reject) => {
+              try {
+                const importsOnOperationHooks$ = subscriptionHooks.map(
+                  async ({ onOperation }) => onOperation && onOperation(message, params, websocket),
+                );
+                const importsOnOperationHooks = await Promise.all(importsOnOperationHooks$);
+                const importsResult = importsOnOperationHooks.reduce((acc, curr) => ({ ...acc, ...acc(curr || {})}), {});
+                const connectionModuleContext = await this.context(websocket);
+                const sessionInjector = connectionModuleContext.injector;
+                const moduleOnOperationResult = await sessionInjector.callHookWithArgs({
+                  hook: 'onOperation',
+                  args: [
+                    message,
+                    params,
+                    websocket,
+                  ],
+                  instantiate: true,
+                  async: true,
+                });
+                resolve({
+                  ...importsResult,
+                  ...moduleOnOperationResult,
+                });
+              } catch (e) {
+                reject(e);
+              }
+            }));
+          }
+          return this.paramsOnOperationResult$Map.get(params);
+        },
+        onOperationComplete: (websocket, opId: any) => {
+          // tslint:disable-next-line: no-construct
+          opId = new String(opId);
+          if (!this.opIdOnOperationCompleteResult$Map.has(opId)) {
+            this.opIdOnOperationCompleteResult$Map.set(opId, new Promise(async (resolve, reject) => {
+              try {
+                const importsOnOperationCompleteHooks$ = subscriptionHooks.map(
+                  async ({ onOperationComplete }) => onOperationComplete && onOperationComplete(websocket, opId),
+                );
+                const importsOnOperationCompleteHooks = await Promise.all(importsOnOperationCompleteHooks$);
+                const importsResult = importsOnOperationCompleteHooks.reduce((acc, curr) => ({ ...acc, ...acc(curr || {})}), {});
+                const connectionModuleContext = await this.context(websocket);
+                const sessionInjector = connectionModuleContext.injector;
+                const moduleOnOperationCompleteResult = await sessionInjector.callHookWithArgs({
+                  hook: 'onOperationComplete',
+                  args: [
+                    websocket,
+                    opId,
+                  ],
+                  instantiate: true,
+                  async: true,
+                });
+                resolve({
+                  ...importsResult,
+                  ...moduleOnOperationCompleteResult,
+                });
+              } catch (e) {
+                reject(e);
+              }
+            }));
+          }
+          return this.opIdOnOperationCompleteResult$Map.get(opId);
+        },
+        onDisconnect: (websocket, connectionContext) => {
+          websocket['_moduleOnDisconnect$Map'] = websocket['_moduleOnDisconnect$Map'] || new WeakMap();
+          const moduleOnDisconnect$Map: WeakMap<GraphQLModule, Promise<void>> = websocket['_moduleOnDisconnect$Map'];
+          if (!moduleOnDisconnect$Map.has(this)) {
+            moduleOnDisconnect$Map.set(this, new Promise(async (resolve, reject) => {
+              try {
+                const importsOnDisconnectHooks$ = subscriptionHooks.map(
+                  async ({ onDisconnect }) => onDisconnect && onDisconnect(websocket, connectionContext),
+                );
+                const importsOnDisconnectHooks = await Promise.all(importsOnDisconnectHooks$);
+                importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
+                const connectionModuleContext = await this.context(websocket);
+                const sessionInjector = connectionModuleContext.injector;
+                await sessionInjector.callHookWithArgs({
+                  hook: 'onDisconnect',
+                  args: [
+                    websocket,
+                    connectionContext,
+                  ],
+                  instantiate: true,
+                  async: true,
+                });
+                this.destroySelfSession(websocket);
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            }));
+          }
+          return moduleOnDisconnect$Map.get(this);
         },
       };
     }

@@ -342,6 +342,9 @@ export class MyProvider implements OnDisconnect {
 > `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
 [API of `OnDisconnect` is available here](/docs/api/core/api-interfaces-ondisconnect)
 
+> The other `OnOperation` and `OnOperationComplete` hooks work similar to GraphQL Subscription Server implementation;
+[See more in SubscriptionServer docs](https://github.com/apollographql/subscriptions-transport-ws)
+
 ## Provider Scopes
 
 You can define different life-time for your provider. You have three options;
