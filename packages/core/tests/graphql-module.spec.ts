@@ -1746,7 +1746,7 @@ describe('GraphQLModule', () => {
         moduleB,
       ],
     });
-    const mockRequests: Array<MockResponse<{ hugeLoad: number[] }>> = [];
+    const mockRequests: Array<MockSession<{ hugeLoad: number[] }>> = [];
     for (let i = 0; i < 1000; i++) {
       mockRequests.push(createMockSession({ hugeLoad: new Array(1000).fill(1000) }));
     }
@@ -1759,18 +1759,6 @@ describe('GraphQLModule', () => {
         contextValue: mockRequest,
         document: gql`{ aLoadLength bLoadLength abLoadLength baLoadLength }`,
       });
-      mockRequest.res.once('finish', () => {
-        setTimeout(() => {
-          // tslint:disable-next-line: no-console
-          console.log('resolved');
-          // tslint:disable-next-line: no-console
-          console.time('GC');
-          (global.gc as any)(true);
-          // tslint:disable-next-line: no-console
-          console.timeEnd('GC');
-          resolve();
-        }, 1000);
-      });
       mockRequest.res.emit('finish');
       expect(data.aLoadLength).toBe(1000);
       expect(data.bLoadLength).toBe(1000);
@@ -1778,6 +1766,7 @@ describe('GraphQLModule', () => {
       expect(data.baLoadLength).toBe(1000);
       // tslint:disable-next-line: no-console
       console.log(counter);
+      resolve();
     })).then(() => {
       done();
     }).catch(done.fail);
