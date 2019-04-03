@@ -6,21 +6,26 @@ sidebar_label: Database Connection Pooling
 
 Opening a database connection is an expensive process, and that's why we use **[Connection pool](https://en.wikipedia.org/wiki/Connection_pool)** to reduce the cost. And it also allows us to have a good transaction management in a single session that uses different providers.
 
-The example uses PostgreSQL and **[node-postgres](https://node-postgres.com/features/transactions)** below;
+The example uses PostgreSQL and **[node-postgres](https://node-postgres.com/features/transactions)** below. However, you can also do it with any other modern databases such as [MongoDB](https://www.compose.com/articles/connection-pooling-with-mongodb/) and [MySQL](https://www.compose.com/articles/connection-pooling-with-mongodb/)
 
 We define two providers in `DatabaseModule`, the first one is `Pool` which will be application scoped, and `DatabaseProvider` will be session-scoped. So, it will provide us different clients from connection pool for each session/network request. See Dependency Injection part of our docs to learn more about provider scopes.
+
 `database.module.ts`
 ```ts
 import { Pool } from 'pg';
 export const DatabaseModule = new GraphQLModule({
     providers: [
-        Pool,
+        Pool, // or you can use factory providers to pass extra options to the constructor { provide: Pool, useFactory: () => new Pool({ ... }) }
         DatabaseProvider
     ]
 });
 ```
 
+> You can define external classes as **Provider** in GraphQL-Modules. In that example, `Pool` will be constructed once in the application scope.
+
 And we will use `OnResponse` hook to release the client to the pool after we've done with it. See Dependency Injection part of our docs to learn more about hooks.
+
+`DatabaseProvider` will be created on a session level while the instance of `Pool` will be the same instance always in the application level.
 `database.provider.ts`
 ```ts
 import { Injectable } from '@graphql-modules/di';
