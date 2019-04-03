@@ -36,7 +36,7 @@ app.listen(4000);
 
 ### Enabling uploads in Apollo-Server
 
-The only thing you need to have for Apollo Server is to add `uploads` field to your server configuration.
+if you are using apollo-server, you don't have to add that express middleware, you just need to add `uploads` field` to your Apollo Server configuration:
 
 ```ts
 import { GraphQLModule } from '@graphql-modules/core';
