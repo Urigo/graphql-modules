@@ -24,7 +24,6 @@
     ],
     "Guides": [
       "guides/development-environment",
-      "guides/integrate-with-apollo-server",
       "guides/load-your-schema",
       "guides/communication-between-modules",
       "guides/microservices",
@@ -32,8 +31,11 @@
       "guides/data-loader",
       "guides/file-uploads",
       "guides/db-connection-pooling",
+      "guides/apollo-server",
       "guides/graphql-code-generator",
-      "guides/graphql-inspector"
+      "guides/graphql-inspector",
+      "guides/type-graphql",
+      "guides/nexus"
     ]
   }
 }
