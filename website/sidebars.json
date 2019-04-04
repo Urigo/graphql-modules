@@ -33,7 +33,9 @@
       "guides/file-uploads",
       "guides/db-connection-pooling",
       "guides/graphql-code-generator",
-      "guides/graphql-inspector"
+      "guides/graphql-inspector",
+      "guides/type-graphql",
+      "guides/nexus"
     ]
   }
 }
