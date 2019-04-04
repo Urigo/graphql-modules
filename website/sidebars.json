@@ -24,7 +24,7 @@
     ],
     "Guides": [
       "guides/development-environment",
-      "guides/integrate-with-apollo-server",
+      "guides/apollo-server",
       "guides/load-your-schema",
       "guides/communication-between-modules",
       "guides/microservices",
