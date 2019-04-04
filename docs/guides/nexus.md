@@ -120,3 +120,17 @@ export const ChatsModule = new GraphQLModule({
 ```
 
 > GraphQL-Modules helps you to create standalone modules that has encapsulated schema in this case.
+
+## Integration with other implementations
+
+You can merge different modules from different implementations like below. So you don't have to use same implementation method in all modules. GraphQL-Modules will handle schema merging for you, even if they're from different implementations.
+
+```ts
+new GraphQLModule({
+   imports: [
+        XModuleCreatedUsingSchemaFirst,
+        YModuleCreatedUsingNexus,
+        ZModuleCreatedUsingTypeGraphQL
+   ]
+})
+```

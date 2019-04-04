@@ -106,3 +106,16 @@ export const ChatsModule = new GraphQLModule({
 We have to define resolver classes as providers because they are also part of our Dependency Injection. 
 `container: ({ context }) => ChatsModule.injector.getSessionInjector(context)` tells TypeGraphQL to use `ChatsModule` DI container for those resolvers.
 
+## Integration with other implementations
+
+You can merge different modules from different implementations like below. So you don't have to use same implementation method in all modules. GraphQL-Modules will handle schema merging for you, even if they're from different implementations.
+
+```ts
+new GraphQLModule({
+   imports: [
+        XModuleCreatedUsingSchemaFirst,
+        YModuleCreatedUsingNexus,
+        ZModuleCreatedUsingTypeGraphQL
+   ]
+})
+```
