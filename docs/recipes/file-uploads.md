@@ -1,7 +1,7 @@
 ---
 id: file-uploads
 title: File Uploads
-sidebar_label: File Uploads
+sidebar_label: File Uploads using GraphQL Upload
 ---
 
 You can transfer files between client and server using GraphQL. It is really simple as in REST. If you're using `express-graphql` as your GraphQL Server, you should install **[graphql-upload](https://github.com/jaydenseric/graphql-upload)** package. It has two things we need to add to our GraphQL Application.

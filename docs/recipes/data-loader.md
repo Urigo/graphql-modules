@@ -1,7 +1,7 @@
 ---
 id: data-loader
-title: DataLoader
-sidebar_label: DataLoader
+title: Solve N+1 Using DataLoader
+sidebar_label: Solve N+1 Using DataLoader
 ---
 
 DataLoader is a generic library which aims to solve `n+1` issue in large scale GraphQL Applications. You can **[read more about DataLoader](https://github.com/facebook/dataloader)**.

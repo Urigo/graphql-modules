@@ -1,7 +1,7 @@
 ---
 id: communication-between-modules
 title: Communication Between Modules
-sidebar_label: Modules Communication
+sidebar_label: Communication Between Modules
 ---
 
 While modules should be a standalone unit of code, it's not possible to create a complete standalone modules.

@@ -1,7 +1,7 @@
 ---
 id: data-sources
-title: Data sources
-sidebar_label: Data sources
+title: Fetch External Data Using Data Sources
+sidebar_label: Fetch External Data Using Data Sources
 ---
 
 As defined in Apollo Server documentation, data sources are specific classes that encapsulates fetching data from a particular service, with built-in support for caching, deduplication and error handling. A data source instance uses the cache of your GraphQL Server, and is passed through your Application Context in normal case.
