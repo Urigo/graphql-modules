@@ -1,7 +1,7 @@
 ---
 id: apollo-server
-title: Integrate With Apollo-Server
-sidebar_label: Apollo-Server
+title: Integration With Apollo-Server
+sidebar_label: Integration with Apollo-Server
 ---
 
 GraphQLModules comes with a built-in support for **[Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html)**.
