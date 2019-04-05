@@ -25,15 +25,17 @@
     "Recipes": [
       "recipes/development-environment",
       "recipes/load-your-schema",
-      "recipes/microservices",
       "recipes/communication-between-modules",
+      "recipes/microservices",
       "recipes/data-sources",
       "recipes/data-loader",
       "recipes/file-uploads",
       "recipes/db-connection-pooling",
       "recipes/apollo-server",
       "recipes/graphql-code-generator",
-      "recipes/graphql-inspector"
+      "recipes/graphql-inspector",
+      "recipes/type-graphql",
+      "recipes/nexus"
     ]
   }
 }
