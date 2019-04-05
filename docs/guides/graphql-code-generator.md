@@ -6,9 +6,9 @@ sidebar_label: GraphQL Code Generator
 
 GraphQL Modules comes with a built-in support for **[GraphQL Code Generator](https://graphql-code-generator.com)**
 
-To get started, add `graphql-code-generator` and necessary templates to your app:
+To get started, add `@graphql-codegen/cli` and necessary templates to your app:
 
-    $ yarn add graphql-code-generator graphql-codegen-typescript-common graphql-codegen-typescript-server graphql-codegen-typescript-resolvers
+    $ yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-resolvers
 
 And create `schema.ts` to expose `schema` of your GraphQL Modules application.
 Note that GraphQL Modules won't load any other things such as injectors, resolvers and providers when you just try to get type definitions from your top module; because GraphQL Modules loads every part of module in a lazy way.
@@ -35,8 +35,7 @@ require:
 generates:
   ./src/generated-models.ts:
     plugins:
-      - typescript-common
-      - typescript-server
+      - typescript
       - typescript-resolvers
     config:
       contextType: @graphql-modules/core#ModuleContext
@@ -49,7 +48,7 @@ You can add a script to `package.json`.
   //...
   "scripts": {
     //...
-    "generate-types": "gql-gen",
+    "generate-types": "graphql-codegen",
     //...
   }
   //...
@@ -60,14 +59,12 @@ Then you can use these generated typings everywhere in your project;
 
 ```typescript
   import { UsersProvider } from '../providers/users.provider';
-  import { IResolvers } from '../../generated-models';
+  import { QueryResolvers } from '../../generated-models';
 
-  export default {
-    Query: {
+  export const Query: QueryResolvers = {
       // all parameters and return value are typed
       users: (root, args, context, info) => context.injector.get(UsersProvider).getUsers(args)
-    }
-  } as IResolvers;
+  };
 ```
 
 You can see the blog post that explains why you would need this integration;
