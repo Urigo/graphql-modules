@@ -54,7 +54,7 @@ What if we need more stuff in network session;
     })));
 ```
 
-### Using in `apollo-server`
+### Using in `ApolloServer`
 
 On the other hand, `apollo-server` needs to be passed it like below;
 
@@ -102,33 +102,33 @@ new ApolloServer({
 You can safely extract reusable `typeDefs`, `resolvers` and `context` from your `GraphQLModule`, and use it outside `GraphQLModule`.
 
 ```typescript
+import { mergeTypeDefs, mergeResolvers } from 'graphql-toolkit';
+
 const MyAccountsModule = AccountsModule.forRoot({ ... });
 
-const typeDefs = mergeTypeDefs([
-    MyAccountsModule.typeDefs,
-    gql`
-        type Query {
-            someField: SomeType
-        }
-    `
-]);
-
-const resolvers = mergeResolvers([
+const schema = mergeSchemas({
+    typeDefs: [
+        MyAccountsModule.typeDefs,
+        gql`
+            type Query {
+                someField: SomeType
+            }
+        `
+    ],
+    resolvers: [
     MyAccountsModule.resolvers,
-    {
-        Query: {
-            someField: ...
+        {
+            Query: {
+                someField: ...
+            }
         }
-    }
-]);
-
-const schema = makeExecutableSchema({ typeDefs, resolvers });
-
-const server = new ApolloServer({
-    schema,
-    introspection: true,
-    playground: true,
+    ]
 });
+
+app.use('/graphql', graphqlHTTP({
+    schema,
+    graphiql: true,
+}));
 ```
 
-This is what `Session` means in GraphQL-Modules. You can read more about **Provider Scopes** in **Dependency Injection** and **Provider Scopes** sections of our documentation.
+This is what `Session` means in GraphQL-Modules. You can read more about **[Provider Scopes](/docs/recipes/dependency-injection#provider-scopes)** in **Dependency Injection** sections of our documentation.

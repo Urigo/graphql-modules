@@ -4,7 +4,7 @@ title: Subscriptions
 sidebar_label: Subscriptions
 ---
 
-Subscriptions are GraphQL operations that watch events emitted from your backend. GraphQL-Modules supports GraphQL subscriptions with a little modification in your server code. You can **[read more](https://github.com/apollographql/subscriptions-transport-ws)** about subscriptions.
+Subscriptions are GraphQL operations that watch events emitted from your backend. GraphQL-Modules supports GraphQL subscriptions with a little modification in your server code. You can **[read more](https://github.com/apollographql/subscriptions-transport-ws)** about **SubscriptionServer**.
 
 Subscriptions need to have defined `PubSub` implementation in your GraphQL-Modules application.
 
@@ -66,17 +66,20 @@ Subscriptions need to have defined `PubSub` implementation in your GraphQL-Modul
 You have to export `subscriptions` from your `AppModule`, and pass it to your GraphQL Server.
 
 ```typescript
+
+  import { createServer } from 'http';
+  import { SubscriptionServer } from 'subscriptions-transport-ws';
+  import { execute, subscribe } from 'graphql';
+  import { GraphQLModule } from '@graphql-modules/core';
+  import { CommonModule } from './modules/common/common.module';
+  import { PostsModule } from './modules/posts/posts.module';
+
   const { schema, subscriptions } = new GraphQLModule({
     imports: [
       CommonModule,
       PostsModule
     ]
   });
-
-  import { createServer } from 'http';
-  import { SubscriptionServer } from 'subscriptions-transport-ws';
-  import { execute, subscribe } from 'graphql';
-  import { schema } from './my-schema';
 
   const WS_PORT = 5000;
 

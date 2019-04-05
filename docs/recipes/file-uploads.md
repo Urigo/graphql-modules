@@ -71,6 +71,7 @@ server.listen().then(({ url }) => {
 In the example, we create a new module called `UploadModule` and put everything related to file uploads in it.
 
 `upload.module.ts`
+
 ```ts
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';

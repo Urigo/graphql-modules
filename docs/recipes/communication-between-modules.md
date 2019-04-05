@@ -69,13 +69,13 @@ It's useful when you want to notify other module about something, without knowin
 
 `PubSub` is implemented as a simple Pub/Sub mechanism, with the ability to publish and subscribe to messages.
 
-First, you need to tell `GraphQLModule` how do you wish to transmit your messages. Apollo Server provides a simple `PubSub` implementation based on `EventEmitter`.
+First, you need to tell `GraphQLModule` how do you wish to transmit your messages. [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions) provides a simple `PubSub` implementation based on `EventEmitter`.
 
 To use it, pass `PubSub` class as a provider in a shared `GraphQLModule` instance:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
-import { PubSub } from 'apollo-server';
+import { PubSub } from 'graphql-subscriptions';
 
 const CommonModule = new GraphQLModule({
     providers: [
@@ -114,8 +114,8 @@ export const BarModule = new GraphQLModule({
 Then, to use `PubSub`, you can do the following:
 
 ```typescript
-import { PubSub } from 'apollo-server';
 import { Injectable } from '@graphql-modules/di';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
 export class MyProvider {
@@ -138,4 +138,14 @@ export class MyProvider {
 This kind of modules communication is useful for implementing notifications, auditing, logging and more.
 
 It's also useful for implementing communication between GraphQL Modules servers. There are various PubSub implementations based on EventEmitter, Redis and RabbitMQ.
-**[You can read more about PubSub mechanism in Apollo docs.](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)**
+
+### Existing Implementations for PubSub
+
+`PubSub` can be replaced by another implementations. There are some existing ready-to-use implementations;
+
+- **[Redis](https://github.com/davidyaha/graphql-redis-subscriptions)**
+- **[Google PubSub](https://github.com/axelspringer/graphql-google-pubsub)**
+- **[MQTT enabled broker](https://github.com/davidyaha/graphql-mqtt-subscriptions)**
+- **[RabbitMQ](https://github.com/cdmbase/graphql-rabbitmq-subscriptions)**
+- **[Kafka](https://github.com/ancashoria/graphql-kafka-subscriptions)**
+- **[Postgres](https://github.com/GraphQLCollege/graphql-postgres-subscriptions)**

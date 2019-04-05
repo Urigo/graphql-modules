@@ -8,7 +8,7 @@ sidebar_label: Microservices
 
 If you wish to separate your server to smaller parts and deploy them as microservices, you can use GraphQL Modules in they way you used to.
 
-That means that you can still implement small servers and them use **[Schema Stitching](https://www.apollographql.com/docs/graphql-tools/schema-stitching.html)** to merge your small GraphQL schemas into a unified schema.
+That means that you can still implement small servers and them use **Schema Stitching** to merge your small GraphQL schemas into a unified schema.
 
 ## Communication Between Servers
 
@@ -91,7 +91,7 @@ export class PubSub {
 }
 ```
 
-### Existing Implementations
+### Existing Implementations for PubSub
 
 `PubSub` can be replaced by another implementations. There are some existing ready-to-use implementations;
 
