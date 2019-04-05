@@ -58,7 +58,7 @@ Next, add the following scripts to your `package.json`:
 ```
 
 - `dev` will start your server in development mode.
-- `debug` will start it in debug mode (**[read more about it here](https://nodejs.org/en/docs/guides/debugging-getting-started/)**).
+- `debug` will start it in debug mode (**[read more about it here](https://nodejs.org/en/docs/recipes/debugging-getting-started/)**).
 - `build` will use `tsc` compiler to compile your code to JavaScript.
 - `start` will run the compiled server using pure Node.
 

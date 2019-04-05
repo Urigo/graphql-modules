@@ -293,7 +293,7 @@ export class MyProvider implements OnResponse {
 
 ### `OnConnect hook`
 
-This hook is similar to `OnRequest` hook, but this is called on the initialization of WebSockets connection. It is exactly same with `OnConnect` hook that is passed to `subscriptions` in **Apollo Server**.
+This hook is similar to `OnRequest` hook, but this is called on the initialization of WebSockets connection. It is exactly same with `OnConnect` hook that is passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
 
 [You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
 

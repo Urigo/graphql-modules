@@ -1,21 +1,28 @@
 ---
 id: graphql-code-generator
 title: Integrate With GraphQL Code Generator
-sidebar_label: GraphQL Code Generator
+sidebar_label: Generate Types Using GraphQL Code Generator
 ---
 
 GraphQL Modules comes with a built-in support for **[GraphQL Code Generator](https://graphql-code-generator.com)**
 
+## Installing Dependencies
+
 To get started, add `@graphql-codegen/cli` and necessary templates to your app:
 
-    $ yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-resolvers
+```bash
+    yarn add @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-resolvers
+```
 
 And create `schema.ts` to expose `schema` of your GraphQL Modules application.
 Note that GraphQL Modules won't load any other things such as injectors, resolvers and providers when you just try to get type definitions from your top module; because GraphQL Modules loads every part of module in a lazy way.
 
+## Exposing Schema to GraphQL Code Generator
+
 - Create `src/schema.ts` to expose your type definitions to GraphQL Code Generator without any business logic.
 
 `src/schema.ts`
+
 ```typescript
 import { AppModule } from './modules/app.module';
 
@@ -23,10 +30,13 @@ import { AppModule } from './modules/app.module';
 export default AppModule.schema;
 ```
 
+## Creating Configuration for GraphQL Code Generator
+
 Then, create `codegen.yml` on your project root. In the example, TypeScript file is used.
 Check **[GraphQL Code Generator](https://graphql-code-generator.com/)** docs for more details.
 
 `codegen.yml`
+
 ```yaml
 overwrite: true
 schema: ./src/schema.ts # You can use .js files as well
@@ -54,6 +64,8 @@ You can add a script to `package.json`.
   //...
 }
 ```
+
+## Using Generated Typings
 
 Then you can use these generated typings everywhere in your project;
 
