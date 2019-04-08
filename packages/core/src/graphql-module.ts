@@ -548,7 +548,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       }
       const selfSchemaDirectives = this.selfSchemaDirectives;
       const selfDirectiveResolvers = this.selfDirectiveResolvers;
-      // tslint:disable-next-line:forin
       for (const directiveName in selfDirectiveResolvers) {
         selfSchemaDirectives[directiveName] = getSchemaDirectiveFromDirectiveResolver(
           selfDirectiveResolvers[directiveName]
@@ -640,7 +639,6 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
           return this.paramsOnOperationResult$Map.get(params);
         },
         onOperationComplete: (websocket, opId: any) => {
-          // tslint:disable-next-line: no-construct
           opId = new String(opId);
           if (!this.opIdOnOperationCompleteResult$Map.has(opId)) {
             this.opIdOnOperationCompleteResult$Map.set(
@@ -928,11 +926,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
   }
 
   private addSessionInjectorToSelfResolversContext(resolvers: IResolvers<any, ModuleContext<Context>>) {
-    // tslint:disable-next-line:forin
     for (const type in resolvers) {
       const typeResolvers = resolvers[type];
       if (!(typeResolvers instanceof GraphQLScalarType)) {
-        // tslint:disable-next-line:forin
         for (const prop in resolvers[type]) {
           const resolver = typeResolvers[prop];
           if (typeof resolver === 'function') {
@@ -1036,13 +1032,11 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
         ...compositionArr
       ];
     };
-    // tslint:disable-next-line:forin
     for (const path in resolversComposition) {
       if (resolversComposition[path] instanceof Function || resolversComposition[path] instanceof Array) {
         const compositionArr = asArray(resolversComposition[path] as any);
         resolversComposition[path] = visitResolversCompositionElem(compositionArr);
       } else {
-        // tslint:disable-next-line: forin
         for (const subPath in resolversComposition[path]) {
           const compositionArr = asArray(resolversComposition[path][subPath]);
           resolversComposition[path][subPath] = visitResolversCompositionElem(compositionArr);
