@@ -15,5 +15,4 @@ export class ModuleConfigRequiredError extends Error {
   get moduleName() {
     return this._moduleName;
   }
-
 }

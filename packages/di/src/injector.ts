@@ -2,7 +2,7 @@ import {
   ProviderNotValidError,
   ServiceIdentifierNotFoundError,
   DependencyProviderNotFoundError,
-  ProviderAlreadyDefinedError,
+  ProviderAlreadyDefinedError
 } from './errors';
 import { ServiceIdentifier, Type, Provider, ProviderScope, ProviderOptions, Factory } from './types';
 import {
@@ -13,7 +13,7 @@ import {
   isFactoryProvider,
   DESIGN_PARAMTYPES,
   DESIGN_TYPE,
-  PROPERTY_KEYS,
+  PROPERTY_KEYS
 } from './utils';
 
 export interface InjectorOptions {
@@ -40,7 +40,7 @@ export class Injector<Session extends object = any> {
   private _hooks = this.options.hooks || new Array<string>();
   private _initialProviders = this.options.initialProviders || new Array<Provider>();
   private _children = this.options.children || new Array<Injector>();
-  public onInstanceCreated: (<T>(arg?: { serviceIdentifier: ServiceIdentifier<T>, instance: T }) => any) = () => {};
+  public onInstanceCreated: <T>(arg?: { serviceIdentifier: ServiceIdentifier<T>; instance: T }) => any = () => {};
   constructor(private options: InjectorOptions = {}) {
     for (const provider of this._initialProviders) {
       if (provider) {
@@ -109,15 +109,15 @@ export class Injector<Session extends object = any> {
         this.getScopeInstanceMap().delete(provider.provide);
         this._applicationScopeServiceIdentifiers.splice(
           this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
-          1,
+          1
         );
         this._sessionScopeServiceIdentifiers.splice(
           this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
-          1,
+          1
         );
         this._requestScopeServiceIdentifiers.splice(
           this._applicationScopeServiceIdentifiers.indexOf(provider.provide),
-          1,
+          1
         );
       }
     }
@@ -196,7 +196,7 @@ export class Injector<Session extends object = any> {
           const dependency = Reflect.getMetadata(DESIGN_TYPE, RealClazz.prototype, propertyKey);
           if (dependency) {
             Object.defineProperty(instance, propertyKey, {
-              value: this.get(dependency),
+              value: this.get(dependency)
             });
           }
         }
@@ -252,7 +252,7 @@ export class Injector<Session extends object = any> {
         name: this._name + '_SESSION',
         injectorScope: ProviderScope.Session,
         hooks: this._hooks,
-        children: this._children.map(child => child.getSessionInjector(session)),
+        children: this._children.map(child => child.getSessionInjector(session))
       });
       sessionInjector._hookServiceIdentifiersMap = this._hookServiceIdentifiersMap;
       sessionInjector._applicationScopeInstanceMap = this._applicationScopeInstanceMap;
@@ -283,10 +283,10 @@ export class Injector<Session extends object = any> {
     async,
     ...options
   }: {
-    hook: string,
-    args: Args,
-    instantiate: boolean,
-    async: boolean,
+    hook: string;
+    args: Args;
+    instantiate: boolean;
+    async: boolean;
   }) {
     if (async) {
       return this.callHookWithArgsAsync(options);
@@ -297,46 +297,49 @@ export class Injector<Session extends object = any> {
   callHookWithArgsSync<Args extends any[]>({
     hook,
     args,
-    instantiate,
+    instantiate
   }: {
-    hook: string,
-    args: Args,
-    instantiate: boolean,
-  }) {
-    const finalResult = {};
-    const serviceIdentifiers = this._hookServiceIdentifiersMap.get(hook);
-    if (serviceIdentifiers) {
-      Object.assign(finalResult, ...serviceIdentifiers.map(serviceIdentifier => {
-        if (!instantiate && !this.getScopeInstanceMap().has(serviceIdentifier)) {
-          return {};
-        }
-        const instance = this.get(serviceIdentifier);
-        if (instance) {
-          const result = instance[hook](...args);
-          if (result) {
-            return result;
-          }
-        }
-        return {};
-      }));
-    }
-    return finalResult;
-  }
-  async callHookWithArgsAsync<Args extends any[]>({
-    hook,
-    args,
-    instantiate,
-  }: {
-    hook: string,
-    args: Args,
-    instantiate: boolean,
+    hook: string;
+    args: Args;
+    instantiate: boolean;
   }) {
     const finalResult = {};
     const serviceIdentifiers = this._hookServiceIdentifiersMap.get(hook);
     if (serviceIdentifiers) {
       Object.assign(
         finalResult,
-        ...await Promise.all(
+        ...serviceIdentifiers.map(serviceIdentifier => {
+          if (!instantiate && !this.getScopeInstanceMap().has(serviceIdentifier)) {
+            return {};
+          }
+          const instance = this.get(serviceIdentifier);
+          if (instance) {
+            const result = instance[hook](...args);
+            if (result) {
+              return result;
+            }
+          }
+          return {};
+        })
+      );
+    }
+    return finalResult;
+  }
+  async callHookWithArgsAsync<Args extends any[]>({
+    hook,
+    args,
+    instantiate
+  }: {
+    hook: string;
+    args: Args;
+    instantiate: boolean;
+  }) {
+    const finalResult = {};
+    const serviceIdentifiers = this._hookServiceIdentifiersMap.get(hook);
+    if (serviceIdentifiers) {
+      Object.assign(
+        finalResult,
+        ...(await Promise.all(
           serviceIdentifiers.map(async serviceIdentifier => {
             if (!instantiate && !this.getScopeInstanceMap().has(serviceIdentifier)) {
               return {};
@@ -349,8 +352,8 @@ export class Injector<Session extends object = any> {
               }
             }
             return {};
-          }),
-        ),
+          })
+        ))
       );
     }
     return finalResult;

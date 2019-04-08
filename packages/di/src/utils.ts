@@ -1,4 +1,12 @@
-import { ServiceIdentifier, Provider, Type, ValueProvider, ClassProvider, FactoryProvider, TypeProvider } from './types';
+import {
+  ServiceIdentifier,
+  Provider,
+  Type,
+  ValueProvider,
+  ClassProvider,
+  FactoryProvider,
+  TypeProvider
+} from './types';
 
 export const DESIGN_PARAMTYPES = 'design:paramtypes';
 export const DESIGN_TYPE = 'design:type';
