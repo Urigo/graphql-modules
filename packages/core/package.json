@@ -48,7 +48,7 @@
     "graphql-tag": "2.10.1",
     "jest": "24.7.1",
     "tslint": "5.15.0",
-    "typescript": "3.4.2"
+    "typescript": "3.4.3"
   },
   "sideEffects": false,
   "main": "dist/commonjs/index.js",

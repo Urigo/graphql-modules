@@ -37,7 +37,7 @@
   "devDependencies": {
     "jest": "24.7.1",
     "tslint": "5.15.0",
-    "typescript": "3.4.2"
+    "typescript": "3.4.3"
   },
   "dependencies": {
     "@graphql-modules/core": "0.7.0",
