@@ -17,26 +17,33 @@ export interface OnResponse<Config = any, Session extends object = any, Context 
 export type OnConnectFn<ConnectionParams = object, WebSocket = any, ConnectionContext = any, Result = any> = (
   connectionParams: ConnectionParams,
   websocket: WebSocket,
-  connectionContext: ConnectionContext,
+  connectionContext: ConnectionContext
 ) => Result | Promise<Result>;
 export interface OnConnect<ConnectionParams = object, WebSocket = any, ConnectionContext = any, Result = any> {
   onConnect: OnConnectFn<ConnectionParams, WebSocket, ConnectionContext, Result>;
 }
 
-export type OnOperationFn<SubscriptionMessage = any, SubscriptionOptions = any, WebSocket = any, Result = any> =
-  (message: SubscriptionMessage, params: SubscriptionOptions, WebSocket: WebSocket) => Result;
+export type OnOperationFn<SubscriptionMessage = any, SubscriptionOptions = any, WebSocket = any, Result = any> = (
+  message: SubscriptionMessage,
+  params: SubscriptionOptions,
+  WebSocket: WebSocket
+) => Result;
 export interface OnOperation<SubscriptionMessage = any, SubscriptionOptions = any, WebSocket = any, Result = any> {
   onOperation: OnOperationFn<SubscriptionMessage, SubscriptionOptions, WebSocket, Result>;
 }
 
-export type OnOperationCompleteFn<WebSocket = any, OpId = string, OnOperationCompleteResult = any> =
-  (websocket: WebSocket, opId: OpId) => OnOperationCompleteResult;
+export type OnOperationCompleteFn<WebSocket = any, OpId = string, OnOperationCompleteResult = any> = (
+  websocket: WebSocket,
+  opId: OpId
+) => OnOperationCompleteResult;
 export interface OnOperationComplete<WebSocket = any, OpId = string, OnOperationCompleteResult = any> {
   onOperationComplete?: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
 }
 
-export type OnDisconnectFn<WebSocket = any, ConnectionContext = any, Result = any>
- = (websocket: WebSocket, connectionContext: ConnectionContext) => Result;
+export type OnDisconnectFn<WebSocket = any, ConnectionContext = any, Result = any> = (
+  websocket: WebSocket,
+  connectionContext: ConnectionContext
+) => Result;
 export interface OnDisconnect<WebSocket = any, ConnectionContext = any, Result = any> {
   onDisconnect?: OnDisconnectFn<WebSocket, ConnectionContext, Result>;
 }
@@ -51,7 +58,8 @@ export interface SubscriptionHooks<
   OnConnectResult = any,
   OnOperationResult = any,
   OnOperationCompleteResult = any,
-  OnDisconnectResult = any> {
+  OnDisconnectResult = any
+> {
   onConnect: OnConnectFn<ConnectionParams, WebSocket, ConnectionContext, OnConnectResult>;
   onOperation: OnOperationFn<SubscriptionMessage, SubscriptionOptions, WebSocket, OnOperationResult>;
   onOperationComplete: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
