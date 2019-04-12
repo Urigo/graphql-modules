@@ -11,9 +11,7 @@ describe('Dependency Injection', () => {
       }
     }
     const injector = new Injector({
-      initialProviders: [
-        FooProvider,
-      ],
+      initialProviders: [FooProvider]
     });
     expect(injector.get(FooProvider).foo()).toBe('FOO');
     injector.provide({
@@ -22,8 +20,8 @@ describe('Dependency Injection', () => {
       useValue: {
         foo() {
           return 'BAR';
-        },
-      },
+        }
+      }
     });
     expect(injector.get(FooProvider).foo()).toBe('BAR');
   });
@@ -31,14 +29,14 @@ describe('Dependency Injection', () => {
     const injector = new Injector();
     iterate(() => {
       const session = {
-        hugeLoad: new Array(1000).fill(1000),
+        hugeLoad: new Array(1000).fill(1000)
       };
       injector.getSessionInjector(session);
     });
   });
   it.skip('should not have a memory leak over multiple sessions with a session-scoped provider', () => {
     @Injectable({
-      scope: ProviderScope.Session,
+      scope: ProviderScope.Session
     })
     class FooProvider {
       getFoo() {
@@ -46,13 +44,11 @@ describe('Dependency Injection', () => {
       }
     }
     const injector = new Injector({
-      initialProviders: [
-        FooProvider,
-      ],
+      initialProviders: [FooProvider]
     });
     iterate(() => {
       const session = {
-        hugeLoad: new Array(1000).fill(1000),
+        hugeLoad: new Array(1000).fill(1000)
       };
       const sessionInjector = injector.getSessionInjector(session);
       sessionInjector.get(FooProvider).getFoo();

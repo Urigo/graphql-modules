@@ -22,20 +22,20 @@
       "introduction/subscriptions",
       "introduction/test-your-module"
     ],
-    "Guides": [
-      "guides/development-environment",
-      "guides/load-your-schema",
-      "guides/communication-between-modules",
-      "guides/microservices",
-      "guides/data-sources",
-      "guides/data-loader",
-      "guides/file-uploads",
-      "guides/db-connection-pooling",
-      "guides/apollo-server",
-      "guides/graphql-code-generator",
-      "guides/graphql-inspector",
-      "guides/type-graphql",
-      "guides/nexus"
+    "Recipes": [
+      "recipes/development-environment",
+      "recipes/load-your-schema",
+      "recipes/communication-between-modules",
+      "recipes/microservices",
+      "recipes/data-sources",
+      "recipes/data-loader",
+      "recipes/file-uploads",
+      "recipes/db-connection-pooling",
+      "recipes/apollo-server",
+      "recipes/graphql-code-generator",
+      "recipes/graphql-inspector",
+      "recipes/type-graphql",
+      "recipes/nexus"
     ]
   }
 }

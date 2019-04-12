@@ -8,36 +8,11 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
     "build": "tsc -m esnext --outDir dist/esnext && tsc -m commonjs --outDir dist/commonjs",
-    "test": "jest",
-    "lint": "tslint -c ../../tslint.json 'src/**/*.ts' --format stylish"
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    },
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/test-assets"
-    ],
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "test": "jest --config ../../jest.config.js"
   },
   "devDependencies": {
     "jest": "24.7.1",
-    "tslint": "5.15.0",
-    "typescript": "3.4.1"
+    "typescript": "3.4.3"
   },
   "dependencies": {
     "@graphql-modules/core": "0.7.0",

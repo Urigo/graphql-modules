@@ -9,6 +9,7 @@ packages/*/yarn.lock
 packages/*/yarn-error.log
 examples/*/yarn.lock
 packages/*/yarn-error.log
+yarn-error.log
 
 .DS_Store
 

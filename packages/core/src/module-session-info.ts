@@ -2,13 +2,10 @@ import { GraphQLModule } from './graphql-module';
 import { ModuleContext } from './types';
 
 export class ModuleSessionInfo<Config = any, Session extends object = any, Context = any> {
-  constructor(
-    private _module: GraphQLModule<Config, Session, Context>,
-    private _session: Session,
-  ) {
+  constructor(private _module: GraphQLModule<Config, Session, Context>, private _session: Session) {
     this.injector.provide({
       provide: ModuleSessionInfo,
-      useValue: this,
+      useValue: this
     });
   }
   get module() {

@@ -6,7 +6,7 @@ sidebar_label: Test Your Module
 
 With GraphQL Modules and dependency injection it's much easier to test your modules.
 
-> Make sure to follow our recommend **[development environment configuration](/docs/guides/development-environment)** to get started with test environment (we recommend **[Jest](https://jestjs.io/)**).
+> Make sure to follow our recommend **[development environment configuration](/docs/recipes/development-environment)** to get started with test environment (we recommend **[Jest](https://jestjs.io/)**).
 
 So let's start with a basic module definition:
 
