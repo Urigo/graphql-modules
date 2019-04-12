@@ -1,5 +1,13 @@
 import 'reflect-metadata';
 import { AppModule } from './app/app.module';
-import { bootstrap } from './server';
+import * as express from 'express';
+import * as graphQLHTTP from 'express-graphql';
 
-bootstrap(AppModule);
+const app = express();
+
+app.use('/graphql', graphQLHTTP({
+    schema: AppModule.schema,
+    graphiql: true,
+}));
+
+app.listen(4000);
