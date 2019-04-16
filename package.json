@@ -35,7 +35,7 @@
     "reflect-metadata": "0.1.13",
     "replace-in-file": "3.4.4",
     "rimraf": "2.6.3",
-    "tslint": "5.15.0",
+    "tslint": "5.16.0",
     "ts-jest": "24.0.2",
     "typedoc": "0.13.0",
     "typedoc-plugin-docusaurus": "1.0.14"
