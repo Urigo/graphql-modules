@@ -618,7 +618,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                     (acc, curr) => ({ ...acc, ...acc(curr || {}) }),
                     {}
                   );
-                  const connectionModuleContext = await this.context(websocket);
+                  const connectionModuleContext = await this.context(params.context);
                   const sessionInjector = connectionModuleContext.injector;
                   const moduleOnOperationResult = await sessionInjector.callHookWithArgs({
                     hook: 'onOperation',
