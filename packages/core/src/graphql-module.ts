@@ -628,7 +628,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   });
                   resolve({
                     ...importsResult,
-                    ...moduleOnOperationResult
+                    ...moduleOnOperationResult,
+                    ...params
                   });
                 } catch (e) {
                   reject(e);
