@@ -583,7 +583,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   );
                   const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
                   const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                  const connectionModuleContext = await this.context(websocket);
+                  const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
                   const hookResult = await sessionInjector.callHookWithArgs({
                     hook: 'onConnect',
@@ -618,7 +618,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                     (acc, curr) => ({ ...acc, ...acc(curr || {}) }),
                     {}
                   );
-                  const connectionModuleContext = await this.context(websocket);
+                  const connectionModuleContext = await this.context(params.context);
                   const sessionInjector = connectionModuleContext.injector;
                   const moduleOnOperationResult = await sessionInjector.callHookWithArgs({
                     hook: 'onOperation',
@@ -628,7 +628,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   });
                   resolve({
                     ...importsResult,
-                    ...moduleOnOperationResult
+                    ...moduleOnOperationResult,
+                    ...params
                   });
                 } catch (e) {
                   reject(e);
@@ -686,7 +687,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   );
                   const importsOnDisconnectHooks = await Promise.all(importsOnDisconnectHooks$);
                   importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                  const connectionModuleContext = await this.context(websocket);
+                  const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
                   await sessionInjector.callHookWithArgs({
                     hook: 'onDisconnect',
