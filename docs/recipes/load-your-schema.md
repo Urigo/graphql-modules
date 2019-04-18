@@ -32,7 +32,7 @@ You can easily load all of your `.graphql` files and `.ts` resolvers files like 
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
-import { loadResolversFiles, loadSchemaFiles } from '@graphql-modules/sonar';
+import { loadResolversFiles, loadSchemaFiles } from 'graphql-toolkit';
 
 export const UserModule = new GraphQLModule({
   typeDefs: loadSchemaFiles(__dirname + '/schema/'),

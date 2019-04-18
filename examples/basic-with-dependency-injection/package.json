@@ -1,6 +1,6 @@
 {
   "name": "examples-di",
-  "version": "0.2.12",
+  "version": "0.7.0",
   "private": true,
   "main": "index.js",
   "license": "MIT",
@@ -9,15 +9,15 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.2.12",
-    "@graphql-modules/di": "0.2.18",
-    "@graphql-modules/epoxy": "0.2.12",
-    "@graphql-modules/sonar": "0.2.12",
-    "apollo-server": "2.1.0",
-    "graphql": "14.0.2",
-    "reflect-metadata": "0.1.12",
-    "ts-node": "7.0.1",
-    "typescript": "3.0.3"
+    "@graphql-modules/core": "0.7.0",
+    "@types/express": "4.16.1",
+    "@types/express-graphql": "0.6.2",
+    "express": "4.16.4",
+    "express-graphql": "0.7.1",
+    "graphql": "14.2.1",
+    "reflect-metadata": "0.1.13",
+    "ts-node": "8.0.2",
+    "typescript": "3.4.3"
   },
   "jest": {
     "transform": {
@@ -35,8 +35,6 @@
   },
   "devDependencies": {
     "@types/jest": "23.3.2",
-    "babel-core": "6.26.3",
-    "babel-jest": "23.6.0",
     "jest": "23.5.0",
     "ts-jest": "23.1.4"
   }
