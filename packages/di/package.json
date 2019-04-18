@@ -17,7 +17,7 @@
     "jest": "24.7.1",
     "leakage": "0.4.0",
     "reflect-metadata": "0.1.13",
-    "typescript": "3.4.3"
+    "typescript": "3.4.4"
   },
   "dependencies": {
     "events": "3.0.0",
