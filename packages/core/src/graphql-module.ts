@@ -926,10 +926,17 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return directiveResolvers;
   }
 
+  private _isScalarResolver(resolver: any): boolean {
+    return (
+      resolver instanceof GraphQLScalarType ||
+      (typeof resolver === 'object' && resolver['serialize'] && resolver['name'])
+    );
+  }
+
   private addSessionInjectorToSelfResolversContext(resolvers: IResolvers<any, ModuleContext<Context>>) {
     for (const type in resolvers) {
       const typeResolvers = resolvers[type];
-      if (!(typeResolvers instanceof GraphQLScalarType)) {
+      if (!this._isScalarResolver(typeResolvers)) {
         for (const prop in resolvers[type]) {
           const resolver = typeResolvers[prop];
           if (typeof resolver === 'function') {
