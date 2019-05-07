@@ -4,17 +4,11 @@ The server side implementation of Graphql subscription with apollo-server and Gr
 
 ## HOW TO START
 
-- clone the repository
-
-```bash
-  git clone git@github.com:dancon/apollo-server_graphql-modules_subscriptions.git
-```
+- download the zip and cd into examples/subscription-with-apollo-server
 
 - install the dependencies
 
 ```bash
-  cd apollo-server_graphql-modules_subscriptions
-
   npm i
 ```
 
