@@ -1,0 +1,35 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "copy:graphql": "cpy schemas/**/*.graphql ../lib --cwd=src --parents",
+    "build": "cross-env NODE_ENV=production tsc -p . && npm run copy:graphql",
+    "debug": "cross-env NODE_ENV=development node --nolazy --inspect-brk=9229 ./node_modules/.bin/ts-node src/index.ts",
+    "start": "npm run build && node lib/index.js"
+  },
+  "dependencies": {
+    "@graphql-modules/core": "^0.7.1",
+    "@graphql-modules/di": "^0.7.1",
+    "apollo-server-express": "^2.4.8",
+    "express": "^4.16.4",
+    "graphql": "^14.1.1",
+    "graphql-import-node": "0.0.3",
+    "graphql-subscriptions": "^1.1.0",
+    "graphql-tools": "^4.0.4",
+    "reflect-metadata": "^0.1.13",
+    "subscriptions-transport-ws": "^0.9.16"
+  },
+  "devDependencies": {
+    "@playlyfe/gql": "^2.6.1",
+    "@types/graphql": "^14.2.0",
+    "@types/node": "^11.13.4",
+    "cpy-cli": "^2.0.0",
+    "cross-env": "^5.2.0",
+    "nodemon": "^1.18.11",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.3"
+  }
+}

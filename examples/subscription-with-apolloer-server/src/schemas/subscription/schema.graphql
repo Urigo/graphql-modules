@@ -1,0 +1,21 @@
+type Query {
+  indicators (psm: String!): [Indicator!]!
+}
+
+type Mutation {
+  updateIndicators (psm: String!, payload: [IndicatorPayload!]!): [Indicator!]!
+}
+
+type Subscription {
+  indicatorUpdated (psm: String!): [Indicator!]!
+}
+
+type Indicator {
+  host: String
+  risk: Boolean
+}
+
+input IndicatorPayload {
+  host: String
+  risk: Boolean
+}
