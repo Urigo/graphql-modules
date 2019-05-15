@@ -253,11 +253,11 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     };
   }
 
-  mock(options?: GraphQLModuleOptions<Config, Session, Context>) {
+  mock(partialCache?: Partial<ModuleCache<Session, Context>>) {
     this.clearCache();
-    this._options = {
-      ...this._options,
-      ...options
+    this._cache = {
+      ...this._cache,
+      ...partialCache
     };
     return this;
   }
