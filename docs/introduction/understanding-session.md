@@ -37,7 +37,7 @@ What if we need more stuff in network session;
     }
     const MyModule = new GraphQLModule({
         context(session: MyModuleSession) {
-            res.on('finish', () => {
+            session.res.on('finish', () => {
                 // Some cleanup
             });
             return {
