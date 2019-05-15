@@ -236,6 +236,31 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     }
   }
 
+  clearCache() {
+    this._cache = {
+      injector: undefined,
+      schema: undefined,
+      typeDefs: undefined,
+      resolvers: undefined,
+      schemaDirectives: undefined,
+      contextBuilder: undefined,
+      extraSchemas: undefined,
+      directiveResolvers: undefined,
+      subscriptionHooks: undefined,
+      imports: undefined,
+      selfKeyValueCache: undefined,
+      selfLogger: undefined
+    };
+  }
+
+  mock(options?: GraphQLModuleOptions<Config, Session, Context>) {
+    this.clearCache();
+    this._options = {
+      ...this._options,
+      ...options
+    };
+  }
+
   private checkConfiguration() {
     if (this._options.configRequired && !this._moduleConfig) {
       throw new ModuleConfigRequiredError(this.name);
