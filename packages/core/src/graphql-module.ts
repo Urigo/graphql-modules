@@ -259,6 +259,12 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
       ...this._options,
       ...options
     };
+    return this;
+  }
+
+  resetMock() {
+    this.clearCache();
+    return this;
   }
 
   private checkConfiguration() {
