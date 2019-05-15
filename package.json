@@ -30,7 +30,7 @@
     "husky": "2.2.0",
     "jest": "24.8.0",
     "lerna": "2.11.0",
-    "lint-staged": "8.1.6",
+    "lint-staged": "8.1.7",
     "prettier": "1.17.0",
     "reflect-metadata": "0.1.13",
     "replace-in-file": "4.0.0",
