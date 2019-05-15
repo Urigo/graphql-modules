@@ -8,7 +8,7 @@ When your app grows and becomes more complex, you can use **Providers** (it's ju
 
 You can define a provider and add it to your module.
 
-`modules/my-module/user.provider`
+`modules/my-module/user.provider.ts`
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
