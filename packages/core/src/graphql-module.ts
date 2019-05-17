@@ -983,7 +983,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                 return resolver.call(typeResolvers, root, moduleContext, info);
               };
             }
-          } else if (resolver && typeof resolver === 'object' && 'subscribe' in resolver) {
+          } else if (resolver && typeof resolver === 'object' && resolver['subscribe']) {
             const subscriber = resolver['subscribe'];
             typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
               if (appContext instanceof Promise) {
