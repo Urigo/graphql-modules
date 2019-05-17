@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "test": "jest --config ../../jest.config.js"
   },
   "dependencies": {
-    "@graphql-modules/di": "0.7.1",
+    "@graphql-modules/di": "0.7.2",
     "apollo-server-caching": "0.4.0",
     "graphql-toolkit": "0.2.11",
     "graphql-tools": "4.0.4",
