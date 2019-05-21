@@ -615,7 +615,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   );
                   const importsOnOperationHooks = await Promise.all(importsOnOperationHooks$);
                   const importsResult = importsOnOperationHooks.reduce(
-                    (acc, curr) => ({ ...acc, ...acc(curr || {}) }),
+                    (acc, curr) => ({ ...acc, ...(curr || {}) }),
                     {}
                   );
                   const connectionModuleContext = await this.context(params.context);
@@ -651,7 +651,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
                   );
                   const importsOnOperationCompleteHooks = await Promise.all(importsOnOperationCompleteHooks$);
                   const importsResult = importsOnOperationCompleteHooks.reduce(
-                    (acc, curr) => ({ ...acc, ...acc(curr || {}) }),
+                    (acc, curr) => ({ ...acc, ...(curr || {}) }),
                     {}
                   );
                   const connectionModuleContext = await this.context(websocket);
