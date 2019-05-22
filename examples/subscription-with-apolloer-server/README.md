@@ -46,7 +46,7 @@ open `http://localhost:4000/graphql` in your browser, you will see the graphql p
 
 ## NEED TO KNOW
 
-- Make sure the version of `@graphql-modules/core` and `@graphql-modules/di` is `0.7.1` or upper.
+- Make sure the versions of `@graphql-modules/core` and `@graphql-modules/di` are `0.7.1` or higher.
 
 - If you are using `apollo-server-koa`, please use `http.createServer(app.callback())` to wrap http server.
 
