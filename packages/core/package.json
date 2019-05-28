@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@types/leakage": "0.4.0",
-    "apollo-cache-inmemory": "1.5.1",
-    "apollo-client": "2.5.1",
+    "apollo-cache-inmemory": "1.6.0",
+    "apollo-client": "2.6.0",
     "apollo-link-schema": "1.2.2",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
