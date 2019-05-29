@@ -1,6 +1,6 @@
 {
   "name": "graphql-modules",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "typescript": "3.4.5"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.7.4",
+    "@graphql-modules/core": "0.7.5",
     "tslib": "1.9.3"
   },
   "sideEffects": false,
