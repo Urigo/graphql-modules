@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/graphql": "14.2.0",
-    "@types/jest": "24.0.12",
+    "@types/jest": "24.0.13",
     "graphql": "14.3.1",
     "husky": "2.3.0",
     "jest": "24.8.0",
