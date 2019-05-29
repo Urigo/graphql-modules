@@ -27,7 +27,7 @@
     "apollo-link-schema": "1.2.2",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
-    "typescript": "3.4.5"
+    "typescript": "3.5.1"
   },
   "sideEffects": false,
   "main": "dist/commonjs/index.js",
