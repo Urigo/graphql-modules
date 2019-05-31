@@ -10,7 +10,7 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "1.10.0",
+    "docusaurus": "1.11.0",
     "netlify-lambda": "1.4.13"
   },
   "dependencies": {
