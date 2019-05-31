@@ -8,9 +8,11 @@ As defined in Apollo Server documentation, data sources are specific classes tha
 
 GraphQL-Modules has built-in support for Data sources in its own encapsulation-based modular dependency injection system. GraphQL-Modules considers Data sources as providers, and passes the cache logic of the module.
 
-Let's assume you have a data source class for the communication between your external REST API. The only you do is to add `Injectable` decorator for this class to make it able to be part of GraphQL-Modules DI.
+Let's assume you have a data source class for the communication between your external REST API. All you need to do is add the `Injectable` decorator for this class to make it able to be part of GraphQL-Modules DI.
 
-To learn more about Data Sources, check Apollo docs;
+> `ProviderScope.Session` is the recommended scope for Data sources, it will ensure API responses are not cached between sessions. See **[Provider Scopes](/docs/introduction/dependency-injection#provider-scopes)**
+
+To learn more about Data sources, check Apollo docs;
 **[Data sources - Apollo Server](https://www.apollographql.com/docs/apollo-server/features/data-sources.html)**
 
 ## REST Data Source Example
@@ -19,7 +21,9 @@ To learn more about Data Sources, check Apollo docs;
   import { RESTDataSource } from 'apollo-datasource-rest';
   import { Injectable } from '@graphql-modules/di';
 
-  @Injectable()
+  @Injectable({
+    scope: ProviderScope.Session
+  })
   export class MoviesAPI extends RESTDataSource {
     baseURL = 'https://movies-api.example.com/';
 
