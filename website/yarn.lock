@@ -2667,10 +2667,10 @@ dkim-signer@^0.2.2:
   dependencies:
     libmime "^2.0.3"
 
-docusaurus@1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.10.0.tgz#f32f8a3a7f2c3da38e48ccbc7a0fb148311e413d"
-  integrity sha512-59MHcOu+GCLAzjml9E5UYRVsQDqEheilTRuyYPzpMIo1mb8rJLy3ulsF8HfWPYOjo3Luc8OHqCoGVarFO0VEAg==
+docusaurus@1.11.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/docusaurus/-/docusaurus-1.11.0.tgz#8c39261ca4487b700dd190dcc5c3b54e90e29c74"
+  integrity sha512-UhsSvfyKoC0EYvc9ieKSLQZNhDZpsC3bqBuRCmldP/pQs4mVIHjwXG5uKEo3lfaflO3tBqsa0EQNtxtScJUL9w==
   dependencies:
     "@babel/core" "^7.0.0"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
