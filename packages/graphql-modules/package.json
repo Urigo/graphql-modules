@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@graphql-modules/core": "0.7.5",
-    "tslib": "1.9.3"
+    "tslib": "1.10.0"
   },
   "sideEffects": false,
   "main": "dist/commonjs/index.js",
