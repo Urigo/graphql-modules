@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="GraphQL Modules" src="./logo.svg" width="500" />
+  <img alt="GraphQL Moduless" src="./logo.svg" width="500" />
 </p>
 
 [![npm version](https://badge.fury.io/js/%40graphql-modules%2Fcore.svg)](https://www.npmjs.com/package/@graphql-modules/core)
