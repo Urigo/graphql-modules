@@ -1853,4 +1853,36 @@ describe('GraphQLModule', () => {
       })
       .catch(done.fail);
   });
+
+  it(`make sure it won't crash on deeply nested structure`, () => {
+    const num = 30;
+
+    const AuthModule = new GraphQLModule({
+      name: 'AuthModule',
+      typeDefs: gql`
+        directive @access(roles: [String]) on FIELD_DEFINITION
+      `
+    });
+
+    const BaseModule = new GraphQLModule({
+      name: 'BaseModule',
+      typeDefs: gql`
+        type Query {
+          test: Boolean @access(roles: ["Admin"])
+        }
+      `,
+      imports: [AuthModule]
+    });
+
+    const AppModule = new Array(num).fill(0).reduce<GraphQLModule>((Module, _value, index) => {
+      const name = `Module${index}`;
+
+      return new GraphQLModule({
+        name,
+        imports: [BaseModule, Module]
+      });
+    }, BaseModule);
+
+    print(AppModule.typeDefs);
+  });
 });
