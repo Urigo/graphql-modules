@@ -1,4 +1,4 @@
-import { SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
+import { SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
 import {
   mergeResolvers,
   ResolversComposerMapping,
