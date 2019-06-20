@@ -8,10 +8,11 @@ import {
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
   ResolversComposition,
-  printSchemaWithDirectives
+  printSchemaWithDirectives,
+  GraphQLResolverMap
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, GraphQLFieldResolver } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import {
   SchemaNotValidError,
   DependencyModuleUndefinedError,
@@ -34,17 +35,6 @@ export interface Logger {
   error?: LogMethod;
   clientError?: LogMethod;
   warn?: LogMethod;
-}
-
-export interface GraphQLResolverMap<TContext> {
-  [typeName: string]: {
-    [fieldName: string]:
-      | GraphQLFieldResolver<any, TContext>
-      | {
-          requires?: string;
-          resolve: GraphQLFieldResolver<any, TContext>;
-        };
-  };
 }
 
 /**

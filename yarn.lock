@@ -305,6 +305,17 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
+"@kamilkisiela/graphql-tools@4.0.5":
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/@kamilkisiela/graphql-tools/-/graphql-tools-4.0.5.tgz#7c7a3d3928b7eb00e22925eab2f33d7d53536091"
+  integrity sha512-/AK2+e1hxvVweo/GOW2KHdlLnxZ7yUVGHshWRg9u0LfqTu8lniPh7/eA/WGiccuK8OH54AVxYPWJQZ0mbDbm1Q==
+  dependencies:
+    apollo-link "^1.2.3"
+    apollo-utilities "^1.0.1"
+    deprecated-decorator "^0.1.6"
+    iterall "^1.1.3"
+    uuid "^3.1.0"
+
 "@samverschueren/stream-to-observable@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@samverschueren/stream-to-observable/-/stream-to-observable-0.3.0.tgz#ecdf48d532c58ea477acfcab80348424f8d0662f"
@@ -2295,18 +2306,18 @@ graphql-tag@2.10.1:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
 
-graphql-toolkit@0.2.14:
-  version "0.2.14"
-  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.2.14.tgz#6fc8736ca1ea9e2050a3e5ca116dc8c090c1c8aa"
-  integrity sha512-KcXyBqNDiaj+/5H7r+f9T9gBlWmaen4Ya1S+Tnj5u7bJdVhActOtoPz5RMsGpMI+Knnbi3Glm9WhkpHPt/8SEg==
+graphql-toolkit@0.2.15-761f148.0:
+  version "0.2.15-761f148.0"
+  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.2.15-761f148.0.tgz#75e9db8f50055d5d0c570b2633f40beac6a222f0"
+  integrity sha512-WHbAQIsaDtVXVvQxRuP6CTVDxctSuaEWnq7mxPzsozaE7qhmXMGQLvE54Cbs2eiZYcAafRKWfbHVdJJPy2X77A==
   dependencies:
+    "@kamilkisiela/graphql-tools" "4.0.5"
     aggregate-error "2.2.0"
     asyncro "^3.0.0"
     deepmerge "3.2.0"
     glob "7.1.4"
     graphql-import "0.7.1"
     graphql-tag-pluck "0.8.1"
-    graphql-tools "4.0.4"
     is-glob "4.0.1"
     is-valid-path "0.1.1"
     lodash "4.17.11"
