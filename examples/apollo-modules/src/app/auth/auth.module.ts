@@ -22,8 +22,8 @@ export const AuthModule = new GraphQLModule({
     }
   },
   imports: [UserModule],
-  context: async (session: Request) => {
-    const authHeader = session.headers.authorization;
+  context: async (session: { req: Request }) => {
+    const authHeader = session.req.headers.authorization;
     return {
       authenticatedUser: {
         _id: 1,

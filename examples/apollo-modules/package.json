@@ -9,7 +9,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.8.0-alpha.3247223a",
+    "@graphql-modules/core": "0.8.0-alpha.e5121535",
     "apollo-server": "2.6.3",
     "graphql": "14.2.1",
     "reflect-metadata": "0.1.13",
