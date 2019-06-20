@@ -15,7 +15,7 @@ DataLoader can be used in GraphQL Modules with an easy setup. You can use them a
   export const UserModule = new GraphQLModule({
     providers: [
       {
-        provide: MY_DATA_LOADER,
+        provide: USER_DATA_LOADER,
         useFactory: () => new DataLoader(keys => myBatchGetUsers(keys));
       }
     ],
@@ -38,7 +38,7 @@ DataLoader can be used in GraphQL Modules with an easy setup. You can use them a
   export const UserModule = new GraphQLModule({
     providers: [
       {
-        provide: MY_DATA_LOADER,
+        provide: USER_DATA_LOADER,
         useFactory: InjectFunction(MyExternalDataProvider)(
           (myExternalDataProvider) => new DataLoader(
             keys => myExternalDataProvider.getData(keys)
@@ -67,7 +67,7 @@ You can see how to generate DataLoader in GraphQLModules using factory functions
     providers: [
       {
         scope: ProviderScope.Session
-        provide: MY_DATA_LOADER,
+        provide: USER_DATA_LOADER,
         useFactory:
           InjectFunction(ModuleSessionInfo)(
             // Use Dependency Injection to get ModuleSessionInfo to access network session
