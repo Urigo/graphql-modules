@@ -8,14 +8,21 @@ DataLoader is a generic library which aims to solve `n+1` issue in large scale G
 
 DataLoader can be used in GraphQL Modules with an easy setup. You can use them as providers or in providers. If you want to use them as providers, you can extend DataLoader class to benefit Dependency Injection or wrap factory function with `Inject`.
 
+`ProviderScope.Session` is recommended, because `DataLoader` works with cache-per-request mechanism.
+
 ## As Provider
 
 ```typescript
+  import { GraphQLModule } from '@graphql-modules/core';
+  import { ProviderScope } from '@graphql-modules/di';
+  import DataLoader from 'data-loader';
+
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
   export const UserModule = new GraphQLModule({
     providers: [
       {
         provide: USER_DATA_LOADER,
+        scope: ProviderScope.Session,
         useFactory: () => new DataLoader(keys => myBatchGetUsers(keys));
       }
     ],
@@ -39,6 +46,7 @@ DataLoader can be used in GraphQL Modules with an easy setup. You can use them a
     providers: [
       {
         provide: USER_DATA_LOADER,
+        scope: ProviderScope.Session,
         useFactory: InjectFunction(MyExternalDataProvider)(
           (myExternalDataProvider) => new DataLoader(
             keys => myExternalDataProvider.getData(keys)
@@ -60,7 +68,7 @@ You can see how to generate DataLoader in GraphQLModules using factory functions
 
 ```typescript
   import { GraphQLModule, ModuleSessionInfo } from '@graphql-modules/core';
-  import { InjectFunction } from '@graphql-modules/di';
+  import { InjectFunction, ProviderScope } from '@graphql-modules/di';
 
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
   export const UserModule = new GraphQLModule({
@@ -89,11 +97,13 @@ You can see how to generate DataLoader in GraphQLModules using factory functions
 ## In Providers with Dependency Injection
 
 ```typescript
-  import { Injectable } from '@graphql-modules/di';
-  import DataLoader from 'dataloader;
+  import { Injectable, ProviderScope } from '@graphql-modules/di';
+  import DataLoader from 'dataloader';
   import { MyExternalDataProvider } from './my-external-data-provider';
 
-  @Injectable()
+  @Injectable({
+    scope: ProviderScope.Session
+  })
   export class UserProvider {
     private dataLoader = new DataLoader(keys => this.myDataProvider.findUsers(keys));
     constructor(private myDataProvider: MyExternalDataProvider){ }
