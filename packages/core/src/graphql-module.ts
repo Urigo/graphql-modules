@@ -1,4 +1,4 @@
-import { IResolvers, SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
+import { SchemaDirectiveVisitor, IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
 import {
   mergeResolvers,
   ResolversComposerMapping,
@@ -11,7 +11,7 @@ import {
   printSchemaWithDirectives
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
+import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType, GraphQLFieldResolver } from 'graphql';
 import {
   SchemaNotValidError,
   DependencyModuleUndefinedError,
@@ -34,6 +34,17 @@ export interface Logger {
   error?: LogMethod;
   clientError?: LogMethod;
   warn?: LogMethod;
+}
+
+export interface GraphQLResolverMap<TContext> {
+  [typeName: string]: {
+    [fieldName: string]:
+      | GraphQLFieldResolver<any, TContext>
+      | {
+          requires?: string;
+          resolve: GraphQLFieldResolver<any, TContext>;
+        };
+  };
 }
 
 /**
@@ -84,7 +95,7 @@ export interface GraphQLModuleOptions<Config, Session extends object, Context> {
    * return the resolvers object.
    */
   resolvers?: GraphQLModuleOption<
-    MaybePromise<IResolvers<any, ModuleContext<Context>> | Array<IResolvers<any, ModuleContext<Context>>>>,
+    MaybePromise<GraphQLResolverMap<ModuleContext<Context>>> | Array<GraphQLResolverMap<ModuleContext<Context>>>,
     Config,
     Session,
     Context
@@ -146,7 +157,7 @@ export interface ModuleCache<Session, Context> {
   injector: Injector;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
-  resolvers: IResolvers<any, ModuleContext<Context>>;
+  resolvers: GraphQLResolverMap<ModuleContext<Context>>;
   schemaDirectives: SchemaDirectives;
   contextBuilder: (session: Session, excludeSession?: boolean) => Promise<ModuleContext<Context>>;
   extraSchemas: GraphQLSchema[];
@@ -160,7 +171,7 @@ export interface ModuleCache<Session, Context> {
 export interface ModuleCacheAsync<Context> {
   schemaAsync: Promise<GraphQLSchema>;
   typeDefsAsync: Promise<DocumentNode>;
-  resolversAsync: Promise<IResolvers<any, ModuleContext<Context>>>;
+  resolversAsync: Promise<GraphQLResolverMap<ModuleContext<Context>>>;
 }
 
 /**
@@ -501,9 +512,9 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return Promise.resolve(this._cache.typeDefs);
   }
 
-  get resolvers(): IResolvers<any, ModuleContext<Context>> {
+  get resolvers(): GraphQLResolverMap<ModuleContext<Context>> {
     if (typeof this._cache.resolvers === 'undefined') {
-      const resolversToBeComposed = new Array<IResolvers>();
+      const resolversToBeComposed = new Array<GraphQLResolverMap<ModuleContext<Context>>>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
         const moduleResolvers = module.resolvers;
@@ -520,7 +531,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return this._cache.resolvers;
   }
 
-  get resolversAsync(): Promise<IResolvers<any, ModuleContext<Context>>> {
+  get resolversAsync(): Promise<GraphQLResolverMap<ModuleContext<Context>>> {
     if (typeof this._cache.resolvers === 'undefined') {
       if (typeof this._cacheAsync.resolversAsync === 'undefined') {
         this._cacheAsync.resolversAsync = new Promise(async (resolve, reject) => {
@@ -813,8 +824,8 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     });
   }
 
-  get selfResolvers(): IResolvers<any, ModuleContext<Context>> {
-    let resolvers: IResolvers<any, ModuleContext<Context>> = {};
+  get selfResolvers(): GraphQLResolverMap<ModuleContext<Context>> {
+    let resolvers: GraphQLResolverMap<ModuleContext<Context>> = {};
     let resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
       if (typeof resolversDefinitions === 'function') {
@@ -835,10 +846,10 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     return resolvers;
   }
 
-  get selfResolversAsync(): Promise<IResolvers<any, ModuleContext<Context>>> {
+  get selfResolversAsync(): Promise<GraphQLResolverMap<ModuleContext<Context>>> {
     return new Promise(async (resolve, reject) => {
       try {
-        let resolvers: IResolvers<any, ModuleContext<Context>> = {};
+        let resolvers: GraphQLResolverMap<ModuleContext<Context>> = {};
         let resolversDefinitions = await this._options.resolvers;
         if (resolversDefinitions) {
           if (typeof resolversDefinitions === 'function') {
@@ -942,7 +953,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
     );
   }
 
-  private addSessionInjectorToSelfResolversContext(resolvers: IResolvers<any, ModuleContext<Context>>) {
+  private addSessionInjectorToSelfResolversContext(resolvers: GraphQLResolverMap<ModuleContext<Context>>) {
     for (const type in resolvers) {
       const typeResolvers = resolvers[type];
       if (!this._isScalarResolver(typeResolvers)) {
@@ -1022,7 +1033,7 @@ export class GraphQLModule<Config = any, Session extends object = any, Context =
   }
 
   private addSessionInjectorToSelfResolversCompositionContext(
-    resolversComposition: ResolversComposerMapping<IResolvers<any, any>>
+    resolversComposition: ResolversComposerMapping<GraphQLResolverMap<ModuleContext<Context>>>
   ) {
     const visitResolversCompositionElem = (compositionArr: Array<ResolversComposition<any>>) => {
       return [
