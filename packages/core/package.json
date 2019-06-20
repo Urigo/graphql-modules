@@ -15,7 +15,7 @@
     "apollo-server-caching": "0.4.0",
     "graphql-toolkit": "0.2.14",
     "graphql-tools": "4.0.4",
-    "tslib": "1.9.3"
+    "tslib": "1.10.0"
   },
   "peerDependencies": {
     "graphql": "^14.1.1"
