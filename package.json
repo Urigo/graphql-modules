@@ -27,7 +27,7 @@
     "@types/graphql": "14.2.1",
     "@types/jest": "24.0.13",
     "graphql": "14.3.1",
-    "husky": "2.4.0",
+    "husky": "2.4.1",
     "jest": "24.8.0",
     "lerna": "2.11.0",
     "lint-staged": "8.1.7",
