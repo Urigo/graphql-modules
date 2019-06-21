@@ -93,7 +93,7 @@ export interface GraphQLModuleOptions<
    * Resolvers object, or a function will get the module's config as argument, and should
    * return the resolvers object.
    */
-  resolvers?: GraphQLModuleOption<MaybePromise<SelfResolvers> | Array<SelfResolvers>, Config, Session, Context>;
+  resolvers?: GraphQLModuleOption<MaybePromise<SelfResolvers | Array<SelfResolvers>>, Config, Session, Context>;
   /**
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
@@ -353,7 +353,7 @@ export class GraphQLModule<
                   ...(importsSchemas$Arr as any)
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-                  this.selfResolversComposition
+                  this.selfResolversComposition as any
                 );
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
@@ -523,9 +523,8 @@ export class GraphQLModule<
         resolversToBeComposed.push(moduleResolvers);
       }
       const resolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
-      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-        this.selfResolversComposition
-      );
+      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
+        .selfResolversComposition as any);
       resolversToBeComposed.push(resolvers);
       const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
       this._cache.resolvers = composedResolvers as Resolvers;
@@ -544,9 +543,8 @@ export class GraphQLModule<
                 this.addSessionInjectorToSelfResolversContext(selfResolvers)
               )
             ]);
-            const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-              this.selfResolversComposition
-            );
+            const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
+              .selfResolversComposition as any);
             const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
             this._cache.resolvers = composedResolvers;
             resolve(this._cache.resolvers);
