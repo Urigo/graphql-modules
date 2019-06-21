@@ -12,7 +12,6 @@ import {
   mergeSchemasAsync,
   getSchemaDirectiveFromDirectiveResolver,
   mergeTypeDefs,
-  ResolversComposition,
   printSchemaWithDirectives
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
@@ -289,9 +288,8 @@ export class GraphQLModule<
       try {
         const selfTypeDefs = this.selfTypeDefs;
         const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
-        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-          this.selfResolversComposition
-        );
+        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
+          .selfResolversComposition as any);
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
