@@ -173,7 +173,11 @@ If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, 
 
 ### Without decorators
 
-You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes from `tslib
+You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes from `tslib`
+
+```js
+module.exports = Injectable({...})(MyProvider);
+```
 
 ## Testing Environment
 
