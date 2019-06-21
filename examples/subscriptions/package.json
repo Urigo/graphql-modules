@@ -1,5 +1,5 @@
 {
-  "name": "examples-apollo-modules",
+  "name": "examples-subscriptions",
   "version": "0.7.0",
   "private": true,
   "main": "dist/index.js",
@@ -10,10 +10,16 @@
   },
   "dependencies": {
     "@graphql-modules/core": "0.8.0-alpha.e5121535",
+    "@graphql-modules/di": "0.8.0-alpha.e5121535",
+    "@types/express": "4.16.1",
+    "@types/express-graphql": "0.6.2",
     "@types/graphql": "14.2.1",
-    "apollo-server": "2.6.3",
+    "express": "4.16.4",
+    "express-graphql": "0.7.1",
     "graphql": "14.2.1",
+    "graphql-subscriptions": "1.1.0",
     "reflect-metadata": "0.1.13",
+    "subscriptions-transport-ws": "0.9.16",
     "ts-node": "8.0.2",
     "typescript": "3.4.3"
   }

@@ -2306,10 +2306,10 @@ graphql-tag@2.10.1:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
 
-graphql-toolkit@0.2.15-6511eb4.0:
-  version "0.2.15-6511eb4.0"
-  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.2.15-6511eb4.0.tgz#c74f408e09fe0b606514eb827ade775e362d65fa"
-  integrity sha512-ckp6w+0lT+gVGf9LAC5NyqkYgYcqK4s3d5aehqPi8B5pSwPsavC6KG6jptwvTj5VMxrIZlcHlAhISs0veDB3Ww==
+graphql-toolkit@0.2.15-21d3c4a.0:
+  version "0.2.15-21d3c4a.0"
+  resolved "https://registry.yarnpkg.com/graphql-toolkit/-/graphql-toolkit-0.2.15-21d3c4a.0.tgz#5ab75dfd670a21a7090f300af9c0d69fdc499fc6"
+  integrity sha512-o6epG1BVi/ALibbUfsrZgOkaLIj/jFcG1EDdMjYubVzTbRVJWS+Js0Dmx0SUi5zLeRmC0Q/uIIl+WT/YMHproQ==
   dependencies:
     "@kamilkisiela/graphql-tools" "4.0.5"
     aggregate-error "2.2.0"
