@@ -288,8 +288,9 @@ export class GraphQLModule<
       try {
         const selfTypeDefs = this.selfTypeDefs;
         const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
-        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
-          .selfResolversComposition as any);
+        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
+          this.selfResolversComposition
+        );
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
@@ -353,7 +354,7 @@ export class GraphQLModule<
                   ...(importsSchemas$Arr as any)
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-                  this.selfResolversComposition as any
+                  this.selfResolversComposition
                 );
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
@@ -523,8 +524,9 @@ export class GraphQLModule<
         resolversToBeComposed.push(moduleResolvers);
       }
       const resolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
-      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
-        .selfResolversComposition as any);
+      const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
+        this.selfResolversComposition
+      );
       resolversToBeComposed.push(resolvers);
       const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
       this._cache.resolvers = composedResolvers as Resolvers;
@@ -543,8 +545,9 @@ export class GraphQLModule<
                 this.addSessionInjectorToSelfResolversContext(selfResolvers)
               )
             ]);
-            const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(this
-              .selfResolversComposition as any);
+            const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
+              this.selfResolversComposition
+            );
             const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
             this._cache.resolvers = composedResolvers;
             resolve(this._cache.resolvers);
@@ -1032,7 +1035,7 @@ export class GraphQLModule<
     return selfResolvers;
   }
 
-  private addSessionInjectorToSelfResolversCompositionContext(resolversComposition: ResolversComposerMapping) {
+  private addSessionInjectorToSelfResolversCompositionContext(resolversComposition: any) {
     const visitResolversCompositionElem = (compositionArr: any[]) => {
       return [
         (next: any) => async (root: any, args: any, appContext: any, info: any) => {
