@@ -13,8 +13,8 @@
   "dependencies": {
     "@graphql-modules/di": "0.7.5",
     "apollo-server-caching": "0.4.0",
-    "graphql-toolkit": "0.2.15-21d3c4a.0",
-    "graphql-tools": "4.0.4",
+    "graphql-toolkit": "0.2.15-d08bdd7.0",
+    "@kamilkisiela/graphql-tools": "4.0.5",
     "tslib": "1.10.0"
   },
   "peerDependencies": {
