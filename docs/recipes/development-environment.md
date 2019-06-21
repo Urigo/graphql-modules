@@ -181,7 +181,7 @@ Take care to add the polyfill `reflect-metadata` & require it (once)
 ```js
 require('reflect-metadata');
 Inject(AProvider)(MyProvider, undefined, 0); // inject AProvider to first MyProvider constructor argument
-Inject(BProvider)(MyProvider, undefined, 1); // inject BProvider to second MyProvider constructor argument
+Inject(ModuleConfig(_ => 'SimpleModule'))(MyProvider, undefined, 0); // inject SimpleModule Config to second MyProvider constructor argument
 module.exports = Injectable({...})(MyProvider);
 
 ```
