@@ -15,19 +15,19 @@
     "apollo-server-caching": "0.4.0",
     "graphql-toolkit": "0.3.1-a420158.0",
     "graphql-tools": "4.0.5",
-    "tslib": "1.9.3"
+    "tslib": "1.10.0"
   },
   "peerDependencies": {
     "graphql": "^14.1.1"
   },
   "devDependencies": {
     "@types/leakage": "0.4.0",
-    "apollo-cache-inmemory": "1.6.1",
-    "apollo-client": "2.6.1",
-    "apollo-link-schema": "1.2.2",
+    "apollo-cache-inmemory": "1.6.2",
+    "apollo-client": "2.6.3",
+    "apollo-link-schema": "1.2.3",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
-    "typescript": "3.5.1"
+    "typescript": "3.5.2"
   },
   "sideEffects": false,
   "main": "dist/commonjs/index.js",

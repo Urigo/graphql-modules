@@ -232,7 +232,7 @@ export class Injector<Session extends object = any> {
           const instance = child.get(serviceIdentifier);
           return instance;
         } catch (e) {
-          if (e instanceof ServiceIdentifierNotFoundError) {
+          if (e instanceof ServiceIdentifierNotFoundError && e.serviceIdentifier === serviceIdentifier) {
             continue;
           } else {
             throw e;
