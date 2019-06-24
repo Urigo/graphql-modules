@@ -853,6 +853,18 @@ textarea, input {
   }
 }
 
+.ContactUs > ._links {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80px;
+}
+
+.ContactUs > ._links > ._channel > img {
+  width: 26px;
+  padding: 5px;
+}
+
 .mainContainer .docs-next {
   float: right !important;
   clear: right !important;
