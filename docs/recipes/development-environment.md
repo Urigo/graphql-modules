@@ -173,10 +173,17 @@ If you are using [Babel](http://babeljs.io) to transpile your JavaScript files, 
 
 ### Without decorators
 
+#### Di
 You can use `Inject` and `Injectable` as regular functions to wrap your arguments and classes from `tslib`
 
+Take care to add the polyfill `reflect-metadata` & require it (once)
+
 ```js
+require('reflect-metadata');
+Inject(AProvider)(MyProvider, undefined, 0); // inject AProvider to first MyProvider constructor argument
+Inject(ModuleConfig(_ => 'SimpleModule'))(MyProvider, undefined, 0); // inject SimpleModule Config to second MyProvider constructor argument
 module.exports = Injectable({...})(MyProvider);
+
 ```
 
 ## Testing Environment
