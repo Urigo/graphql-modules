@@ -1,0 +1,21 @@
+{
+  "name": "examples-apollo-modules",
+  "version": "0.7.0",
+  "private": true,
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@graphql-modules/core": "0.8.0-alpha.66fb3726",
+    "@graphql-modules/di": "0.8.0-alpha.66fb3726",
+    "@types/graphql": "14.2.1",
+    "apollo-server": "2.6.3",
+    "graphql": "14.2.1",
+    "reflect-metadata": "0.1.13",
+    "ts-node": "8.0.2",
+    "typescript": "3.4.3"
+  }
+}
