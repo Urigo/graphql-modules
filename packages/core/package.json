@@ -21,12 +21,12 @@
   },
   "devDependencies": {
     "@types/leakage": "0.4.0",
-    "apollo-cache-inmemory": "1.6.1",
-    "apollo-client": "2.6.1",
-    "apollo-link-schema": "1.2.2",
+    "apollo-cache-inmemory": "1.6.2",
+    "apollo-client": "2.6.3",
+    "apollo-link-schema": "1.2.3",
     "graphql-tag": "2.10.1",
     "jest": "24.8.0",
-    "typescript": "3.5.1"
+    "typescript": "3.5.2"
   },
   "sideEffects": false,
   "main": "dist/commonjs/index.js",

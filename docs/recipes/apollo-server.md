@@ -18,18 +18,13 @@ Then, create a new instance of `ApolloServer`, and use your `GraphQLModule` inst
 import { GraphQLModule } from '@graphql-modules/core';
 import { ApolloServer } from 'apollo-server';
 
-const AppModule = new GraphQLModule({
+const MyGraphQLModule = new GraphQLModule({
     /*...*/
 });
 
 const server = new ApolloServer({
-  schema: AppModule.schema,
-  context: session => session,
-})
-// or use `modules` in `ApolloServer`
-const server = new ApolloServer({
   modules: [
-    AppModule
+    MyGraphQLModule
   ],
   context: session => session,
 });
