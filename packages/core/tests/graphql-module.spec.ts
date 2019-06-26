@@ -278,6 +278,36 @@ describe('GraphQLModule', () => {
       const node = aFields['f'].astNode;
       expect(node.directives.length).toBe(1);
     });
+
+    it('should merge scalars', () => {
+      expect(() => {
+        const m1 = new GraphQLModule({
+          typeDefs: [`scalar Date`, `type Query { foo: Date }`],
+          resolvers: {
+            Date: new GraphQLScalarType({
+              name: 'DateTime',
+              serialize() {},
+              parseValue() {},
+              parseLiteral(ast) {
+                if (ast.kind !== Kind.STRING) {
+                  throw new TypeError(`DateTime cannot represent non string type`);
+                }
+                const { value } = ast;
+
+                return new Date(value);
+              }
+            })
+          }
+        });
+
+        const m2 = new GraphQLModule({
+          typeDefs: [`type Query { bar: Date }`],
+          imports: [m1]
+        });
+
+        expect(m2.schema.getType('Date').name).toEqual('Date');
+      }).not.toThrow();
+    });
   });
 
   describe('Module Dependencies', () => {

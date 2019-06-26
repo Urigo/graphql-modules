@@ -297,6 +297,36 @@ export class GraphQLModule<
     }
   }
 
+  clearCache() {
+    this._cache = {
+      injector: undefined,
+      schema: undefined,
+      typeDefs: undefined,
+      resolvers: undefined,
+      schemaDirectives: undefined,
+      contextBuilder: undefined,
+      extraSchemas: undefined,
+      directiveResolvers: undefined,
+      subscriptionHooks: undefined,
+      imports: undefined,
+      selfKeyValueCache: undefined,
+      selfLogger: undefined
+    };
+  }
+
+  mock(partialCache?: Partial<ModuleCache<Session, Context>>) {
+    this._cache = {
+      ...this._cache,
+      ...partialCache
+    };
+    return this;
+  }
+
+  resetMock() {
+    this.clearCache();
+    return this;
+  }
+
   private checkConfiguration() {
     if (this._options.configRequired && !this._moduleConfig) {
       throw new ModuleConfigRequiredError(this.name);
