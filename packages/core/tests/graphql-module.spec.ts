@@ -36,7 +36,6 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
 import { iterate } from 'leakage';
 import { EventEmitter } from 'events';
-import { writeFile } from 'fs';
 
 jest.setTimeout(60000 * 10);
 describe('GraphQLModule', () => {

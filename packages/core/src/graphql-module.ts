@@ -15,7 +15,21 @@ import {
   printSchemaWithDirectives
 } from 'graphql-toolkit';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
-import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
+import {
+  DocumentNode,
+  GraphQLSchema,
+  parse,
+  GraphQLScalarType,
+  GraphQLObjectType,
+  GraphQLField,
+  GraphQLInterfaceType,
+  GraphQLArgument,
+  GraphQLUnionType,
+  GraphQLEnumType,
+  GraphQLEnumValue,
+  GraphQLInputObjectType,
+  GraphQLInputField
+} from 'graphql';
 import {
   SchemaNotValidError,
   DependencyModuleUndefinedError,
@@ -48,6 +62,41 @@ export type BuildContextFn<Config, Session extends object, Context, PreviousCont
   currentContext: ModuleContext<PreviousContext>,
   moduleSessionInfo: ModuleSessionInfo<Config, Session, Context>
 ) => Promise<Context> | Context;
+
+export interface SchemaDirectiveVisitor {
+  visitSchema(schema: GraphQLSchema): void;
+  visitScalar(scalar: GraphQLScalarType): GraphQLScalarType | void | null;
+  visitObject(object: GraphQLObjectType): GraphQLObjectType | void | null;
+  visitFieldDefinition(
+    field: GraphQLField<any, any>,
+    details: {
+      objectType: GraphQLObjectType | GraphQLInterfaceType;
+    }
+  ): GraphQLField<any, any> | void | null;
+  visitArgumentDefinition(
+    argument: GraphQLArgument,
+    details: {
+      field: GraphQLField<any, any>;
+      objectType: GraphQLObjectType | GraphQLInterfaceType;
+    }
+  ): GraphQLArgument | void | null;
+  visitInterface(iface: GraphQLInterfaceType): GraphQLInterfaceType | void | null;
+  visitUnion(union: GraphQLUnionType): GraphQLUnionType | void | null;
+  visitEnum(type: GraphQLEnumType): GraphQLEnumType | void | null;
+  visitEnumValue(
+    value: GraphQLEnumValue,
+    details: {
+      enumType: GraphQLEnumType;
+    }
+  ): GraphQLEnumValue | void | null;
+  visitInputObject(object: GraphQLInputObjectType): GraphQLInputObjectType | void | null;
+  visitInputFieldDefinition(
+    field: GraphQLInputField,
+    details: {
+      objectType: GraphQLInputObjectType;
+    }
+  ): GraphQLInputField | void | null;
+}
 
 export interface SchemaDirectives {
   [name: string]: typeof SchemaDirectiveVisitor;
