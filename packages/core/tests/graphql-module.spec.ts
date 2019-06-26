@@ -20,7 +20,7 @@ import {
 } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
+import { SchemaDirectiveVisitor, makeExecutableSchema } from '@kamilkisiela/graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
 import {
   Injectable,
@@ -1882,5 +1882,37 @@ describe('GraphQLModule', () => {
         done();
       })
       .catch(done.fail);
+  });
+
+  it(`make sure it won't crash on deeply nested structure`, () => {
+    const num = 30;
+
+    const AuthModule = new GraphQLModule({
+      name: 'AuthModule',
+      typeDefs: gql`
+        directive @access(roles: [String]) on FIELD_DEFINITION
+      `
+    });
+
+    const BaseModule = new GraphQLModule({
+      name: 'BaseModule',
+      typeDefs: gql`
+        type Query {
+          test: Boolean @access(roles: ["Admin"])
+        }
+      `,
+      imports: [AuthModule]
+    });
+
+    const AppModule = new Array(num).fill(0).reduce<GraphQLModule>((Module, _value, index) => {
+      const name = `Module${index}`;
+
+      return new GraphQLModule({
+        name,
+        imports: [BaseModule, Module]
+      });
+    }, BaseModule);
+
+    print(AppModule.typeDefs);
   });
 });

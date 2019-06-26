@@ -6,7 +6,9 @@ sidebar_label: Database Connection Pooling
 
 Opening a database connection is an expensive process, and that's why we use **[Connection pool](https://en.wikipedia.org/wiki/Connection_pool)** to reduce the cost. And it also allows us to have a good transaction management in a single session that uses different providers.
 
-The example uses PostgreSQL and **[node-postgres](https://node-postgres.com/features/transactions)** below. However, you can also do it with any other modern databases such as [MongoDB](https://www.compose.com/articles/connection-pooling-with-mongodb/) and [MySQL](https://www.compose.com/articles/connection-pooling-with-mongodb/)
+The first example uses PostgreSQL and **[node-postgres](https://node-postgres.com/features/transactions)** below. However, there is another example that uses [generic-pool](https://github.com/coopernurse/node-pool) and **MongoDB** which doesn't have pooling feature in the native driver internally.
+
+## PostgreSQL
 
 We define two providers in `DatabaseModule`, the first one is `Pool` which will be application scoped, and `DatabaseProvider` will be session-scoped. So, it will provide us different clients from connection pool for each session/network request. See Dependency Injection part of our docs to learn more about provider scopes.
 
@@ -35,18 +37,18 @@ import { Pool, PoolClient } from 'pg';
 @Injectable({
     scope: ProviderScope.Session
 })
-export class DatabaseProvider implements OnResponse {
+export class DatabaseProvider implements OnRequest, OnResponse {
     private _poolClient: PoolClient;
     constructor(private pool: Pool) {}
+    public onRequest() {
+      this._poolClient = await this.pool.connect();
+    }
     public onResponse() {
         if (this._poolClient) {
             this._poolClient.release();
         }
     }
     async getClient() {
-        if (!this.client) {
-            this.client = await pool.connect();
-        }
         return this.client;
     }
 }
@@ -59,16 +61,19 @@ You can also combine it with data-loaders to solve N+1 problem in SQL queries li
 ```ts
 import { Pool, PoolClient, QueryResultBase, QueryResult } from 'pg';
 import { Injectable, ProviderScope } from '@graphql-modules/di';
-import { OnResponse } from '@graphql-modules/core';
+import { OnRequest, OnResponse } from '@graphql-modules/core';
 import { SQLStatement } from 'sql-template-strings';
 import DataLoader from 'dataloader';
 
 @Injectable({
   scope: ProviderScope.Session
 })
-export class DatabaseProvider implements OnResponse {
+export class DatabaseProvider implements OnRequest, OnResponse {
   private _poolClient: PoolClient;
   constructor(private pool: Pool) {}
+  public onRequest() {
+    this._poolClient = await this.pool.connect();
+  }
   public onResponse() {
     if (this._poolClient) {
       this._poolClient.release();
@@ -83,9 +88,6 @@ export class DatabaseProvider implements OnResponse {
   );
   // Use this method to query to the database instead of client's native one.
   public async query<Entity = any>(queryStatement: SQLStatement): Promise<QueryResultBase & { rows: Entity[] }> {
-    if (!this._poolClient) {
-      this._poolClient = await this.pool.connect();
-    }
     // If query is `SELECT`-type query, use DataLoader
     if (queryStatement.text.startsWith('SELECT')) {
       return this.queryDataLoader.load(queryStatement);
@@ -152,5 +154,56 @@ export class UsersProvider {
             throw e;
         }
     }
+}
+```
+
+## MongoDB with generic-pool
+
+You can create a MongoDB pool, and connect it in the beginning of network request until the network request is finished.
+
+`database.module.ts`
+```ts
+import { Pool, createPool } from 'generic-pool';
+import { MongoClient } from 'mongodb';
+import { GraphQLModule } from '@graphql-modules/core';
+
+export const DatabaseModule = new GraphQLModule({
+    providers: [
+        {
+          provide: Pool,
+          useFactory: () => createPool({
+            create: () => MongoClient.connect('mongodb://YOUR_MONGO_URL_HERE'),
+            destroy: client => client.close(),
+          }) 
+        },
+        DatabaseProvider
+    ]
+});
+```
+
+`database.provider.ts`
+```ts
+import { Pool } from 'generic-pool';
+import { Injectable, ProviderScope } from '@graphql-modules/di';
+import { OnRequest, OnResponse } from '@graphql-modules/core';
+import { MongoClient } from 'mongodb';
+
+@Injectable({
+  scope: ProviderScope.Session
+})
+export class DatabaseProvider implements OnRequest, OnResponse {
+  private _poolClient: MongoClient;
+  constructor(private pool: Pool) {}
+  public async onRequest() {
+    this._poolClient = await pool.acquire();
+  }
+  public async onResponse() {
+    if (this._poolClient) {
+      await this.pool.release(this._poolClient);
+    }
+  }
+  public getClient() {
+    return this._poolClient;
+  }
 }
 ```

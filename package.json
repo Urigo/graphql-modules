@@ -24,10 +24,10 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "@types/graphql": "14.2.1",
+    "@types/graphql": "14.2.2",
     "@types/jest": "24.0.15",
     "graphql": "14.3.1",
-    "husky": "2.4.1",
+    "husky": "2.6.0",
     "jest": "24.8.0",
     "lerna": "2.11.0",
     "lint-staged": "8.2.1",
