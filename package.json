@@ -6,8 +6,7 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*",
-      "bundle-test"
+      "packages/*"
     ]
   },
   "scripts": {
@@ -22,7 +21,8 @@
     "release": "lerna publish --exact --force-publish=\"*\"",
     "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
     "ci:release:canary": "lerna publish --force-publish=\"*\" --canary --exact --yes",
-    "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
+    "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build",
+    "bundlesize": "cd bundle-test && yarn test"
   },
   "devDependencies": {
     "@types/graphql": "14.2.2",

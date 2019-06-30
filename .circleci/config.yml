@@ -23,6 +23,9 @@ jobs:
           name: Test
           command: yarn test
       - run:
+          name: Bundle Size Check
+          command: yarn bundlesize
+      - run:
           name: Publish Canary
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > .npmrc
