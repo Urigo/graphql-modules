@@ -6,7 +6,8 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "bundle-test"
     ]
   },
   "scripts": {
@@ -18,19 +19,20 @@
     "precommit": "lint-staged",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "prerelease": "yarn build && yarn test",
-    "release": "lerna publish --exact --force-publish=\"*\"",
-    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact",
-    "ci:release:canary": "lerna publish  --force-publish=\"*\" --preid \"alpha-`git rev-parse --short HEAD`\" --canary --exact --yes",
+    "release": "lerna publish --exact --force-publish=\"*\" --ignore=@graphql-modules/bundle-test",
+    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact --ignore=@graphql-modules/bundle-test",
+    "ci:release:canary": "lerna publish --ignore=@graphql-modules/bundle-test --force-publish=\"*\" --preid \"alpha-`git rev-parse --short HEAD`\" --canary --exact --yes",
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
     "@types/graphql": "14.2.2",
     "@types/jest": "24.0.15",
+    "bundlesize": "0.18.0",
     "graphql": "14.4.1",
     "husky": "2.7.0",
     "jest": "24.8.0",
     "lerna": "3.15.0",
-    "lint-staged": "8.2.1",
+    "lint-staged": "9.0.0",
     "prettier": "1.18.2",
     "reflect-metadata": "0.1.13",
     "replace-in-file": "4.1.0",
