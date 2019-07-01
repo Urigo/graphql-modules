@@ -1,0 +1,37 @@
+{
+  "name": "examples-basic",
+  "version": "0.7.0",
+  "private": true,
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "build": "webpack",
+    "preanalyze": "npx webpack --profile --json > dist/stats.json",
+    "analyze": "npx webpack-bundle-analyzer dist/stats.json",
+    "test": "yarn build && bundlesize"
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/index.js",
+      "maxSize": "600KB"
+    }
+  ],
+  "dependencies": {
+    "@graphql-modules/core": "0.7.0",
+    "@types/express": "4.16.1",
+    "@types/express-graphql": "0.6.2",
+    "express": "4.16.4",
+    "express-graphql": "0.7.1",
+    "graphql": "14.2.1",
+    "reflect-metadata": "0.1.13",
+    "typescript": "3.4.3"
+  },
+  "devDependencies": {
+    "bundlesize": "0.18.0",
+    "ts-loader": "6.0.4",
+    "webpack": "4.35.0",
+    "webpack-bundle-analyzer": "3.3.2",
+    "webpack-cli": "3.3.5"
+  }
+}
