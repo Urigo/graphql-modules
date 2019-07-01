@@ -19,9 +19,9 @@
     "precommit": "lint-staged",
     "clean": "lerna clean --yes && rm -rf node_modules",
     "prerelease": "yarn build && yarn test",
-    "release": "lerna publish --exact --force-publish=\"*\" --ignore=@graphql-modules/bundle-test",
-    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact --ignore=@graphql-modules/bundle-test",
-    "ci:release:canary": "lerna publish --force-publish=\"*\" --canary --exact --yes --ignore=@graphql-modules/bundle-test",
+    "release": "lerna publish --exact --force-publish=\"*\" --ignore bundle-test",
+    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact --ignore bundle-test",
+    "ci:release:canary": "git update-index --assume-unchanged .npmrc && lerna publish --ignore bundle-test --force-publish=\"*\" --preid \"alpha-`git rev-parse --short HEAD`\" --canary --exact --yes",
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
@@ -31,7 +31,7 @@
     "graphql": "14.4.1",
     "husky": "2.7.0",
     "jest": "24.8.0",
-    "lerna": "2.11.0",
+    "lerna": "3.15.0",
     "lint-staged": "9.0.0",
     "prettier": "1.18.2",
     "reflect-metadata": "0.1.13",

@@ -1,5 +1,5 @@
 {
-  "name": "examples-basic",
+  "name": "examples-basic-webpack",
   "version": "0.7.0",
   "private": true,
   "main": "dist/index.js",
