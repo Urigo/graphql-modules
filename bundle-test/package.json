@@ -1,5 +1,6 @@
 {
-  "name": "@graphql-modules/bundle-test",
+  "name": "bundle-test",
+  "private": true,
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",
