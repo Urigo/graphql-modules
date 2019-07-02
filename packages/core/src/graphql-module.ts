@@ -196,6 +196,8 @@ export class GraphQLModule<
     resolversAsync: undefined
   };
 
+  private _exclusionsFromSchema = new Array<string>();
+
   /**
    * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
    * @param options - module configuration
@@ -241,6 +243,12 @@ export class GraphQLModule<
     } else {
       return this;
     }
+  }
+
+  withExclusionsFromSchema(exclusionsFromSchema: string[]): GraphQLModule<Config, Session, Context, SelfResolvers> {
+    const newModule = new GraphQLModule<Config, Session, Context, SelfResolvers>(this._options, this._moduleConfig);
+    newModule._exclusionsFromSchema = exclusionsFromSchema;
+    return newModule;
   }
 
   clearCache() {
@@ -328,7 +336,8 @@ export class GraphQLModule<
                 ? {
                     log: message => this.selfLogger.clientError(message)
                   }
-                : undefined
+                : undefined,
+            exclusions: this._exclusionsFromSchema
           });
         } else {
           this._cache.schema = null;
@@ -393,7 +402,8 @@ export class GraphQLModule<
                         ? {
                             log: (message: string | Error) => selfLogger.clientError(message)
                           }
-                        : undefined
+                        : undefined,
+                    exclusions: this._exclusionsFromSchema
                   });
                 } else {
                   this._cache.schema = null;
@@ -500,6 +510,7 @@ export class GraphQLModule<
       typeDefsArr = typeDefsArr.concat(this.extraSchemas);
       if (typeDefsArr.length) {
         this._cache.typeDefs = mergeTypeDefs(typeDefsArr, {
+          exclusions: this._exclusionsFromSchema,
           useSchemaDefinition: false
         });
       } else {
@@ -522,6 +533,7 @@ export class GraphQLModule<
             const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
             if (typeDefs.length) {
               this._cache.typeDefs = mergeTypeDefs(typeDefs.filter(s => s), {
+                exclusions: this._exclusionsFromSchema,
                 useSchemaDefinition: false
               });
             } else {
@@ -551,7 +563,12 @@ export class GraphQLModule<
         this.selfResolversComposition
       );
       resolversToBeComposed.push(resolvers);
-      const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
+      const composedResolvers = composeResolvers(
+        mergeResolvers(resolversToBeComposed, {
+          exclusions: this._exclusionsFromSchema
+        }),
+        resolversComposition
+      );
       this._cache.resolvers = composedResolvers;
     }
     return this._cache.resolvers;
@@ -571,7 +588,12 @@ export class GraphQLModule<
             const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
               this.selfResolversComposition
             );
-            const composedResolvers = composeResolvers(mergeResolvers(resolversToBeComposed), resolversComposition);
+            const composedResolvers = composeResolvers(
+              mergeResolvers(resolversToBeComposed, {
+                exclusions: this._exclusionsFromSchema
+              }),
+              resolversComposition
+            );
             this._cache.resolvers = composedResolvers;
             resolve(this._cache.resolvers);
           } catch (e) {
