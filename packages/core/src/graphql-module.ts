@@ -1020,6 +1020,11 @@ export class GraphQLModule<
                 try {
                   moduleContext = await this.context(info.session, true);
                 } catch (e) {
+                  moduleContext.injector.callHookWithArgsAsync({
+                    hook: 'onError',
+                    args: [e],
+                    instantiate: true
+                  });
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
                     logger.clientError(e);
@@ -1027,7 +1032,18 @@ export class GraphQLModule<
                   throw e;
                 }
                 info.schema = this.schema;
-                return resolver.call(typeResolvers, root, moduleContext, info);
+                let result;
+                try {
+                  result = await resolver.call(typeResolvers, root, moduleContext, info);
+                } catch (e) {
+                  moduleContext.injector.callHookWithArgsAsync({
+                    hook: 'onError',
+                    args: [e],
+                    instantiate: true
+                  });
+                  throw e;
+                }
+                return result;
               };
             } else {
               typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
@@ -1041,6 +1057,11 @@ export class GraphQLModule<
                 try {
                   moduleContext = await this.context(info.session, true);
                 } catch (e) {
+                  moduleContext.injector.callHookWithArgsAsync({
+                    hook: 'onError',
+                    args: [e],
+                    instantiate: true
+                  });
                   const logger = this.selfLogger;
                   if ('clientError' in logger) {
                     logger.clientError(e);
@@ -1048,7 +1069,18 @@ export class GraphQLModule<
                   throw e;
                 }
                 info.schema = this.schema;
-                return resolver.call(typeResolvers[prop], root, args, moduleContext, info);
+                let result;
+                try {
+                  result = await resolver.call(typeResolvers[prop], root, args, moduleContext, info);
+                } catch (e) {
+                  moduleContext.injector.callHookWithArgsAsync({
+                    hook: 'onError',
+                    args: [e],
+                    instantiate: true
+                  });
+                  throw e;
+                }
+                return result;
               };
             }
           } else if (resolver && typeof resolver === 'object' && resolver['subscribe']) {
@@ -1064,6 +1096,11 @@ export class GraphQLModule<
               try {
                 moduleContext = await this.context(info.session, true);
               } catch (e) {
+                moduleContext.injector.callHookWithArgsAsync({
+                  hook: 'onError',
+                  args: [e],
+                  instantiate: true
+                });
                 const logger = this.selfLogger;
                 if ('clientError' in logger) {
                   logger.clientError(e);
@@ -1071,7 +1108,18 @@ export class GraphQLModule<
                 throw e;
               }
               info.schema = this.schema;
-              return subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
+              let result;
+              try {
+                result = await subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
+              } catch (e) {
+                moduleContext.injector.callHookWithArgsAsync({
+                  hook: 'onError',
+                  args: [e],
+                  instantiate: true
+                });
+                throw e;
+              }
+              return result;
             };
           }
         }
@@ -1094,6 +1142,11 @@ export class GraphQLModule<
           try {
             moduleContext = await this.context(info.session, true);
           } catch (e) {
+            moduleContext.injector.callHookWithArgsAsync({
+              hook: 'onError',
+              args: [e],
+              instantiate: true
+            });
             const logger = this.selfLogger;
             if ('clientError' in logger) {
               logger.clientError(e);
