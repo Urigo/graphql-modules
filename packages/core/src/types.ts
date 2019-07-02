@@ -37,7 +37,7 @@ export type OnOperationCompleteFn<WebSocket = any, OpId = string, OnOperationCom
   opId: OpId
 ) => OnOperationCompleteResult;
 export interface OnOperationComplete<WebSocket = any, OpId = string, OnOperationCompleteResult = any> {
-  onOperationComplete?: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
+  onOperationComplete: OnOperationCompleteFn<WebSocket, OpId, OnOperationCompleteResult>;
 }
 
 export type OnDisconnectFn<WebSocket = any, ConnectionContext = any, Result = any> = (
@@ -45,7 +45,12 @@ export type OnDisconnectFn<WebSocket = any, ConnectionContext = any, Result = an
   connectionContext: ConnectionContext
 ) => Result;
 export interface OnDisconnect<WebSocket = any, ConnectionContext = any, Result = any> {
-  onDisconnect?: OnDisconnectFn<WebSocket, ConnectionContext, Result>;
+  onDisconnect: OnDisconnectFn<WebSocket, ConnectionContext, Result>;
+}
+
+export type OnErrorFn = (e: Error) => any;
+export interface OnError {
+  onError: OnError;
 }
 
 export interface SubscriptionHooks<
