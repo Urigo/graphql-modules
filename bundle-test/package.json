@@ -1,7 +1,7 @@
 {
   "name": "bundle-test",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.7.6",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
