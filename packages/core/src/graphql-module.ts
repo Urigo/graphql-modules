@@ -1096,11 +1096,6 @@ export class GraphQLModule<
               try {
                 moduleContext = await this.context(info.session, true);
               } catch (e) {
-                moduleContext.injector.callHookWithArgsAsync({
-                  hook: 'onError',
-                  args: [e],
-                  instantiate: true
-                });
                 const logger = this.selfLogger;
                 if ('clientError' in logger) {
                   logger.clientError(e);
@@ -1142,11 +1137,6 @@ export class GraphQLModule<
           try {
             moduleContext = await this.context(info.session, true);
           } catch (e) {
-            moduleContext.injector.callHookWithArgsAsync({
-              hook: 'onError',
-              args: [e],
-              instantiate: true
-            });
             const logger = this.selfLogger;
             if ('clientError' in logger) {
               logger.clientError(e);
