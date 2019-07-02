@@ -15,11 +15,17 @@ import { MyProvider } from './my-provider.ts';
 export interface MyModuleConfig {
     secretKey: string;
     remoteEndpoint: string;
+    someDbInstance: SomeDBInstance;
 }
 
+// You can access config object like below inside module declaration
 export const MyModule = new GraphQLModule<MyModuleConfig>({
-  providers: () => [
-    MyProvider
+  providers: ({ config: { someDbInstance } }) => [
+    MyProvider,
+    {
+      provide: SomeDbInstance,
+      useValue: someDbInstance
+    }
   ]
 });
 ```

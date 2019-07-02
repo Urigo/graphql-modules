@@ -10,4 +10,5 @@ module.exports = {
   testRegex: '\\.spec\\.ts$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   errorOnDeprecated: true,
+  forceExit: true,
 };

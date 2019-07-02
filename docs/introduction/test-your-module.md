@@ -82,4 +82,19 @@ tests/user.module.spec.ts
   });
 ```
 
+If you don't use DI, you can mock your context or resolvers like below;
+
+```ts
+UsersModule.mock({
+  resolvers: {
+    Query: {
+      foo: (_, __, { fooProp }) => fooProp
+    }
+  },
+  contextBuilder: () => ({
+    fooProp: 'FOO'
+  })
+})
+```
+
 Then, run `jest` to get your test results.
