@@ -1,0 +1,26 @@
+{
+  "name": "example-federation",
+  "private": true,
+  "main": "gateway.js",
+  "scripts": {
+    "start-gateway": "ts-node gateway.ts",
+    "start-service-accounts": "ts-node services/accounts/index.ts",
+    "start-service-reviews": "ts-node services/reviews/index.ts",
+    "start-service-products": "ts-node services/products/index.ts",
+    "start-service-inventory": "ts-node services/inventory/index.ts",
+    "start-services": "concurrently \"npm:start-service-*\"",
+    "postinstall": "lerna bootstrap"
+  },
+  "devDependencies": {
+    "lerna": "latest",
+    "ts-node": "latest",
+    "concurrently": "latest"
+  },
+  "dependencies": {
+    "@apollo/gateway": "latest",
+    "@graphql-modules/core": "latest",
+    "@types/graphql": "latest",
+    "apollo-server": "^2.5.1-alpha.1",
+    "graphql": "latest"
+  }
+}
