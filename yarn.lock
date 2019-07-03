@@ -7057,10 +7057,10 @@ repeating@^2.0.0:
   dependencies:
     is-finite "^1.0.0"
 
-replace-in-file@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/replace-in-file/-/replace-in-file-4.1.0.tgz#07846245a4b98a8bc5f5f9c3e3e368fa12b18bf7"
-  integrity sha512-5IANGPAQZVO9PHEjaRz3EHs7eQulv1cvOu2hRi7+Ern+zXIzdslSGX9MIfcI1anaGCpICK2l4R4YOOdThsFryQ==
+replace-in-file@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/replace-in-file/-/replace-in-file-4.1.1.tgz#f9d5f4665e708cc15a23c900e7596c3792e08a93"
+  integrity sha512-0Va403DpFFRpm6oIsEf2U9fH9mVuDgRmSbXwrzpC3tmGduah9FhJJmu424rlogJo+0t7ho9f1HOpR+0qcXtzWQ==
   dependencies:
     chalk "^2.4.2"
     glob "^7.1.3"
