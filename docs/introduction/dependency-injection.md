@@ -291,6 +291,26 @@ export class MyProvider implements OnResponse {
 [API of `OnResponse` is available here](/docs/api/core/api-interfaces-onresponse)
 [API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
 
+### `OnError` hook (experimental)
+
+It takes one parameter that contains `Error`, and this method gets called if any error thrown inside resolvers.
+
+```typescript
+import { Injectable } from '@graphql-modules/di';
+import { OnError } from '@graphql-modules/core';
+
+@Injectable()
+export class MyProvider implements OnError {
+
+    onResponse(error: Error) {
+        // ...do your magic...
+        logError(error.message);
+    }
+}
+```
+
+> Note that; this hook is not called if there is a DI or context build error, because DI stops working if there is some of those. 
+
 ### `OnConnect hook`
 
 This hook is similar to `OnRequest` hook, but this is called on the initialization of WebSockets connection. It is exactly same with `OnConnect` hook that is passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
