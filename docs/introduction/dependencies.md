@@ -48,3 +48,28 @@ export const MyModule = new GraphQLModule({
 > This is useful when you just want to make sure your module is initialized after another module without knowing it directly.
 
 Now GraphQL Modules will make sure to load and initialize `MySecondModule` before `MyModule`.
+
+## Exclusions from Schema
+
+You can exclude some types or only some fields from a specific type while importing a module's schema into another by using `withExclusionsFromSchema` like below;
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core';
+import * as typeDefs from './schema.graphql';
+import resolvers from './resolvers';
+import { UserProvider } from './user.provider';
+import { MySecondModule } from './my-second-module';
+
+export const MyModule = new GraphQLModule({
+    typeDefs,
+    resolvers,
+    providers: [
+        UserProvider,
+    ],
+    imports: [
+        MySecondModule.withExclusionsFromSchema(['Query.unwanted', 'Unwanted.*']),
+    ],
+});
+```
+
+So `MyModule` won't have those fields' both `typeDefs` and `resolvers` from `MySecondModule` in this case.
