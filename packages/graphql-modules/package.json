@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "typescript": "3.5.2"
+    "typescript": "3.5.3"
   },
   "dependencies": {
     "@graphql-modules/core": "0.7.7",
