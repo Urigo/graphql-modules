@@ -18,6 +18,6 @@
   "devDependencies": {
     "bundlesize": "0.18.0",
     "webpack": "4.35.3",
-    "webpack-cli": "3.3.5"
+    "webpack-cli": "3.3.6"
   }
 }
