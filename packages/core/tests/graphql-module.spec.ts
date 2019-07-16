@@ -355,7 +355,7 @@ describe('GraphQLModule', () => {
       class Provider1 {
         test: number;
 
-        constructor(@Inject(ModuleConfig(module => module1)) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig) config: IModuleConfig) {
           this.test = config.test;
         }
       }
@@ -364,7 +364,7 @@ describe('GraphQLModule', () => {
       class Provider2 {
         test: number;
 
-        constructor(@Inject(ModuleConfig(module => module2)) config: IModuleConfig) {
+        constructor(@Inject(ModuleConfig) config: IModuleConfig) {
           this.test = config.test;
         }
       }
