@@ -1186,6 +1186,8 @@ export class GraphQLModule<
       } else {
         this._cache.selfKeyValueCache = null;
       }
+    } else {
+      cache = this._cache.selfKeyValueCache;
     }
     return cache;
   }
