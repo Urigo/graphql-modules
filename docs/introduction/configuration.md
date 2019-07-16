@@ -46,7 +46,7 @@ const AnotherModule = new GraphQLModule({
 });
 ```
 
-To get access to your configuration in your `Provider`s, inject `MyModuleConfig` and pass your module's name as `string`:
+To get access to your configuration in your `Provider`s, inject `MyModuleConfig`:
 
 ```typescript
 import { ModuleConfig } from '@graphql-modules/core';
@@ -55,7 +55,7 @@ import { MyModule } from './my-module.ts';
 
 @Injectable()
 export class MyProvider {
-    constructor(@Inject(ModuleConfig(module => MyModule)) private config: MyModuleConfig) {
+    constructor(@Inject(ModuleConfig) private config: MyModuleConfig) {
 
     }
 
