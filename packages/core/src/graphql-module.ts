@@ -1165,6 +1165,8 @@ export class GraphQLModule<
       } else {
         this._cache.selfLogger = null;
       }
+    } else if (this._cache.selfLogger !== null) {
+      logger = this._cache.selfLogger;
     }
     return logger;
   }
@@ -1186,7 +1188,7 @@ export class GraphQLModule<
       } else {
         this._cache.selfKeyValueCache = null;
       }
-    } else {
+    } else if (this._cache.selfKeyValueCache !== null) {
       cache = this._cache.selfKeyValueCache;
     }
     return cache;
