@@ -269,6 +269,35 @@ export class GraphQLModule<
   }
 
   mock(partialCache?: Partial<ModuleCache<Session, Context>>) {
+    if (partialCache.contextBuilder) {
+      const providedContextBuilder = partialCache.contextBuilder;
+      partialCache.contextBuilder = async (session: Session, excludeSession?: boolean) => {
+        session = normalizeSession(session);
+        const moduleSessionInfo = new ModuleSessionInfo(this, session);
+        const sessionInjector = moduleSessionInfo.injector;
+        sessionInjector.onInstanceCreated = ({ instance }) => {
+          if (
+            typeof instance !== 'number' &&
+            typeof instance !== 'boolean' &&
+            typeof instance !== 'string' &&
+            'initialize' in instance &&
+            typeof instance['initialize'] === 'function'
+          ) {
+            instance['initialize']({ cache: this.selfCache, context: moduleSessionInfo.context });
+          }
+        };
+        await sessionInjector.callHookWithArgs({
+          hook: 'onRequest',
+          args: [moduleSessionInfo],
+          instantiate: true,
+          async: true
+        });
+        return {
+          injector: sessionInjector,
+          ...providedContextBuilder(session, excludeSession)
+        };
+      };
+    }
     this._cache = {
       ...this._cache,
       ...partialCache
