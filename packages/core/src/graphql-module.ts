@@ -946,7 +946,13 @@ export class GraphQLModule<
     return [
       {
         provide: ModuleConfig(this),
-        useValue: this.config
+        useValue: this.config,
+        overwrite: true
+      },
+      {
+        provide: ModuleConfig,
+        useValue: this.config,
+        overwrite: true
       },
       ...providers
     ];
