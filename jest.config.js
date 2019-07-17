@@ -11,4 +11,15 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   errorOnDeprecated: true,
   forceExit: true,
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+        addFileAttribute: 'true',
+      },
+    ],
+  ],
 };

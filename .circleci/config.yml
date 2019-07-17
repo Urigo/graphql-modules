@@ -22,6 +22,8 @@ jobs:
       - run:
           name: Test
           command: yarn test
+      - store_test_results:
+          path: test-results
       - run:
           name: Publish Canary
           command: |
