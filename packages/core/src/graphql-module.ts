@@ -1061,7 +1061,7 @@ export class GraphQLModule<
                   }
                   throw e;
                 }
-                info.schema = this.schema;
+                info.schema = this._cache.schema || info.schema;
                 let result;
                 try {
                   result = await resolver.call(typeResolvers, root, moduleContext, info);
@@ -1088,7 +1088,7 @@ export class GraphQLModule<
                   }
                   throw e;
                 }
-                info.schema = this.schema;
+                info.schema = this._cache.schema || info.schema;
                 let result;
                 try {
                   result = await resolver.call(typeResolvers[prop], root, args, moduleContext, info);
@@ -1122,7 +1122,7 @@ export class GraphQLModule<
                 }
                 throw e;
               }
-              info.schema = this.schema;
+              info.schema = this._cache.schema || info.schema;
               let result;
               try {
                 result = await subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
@@ -1163,7 +1163,7 @@ export class GraphQLModule<
             }
             throw e;
           }
-          info.schema = this.schema;
+          info.schema = this._cache.schema || info.schema;
           return next(root, args, moduleContext, info);
         },
         ...compositionArr
