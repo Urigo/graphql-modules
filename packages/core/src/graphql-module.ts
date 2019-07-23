@@ -1315,6 +1315,13 @@ export class GraphQLModule<
 
                     res.once('close', cleanUpOnComplete);
                     res.once('finish', cleanUpOnComplete);
+
+                    const req = session && session['req'];
+
+                    if (req && 'once' in req) {
+                      req.once('abort', cleanUpOnComplete);
+                      req.once('timeout', cleanUpOnComplete);
+                    }
                   }
                   res['_onceFinishListeners'].push(() => {
                     sessionInjector.callHookWithArgs({
