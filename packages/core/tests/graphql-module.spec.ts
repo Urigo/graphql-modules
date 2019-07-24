@@ -235,6 +235,68 @@ describe('GraphQLModule', () => {
     expect(result.data.somethingElse).toBe('Test2');
   });
 
+  it.only('should create only one instance of a provider', async () => {
+    let counter = 0;
+    @Injectable()
+    class TestProvider {
+      constructor() {
+        counter = counter + 1;
+      }
+
+      getSomething() {
+        return 'test';
+      }
+    }
+
+    @Injectable()
+    class Test2Provider {
+      constructor(private testProvider: TestProvider) {}
+
+      getSomethingFromSomewhereElse() {
+        return this.testProvider.getSomething();
+      }
+    }
+
+    const moduleA = new GraphQLModule({
+      name: 'a',
+      providers: [TestProvider]
+    });
+
+    const moduleB = new GraphQLModule({
+      name: 'b',
+      providers: [Test2Provider],
+      imports: [moduleA],
+      typeDefs: `type Query { foo: String }`,
+      resolvers: {
+        Query: {
+          foo: (root, args, { injector }: ModuleContext) => injector.get(TestProvider).getSomething()
+        }
+      }
+    });
+
+    const { schema, injector } = new GraphQLModule({
+      name: 'app',
+      imports: [moduleA, moduleB]
+    });
+
+    const something = injector.get(TestProvider).getSomething();
+    const something2 = injector.get(Test2Provider).getSomethingFromSomewhereElse();
+
+    const result = await execute({
+      schema,
+      document: gql`
+        query {
+          foo
+        }
+      `
+    });
+
+    expect(something).toBe('test');
+    expect(something2).toBe('test');
+    expect(result.data.foo).toBe('test');
+    expect(counter).toBe(1);
+  });
+
   it('should inject properties of classes', async () => {
     @Injectable()
     class FooProvider {
