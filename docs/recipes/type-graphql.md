@@ -97,7 +97,7 @@ export const ChatsModule = new GraphQLModule({
   extraSchemas: [
     buildSchemaSync({
       resolvers,
-      container: ({ context }) => context.injector
+      container: ({ context }) => ChatsModule.injector.getSessionInjector(context),
     })
   ]
 });
@@ -105,6 +105,8 @@ export const ChatsModule = new GraphQLModule({
 
 We have to define resolver classes as providers because they are also part of our Dependency Injection. 
 `container: ({ context }) => ChatsModule.injector.getSessionInjector(context)` tells TypeGraphQL to use `ChatsModule` DI container for those resolvers.
+
+> Check out our example with TypeGraphQL; [TypeGraphQLModules Example](https://github.com/ardatan/TypeGraphQLModules)
 
 ## Integration with other implementations
 
