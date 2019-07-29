@@ -97,7 +97,7 @@ export const ChatsModule = new GraphQLModule({
   extraSchemas: [
     buildSchemaSync({
       resolvers,
-      container: ({ context }) => context.injector
+      container: ({ context }) => ChatsModule.injector.getSessionInjector(context)
     })
   ]
 });
