@@ -140,6 +140,8 @@ export class MyProvider {
 
 > This is a very common and useful design-pattern related to dependency injection, and with the power of TypeScript interfaces, you can easily use it.
 
+> Take care when using object (`{ provide: MY_CLASS_TOKEN, useClass: MyProvider }`) in module providers array, options passed to `@Injectable` are not used !
+
 ## Custom Injectables
 
 You can also create custom `Provider`s, which are non-classes, with dependency injection tokens.
