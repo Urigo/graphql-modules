@@ -1301,13 +1301,20 @@ export class GraphQLModule<
                 if (res && 'once' in res) {
                   if (!('_onceFinishListeners' in res)) {
                     res['_onceFinishListeners'] = [];
-                    res.once('finish', () => {
+
+                    function cleanUpOnComplete() {
                       const onceFinishListeners = res['_onceFinishListeners'];
-                      for (const onceFinishListener of onceFinishListeners) {
-                        onceFinishListener();
+
+                      if (onceFinishListeners) {
+                        for (const onceFinishListener of onceFinishListeners) {
+                          onceFinishListener();
+                        }
+                        delete res['_onceFinishListeners'];
                       }
-                      delete res['_onceFinishListeners'];
-                    });
+                    }
+
+                    res.once('close', cleanUpOnComplete);
+                    res.once('finish', cleanUpOnComplete);
                   }
                   res['_onceFinishListeners'].push(() => {
                     sessionInjector.callHookWithArgs({
