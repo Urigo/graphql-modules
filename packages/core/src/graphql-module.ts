@@ -1,4 +1,4 @@
-import { IResolvers, IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
+import { IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
 import {
   mergeResolvers,
   ResolversComposerMapping,
@@ -19,7 +19,7 @@ import {
 } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
-import { ModuleContext, SubscriptionHooks } from './types';
+import { ModuleContext, SubscriptionHooks, Resolvers } from './types';
 import { asArray, normalizeSession } from './helpers';
 import { KeyValueCache, InMemoryLRUCache } from 'apollo-server-caching';
 import { ServerResponse } from 'http';
@@ -64,7 +64,7 @@ export interface GraphQLModuleOptions<
   Config,
   Session extends object,
   Context,
-  SelfResolvers extends IResolvers<any, ModuleContext<Context>>
+  SelfResolvers extends Resolvers<any, ModuleContext<Context>>
 > {
   /**
    * The name of the module. Use it later to get your `ModuleConfig(name)` or to declare
@@ -173,7 +173,7 @@ export class GraphQLModule<
   Config = any,
   Session extends object = any,
   Context = any,
-  SelfResolvers extends IResolvers<any, ModuleContext<Context>> = IResolvers<any, ModuleContext<Context>>
+  SelfResolvers extends Resolvers<any, ModuleContext<Context>> = Resolvers<any, ModuleContext<Context>>
 > {
   private _cache: ModuleCache<Session, Context> = {
     injector: undefined,
@@ -581,7 +581,7 @@ export class GraphQLModule<
 
   get resolvers(): any {
     if (typeof this._cache.resolvers === 'undefined') {
-      const resolversToBeComposed = new Array<IResolvers>();
+      const resolversToBeComposed = new Array<Resolvers>();
       const selfImports = this.selfImports;
       for (const module of selfImports) {
         const moduleResolvers = module.resolvers;

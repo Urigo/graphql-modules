@@ -1,6 +1,17 @@
-import { ModuleSessionInfo } from './module-session-info';
+import { GraphQLScalarType } from 'graphql';
+import { IResolverObject, IResolverOptions, IEnumResolver } from '@kamilkisiela/graphql-tools';
 import { Injector } from '@graphql-modules/di';
+import { ModuleSessionInfo } from './module-session-info';
 import { GraphQLModule } from './graphql-module';
+
+export type Resolvers<TSource = any, TContext = any> = Partial<{
+  [key: string]:
+    | (() => any)
+    | Partial<IResolverObject<TSource, TContext>>
+    | IResolverOptions<TSource, TContext>
+    | GraphQLScalarType
+    | IEnumResolver;
+}>;
 
 export interface OnInit<Config = any, Session extends object = any, Context = any> {
   onInit(module: GraphQLModule<Config, Session, Context>): void;
