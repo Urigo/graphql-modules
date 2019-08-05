@@ -125,6 +125,12 @@ export class Injector<Session extends object = any> {
     if (isValueProvider(provider)) {
       this.getScopeInstanceMap().set(provider.provide, provider.useValue);
     } else if (isClassProvider(provider)) {
+      const providedClassOptions: ProviderOptions = Reflect.getMetadata(PROVIDER_OPTIONS, provider.provide);
+      const useClassOptions: ProviderOptions = Reflect.getMetadata(PROVIDER_OPTIONS, provider.useClass);
+      provider.scope =
+        provider.scope ||
+        (providedClassOptions && providedClassOptions.scope) ||
+        (useClassOptions && useClassOptions.scope);
       this._classMap.set(provider.provide, provider.useClass);
       for (const hook of this._hooks) {
         if (hook in provider.useClass.prototype) {
