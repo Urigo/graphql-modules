@@ -16,7 +16,8 @@ import {
   defaultFieldResolver,
   print,
   GraphQLScalarType,
-  Kind
+  Kind,
+  parse
 } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
@@ -1913,5 +1914,172 @@ describe('GraphQLModule', () => {
     }, BaseModule);
 
     print(AppModule.typeDefs);
+  });
+  it('should support resolveType resolver for union types', async () => {
+    const ArtistModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Artist {
+          name: String
+          genre: String
+        }
+      `
+    });
+    const VenueModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Venue {
+          name: String
+          address: String
+        }
+      `
+    });
+    const ConcertModule = new GraphQLModule({
+      imports: [ArtistModule, VenueModule],
+      typeDefs: /* GraphQL */ `
+        type Concert {
+          id: ID!
+          date: String
+          organiser: Organiser
+        }
+
+        union Organiser = Artist | Venue
+
+        type Query {
+          featuredConcert: Concert!
+        }
+      `,
+      resolvers: {
+        Organiser: {
+          __resolveType: root => (root.type === 'artist' ? 'Artist' : 'Venue')
+        },
+        Query: {
+          featuredConcert: () => ({
+            id: 1,
+            datetime: '2019-08-10T19:42:43Z',
+            organiser: {
+              id: 1,
+              name: 'Birdland Jazz Club',
+              address: '533 Peachtree Place',
+              type: 'venue'
+            }
+          })
+        }
+      }
+    });
+
+    const { schema } = new GraphQLModule({
+      imports: [ArtistModule, VenueModule, ConcertModule]
+    });
+
+    const result = await execute({
+      schema,
+      document: parse(/* GraphQL */ `
+        {
+          featuredConcert {
+            organiser {
+              ... on Venue {
+                name
+                address
+              }
+              ... on Artist {
+                name
+                genre
+              }
+            }
+          }
+        }
+      `)
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data['featuredConcert']).toBeTruthy();
+    expect(result.data['featuredConcert']['organiser']).toBeTruthy();
+    expect(result.data['featuredConcert']['organiser']['address']).toBe('533 Peachtree Place');
+  });
+  it('should support isTypeOf resolver for union types', async () => {
+    const ArtistModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Artist {
+          name: String
+          genre: String
+        }
+      `,
+      resolvers: {
+        Artist: {
+          __isTypeOf: root => root.type === 'artist'
+        }
+      }
+    });
+    const VenueModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Venue {
+          name: String
+          address: String
+        }
+      `,
+      resolvers: {
+        Venue: {
+          __isTypeOf: root => root.type === 'venue'
+        }
+      }
+    });
+    const ConcertModule = new GraphQLModule({
+      imports: [ArtistModule, VenueModule],
+      typeDefs: /* GraphQL */ `
+        type Concert {
+          id: ID!
+          date: String
+          organiser: Organiser
+        }
+
+        union Organiser = Artist | Venue
+
+        type Query {
+          featuredConcert: Concert!
+        }
+      `,
+      resolvers: {
+        Query: {
+          featuredConcert: () => ({
+            id: 1,
+            datetime: '2019-08-10T19:42:43Z',
+            organiser: {
+              id: 1,
+              name: 'Birdland Jazz Club',
+              address: '533 Peachtree Place',
+              type: 'venue'
+            }
+          })
+        }
+      }
+    });
+
+    const { schema } = new GraphQLModule({
+      imports: [ArtistModule, VenueModule, ConcertModule]
+    });
+
+    const result = await execute({
+      schema,
+      document: parse(/* GraphQL */ `
+        {
+          featuredConcert {
+            organiser {
+              ... on Venue {
+                name
+                address
+              }
+              ... on Artist {
+                name
+                genre
+              }
+            }
+          }
+        }
+      `)
+    });
+
+    expect(result.errors).toBeFalsy();
+    expect(result.data['featuredConcert']).toBeTruthy();
+    expect(result.data['featuredConcert']['organiser']).toBeTruthy();
+    expect(result.data['featuredConcert']['organiser']['address']).toBe('533 Peachtree Place');
   });
 });
