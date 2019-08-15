@@ -14,7 +14,7 @@
     "netlify-lambda": "1.6.0"
   },
   "dependencies": {
-    "babel-preset-minify": "0.5.0",
+    "babel-preset-minify": "0.5.1",
     "sendmail": "1.6.1",
     "sweetalert2": "8.15.3"
   }
