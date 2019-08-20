@@ -23,9 +23,7 @@ const MyGraphQLModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  modules: [
-    MyGraphQLModule
-  ],
+  schema: MyGraphQLModule.schema,
   context: session => session,
 });
 
