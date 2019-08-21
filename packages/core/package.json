@@ -13,7 +13,7 @@
   "dependencies": {
     "@graphql-modules/di": "0.7.9",
     "apollo-server-caching": "0.5.0",
-    "graphql-toolkit": "0.5.4",
+    "graphql-toolkit": "0.5.10",
     "tslib": "1.10.0"
   },
   "peerDependencies": {
@@ -25,7 +25,7 @@
     "apollo-client": "2.6.4",
     "apollo-link-schema": "1.2.3",
     "graphql-tag": "2.10.1",
-    "jest": "24.8.0",
+    "jest": "24.9.0",
     "typescript": "3.5.3"
   },
   "sideEffects": false,
