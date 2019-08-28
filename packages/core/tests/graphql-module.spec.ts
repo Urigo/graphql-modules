@@ -408,7 +408,7 @@ describe('GraphQLModule', () => {
         expect(e instanceof DependencyProviderNotFoundError).toBeTruthy();
         expect(e.dependent === ProviderB).toBeTruthy();
         expect(e.dependency === ProviderA).toBeTruthy();
-        expect(e.dependencyIndex).toBe(1);
+        expect(e.dependencyIndex).toBe(0);
       }
     });
     it('should encapsulate resolvers', async () => {
