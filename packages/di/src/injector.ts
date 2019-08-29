@@ -186,7 +186,7 @@ export class Injector<Session extends object = any> {
         return this._sessionScopeServiceIdentifiers;
     }
   }
-  public get<T>(serviceIdentifier: ServiceIdentifier<T>): T {
+  public get<T>(serviceIdentifier: ServiceIdentifier<T>, dependencyIndex?: number): T {
     const applicationScopeInstanceMap = this.getScopeInstanceMap(ProviderScope.Application);
     const sessionScopeInstanceMap = this.getScopeInstanceMap(ProviderScope.Session);
     if (sessionScopeInstanceMap.has(serviceIdentifier)) {
@@ -197,14 +197,16 @@ export class Injector<Session extends object = any> {
       const RealClazz = this._classMap.get(serviceIdentifier);
       try {
         const dependencies: Array<ServiceIdentifier<any>> = Reflect.getMetadata(DESIGN_PARAMTYPES, RealClazz) || [];
-        const dependencyInstances = dependencies.map(dependency => this.get(dependency));
+        const dependencyInstances = dependencies.map((dependency, dependencyIndex) =>
+          this.get(dependency, dependencyIndex)
+        );
         const instance = new RealClazz(...dependencyInstances);
         const propertyKeys = Reflect.getMetadata(PROPERTY_KEYS, RealClazz) || [];
         for (const propertyKey of propertyKeys) {
           const dependency = Reflect.getMetadata(DESIGN_TYPE, RealClazz.prototype, propertyKey);
           if (dependency) {
             Object.defineProperty(instance, propertyKey, {
-              value: this.get(dependency)
+              value: this.get(dependency, propertyKeys.indexOf(propertyKey))
             });
           }
         }
@@ -218,7 +220,7 @@ export class Injector<Session extends object = any> {
         return instance;
       } catch (e) {
         if (e instanceof ServiceIdentifierNotFoundError) {
-          throw new DependencyProviderNotFoundError(e.serviceIdentifier, RealClazz, this._name);
+          throw new DependencyProviderNotFoundError(e.serviceIdentifier, RealClazz, this._name, e.dependencyIndex);
         } else {
           throw e;
         }
@@ -247,7 +249,7 @@ export class Injector<Session extends object = any> {
           }
         }
       }
-      throw new ServiceIdentifierNotFoundError(serviceIdentifier, this._name);
+      throw new ServiceIdentifierNotFoundError(serviceIdentifier, this._name, dependencyIndex);
     }
   }
   private _sessionSessionInjectorMap = new WeakMap<Session, Injector>();
@@ -278,8 +280,8 @@ export class Injector<Session extends object = any> {
   }
   public call<Fn extends (this: ThisArg, ...args: any[]) => any, ThisArg>(fn: Fn, thisArg: ThisArg): ReturnType<Fn> {
     if ('hasMetadata' in Reflect && Reflect.hasMetadata(DESIGN_PARAMTYPES, fn)) {
-      const dependencies = Reflect.getMetadata(DESIGN_PARAMTYPES, fn);
-      const instances = dependencies.map((dependency: any) => this.get(dependency));
+      const dependencies: ServiceIdentifier<any>[] = Reflect.getMetadata(DESIGN_PARAMTYPES, fn);
+      const instances: any[] = dependencies.map((dependency, dependencyIndex) => this.get(dependency, dependencyIndex));
       return fn.call(thisArg, ...instances);
     }
     return fn.call(thisArg, thisArg);
