@@ -1,6 +1,5 @@
-<p align="center">
-  <img alt="GraphQL Modules" src="./logo.svg" width="500" />
-</p>
+[![modules](https://user-images.githubusercontent.com/25294569/64067074-ed185b80-cc2a-11e9-8f4d-5f1e19feaa0a.gif)](https://graphql-modules.com/)
+
 
 [![npm version](https://badge.fury.io/js/%40graphql-modules%2Fcore.svg)](https://www.npmjs.com/package/@graphql-modules/core)
 [![CircleCI](https://circleci.com/gh/Urigo/graphql-modules.svg?style=svg&circle-token=28155ce743e1a9ba25152b0b3395acfa5b152f41)](https://circleci.com/gh/Urigo/graphql-modules)
