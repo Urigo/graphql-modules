@@ -42,8 +42,12 @@ export class B {
       validateCircularDeps(graph);
       expect(true).toBeFalsy();
     } catch (e) {
-      expect(e.cyclePath).toEqual(['A', 'B', 'A']);
-      expect(e.message).toBe('Found a circular dependency between Providers: A -> B -> A');
+      expect(e.cyclePath).toEqual([
+        { name: 'A', filePath: '1.ts' },
+        { name: 'B', filePath: '2.ts' },
+        { name: 'A', filePath: '1.ts' }
+      ]);
+      expect(e.message).toBe('Found a circular dependency between Providers!');
     }
   });
 
@@ -102,8 +106,13 @@ export class C {
       validateCircularDeps(graph);
       expect(true).toBeFalsy();
     } catch (e) {
-      expect(e.cyclePath).toEqual(['A', 'B', 'C', 'A']);
-      expect(e.message).toBe('Found a circular dependency between Providers: A -> B -> C -> A');
+      expect(e.cyclePath).toEqual([
+        { name: 'A', filePath: '1.ts' },
+        { name: 'B', filePath: '2.ts' },
+        { name: 'C', filePath: '3.ts' },
+        { name: 'A', filePath: '1.ts' }
+      ]);
+      expect(e.message).toBe('Found a circular dependency between Providers!');
     }
   });
 });
