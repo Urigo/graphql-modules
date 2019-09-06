@@ -15,7 +15,7 @@ DataLoader can be used in GraphQL Modules with an easy setup. You can use them a
 ```typescript
   import { GraphQLModule } from '@graphql-modules/core';
   import { ProviderScope } from '@graphql-modules/di';
-  import DataLoader from 'data-loader';
+  import DataLoader from 'dataloader';
 
   export const USER_DATA_LOADER = Symbol('USER_DATA_LOADER');
   export const UserModule = new GraphQLModule({
