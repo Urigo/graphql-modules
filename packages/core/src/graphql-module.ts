@@ -92,7 +92,7 @@ export interface GraphQLModuleOptions<
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  context?: BuildContextFn<Config, Session, Context>;
+  context?: BuildContextFn<Config, Session, Context> | Promise<Context> | Context;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
@@ -141,8 +141,8 @@ export const ModuleConfig = (module: string | GraphQLModule | ((module?: void) =
   return Symbol.for(`ModuleConfig.${module}`);
 };
 
-export interface ModuleCache<Session, Context> {
-  injector: Injector;
+export interface ModuleCache<Session extends object, Context> {
+  injector: Injector<Session>;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
   resolvers: any;
@@ -156,10 +156,11 @@ export interface ModuleCache<Session, Context> {
   selfLogger: Logger;
 }
 
-export interface ModuleCacheAsync {
+export interface ModuleCacheAsync<Session extends object> {
   schemaAsync: Promise<GraphQLSchema>;
   typeDefsAsync: Promise<DocumentNode>;
   resolversAsync: Promise<any>;
+  injectorAsync: Promise<Injector<Session>>;
 }
 
 /**
@@ -190,10 +191,11 @@ export class GraphQLModule<
     selfLogger: undefined
   };
 
-  private _cacheAsync: ModuleCacheAsync = {
+  private _cacheAsync: ModuleCacheAsync<Session> = {
     schemaAsync: undefined,
     typeDefsAsync: undefined,
-    resolversAsync: undefined
+    resolversAsync: undefined,
+    injectorAsync: undefined
   };
 
   private _exclusionsFromSchema = new Array<string>();
@@ -396,23 +398,16 @@ export class GraphQLModule<
           try {
             if (!this._cache.schema) {
               this.checkConfiguration();
-              const selfImports = this.selfImports;
-              const importsSchemas$Arr = selfImports.map(module => module.schemaAsync);
               try {
                 const selfTypeDefsAsync$ = this.selfTypeDefsAsync;
                 const selfEncapsulatedResolversAsync$ = this.selfResolversAsync.then(selfResolvers =>
                   this.addSessionInjectorToSelfResolversContext(selfResolvers)
                 );
-                const [
-                  selfTypeDefs,
-                  selfEncapsulatedResolvers,
-                  selfExtraSchemas,
-                  ...importsSchemas
-                ] = await Promise.all([
+                const [selfTypeDefs, selfEncapsulatedResolvers, selfExtraSchemas, importsSchemas] = await Promise.all([
                   selfTypeDefsAsync$,
                   selfEncapsulatedResolversAsync$,
                   Promise.resolve().then(() => this.selfExtraSchemas),
-                  ...(importsSchemas$Arr as any)
+                  Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.schemaAsync)))
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
                   this.selfResolversComposition
@@ -469,7 +464,7 @@ export class GraphQLModule<
   get injector(): Injector<Session> {
     if (typeof this._cache.injector === 'undefined') {
       this.checkConfiguration();
-      const injector = (this._cache.injector = new Injector({
+      const injector = (this._cache.injector = new Injector<Session>({
         name: this.name,
         injectorScope: ProviderScope.Application,
         defaultProviderScope: this.selfDefaultProviderScope,
@@ -505,6 +500,61 @@ export class GraphQLModule<
       });
     }
     return this._cache.injector;
+  }
+
+  get injectorAsync(): Promise<Injector<Session>> {
+    if (typeof this._cache.injector === 'undefined') {
+      if (typeof this._cacheAsync.injectorAsync === 'undefined') {
+        this._cacheAsync.injectorAsync = new Promise(async (resolve, reject) => {
+          try {
+            this.checkConfiguration();
+            const [initialProviders, children] = await Promise.all([
+              Promise.resolve().then(() => this.selfProviders),
+              Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.injectorAsync)))
+            ]);
+            const injector = (this._cache.injector = new Injector<Session>({
+              name: this.name,
+              injectorScope: ProviderScope.Application,
+              defaultProviderScope: this.selfDefaultProviderScope,
+              hooks: [
+                'onInit',
+                'onRequest',
+                'onResponse',
+                'onError',
+                'onConnect',
+                'onOperation',
+                'onOperationComplete',
+                'onDisconnect'
+              ],
+              initialProviders,
+              children
+            }));
+            injector.onInstanceCreated = ({ instance }) => {
+              if (
+                typeof instance !== 'number' &&
+                typeof instance !== 'boolean' &&
+                typeof instance !== 'string' &&
+                'initialize' in instance &&
+                typeof instance['initialize'] === 'function'
+              ) {
+                instance['initialize']({ cache: this.selfCache });
+              }
+            };
+            await injector.callHookWithArgs({
+              hook: 'onInit',
+              args: [this],
+              instantiate: true,
+              async: true
+            });
+            resolve(this._cache.injector);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      return this._cacheAsync.injectorAsync;
+    }
+    return Promise.resolve(this._cache.injector);
   }
 
   get extraSchemas(): GraphQLSchema[] {
@@ -931,7 +981,7 @@ export class GraphQLModule<
         if (resolversDefinitions) {
           if (typeof resolversDefinitions === 'function') {
             this.checkConfiguration();
-            resolversDefinitions = await this.injector.call(resolversDefinitions, this);
+            resolversDefinitions = await (await this.injectorAsync).call(resolversDefinitions, this);
           }
           if (Array.isArray(resolversDefinitions)) {
             resolversDefinitions = mergeResolvers(resolversDefinitions);
@@ -1285,7 +1335,7 @@ export class GraphQLModule<
                   Object.assign(importsContext, ...importsContexts);
                 }
                 const moduleSessionInfo = new ModuleSessionInfo(this, session);
-                const sessionInjector = moduleSessionInfo.injector;
+                const sessionInjector = await moduleSessionInfo.injectorAsync;
                 let moduleContext;
                 const moduleContextDeclaration = this._options.context;
                 if (moduleContextDeclaration) {
