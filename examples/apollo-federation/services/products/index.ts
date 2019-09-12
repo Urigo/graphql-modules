@@ -30,7 +30,8 @@ const ProductsModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([ProductsModule])
+  schema: buildFederatedSchema([ProductsModule]),
+  context: session => session
 });
 
 server.listen({ port: 4003 }).then(({ url }) => {

@@ -31,7 +31,8 @@ const InventoryModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([InventoryModule])
+  schema: buildFederatedSchema([InventoryModule]),
+  context: session => session
 });
 
 server.listen({ port: 4004 }).then(({ url }) => {

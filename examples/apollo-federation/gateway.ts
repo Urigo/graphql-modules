@@ -13,7 +13,11 @@ const gateway = new ApolloGateway({
 (async () => {
   const { schema, executor } = await gateway.load();
 
-  const server = new ApolloServer({ schema, executor });
+  const server = new ApolloServer({
+    schema,
+    executor,
+    context: session => session
+  });
 
   server.listen().then(({ url }) => {
     // tslint:disable-next-line: no-console
