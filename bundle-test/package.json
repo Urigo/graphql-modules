@@ -17,7 +17,7 @@
   ],
   "devDependencies": {
     "bundlesize": "0.18.0",
-    "webpack": "4.40.0",
+    "webpack": "4.40.2",
     "webpack-cli": "3.3.8"
   }
 }
