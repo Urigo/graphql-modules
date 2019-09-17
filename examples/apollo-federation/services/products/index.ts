@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const ProductsModule = new GraphQLModule({
+  name: 'ProductsModule',
   typeDefs: gql`
     extend type Query {
       topProducts(first: Int = 5): [Product]

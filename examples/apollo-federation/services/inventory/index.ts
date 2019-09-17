@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const InventoryModule = new GraphQLModule({
+  name: 'InventoryModule',
   typeDefs: gql`
     extend type Product @key(fields: "upc") {
       upc: String! @external

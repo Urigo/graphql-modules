@@ -1093,7 +1093,7 @@ export class GraphQLModule<
         for (const prop in selfResolvers[type]) {
           const resolver = typeResolvers[prop];
           if (typeof resolver === 'function') {
-            if (prop === '__resolveType' || prop === '__isTypeOf') {
+            if (prop === '__resolveType' || prop === '__isTypeOf' || prop === '__resolveReference') {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;

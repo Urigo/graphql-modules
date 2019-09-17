@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const AccountsModule = new GraphQLModule({
+  name: 'AccountsModule',
   typeDefs: gql`
     extend type Query {
       me: User
