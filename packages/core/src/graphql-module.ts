@@ -730,12 +730,11 @@ export class GraphQLModule<
                   );
                   const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
                   const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-
-                  const connectionModuleContext = await this.context({...connectionContext, connectionParams});
+                  const connectionModuleContext = await this.context({ ...connectionContext, connectionParams });
                   const sessionInjector = connectionModuleContext.injector;
                   const hookResult = await sessionInjector.callHookWithArgs({
                     hook: 'onConnect',
-                    args: [connectionParams, websocket, connectionContext],
+                    args: [connectionParams, websocket, connectionModuleContext],
                     instantiate: true,
                     async: true
                   });
@@ -839,7 +838,7 @@ export class GraphQLModule<
                   const sessionInjector = connectionModuleContext.injector;
                   await sessionInjector.callHookWithArgs({
                     hook: 'onDisconnect',
-                    args: [websocket, connectionContext],
+                    args: [websocket, connectionModuleContext],
                     instantiate: true,
                     async: true
                   });
