@@ -730,7 +730,8 @@ export class GraphQLModule<
                   );
                   const importsOnConnectHooks = await Promise.all(importsOnConnectHooks$);
                   const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
-                  const connectionModuleContext = await this.context(connectionContext);
+
+                  const connectionModuleContext = await this.context({...connectionContext, connectionParams});
                   const sessionInjector = connectionModuleContext.injector;
                   const hookResult = await sessionInjector.callHookWithArgs({
                     hook: 'onConnect',
