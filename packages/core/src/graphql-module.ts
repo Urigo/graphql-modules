@@ -121,6 +121,7 @@ export interface GraphQLModuleOptions<
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
   defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
+  subscriptionHooks?: SubscriptionHooks;
 }
 
 /**
@@ -732,12 +733,20 @@ export class GraphQLModule<
                   const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
                   const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
-                  const hookResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onConnect',
-                    args: [connectionParams, websocket, connectionContext],
-                    instantiate: true,
-                    async: true
-                  });
+                  const hookResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onConnect',
+                        args: [connectionParams, websocket, connectionContext],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onConnect &&
+                        this._options.subscriptionHooks.onConnect(connectionParams, websocket, connectionContext)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...connectionModuleContext,
@@ -767,12 +776,20 @@ export class GraphQLModule<
                   );
                   const connectionModuleContext = await this.context(params.context);
                   const sessionInjector = connectionModuleContext.injector;
-                  const moduleOnOperationResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onOperation',
-                    args: [message, params, websocket],
-                    instantiate: true,
-                    async: true
-                  });
+                  const moduleOnOperationResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onOperation',
+                        args: [message, params, websocket],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onOperation &&
+                        this._options.subscriptionHooks.onOperation(message, params, websocket)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...moduleOnOperationResult,
@@ -803,12 +820,20 @@ export class GraphQLModule<
                   );
                   const connectionModuleContext = await this.context(websocket);
                   const sessionInjector = connectionModuleContext.injector;
-                  const moduleOnOperationCompleteResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onOperationComplete',
-                    args: [websocket, opId],
-                    instantiate: true,
-                    async: true
-                  });
+                  const moduleOnOperationCompleteResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onOperationComplete',
+                        args: [websocket, opId],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onOperationComplete &&
+                        this._options.subscriptionHooks.onOperationComplete(websocket, opId)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...moduleOnOperationCompleteResult
@@ -836,12 +861,17 @@ export class GraphQLModule<
                   importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
                   const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
-                  await sessionInjector.callHookWithArgs({
-                    hook: 'onDisconnect',
-                    args: [websocket, connectionContext],
-                    instantiate: true,
-                    async: true
-                  });
+                  await Promise.all([
+                    sessionInjector.callHookWithArgs({
+                      hook: 'onDisconnect',
+                      args: [websocket, connectionContext],
+                      instantiate: true,
+                      async: true
+                    }),
+                    this._options.subscriptionHooks &&
+                      this._options.subscriptionHooks.onDisconnect &&
+                      this._options.subscriptionHooks.onDisconnect(websocket, connectionContext)
+                  ]);
                   this.destroySelfSession(websocket);
                   resolve();
                 } catch (e) {
