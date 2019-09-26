@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@airbnb/node-memwatch@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@airbnb/node-memwatch/-/node-memwatch-1.0.2.tgz#a82e311ae27e05df4fb2cf8e4fbc75caaf7190a4"
-  integrity sha512-2R+MEEMSTUdKwQ6NFWkyA/UNoSjL1tMldZqJbZpgXSwNMBzlNlkUWEXKu9RqTTMkDqJRfGJ2VDs8gPlPK2APDQ==
+"@aidemaster/node-memwatch@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@aidemaster/node-memwatch/-/node-memwatch-1.0.5.tgz#00e718eab27bdbdf2da60923a7b2f4249479e031"
+  integrity sha512-S4M2lc0EmlCwgchzKNO53r4vXsDE/FmF/t7ecvpEmvN/AhCHjhqsGQT/0URpkYMjIucVgJZsHRW2xpyj5RHeMw==
   dependencies:
     bindings "^1.3.0"
     nan "^2.9.2"
@@ -5403,12 +5403,12 @@ lcid@^2.0.0:
   dependencies:
     invert-kv "^2.0.0"
 
-leakage@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/leakage/-/leakage-0.4.0.tgz#f4ebf60382288dd1272460e5dc62de4e8e213616"
-  integrity sha512-x7gYK5n5dPkHDZWJ2Kh8Ag1hZNzUh+HtXn8Bv1aDdN6o6ONPCJ8sOfFq+kxcULJFp3lXaCjXb3iXOLmQRbBLwA==
+leakage@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/leakage/-/leakage-0.5.0.tgz#c43658e8bc81238e8457aa0e4a84d3e574590771"
+  integrity sha512-FNnIPOutUrSn8Rz/SchRYKqwB+LrImReGt+z9Qjp4/iSByVpm7cNbc3yV1GsNYss8NrkTOr7R3le/MzK7QNo+Q==
   dependencies:
-    "@airbnb/node-memwatch" "^1.0.2"
+    "@aidemaster/node-memwatch" "^1.0.5"
     es6-error "^4.0.2"
     left-pad "^1.1.3"
     minimist "^1.2.0"
