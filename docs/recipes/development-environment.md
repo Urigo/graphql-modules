@@ -6,6 +6,8 @@ sidebar_label: Development Environment
 
 ## TypeScript
 
+GraphQL-Modules always supports the latest TypeScript version. Lower versions are not supported!
+
 ### TS-Node ***(recommended way)***
 
 To setup your development environment easily, we recommend to use [TypeScript](http://www.typescriptlang.org/).
