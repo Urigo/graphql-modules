@@ -7,7 +7,7 @@ export class ProviderAlreadyDefinedError<T> extends Error {
       - #Module #${_moduleName} already has a #Provider #${getServiceIdentifierName(_serviceIdentifier)}.
 
       Possible solutions:
-      - Provider must have 'override: true' field.
+      - Provider must have 'overwrite: true' field.
     `);
     Object.setPrototypeOf(this, ProviderAlreadyDefinedError.prototype);
     Error.captureStackTrace(this, ProviderAlreadyDefinedError);
