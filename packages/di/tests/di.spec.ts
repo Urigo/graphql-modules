@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { Injectable, Injector, ProviderScope } from '../src';
-import { iterate } from 'leakage';
 
 describe('Dependency Injection', () => {
   it('clear instances if provider is overwritten', () => {
@@ -25,6 +24,7 @@ describe('Dependency Injection', () => {
     });
     expect(injector.get(FooProvider).foo()).toBe('BAR');
   });
+  /*
   it.skip('should not have a memory leak over multiple sessions', () => {
     const injector = new Injector();
     iterate(() => {
@@ -54,4 +54,5 @@ describe('Dependency Injection', () => {
       sessionInjector.get(FooProvider).getFoo();
     });
   });
+  */
 });

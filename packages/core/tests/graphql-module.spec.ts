@@ -35,7 +35,6 @@ import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
-import { iterate } from 'leakage';
 import { EventEmitter } from 'events';
 
 jest.setTimeout(60000 * 10);
@@ -1706,6 +1705,7 @@ describe('GraphQLModule', () => {
     });
     session.res.emit('finish');
   });
+  /*
   it.skip('should not have memory leak over multiple sessions with session-scoped providers', done => {
     @Injectable({
       scope: ProviderScope.Session
@@ -1884,7 +1884,7 @@ describe('GraphQLModule', () => {
       })
       .catch(done.fail);
   });
-
+*/
   it(`make sure it won't crash on deeply nested structure`, () => {
     const num = 30;
 
