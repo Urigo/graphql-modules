@@ -3,6 +3,7 @@
 
 [![npm version](https://badge.fury.io/js/%40graphql-modules%2Fcore.svg)](https://www.npmjs.com/package/@graphql-modules/core)
 [![CircleCI](https://circleci.com/gh/Urigo/graphql-modules.svg?style=svg&circle-token=28155ce743e1a9ba25152b0b3395acfa5b152f41)](https://circleci.com/gh/Urigo/graphql-modules)
+[![Discord Chat](https://img.shields.io/discord/625400653321076807)](https://discord.gg/xud7bH9)
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?maxAge=2592000)]()
 
 **GraphQL Modules** is a toolset of libraries and guidelines dedicated to **create reusable, maintainable, testable and extendable modules** out of your GraphQL server.
