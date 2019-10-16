@@ -2101,7 +2101,7 @@ describe('GraphQLModule', () => {
       }
     });
     const { schema } = new GraphQLModule({
-      imports: [BarModule],
+      imports: [BarModule, FooModule],
       typeDefs: /* GraphQL */ `
         type Query {
           foo: Foo
