@@ -2083,4 +2083,49 @@ describe('GraphQLModule', () => {
     expect(result.data['featuredConcert']['organiser']).toBeTruthy();
     expect(result.data['featuredConcert']['organiser']['address']).toBe('533 Peachtree Place');
   });
+
+  it('should assign resolver to the type definition of child module', async () => {
+    const FooModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Foo {
+          foo: String!
+        }
+      `
+    });
+    const BarModule = new GraphQLModule({
+      imports: [FooModule],
+      resolvers: {
+        Foo: {
+          foo: () => 'bar'
+        }
+      }
+    });
+    const { schema } = new GraphQLModule({
+      imports: [BarModule],
+      typeDefs: /* GraphQL */ `
+        type Query {
+          foo: Foo
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: () => ({})
+        }
+      }
+    });
+
+    const result = await execute({
+      schema,
+      document: parse(/* GraphQL */ `
+        query {
+          foo {
+            foo
+          }
+        }
+      `)
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo']).toBeTruthy();
+    expect(result.data['foo']['foo']).toBe('bar');
+  });
 });
