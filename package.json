@@ -25,7 +25,7 @@
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
   "devDependencies": {
-    "@types/jest": "24.0.20",
+    "@types/jest": "24.0.21",
     "bundlesize": "0.18.0",
     "graphql": "14.5.8",
     "husky": "3.0.9",
