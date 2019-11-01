@@ -6,15 +6,16 @@ sidebar_label: Microservices
 
 ## Exposing Unified Schema
 
-If you wish to separate your server to smaller parts and deploy them as microservices, you can use GraphQL Modules in they way you used to.
+If you wish to separate your server to smaller parts and deploy them as microservices, you can use GraphQL Modules in the way you are used to.
 
-That means that you can still implement small servers and them use **Schema Stitching** to merge your small GraphQL schemas into a unified schema.
+That means that you can still implement small servers and then use **Schema Stitching** to merge your small GraphQL schemas into a unified schema.
 
 ## Communication Between Servers
 
 You can also use **[`PubSub`](https://www.apollographql.com/docs/apollo-server/features/subscriptions.html#PubSub-Implementations)** to implement messaging mechanism between GraphQL Modules servers.
 
-The default and built-in implementation of the `PubSub` is using `EventEmitter`, but because it's a very simple API you can implement your own way of sending those messages.
+The default and built-in implementation of the `PubSub` uses `EventEmitter`.
+Since it's a very simple API, you can implement your own way of sending messages.
 
 You can implement your own message transmitter by implementing `PubSub` interface:
 
@@ -36,24 +37,22 @@ export class MyPubSub {
 }
 ```
 
-Then, make sure to use it in a `GraphQLModule` declaration:
+Make sure to use it in a `GraphQLModule` declaration:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 
 const CommunicationModule = new GraphQLModule({
-    provider: [
-      MyPubSub
-    ],
-    /* ... */
+  provider: [MyPubSub]
+  /* ... */
 });
 ```
 
-Finally, you need to import this `CommunicationModule` to all other modules you want to use `PubSub` inside of their providers and resolvers.
+Finally, import `CommunicationModule` to all other modules where you wish to use `PubSub`.
 
 ### Redis PubSub
 
-Another useful trick is to use an external PubSub services, such as **[Redis PubSub](https://redis.io/topics/pubsub)**.
+Another useful trick is to use external PubSub services such as **[Redis PubSub](https://redis.io/topics/pubsub)**.
 
 You can easily create a `RedisPubSub` this way:
 
@@ -81,7 +80,7 @@ export class PubSub {
     return {
       unsubscribe: () => {
         this._client.unsubscribe(event);
-      },
+      }
     };
   }
 
@@ -93,7 +92,8 @@ export class PubSub {
 
 ### Existing Implementations for PubSub
 
-`PubSub` can be replaced by another implementations. There are some existing ready-to-use implementations;
+`PubSub` can be replaced by other implementations.
+The following are existing ready-to-use implementations:
 
 - **[Redis](https://github.com/davidyaha/graphql-redis-subscriptions)**
 - **[Google PubSub](https://github.com/axelspringer/graphql-google-pubsub)**
