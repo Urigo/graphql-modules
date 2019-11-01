@@ -1,14 +1,11 @@
 import { IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
+import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
 import {
-  mergeResolvers,
-  ResolversComposerMapping,
-  composeResolvers,
-  mergeSchemas,
-  mergeSchemasAsync,
   getSchemaDirectiveFromDirectiveResolver,
-  mergeTypeDefs,
-  printSchemaWithDirectives
-} from 'graphql-toolkit';
+  printSchemaWithDirectives,
+  ResolversComposerMapping,
+  composeResolvers
+} from '@graphql-toolkit/common';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import {
