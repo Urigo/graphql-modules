@@ -4,11 +4,12 @@ title: Dependencies Between Modules
 sidebar_label: Dependencies Between Modules
 ---
 
-With GraphQL Modules you can create dependencies between modules. It will effect the initialization order, and effect the order that `Provider`s are loaded.
+With GraphQL Modules you can create dependencies between modules.
+It will effect the initialization order, and effect the order that `Provider`s are loaded.
 
-To add a dependency to another module, start by adding `dependencies` array to your modules declaration, and add the list of dependencies.
+To add a dependency to another module, start by adding the `dependencies` array to your module declaration.
 
-To see it in action, let's add another module, and we will demonstrate it in the `my-module`.
+To see it in action, let's add another module. We will then demonstrate it in the `my-module`.
 
 Let's add a new module called `my-second-module`:
 
@@ -19,8 +20,8 @@ import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
 export const MySecondModule = new GraphQLModule({
-    typeDefs,
-    resolvers,
+  typeDefs,
+  resolvers
 });
 ```
 
@@ -34,18 +35,14 @@ import { UserProvider } from './user.provider';
 import { MySecondModule } from './my-second-module';
 
 export const MyModule = new GraphQLModule({
-    typeDefs,
-    resolvers,
-    providers: [
-        UserProvider,
-    ],
-    imports: [
-        MySecondModule,
-    ],
+  typeDefs,
+  resolvers,
+  providers: [UserProvider],
+  imports: [MySecondModule]
 });
 ```
 
-> This is useful when you just want to make sure your module is initialized after another module without knowing it directly.
+> This is useful when you just want to automatically guarantee that your module is initialized after another module.
 
 Now GraphQL Modules will make sure to load and initialize `MySecondModule` before `MyModule`.
 
@@ -61,15 +58,11 @@ import { UserProvider } from './user.provider';
 import { MySecondModule } from './my-second-module';
 
 export const MyModule = new GraphQLModule({
-    typeDefs,
-    resolvers,
-    providers: [
-        UserProvider,
-    ],
-    imports: [
-        MySecondModule.withExclusionsFromSchema(['Query.unwanted', 'Unwanted.*']),
-    ],
+  typeDefs,
+  resolvers,
+  providers: [UserProvider],
+  imports: [MySecondModule.withExclusionsFromSchema(['Query.unwanted', 'Unwanted.*'])]
 });
 ```
 
-So `MyModule` won't have those fields' both `typeDefs` and `resolvers` from `MySecondModule` in this case.
+Now `MyModule` does not import from `MySecondModule` both `typeDefs` and `resolvers` of the specified unwanted fields.

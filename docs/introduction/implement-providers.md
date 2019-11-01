@@ -4,7 +4,7 @@ title: Implement Your Providers
 sidebar_label: Implement Providers
 ---
 
-When your app grows and becomes more complex, you can use **Providers** (it's just a class...) to implement your resolvers' logic.
+When your app grows and becomes more complex, you can use **Providers** (it's just a class to implement your resolvers' logic.
 
 You can define a provider and add it to your module.
 
@@ -18,10 +18,10 @@ export class UserProvider {
   users = [
     {
       _id: '0',
-      username: 'jhon',
+      username: 'jhon'
     }
   ];
-  getUserById(id){
+  getUserById(id) {
     return this.users.find(user => user._id === id);
   }
 }
@@ -33,16 +33,16 @@ Define a simple schema.
 
 ```graphql
 type Query {
-    user(id: ID!): User
+  user(id: ID!): User
 }
 
 type User {
-    id: ID!
-    username: String!
+  id: ID!
+  username: String!
 }
 ```
 
-And inject it using `injector` inside of your application's `context` in your resolvers.
+And inject the data using the `injector` in the `context` of your resolvers.
 
 `modules/my-module/resolvers.ts`
 
@@ -50,13 +50,13 @@ And inject it using `injector` inside of your application's `context` in your re
 import { GraphQLModule } from '@graphql-modules/core';
 import { UserProvider } from './user.provider';
 export default {
-    Query: {
-        user: (root, { id }, { injector }) => injector.get(UserProvider).getUserById(id),
-    },
-    User: {
-        id: user => user._id,
-        username: user => user.username,
-    },
+  Query: {
+    user: (root, { id }, { injector }) => injector.get(UserProvider).getUserById(id)
+  },
+  User: {
+    id: user => user._id,
+    username: user => user.username
+  }
 };
 ```
 
@@ -71,10 +71,8 @@ import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
 export const MyModule = new GraphQLModule({
-    typeDefs,
-    resolvers,
-    providers: [
-      UserProvider
-    ],
+  typeDefs,
+  resolvers,
+  providers: [UserProvider]
 });
 ```
