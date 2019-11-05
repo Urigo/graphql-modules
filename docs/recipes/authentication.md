@@ -43,6 +43,3 @@ Or event simpler - authentication addresses the following questions:
 ## Implement Your Own
 
 ## With External Packages
-
-
-
