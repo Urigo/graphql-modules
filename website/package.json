@@ -16,6 +16,6 @@
   "dependencies": {
     "babel-preset-minify": "0.5.1",
     "sendmail": "1.6.1",
-    "sweetalert2": "9.3.5"
+    "sweetalert2": "9.3.6"
   }
 }
