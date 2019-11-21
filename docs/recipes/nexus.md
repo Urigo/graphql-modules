@@ -15,7 +15,7 @@ With GraphQL Modules, you can seperate generated typings module by module, and t
 
 You can define different output folders like below, so every module will have its own typings instead of having a single typing file for all application.
 
-Let'ss start with creating types using Nexus API:
+Let's start with creating types using Nexus API:
 
 `chat.type.ts`
 
