@@ -38,7 +38,7 @@
     "replace-in-file": "4.2.0",
     "rimraf": "3.0.0",
     "tslint": "5.20.1",
-    "ts-jest": "24.1.0",
+    "ts-jest": "24.2.0",
     "typedoc": "0.15.2",
     "typedoc-plugin-docusaurus": "1.0.14"
   },
