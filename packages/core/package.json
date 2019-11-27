@@ -14,7 +14,7 @@
     "@graphql-modules/di": "0.7.13",
     "apollo-server-caching": "0.5.0",
     "@graphql-toolkit/common": "0.7.3",
-    "@graphql-toolkit/schema-merging": "0.7.2",
+    "@graphql-toolkit/schema-merging": "0.7.3",
     "tslib": "1.10.0"
   },
   "peerDependencies": {
