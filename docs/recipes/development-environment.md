@@ -52,7 +52,7 @@ Next, add the following scripts to your `package.json`:
 {
   "scripts": {
     "dev": "nodemon --exec ts-node src/main.ts",
-    "debug": "nodemon --exec ts-node --inspect --debug-brk src/index.ts",
+    "debug": "nodemon --exec node -r ts-node/register --inspect src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   }
