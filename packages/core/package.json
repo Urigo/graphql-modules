@@ -21,8 +21,8 @@
     "graphql": "^14.1.1"
   },
   "devDependencies": {
-    "apollo-cache-inmemory": "1.6.3",
-    "apollo-client": "2.6.4",
+    "apollo-cache-inmemory": "1.6.5",
+    "apollo-client": "2.6.6",
     "apollo-link-schema": "1.2.4",
     "graphql-tag": "2.10.1",
     "jest": "24.9.0",
