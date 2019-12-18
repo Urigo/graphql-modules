@@ -500,6 +500,42 @@ describe('GraphQLModule', () => {
       expect(counter).toBe(3);
     });
 
+    it('should call onRequest hook on each session when using injection tokens', async () => {
+      const providerToken = 'FooProvider';
+
+      let counter = 0;
+      @Injectable()
+      class FooProvider implements OnRequest {
+        onRequest() {
+          counter++;
+        }
+      }
+
+      const { schema } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => ''
+          }
+        },
+        providers: [{ provide: providerToken, useClass: FooProvider }]
+      });
+      await execute({
+        schema,
+
+        document: gql`
+          query {
+            foo
+          }
+        `
+      });
+      expect(counter).toBe(1);
+    });
+
     it('should pass network session to onRequest hook', async () => {
       const fooSession = {
         foo: 'bar'
