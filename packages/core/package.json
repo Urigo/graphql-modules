@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/core",
-  "version": "0.7.13",
+  "version": "0.7.14",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -11,10 +11,10 @@
     "test": "jest --config ../../jest.config.js"
   },
   "dependencies": {
-    "@graphql-modules/di": "0.7.13",
-    "apollo-server-caching": "0.5.1",
+    "@graphql-modules/di": "0.7.14",
     "@graphql-toolkit/common": "0.8.0",
     "@graphql-toolkit/schema-merging": "0.8.0",
+    "apollo-server-caching": "0.5.1",
     "tslib": "1.10.0"
   },
   "peerDependencies": {
