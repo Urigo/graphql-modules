@@ -139,7 +139,7 @@ export class Injector<Session extends object = any> {
           if (!this._hookServiceIdentifiersMap.has(hook)) {
             this._hookServiceIdentifiersMap.set(hook, []);
           }
-          this._hookServiceIdentifiersMap.get(hook).push(provider.useClass);
+          this._hookServiceIdentifiersMap.get(hook).push(provider.provide);
         }
       }
     } else if (isFactoryProvider(provider)) {
