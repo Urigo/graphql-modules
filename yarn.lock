@@ -8295,10 +8295,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typedoc-default-themes@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.6.3.tgz#c214ce5bbcc6045558448a8fd422b90e3e9b6782"
-  integrity sha512-rouf0TcIA4M2nOQFfC7Zp4NEwoYiEX4vX/ZtudJWU9IHA29MPC+PPgSXYLPESkUo7FuB//GxigO3mk9Qe1xp3Q==
+typedoc-default-themes@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.7.0.tgz#ab02068a006d06443c1dce8ba157f5f16dc78e27"
+  integrity sha512-yeD56oPXMKJ5nDiCZ27x/SIxx11646Gr5GscxtLSmrh3ucMX6Lklgo7cSABafQXlGPSN5Kb/oLxmfN33BeqMWw==
   dependencies:
     backbone "^1.4.0"
     jquery "^3.4.1"
@@ -8312,10 +8312,10 @@ typedoc-plugin-docusaurus@1.0.14:
   dependencies:
     to-markdown "^3.1.1"
 
-typedoc@0.15.8:
-  version "0.15.8"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.15.8.tgz#d83195445a718d173e0d5c73b5581052cb47d4d9"
-  integrity sha512-a0zypcvfIFsS7Gqpf2MkC1+jNND3K1Om38pbDdy/gYWX01NuJZhC5+O0HkIp0oRIZOo7PWrA5+fC24zkANY28Q==
+typedoc@0.16.0:
+  version "0.16.0"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.16.0.tgz#908851515ee4f15ef342c8ca9d2c2461d8598d0e"
+  integrity sha512-arCzLnU4ijsSMPZvjcDhEQc4ROYueiCSZLCZL0uCZGtx8RDEC2H7ZNPiqR0Gd7UAgCByHJfn3MBFSkmrzrnVcA==
   dependencies:
     "@types/minimatch" "3.0.3"
     fs-extra "^8.1.0"
@@ -8326,7 +8326,7 @@ typedoc@0.15.8:
     minimatch "^3.0.0"
     progress "^2.0.3"
     shelljs "^0.8.3"
-    typedoc-default-themes "^0.6.3"
+    typedoc-default-themes "^0.7.0"
     typescript "3.7.x"
 
 typescript@3.7.4:
