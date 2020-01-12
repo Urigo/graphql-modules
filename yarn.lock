@@ -8312,10 +8312,10 @@ typedoc-plugin-docusaurus@1.0.14:
   dependencies:
     to-markdown "^3.1.1"
 
-typedoc@0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.16.0.tgz#908851515ee4f15ef342c8ca9d2c2461d8598d0e"
-  integrity sha512-arCzLnU4ijsSMPZvjcDhEQc4ROYueiCSZLCZL0uCZGtx8RDEC2H7ZNPiqR0Gd7UAgCByHJfn3MBFSkmrzrnVcA==
+typedoc@0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.16.1.tgz#c2aa2c773daca305f5e7b5a5568196f0f978ee13"
+  integrity sha512-n2RdWDwUks7TvTND8bOWG8rC6cFxpo4o9fXlFNwRiGpc+N6Amb0c1v0Y5oqY2SX5rgIe7OftTkItPsbpJAuApg==
   dependencies:
     "@types/minimatch" "3.0.3"
     fs-extra "^8.1.0"
