@@ -16,7 +16,7 @@
   "devDependencies": {
     "jest": "24.9.0",
     "reflect-metadata": "0.1.13",
-    "typescript": "3.7.4"
+    "typescript": "3.7.5"
   },
   "dependencies": {
     "events": "3.1.0",
