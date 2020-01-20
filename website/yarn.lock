@@ -8681,10 +8681,10 @@ svgo@^1.0.5:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@9.6.0:
-  version "9.6.0"
-  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-9.6.0.tgz#f6bf966b86a88669dce649595588661c2c8e9ae7"
-  integrity sha512-vX2som2H4ahNbiG+HqnpVf0G+nbiJ03f6kgjgHXgYrH20Lyds4k+DEwGZU8yB2EMGqD+AYwPTKND9bqZWguCJg==
+sweetalert2@9.6.1:
+  version "9.6.1"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-9.6.1.tgz#0f328554f2b9199c2f740a08de537019e4dc8955"
+  integrity sha512-aEKg8s40I+JhyZMIbjv3/l+ExtU8ZutKxxm25gBcfageNyBS3AC3dVdMrB2UScD73oKW/H9Ds9wYCjJRXxe5wg==
 
 tapable@^1.0.0, tapable@^1.1.0:
   version "1.1.0"
