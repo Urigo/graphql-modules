@@ -28,7 +28,7 @@
     "@types/jest": "24.9.0",
     "bundlesize": "0.18.0",
     "graphql": "14.5.8",
-    "husky": "4.0.10",
+    "husky": "4.1.0",
     "jest": "24.9.0",
     "jest-junit": "10.0.0",
     "lerna": "3.20.2",
