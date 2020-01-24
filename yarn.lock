@@ -2,6 +2,17 @@
 # yarn lockfile v1
 
 
+"@ardatan/graphql-tools@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@ardatan/graphql-tools/-/graphql-tools-4.1.0.tgz#183508ef4e3d4966f763cb1634a81be1c1255f8d"
+  integrity sha512-0b+KH5RZN9vCMpEjxrwFwZ7v3K6QDjs1EH+R6eRrgKMR2X274JWqYraHKLWE1uJ8iwrkRaOYfCV12jLVuvWS+A==
+  dependencies:
+    apollo-link "^1.2.3"
+    apollo-utilities "^1.0.1"
+    deprecated-decorator "^0.1.6"
+    iterall "^1.1.3"
+    uuid "^3.1.0"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.5.5.tgz#bc0782f6d69f7b7d49531219699b988f669a8f9d"
@@ -228,14 +239,23 @@
     aggregate-error "3.0.1"
     lodash "4.17.15"
 
-"@graphql-toolkit/schema-merging@0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.0.tgz#f4fb380e6be57e0235c25a77fc0aec842414c27e"
-  integrity sha512-vrzkqkFXxZ4dXQrHeNGDDWONbOAVDeJmGPwK0cRu2aVszftvkYVJXBrmkMYzZJHwk+tGVkNywf1r00GR6prpOw==
+"@graphql-toolkit/common@0.9.2":
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/common/-/common-0.9.2.tgz#e4ebe8514466111cb5c1ba00b46d51bb888e3237"
+  integrity sha512-uWJEkUf8VgM1mPg2f2SoSSG377oYOTWGo+YbPhDKS8PsbrgSJodUF0+EAzzVdzWjSxQbls0AJhnkh/rxmKf1Gw==
   dependencies:
-    "@graphql-toolkit/common" "0.9.0"
-    "@kamilkisiela/graphql-tools" "4.0.6"
+    "@ardatan/graphql-tools" "4.1.0"
+    aggregate-error "3.0.1"
+    lodash "4.17.15"
+
+"@graphql-toolkit/schema-merging@0.9.2":
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.2.tgz#382914adff501de4e3ec0bd67881413531018528"
+  integrity sha512-BR66N77Fqn3+MokLR6PKzZKNvrFMtdDVxvlZtBwqblS0zI6/f1+tWsm6DjKMj5XkCxj7B+ytfBp995F0VRoFNw==
+  dependencies:
+    "@graphql-toolkit/common" "0.9.2"
     deepmerge "4.2.2"
+    graphql-tools "4.0.6"
     tslib "1.10.0"
 
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
@@ -3909,6 +3929,17 @@ graphql-tag@2.10.1:
   version "2.10.1"
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
+
+graphql-tools@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/graphql-tools/-/graphql-tools-4.0.6.tgz#0e729e73db05ade3df10a2f92511be544972a844"
+  integrity sha512-jHLQw8x3xmSNRBCsaZqelXXsFfUSUSktSCUP8KYHiX1Z9qEuwcMpAf+FkdBzk8aTAFqOlPdNZ3OI4DKKqGKUqg==
+  dependencies:
+    apollo-link "^1.2.3"
+    apollo-utilities "^1.0.1"
+    deprecated-decorator "^0.1.6"
+    iterall "^1.1.3"
+    uuid "^3.1.0"
 
 graphql@14.5.8:
   version "14.5.8"
