@@ -239,21 +239,21 @@
     aggregate-error "3.0.1"
     lodash "4.17.15"
 
-"@graphql-toolkit/common@0.9.2":
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/common/-/common-0.9.2.tgz#e4ebe8514466111cb5c1ba00b46d51bb888e3237"
-  integrity sha512-uWJEkUf8VgM1mPg2f2SoSSG377oYOTWGo+YbPhDKS8PsbrgSJodUF0+EAzzVdzWjSxQbls0AJhnkh/rxmKf1Gw==
+"@graphql-toolkit/common@0.9.3":
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/common/-/common-0.9.3.tgz#02449d36e291f335f8bf936d2837060838023477"
+  integrity sha512-WJX/ZG0CKdC5Tu2U4dRXhb6P+LSit5m6j8BKevhoxsLUELNQFYL/g+W1X+v61z3yvuJe14Uj3kVNgT4BA/XGOw==
   dependencies:
     "@ardatan/graphql-tools" "4.1.0"
     aggregate-error "3.0.1"
     lodash "4.17.15"
 
-"@graphql-toolkit/schema-merging@0.9.2":
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.2.tgz#382914adff501de4e3ec0bd67881413531018528"
-  integrity sha512-BR66N77Fqn3+MokLR6PKzZKNvrFMtdDVxvlZtBwqblS0zI6/f1+tWsm6DjKMj5XkCxj7B+ytfBp995F0VRoFNw==
+"@graphql-toolkit/schema-merging@0.9.3":
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.3.tgz#b0bf2dcea0450ec15fa7432701e0dff1aa59a15d"
+  integrity sha512-E/Tb9+v9Shf5+JDCkcLv+gic6DIrr113O54XBjPp6v9R6OIJLH3NbIH7i8kKvG6ElWsfHcqj5IEHc2nl9WuIJg==
   dependencies:
-    "@graphql-toolkit/common" "0.9.2"
+    "@graphql-toolkit/common" "0.9.3"
     deepmerge "4.2.2"
     graphql-tools "4.0.6"
     tslib "1.10.0"
