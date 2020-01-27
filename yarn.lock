@@ -373,23 +373,23 @@
     aggregate-error "3.0.1"
     lodash "4.17.15"
 
-"@graphql-toolkit/common@0.9.4":
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/common/-/common-0.9.4.tgz#71bf4f6633faf025558e5f1448730dd58f04b1d9"
-  integrity sha512-dChN//1/kiUAUvmVaaZcdJuHemrVY/30jXDCNrA6j4CDvrg7252DbFLX5v0rG0inc5QDvCNQ0T3X1ckOTlnR6A==
+"@graphql-toolkit/common@0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/common/-/common-0.9.5.tgz#6eec9804627eaf2b686b47330037a20fa5020873"
+  integrity sha512-yot36v0ytePfHuG9o0R19VHxGykz3GlmzxWCMqbhvXMf/4N5exIw81iwBReB95fuEv0mu/EqmT29NEu50Ve/zg==
   dependencies:
     "@ardatan/graphql-tools" "4.1.0"
     aggregate-error "3.0.1"
     lodash "4.17.15"
 
-"@graphql-toolkit/schema-merging@0.9.4":
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.4.tgz#5391e239fc1c8769cb37a9d7249400e1e956249a"
-  integrity sha512-8FL/uITmUCAbNy3PRhoylcLbUPIn5s2S5bdfWqIOoETjmIB2sOzB41e7KN16DFc7cf5BOtX2H3CXDcus+wwdzw==
+"@graphql-toolkit/schema-merging@0.9.5":
+  version "0.9.5"
+  resolved "https://registry.yarnpkg.com/@graphql-toolkit/schema-merging/-/schema-merging-0.9.5.tgz#c88ca970d5d6ce9183ce2acb38a8173a1f8164ed"
+  integrity sha512-rNgE2o3y0y2Gn+KK10PpdoJDOMPnhO5jJ1FUed8X65Nhb505ljUfGpZi4wSBkkn3g8enQNxO0azF1ewX4JSnVA==
   dependencies:
-    "@graphql-toolkit/common" "0.9.4"
+    "@ardatan/graphql-tools" "4.1.0"
+    "@graphql-toolkit/common" "0.9.5"
     deepmerge "4.2.2"
-    graphql-tools "4.0.6"
     tslib "1.10.0"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
@@ -4173,17 +4173,6 @@ graphql-tag@2.10.1:
   version "2.10.1"
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
-
-graphql-tools@4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/graphql-tools/-/graphql-tools-4.0.6.tgz#0e729e73db05ade3df10a2f92511be544972a844"
-  integrity sha512-jHLQw8x3xmSNRBCsaZqelXXsFfUSUSktSCUP8KYHiX1Z9qEuwcMpAf+FkdBzk8aTAFqOlPdNZ3OI4DKKqGKUqg==
-  dependencies:
-    apollo-link "^1.2.3"
-    apollo-utilities "^1.0.1"
-    deprecated-decorator "^0.1.6"
-    iterall "^1.1.3"
-    uuid "^3.1.0"
 
 graphql@14.5.8:
   version "14.5.8"
