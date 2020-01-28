@@ -34,7 +34,7 @@
     "@types/node": "12.12.25",
     "dependency-graph": "0.8.1",
     "glob": "7.1.6",
-    "ts-node": "8.3.0",
+    "ts-node": "8.6.2",
     "typescript": "3.5.3"
   },
   "devDependencies": {
