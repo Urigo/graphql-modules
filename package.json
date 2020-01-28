@@ -7,7 +7,12 @@
   "workspaces": {
     "packages": [
       "packages/*",
+      "packages/tools/*",
       "bundle-test"
+    ],
+    "nohoist": [
+      "**/react-scripts",
+      "**/react-scripts/**"
     ]
   },
   "scripts": {
