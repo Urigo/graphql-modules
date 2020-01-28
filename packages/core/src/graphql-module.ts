@@ -23,10 +23,17 @@ import { ServerResponse } from 'http';
 
 type MaybePromise<T> = Promise<T> | T;
 
-export type LogMethod = (message: string | Error) => void;
+// export type LogMethod = (message: string, ...meta: any[]) => void;
+export interface LogMethod {
+  (message: string, ...meta: any[]): void;
+  (message: Error, ...meta: any[]): void;
+  (message: string | Error): void;
+}
 
 export interface Logger {
   log?: LogMethod;
+  debug?: LogMethod;
+  info?: LogMethod;
   error?: LogMethod;
   clientError?: LogMethod;
   warn?: LogMethod;
