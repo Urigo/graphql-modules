@@ -197,6 +197,48 @@ describe('GraphQLModule', () => {
     expect(injector.get(token)).toBe(provider);
   });
 
+  it('should work importing modules that don\'t specify GraphQL schema and set providers', async () => {
+    const provider1 = {};
+    const token1 = Symbol.for('provider');
+
+    const moduleA = new GraphQLModule({
+      providers: [
+        {
+          provide: token1,
+          useValue: provider1
+        }
+      ]
+    });
+
+    const provider2 = {};
+    const token2 = Symbol.for('provider2');
+
+    const moduleB = new GraphQLModule({
+      imports: [moduleA],
+      providers: [
+        {
+          provide: token2,
+          useValue: provider2
+        }
+      ]
+    });
+
+    const moduleApp = new GraphQLModule({
+      imports: [moduleA, moduleB],
+      typeDefs: gql`
+        type Query {
+          ping: String
+        }
+      `
+    });
+
+    const schema = moduleApp.schema;
+    const schemaAsync = await moduleApp.schemaAsync;
+
+    expect(schema).toBeDefined();
+    expect(schemaAsync).toBeDefined();
+  });
+
   it('should put the correct providers to the injector', async () => {
     expect(app.injector.get(ProviderA) instanceof ProviderA).toBe(true);
   });

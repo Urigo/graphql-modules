@@ -412,9 +412,11 @@ export class GraphQLModule<
                 );
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
-                if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
+                const validImportsSchema = importsSchemas.filter(e => e);
+
+                if (validImportsSchema.length || selfTypeDefs || selfExtraSchemas.length) {
                   this._cache.schema = await mergeSchemasAsync({
-                    schemas: [...importsSchemas, ...selfExtraSchemas].filter(s => s),
+                    schemas: [...validImportsSchema, ...selfExtraSchemas].filter(s => s),
                     typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
                     resolversComposition: selfEncapsulatedResolversComposition,
