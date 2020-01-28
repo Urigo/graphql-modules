@@ -1,4 +1,4 @@
-import { IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
+import { IDirectiveResolvers, IResolverValidationOptions } from '@ardatan/graphql-tools';
 import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
 import {
   getSchemaDirectiveFromDirectiveResolver,
@@ -609,10 +609,13 @@ export class GraphQLModule<
             ]);
             const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
             if (typeDefs.length) {
-              this._cache.typeDefs = mergeTypeDefs(typeDefs.filter(s => s), {
-                exclusions: this._exclusionsFromSchema,
-                useSchemaDefinition: false
-              });
+              this._cache.typeDefs = mergeTypeDefs(
+                typeDefs.filter(s => s),
+                {
+                  exclusions: this._exclusionsFromSchema,
+                  useSchemaDefinition: false
+                }
+              );
             } else {
               this._cache.typeDefs = null;
             }

@@ -11,6 +11,7 @@
     "test": "jest --config ../../jest.config.js"
   },
   "dependencies": {
+    "@ardatan/graphql-tools": "4.1.0",
     "@graphql-modules/di": "0.7.14",
     "@graphql-toolkit/common": "0.9.0",
     "@graphql-toolkit/schema-merging": "0.9.6",
