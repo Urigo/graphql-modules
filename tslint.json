@@ -1,6 +1,7 @@
 {
   "defaultSeverity": "error",
   "rules": {
-    "no-console": true
+    "no-console": true,
+    "no-implicit-dependencies": true
   }
 }

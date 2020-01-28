@@ -1,4 +1,4 @@
-import * as madge from 'madge';
+import madge from 'madge';
 import { join } from 'path';
 
 export async function checkNodeRequires(filesPaths: string[], baseDir: string): Promise<string[][]> {

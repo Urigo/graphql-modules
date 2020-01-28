@@ -16,7 +16,9 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "files": ["src/index.ts", "src/typings.d.ts"],
   "exclude": ["node_modules"]
