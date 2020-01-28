@@ -8,7 +8,7 @@ import {
 } from '@graphql-modules/doctor';
 import { print, printCyclePath } from './utils';
 import * as logSymbols from 'log-symbols';
-import chalk from 'chalk';
+import { bold, gray } from 'chalk';
 import { relative, basename } from 'path';
 
 export default async function doctor(
@@ -24,9 +24,9 @@ export default async function doctor(
     const result = scanForFiles(filePaths);
 
     if (verbose) {
-      result.modules.forEach(m => {
-        print('  ', logSymbols.info, chalk.bold(`${m.name} (${relative(projectDirectory, m.path)})`));
-        print(m.providers.map(p => chalk.gray(`      └ ${p.name}`)).join('\n'));
+      result.modules.forEach((m: { name: any; path: string; providers: any[]; }) => {
+        print('  ', logSymbols.info, bold(`${m.name} (${relative(projectDirectory, m.path)})`));
+        print(m.providers.map((p: { name: any; }) => gray(`      └ ${p.name}`)).join('\n'));
       });
     }
 

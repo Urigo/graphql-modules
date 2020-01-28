@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import { bold, gray } from 'chalk';
 
 export function print(...msg: any[]) {
   // tslint:disable-next-line
@@ -34,7 +34,7 @@ export function printCyclePath(cyclePath: { name: string; filePath: string }[]) 
 
         prefix = prefix + new Array(index + 1).join(!highlight ? '  ' : '──');
 
-        return prefix + (highlight ? chalk.bold(dep.name) : between ? dep.name : chalk.gray(dep.name));
+        return prefix + (highlight ? bold(dep.name) : between ? dep.name : gray(dep.name));
       })
       .filter(a => a)
       .join('\n')
