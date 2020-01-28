@@ -21,7 +21,7 @@ import {
 } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { SchemaDirectiveVisitor, makeExecutableSchema } from '@kamilkisiela/graphql-tools';
+import { SchemaDirectiveVisitor, makeExecutableSchema } from '@ardatan/graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
 import {
   Injectable,
