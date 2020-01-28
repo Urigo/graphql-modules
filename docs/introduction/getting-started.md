@@ -4,7 +4,7 @@ title: Getting Started
 sidebar_label: Getting Started
 ---
 
-Install GraphQL and GraphQL-Modules using Yarn:
+Install GraphQL and GraphQL Modules using Yarn:
 
 ```bash
 yarn add graphql @graphql-modules/core
@@ -22,13 +22,13 @@ Then, create your `GraphQLModule` instance:
 import { GraphQLModule } from '@graphql-modules/core';
 
 const graphQlModule = new GraphQLModule({
-    typeDefs: [],
-    resolvers: {},
-    imports: [],
+  typeDefs: [],
+  resolvers: {},
+  imports: []
 });
 ```
 
-`GraphQLModule` manages your submodules, GraphQL schema, resolvers, context building and the communication between your modules.
+`GraphQLModule` helps to manage your modules, GraphQL schema, resolvers and context builders with rich communication between the modules.
 
 So now you have a ready-to-use `GraphQLModule` instance. Go ahead and create your first `GraphQLModule`.
 

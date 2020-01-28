@@ -1,7 +1,7 @@
 {
   "name": "bundle-test",
   "private": true,
-  "version": "0.7.11",
+  "version": "0.7.14",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
@@ -17,7 +17,7 @@
   ],
   "devDependencies": {
     "bundlesize": "0.18.0",
-    "webpack": "4.39.3",
-    "webpack-cli": "3.3.7"
+    "webpack": "4.41.5",
+    "webpack-cli": "3.3.10"
   }
 }

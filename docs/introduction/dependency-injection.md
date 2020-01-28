@@ -4,17 +4,17 @@ title: Dependency Injection
 sidebar_label: Dependency Injection
 ---
 
-GraphQL Modules let you use dependency injection between your modules, and let you inject config, functions, classes and instances to your modules.
+GraphQL Modules lets you use dependency injection between your modules, and lets you inject configs, functions, classes and instances to your modules.
 
-We expose a simple API that covers most of the use-cases of relations between backend modules.
+We expose a simple API that covers most use cases on relations between backend modules.
 
-We learned not to force you to use dependency injection too early in the process, because dependency injection make sense on some specific use cases and you should need to use it only when it helps you move faster and as your codebase grows.
+We learned not to force you to use dependency injection too early in the process, because dependency injection makes sense just on some specific use cases and using it can be recommendable only when your codebase is quite large and you need to move fast.
 
-GraphQL Modules let you choose whether to use dependency injection or not.
+GraphQL Modules lets you choose whether to use dependency injection or not.
 
 ## Providers
 
-Let's start by creating a simple class called `UserProvider` with `@Injectable()` decorator.
+Let's start by creating a simple class `UserProvider` with the `@Injectable()` decorator.
 
 `modules/my-module/user.provider.ts`
 
@@ -22,9 +22,7 @@ Let's start by creating a simple class called `UserProvider` with `@Injectable()
 import { Injectable } from '@graphql-modules/di';
 
 @Injectable()
-export class UserProvider {
-
-}
+export class UserProvider {}
 ```
 
 Now, let's add this `Provider` to our `GraphQLModule`:
@@ -36,31 +34,29 @@ import resolvers from './resolvers';
 import { UserProvider } from './user.provider';
 
 export const MyModule = new GraphQLModule({
-    typeDefs,
-    resolvers,
-    providers: [
-        UserProvider,
-    ],
+  typeDefs,
+  resolvers,
+  providers: [UserProvider]
 });
 ```
 
-Now, let's implement `Query.user` resolver as a simple function inside `UserProvider`:
+Now, let's implement the `Query.user` resolver as a simple function inside `UserProvider`:
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
 
 @Injectable()
 export class UserProvider {
-    getUserById(id: string) {
-        return {
-            _id: id,
-            username: 'jhon',
-        };
-    }
+  getUserById(id: string) {
+    return {
+      _id: id,
+      username: 'jhon'
+    };
+  }
 }
 ```
 
-> `Provider` lifecycle is by default as singleton, so you can use the implemented functions as util functions, but still use `this` to save global variables.
+> The lifecycle of a `Provider` is by default a singleton. So you can use the implemented functions as utility and still use `this` to save global variables.
 
 And to use this function from our Provider in the actual resolver implementation, get `injector` from `context`:
 
@@ -68,27 +64,24 @@ And to use this function from our Provider in the actual resolver implementation
 import { ModuleContext } from '@graphql-modules/core';
 
 export default {
-    Query: {
-        user: (_, { id }: { id: string }, { injector }: ModuleContext) =>
-            injector.get(UserProvider).getUserById(id),
-    },
-    User: {
-        id: user => user._id,
-        username: user => user.username,
-    },
+  Query: {
+    user: (_, { id }: { id: string }, { injector }: ModuleContext) => injector.get(UserProvider).getUserById(id)
+  },
+  User: {
+    id: user => user._id,
+    username: user => user.username
+  }
 };
 ```
 
-So now our resolver is just a proxy to our implementation, which means we can replace easily `UserProvider` during tests and use mocks.
-
-That's also means that we can use `UserProvider` from other modules, and use `getUserById` from modules that depends on `my-module`.
+Now our resolver is just a proxy to our implementation: we can easily replace `UserProvider` with mocks during tests.
+We can use `UserProvider` and `getUserById` from other modules.
 
 ## Import providers from other modules
 
-To use `Provider` from other module, you can just inject it using .
+To use `Provider` from other modules, you can just inject it using `@Inject(INJECTION_TOKEN)`.
 
-Injection token are just a way to identify your value and fetch it from the poll of the available injectables.
-
+Injection tokens are used just for identifying your value and fetching it from the available injectables.
 It could be either `class`, `string` or `Symbol`.
 
 To get `OtherProvider` from `MyProvider`, do the following:
@@ -99,25 +92,21 @@ import { OtherProvider } from '../my-other-module/other.provider';
 
 @Injectable()
 export class MyProvider {
-    constructor(private otherProvider: OtherProvider) {
-
-    }
+  constructor(private otherProvider: OtherProvider) {}
 }
 ```
 
-> We added `private` on the argument declaration because it's just a TypeScript trick to declare a class member and set it at the same time, so now `this.otherProvider` will be available to use.
+> We added `private` on the argument declaration; it's just a TypeScript trick to declare a class member and set it at the same time, and so now `this.otherProvider` is available to use.
 
 ## Injection Tokens
 
-If you wish to decouple the actual class implementation and the dependency injection token, you can create your own DI token, and declare it this way:
+If you wish to decouple the actual class implementation and the injection token, you can create your own injection token and declare it this way:
 
 ```typescript
 const MY_CLASS_TOKEN = 'myAwesomeClassIdentifier';
 
 export const MyModule = new GraphQLModule({
-    providers: [
-        { provide: MY_CLASS_TOKEN, useClass: MyProvider },
-    ],
+  providers: [{ provide: MY_CLASS_TOKEN, useClass: MyProvider }]
 });
 ```
 
@@ -127,40 +116,35 @@ This way, you can ask for the actual value of `MY_CLASS_TOKEN` from other provid
 import { Injectable, Inject } from '@graphql-modules/core';
 
 interface IOtherProviderSignature {
-    doSomething: () => void;
+  doSomething: () => void;
 }
 
 @Injectable()
 export class MyProvider {
-    constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {
-
-    }
+  constructor(@Inject(MY_CLASS_TOKEN) private otherProvider: IOtherProviderSignature) {}
 }
 ```
 
-> This is a very common and useful design-pattern related to dependency injection, and with the power of TypeScript interfaces, you can easily use it.
+> This is a very common and useful design pattern related to dependency injection. The power of TypeScript interfaces enables you to use it easily.
 
 ## Custom Injectables
 
-You can also create custom `Provider`s, which are non-classes, with dependency injection tokens.
-
+You can also create custom `Provider`s (which are non-classes) with injection tokens.
 It's useful when you want your module to get something from outside with a specific signature.
-
-You can use custom dependency injection tokens to identify your injectables, so let's assume you need to get a an object that matches the following
+You can use custom injection tokens to identify your injectables.
 
 ### Class
 
-So we already learned how to provide classes. Just specify the class in the list of `providers` on your modules declaration:
+We have already learned how to provide classes:
+just specify the class in the list of `providers` on your module declaration.
 
 ```typescript
 export const MyModule = new GraphQLModule({
-    providers: [
-        UserProvider,
-    ],
+  providers: [UserProvider]
 });
 ```
 
-Or use another class which has same interface;
+Or use another class which has same interface.
 
 ```typescript
 export class MyModule = new GraphQLModule({
@@ -173,48 +157,46 @@ export class MyModule = new GraphQLModule({
 });
 ```
 
-> Class providers lifecycle are singleton by default - which means they are created only once, and you are using the same instance for all GraphQL executions.
-
-> But you can change the lifecycle using  **Provider Scopes**.
+> The lifecycle of a class provider is a singleton by default, i.e. they are created only once and you are using the same instance for all GraphQL executions. But you can change the lifecycle using **Provider Scopes**.
 
 ### Value
 
 Value providers are an easy way to pass an existing instance of `class` or any other value that you wish to make available to `@Inject`.
 
-You can use any value, and attach it to a dependency injection token.
+You can use any value, and attach it to an injection token.
 
 ```typescript
-const MY_VALUE = 'myUsefulVal8e';
+const MY_VALUE = 'myUsefulValue';
 
 export const MyModule = new GraphQLModule({
-    providers: [
-        {  
-          provide: MY_VALUE,
-          useValue: 'Hello!',
-        },
-    ],
+  providers: [
+    {
+      provide: MY_VALUE,
+      useValue: 'Hello!'
+    }
+  ]
 });
 ```
 
-> You can use Value injectables to inject instances and global injectables, such as `Logger` instance, database connection/collections, secret tokens and more.
+> You can use value injectables to inject instances and global injectables, such as `Logger` instance, database connection/collections, secret tokens etc.
 
 ### Factory
 
-Factory providers another way to pass an instance of `provider`; so the return value of the function will be the value of the provider.
+Factories provide another way to pass an instance of `provider`. The return value of the fuctory function is used as the value of the provider.
 
 ```typescript
 const MY_VALUE = 'myUsefulVal8e';
 
 export const MyModule = new GraphQLModule({
-    providers: [
-        {
-          provide: MY_VALUE, 
-          useFactory: () => {
-            //some extra logic
-            return myValue
-          },
-        },
-    ],
+  providers: [
+    {
+      provide: MY_VALUE,
+      useFactory: () => {
+        // some extra logic
+        return myValue;
+      }
+    }
+  ]
 });
 ```
 
@@ -224,24 +206,24 @@ export const MyModule = new GraphQLModule({
 
 This hook is called once when your application is started.
 
-Example;
+Example:
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
 import { OnInit } from '@graphql-modules/core';
 @Injectable()
 export class DatabaseProvider implements OnInit {
-    constructor(private dbClient: DbClient) {}
-    onInit() {
-        this.dbClient.connect();
-        console.info('Database Client is connected!');
-    }
+  constructor(private dbClient: DbClient) {}
+  onInit() {
+    this.dbClient.connect();
+    console.info('Database Client is connected!');
+  }
 }
 ```
 
 ### `OnRequest` hook
 
-You can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network session by defining this hook as a method in your class provider.
+By defining this hook as a method in your class provider, you can get access to useful information: the top `GraphQLModule` instance, GraphQL Context, and the network session.
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
@@ -250,28 +232,28 @@ import { OnRequest } from '@graphql-modules/core';
 Example;
 
 @Injectable({
-    scope: ProviderScope.Session
+  scope: ProviderScope.Session
 })
 export class AuthProvider implements OnRequest {
-    userId: string;
-    onRequest(moduleSessionInfo: ModuleSessionInfo) {
-        // ...do your magic...
-        // Let's assume you have your network request object under req property of network session
-        const authToken = moduleSessionInfo.session.req.headers.authentication;
-        this.userId = someFnForTokenExchange(authToken);
-    }
+  userId: string;
+  onRequest(moduleSessionInfo: ModuleSessionInfo) {
+    // ... do your magic ...
+    // Let's assume you have your network request object under req property of network session
+    const authToken = moduleSessionInfo.session.req.headers.authentication;
+    this.userId = someFnForTokenExchange(authToken);
+  }
 }
 ```
 
-> `OnRequest` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
-[API of `OnRequest` is available here](/docs/api/core/api-interfaces-onrequest)
-[API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
+> The `OnRequest` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
+> See also **[API of `OnRequest`](/docs/api/core/api-interfaces-onrequest)**.
+> See also **[API of `ModuleSessionInfo`](/docs/api/core/api-classes-modulesessioninfo)**.
 
 ### `OnResponse` hook (experimental)
 
-It takes same parameter like `OnRequest` hook but it gets called even before the server sends HTTP response to the client.
+It takes the same parameter as the `OnRequest` hook but gets called even before the server sends an HTTP response to the client.
 
-Example;
+Example:
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
@@ -279,21 +261,20 @@ import { OnResponse } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnResponse {
-
-    onResponse(moduleSessionInfo: ModuleSessionInfo) {
-        // ...do your magic...
-        clearDatabasePool(moduleSessionInfo.session);
-    }
+  onResponse(moduleSessionInfo: ModuleSessionInfo) {
+    // ... do your magic ...
+    clearDatabasePool(moduleSessionInfo.session);
+  }
 }
 ```
 
-> `OnResponse` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
-[API of `OnResponse` is available here](/docs/api/core/api-interfaces-onresponse)
-[API of `ModuleSessionInfo` is available here](/docs/api/core/api-classes-modulesessioninfo)
+> The `OnResponse` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
+> See also **[API of `OnResponse`](/docs/api/core/api-interfaces-onresponse)**.
+> See also **[API of `ModuleSessionInfo`](/docs/api/core/api-classes-modulesessioninfo)**.
 
 ### `OnError` hook (experimental)
 
-It takes one parameter that contains `Error`, and this method gets called if any error thrown inside resolvers.
+It takes one parameter of the type `Error`; it gets called when any error is thrown during execution of resolvers.
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
@@ -301,49 +282,50 @@ import { OnError } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnError {
-
-    onResponse(error: Error) {
-        // ...do your magic...
-        logError(error.message);
-    }
+  onResponse(error: Error) {
+    // ... do your magic ...
+    logError(error.message);
+  }
 }
 ```
 
-> Note that; this hook is not called if there is a DI or context build error, because DI stops working if there is some of those. 
+> This hook is not called if there is an error on dependency injection or context building because then dependency injection completely stops.
 
-### `OnConnect hook`
+### `OnConnect` hook
 
-This hook is similar to `OnRequest` hook, but this is called on the initialization of WebSockets connection. It is exactly same with `OnConnect` hook that is passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
+This hook is similar to `OnRequest` but it is called on the initialization of the WebSocket connection.
+It is exactly the same with the `OnConnect` hook passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
 
-[You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
+See also **[Apollo document on authentication over WebSocket](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)**.
 
-Example;
+Example:
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
 import { OnConnect } from '@graphql-modules/core';
 
 @Injectable({
-    scope: ProviderScope.Session
+  scope: ProviderScope.Session
 })
 export class AuthProvider implements OnConnect {
-    userId: string;
-    onConnect(connectionParams) {
-        // ...do your magic...
-        const authToken = connectionParams.authentication;
-        this.userId = someFnForTokenExchange(authToken);
-    }
+  userId: string;
+  onConnect(connectionParams) {
+    // ... do your magic ...
+    const authToken = connectionParams.authentication;
+    this.userId = someFnForTokenExchange(authToken);
+  }
 }
 ```
 
-> `OnConnect` hook is called once for each WebSocket GraphQL connection.
-[API of `OnConnect` is available here](/docs/api/core/api-interfaces-onconnct)
+> The `OnConnect` hook is called once for each WebSocket GraphQL connection.
+> See also **[API of `OnConnect`](/docs/api/core/api-interfaces-onconnct)**.
 
-### `OnDisconnect hook`
+### `OnDisconnect` hook
 
-This hook is similar to `OnResponse` hook, but this is called on the termination of WebSockets connection. It is exactly same with `OnDisconnect` hook that is passed to `subscriptions` in **Apollo Server**.
+This hook is similar to `OnResponse` but it is called on the termination of the WebSocket connection.
+It is exactly same with `OnDisconnect` hook passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
 
-[You can learn more from Apollo docs.](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)
+See also **[Apollo document on authentication over WebSocket](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)**.
 
 ```typescript
 import { Injectable } from '@graphql-modules/di';
@@ -351,60 +333,66 @@ import { OnDisconnect } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnDisconnect {
-
-    onDisconnect(connectionParams, webSocket) {
-        // ...do your magic...
-        clearSomeSubscriptions(moduleSessionInfo.session);
-    }
+  onDisconnect(connectionParams, webSocket) {
+    // ... do your magic ...
+    clearSomeSubscriptions(moduleSessionInfo.session);
+  }
 }
 ```
 
-> `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
-[API of `OnDisconnect` is available here](/docs/api/core/api-interfaces-ondisconnect)
+> The `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
+> See also **[API of `OnDisconnect`](/docs/api/core/api-interfaces-ondisconnect)**.
 
-> The other `OnOperation` and `OnOperationComplete` hooks work similar to GraphQL Subscription Server implementation;
-[See more in SubscriptionServer docs](https://github.com/apollographql/subscriptions-transport-ws)
+> The other `OnOperation` and `OnOperationComplete` hooks work similar to GraphQL Subscription Server implementation.
+> See also **[the document of subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)**.
 
 ## Provider Scopes
 
-You can define different life-time for your provider. You have three options;
+You can define different lifecycles for your provider. You have three options.
 
 ```typescript
-  import { Injectable, ProviderScope } from '@graphql-modules/di';
-  @Injectable({
-    scope: ProviderScope.Application | ProviderScope.Session | ProviderScope.Request
-  })
-  export class MyProvider {}
+import { Injectable, ProviderScope } from '@graphql-modules/di';
+@Injectable({
+  scope: ProviderScope.Application | ProviderScope.Session | ProviderScope.Request
+})
+export class MyProvider {}
 ```
+
+See also **[Scoped Providers in GraphQL Modules Dependency Injection](https://medium.com/the-guild/scoped-providers-in-graphql-modules-dependency-injection-system-949cd2588e0)**.
 
 ### Application Scope (by default)
 
-If you define a provider in this scope which is default, the provider will be instantiated on application-start and will be same in the entire application and all the following requests. The providers in this scope can be considered as a shared state across all users’ interactions with our application.
-It’s basically means that the instance will be treated as [Singleton](https://en.wikipedia.org/wiki/Singleton_pattern).
+If you define a provider in this scope (which is default), the provider will be instantiated on the application start and remain the same in the entire application and all the following requests.
+The providers in this scope can be considered as a shared state across all users’ interactions with our application.
+It basically means that the instance will be treated as a [singleton](https://en.wikipedia.org/wiki/Singleton_pattern).
 
 ```typescript
-  import { Injectable, ProviderScope } from '@graphql-modules/di';
-  @Injectable({
-    scope: ProviderScope.Application
-  })
-  export class MyProvider {}
+import { Injectable, ProviderScope } from '@graphql-modules/di';
+@Injectable({
+  scope: ProviderScope.Application
+})
+export class MyProvider {}
 ```
 
 ### Session Scope
 
-When a network request is arriving to your GraphQL-Server, GraphQL-Server calls the context factory of the parent module. The parent module creates a session injector together with instantiating session-scoped providers with that session object which contains the current context, session injector and network request. This session object is passed through module’s resolvers using module’s context.
+When a network request arrives at your GraphQL server, the GraphQL server calls the context factory of the parent module.
+The parent module creates a session injector and instantiates session-scoped providers with the session object which contains the current context, session injector and network request.
+This session object is passed through the module's resolvers using the module’s context.
 
-In other words, providers defined in the session scope are constructed in the beginning of the network request, then kept until the network request is closed. While application-scoped providers is kept during the application runtime, and shared between all the following network requests and resolvers inside of these requests, this type of providers would not be shared between different requests but in resolver calls those belong to same network request.
+In other words, providers defined in the session scope are constructed at the beginning of the network request and then kept until the network request is closed.
+Whereas application-scoped providers are kept during the application runtime and shared between all the following network requests and resolvers in the requests, this type of providers would not be shared between different requests; in resolver calls those belong to the same network request.
 
-This session scope is kept on memory for all the following network requests of the same connection if the connection uses WebSockets. For regular HTTP, it is terminated immediately.
+This session scope is kept on memory for all the following network requests of the same connection if the connection uses WebSocket. For regular HTTP, it is terminated immediately.
 
 ### Request Scope
 
-If you have request-scoped providers in your GraphQL Module, these providers are generated in every injection. This means a request-scoped provider is never kept neither application state, nor session state. So, this type of providers works just like [Factory](https://en.wikipedia.org/wiki/Factory_method_pattern). It creates an instance each time you request from the injector.
-
-You can see more about scoped providers;
-**[Scoped Providers in GraphQL-Modules Dependency Injection](https://medium.com/the-guild/scoped-providers-in-graphql-modules-dependency-injection-system-949cd2588e0)**
+If you have request-scope'd providers in your GraphQL Module, these providers are generated in every injection.
+This means a request-scoped provider is never kept by neither the application state nor the session state.
+So this type of providers works just like a [factory](https://en.wikipedia.org/wiki/Factory_method_pattern).
+It creates an instance each time you request from the injector.
 
 ## Built-in `ModuleSessionInfo` Provider
 
-Every GraphQL-Module creates a `ModuleSessionInfo` instance in each network request that contains raw Request from the GraphQL Server, `SessionInjector` that contains Session-scoped instances together with Application-scoped ones and `Context` object which is constructed with `contextBuilder` of the module. But, notice that you cannot use this built-in provider in Application Scope.
+Every GraphQL-Module creates on each network request a `ModuleSessionInfo` instance that contains the raw request from the GraphQL Server, the `SessionInjector` with session-scoped instances and application-scoped instances, and the `Context` object constructed by `contextBuilder` of the module.
+Note that you cannot use this built-in provider in the application scope.

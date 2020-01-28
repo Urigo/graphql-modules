@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const ProductsModule = new GraphQLModule({
+  name: 'ProductsModule',
   typeDefs: gql`
     extend type Query {
       topProducts(first: Int = 5): [Product]
@@ -30,7 +31,8 @@ const ProductsModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([ProductsModule])
+  schema: buildFederatedSchema([ProductsModule]),
+  context: session => session
 });
 
 server.listen({ port: 4003 }).then(({ url }) => {

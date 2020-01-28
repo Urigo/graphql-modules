@@ -1,14 +1,11 @@
-import { IDirectiveResolvers, IResolverValidationOptions } from '@kamilkisiela/graphql-tools';
+import { IDirectiveResolvers, IResolverValidationOptions } from '@ardatan/graphql-tools';
+import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
 import {
-  mergeResolvers,
-  ResolversComposerMapping,
-  composeResolvers,
-  mergeSchemas,
-  mergeSchemasAsync,
   getSchemaDirectiveFromDirectiveResolver,
-  mergeTypeDefs,
-  printSchemaWithDirectives
-} from 'graphql-toolkit';
+  printSchemaWithDirectives,
+  ResolversComposerMapping,
+  composeResolvers
+} from '@graphql-toolkit/common';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
 import {
@@ -26,10 +23,17 @@ import { ServerResponse } from 'http';
 
 type MaybePromise<T> = Promise<T> | T;
 
-export type LogMethod = (message: string | Error) => void;
+// export type LogMethod = (message: string, ...meta: any[]) => void;
+export interface LogMethod {
+  (message: string, ...meta: any[]): void;
+  (message: Error, ...meta: any[]): void;
+  (message: string | Error): void;
+}
 
 export interface Logger {
   log?: LogMethod;
+  debug?: LogMethod;
+  info?: LogMethod;
   error?: LogMethod;
   clientError?: LogMethod;
   warn?: LogMethod;
@@ -92,7 +96,7 @@ export interface GraphQLModuleOptions<
    * Context builder method. Use this to add your own fields and data to the GraphQL `context`
    * of each execution of GraphQL.
    */
-  context?: BuildContextFn<Config, Session, Context>;
+  context?: BuildContextFn<Config, Session, Context> | Promise<Context> | Context;
   /**
    * The dependencies that this module need to run correctly, you can either provide the `GraphQLModule`,
    * or provide a string with the name of the other module.
@@ -121,6 +125,7 @@ export interface GraphQLModuleOptions<
   configRequired?: boolean;
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
   defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
+  subscriptionHooks?: SubscriptionHooks;
 }
 
 /**
@@ -141,8 +146,8 @@ export const ModuleConfig = (module: string | GraphQLModule | ((module?: void) =
   return Symbol.for(`ModuleConfig.${module}`);
 };
 
-export interface ModuleCache<Session, Context> {
-  injector: Injector;
+export interface ModuleCache<Session extends object, Context> {
+  injector: Injector<Session>;
   schema: GraphQLSchema;
   typeDefs: DocumentNode;
   resolvers: any;
@@ -156,10 +161,11 @@ export interface ModuleCache<Session, Context> {
   selfLogger: Logger;
 }
 
-export interface ModuleCacheAsync {
+export interface ModuleCacheAsync<Session extends object> {
   schemaAsync: Promise<GraphQLSchema>;
   typeDefsAsync: Promise<DocumentNode>;
   resolversAsync: Promise<any>;
+  injectorAsync: Promise<Injector<Session>>;
 }
 
 /**
@@ -190,10 +196,11 @@ export class GraphQLModule<
     selfLogger: undefined
   };
 
-  private _cacheAsync: ModuleCacheAsync = {
+  private _cacheAsync: ModuleCacheAsync<Session> = {
     schemaAsync: undefined,
     typeDefsAsync: undefined,
-    resolversAsync: undefined
+    resolversAsync: undefined,
+    injectorAsync: undefined
   };
 
   private _exclusionsFromSchema = new Array<string>();
@@ -396,32 +403,27 @@ export class GraphQLModule<
           try {
             if (!this._cache.schema) {
               this.checkConfiguration();
-              const selfImports = this.selfImports;
-              const importsSchemas$Arr = selfImports.map(module => module.schemaAsync);
               try {
                 const selfTypeDefsAsync$ = this.selfTypeDefsAsync;
                 const selfEncapsulatedResolversAsync$ = this.selfResolversAsync.then(selfResolvers =>
                   this.addSessionInjectorToSelfResolversContext(selfResolvers)
                 );
-                const [
-                  selfTypeDefs,
-                  selfEncapsulatedResolvers,
-                  selfExtraSchemas,
-                  ...importsSchemas
-                ] = await Promise.all([
+                const [selfTypeDefs, selfEncapsulatedResolvers, selfExtraSchemas, importsSchemas] = await Promise.all([
                   selfTypeDefsAsync$,
                   selfEncapsulatedResolversAsync$,
                   Promise.resolve().then(() => this.selfExtraSchemas),
-                  ...(importsSchemas$Arr as any)
+                  Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.schemaAsync)))
                 ]);
                 const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
                   this.selfResolversComposition
                 );
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
-                if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
+                const validImportsSchema = importsSchemas.filter(e => e);
+
+                if (validImportsSchema.length || selfTypeDefs || selfExtraSchemas.length) {
                   this._cache.schema = await mergeSchemasAsync({
-                    schemas: [...importsSchemas, ...selfExtraSchemas].filter(s => s),
+                    schemas: [...validImportsSchema, ...selfExtraSchemas].filter(s => s),
                     typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
                     resolversComposition: selfEncapsulatedResolversComposition,
@@ -469,7 +471,7 @@ export class GraphQLModule<
   get injector(): Injector<Session> {
     if (typeof this._cache.injector === 'undefined') {
       this.checkConfiguration();
-      const injector = (this._cache.injector = new Injector({
+      const injector = (this._cache.injector = new Injector<Session>({
         name: this.name,
         injectorScope: ProviderScope.Application,
         defaultProviderScope: this.selfDefaultProviderScope,
@@ -505,6 +507,61 @@ export class GraphQLModule<
       });
     }
     return this._cache.injector;
+  }
+
+  get injectorAsync(): Promise<Injector<Session>> {
+    if (typeof this._cache.injector === 'undefined') {
+      if (typeof this._cacheAsync.injectorAsync === 'undefined') {
+        this._cacheAsync.injectorAsync = new Promise(async (resolve, reject) => {
+          try {
+            this.checkConfiguration();
+            const [initialProviders, children] = await Promise.all([
+              Promise.resolve().then(() => this.selfProviders),
+              Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.injectorAsync)))
+            ]);
+            const injector = (this._cache.injector = new Injector<Session>({
+              name: this.name,
+              injectorScope: ProviderScope.Application,
+              defaultProviderScope: this.selfDefaultProviderScope,
+              hooks: [
+                'onInit',
+                'onRequest',
+                'onResponse',
+                'onError',
+                'onConnect',
+                'onOperation',
+                'onOperationComplete',
+                'onDisconnect'
+              ],
+              initialProviders,
+              children
+            }));
+            injector.onInstanceCreated = ({ instance }) => {
+              if (
+                typeof instance !== 'number' &&
+                typeof instance !== 'boolean' &&
+                typeof instance !== 'string' &&
+                'initialize' in instance &&
+                typeof instance['initialize'] === 'function'
+              ) {
+                instance['initialize']({ cache: this.selfCache });
+              }
+            };
+            await injector.callHookWithArgs({
+              hook: 'onInit',
+              args: [this],
+              instantiate: true,
+              async: true
+            });
+            resolve(this._cache.injector);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+      return this._cacheAsync.injectorAsync;
+    }
+    return Promise.resolve(this._cache.injector);
   }
 
   get extraSchemas(): GraphQLSchema[] {
@@ -561,10 +618,13 @@ export class GraphQLModule<
             ]);
             const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
             if (typeDefs.length) {
-              this._cache.typeDefs = mergeTypeDefs(typeDefs.filter(s => s), {
-                exclusions: this._exclusionsFromSchema,
-                useSchemaDefinition: false
-              });
+              this._cache.typeDefs = mergeTypeDefs(
+                typeDefs.filter(s => s),
+                {
+                  exclusions: this._exclusionsFromSchema,
+                  useSchemaDefinition: false
+                }
+              );
             } else {
               this._cache.typeDefs = null;
             }
@@ -682,12 +742,20 @@ export class GraphQLModule<
                   const importsResult = importsOnConnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
                   const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
-                  const hookResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onConnect',
-                    args: [connectionParams, websocket, connectionContext],
-                    instantiate: true,
-                    async: true
-                  });
+                  const hookResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onConnect',
+                        args: [connectionParams, websocket, connectionContext],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onConnect &&
+                        this._options.subscriptionHooks.onConnect(connectionParams, websocket, connectionContext)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...connectionModuleContext,
@@ -717,12 +785,20 @@ export class GraphQLModule<
                   );
                   const connectionModuleContext = await this.context(params.context);
                   const sessionInjector = connectionModuleContext.injector;
-                  const moduleOnOperationResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onOperation',
-                    args: [message, params, websocket],
-                    instantiate: true,
-                    async: true
-                  });
+                  const moduleOnOperationResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onOperation',
+                        args: [message, params, websocket],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onOperation &&
+                        this._options.subscriptionHooks.onOperation(message, params, websocket)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...moduleOnOperationResult,
@@ -753,12 +829,20 @@ export class GraphQLModule<
                   );
                   const connectionModuleContext = await this.context(websocket);
                   const sessionInjector = connectionModuleContext.injector;
-                  const moduleOnOperationCompleteResult = await sessionInjector.callHookWithArgs({
-                    hook: 'onOperationComplete',
-                    args: [websocket, opId],
-                    instantiate: true,
-                    async: true
-                  });
+                  const moduleOnOperationCompleteResult = Object.assign(
+                    {},
+                    ...(await Promise.all([
+                      sessionInjector.callHookWithArgs({
+                        hook: 'onOperationComplete',
+                        args: [websocket, opId],
+                        instantiate: true,
+                        async: true
+                      }),
+                      this._options.subscriptionHooks &&
+                        this._options.subscriptionHooks.onOperationComplete &&
+                        this._options.subscriptionHooks.onOperationComplete(websocket, opId)
+                    ]))
+                  );
                   resolve({
                     ...importsResult,
                     ...moduleOnOperationCompleteResult
@@ -786,12 +870,17 @@ export class GraphQLModule<
                   importsOnDisconnectHooks.reduce((acc, curr) => ({ ...acc, ...(curr || {}) }), {});
                   const connectionModuleContext = await this.context(connectionContext);
                   const sessionInjector = connectionModuleContext.injector;
-                  await sessionInjector.callHookWithArgs({
-                    hook: 'onDisconnect',
-                    args: [websocket, connectionContext],
-                    instantiate: true,
-                    async: true
-                  });
+                  await Promise.all([
+                    sessionInjector.callHookWithArgs({
+                      hook: 'onDisconnect',
+                      args: [websocket, connectionContext],
+                      instantiate: true,
+                      async: true
+                    }),
+                    this._options.subscriptionHooks &&
+                      this._options.subscriptionHooks.onDisconnect &&
+                      this._options.subscriptionHooks.onDisconnect(websocket, connectionContext)
+                  ]);
                   this.destroySelfSession(websocket);
                   resolve();
                 } catch (e) {
@@ -931,7 +1020,7 @@ export class GraphQLModule<
         if (resolversDefinitions) {
           if (typeof resolversDefinitions === 'function') {
             this.checkConfiguration();
-            resolversDefinitions = await this.injector.call(resolversDefinitions, this);
+            resolversDefinitions = await (await this.injectorAsync).call(resolversDefinitions, this);
           }
           if (Array.isArray(resolversDefinitions)) {
             resolversDefinitions = mergeResolvers(resolversDefinitions);
@@ -1043,7 +1132,7 @@ export class GraphQLModule<
         for (const prop in selfResolvers[type]) {
           const resolver = typeResolvers[prop];
           if (typeof resolver === 'function') {
-            if (prop === '__resolveType' || prop === '__isTypeOf') {
+            if (prop === '__resolveType' || prop === '__isTypeOf' || prop === '__resolveReference') {
               typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
                 if (appContext instanceof Promise) {
                   appContext = await appContext;
@@ -1285,7 +1374,7 @@ export class GraphQLModule<
                   Object.assign(importsContext, ...importsContexts);
                 }
                 const moduleSessionInfo = new ModuleSessionInfo(this, session);
-                const sessionInjector = moduleSessionInfo.injector;
+                const sessionInjector = await moduleSessionInfo.injectorAsync;
                 let moduleContext;
                 const moduleContextDeclaration = this._options.context;
                 if (moduleContextDeclaration) {

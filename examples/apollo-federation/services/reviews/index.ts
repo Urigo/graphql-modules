@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const ProductsModule = new GraphQLModule({
+  name: 'ProductsModule',
   typeDefs: gql`
     type Review @key(fields: "id") {
       id: ID!
@@ -50,7 +51,8 @@ const ProductsModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([ProductsModule])
+  schema: buildFederatedSchema([ProductsModule]),
+  context: session => session
 });
 
 server.listen({ port: 4002 }).then(({ url }) => {

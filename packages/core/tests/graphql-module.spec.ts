@@ -35,7 +35,6 @@ import { SchemaLink } from 'apollo-link-schema';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
-import { iterate } from 'leakage';
 import { EventEmitter } from 'events';
 
 jest.setTimeout(60000 * 10);
@@ -196,6 +195,48 @@ describe('GraphQLModule', () => {
     const { injector } = new GraphQLModule({ imports: [module] });
 
     expect(injector.get(token)).toBe(provider);
+  });
+
+  it('should work importing modules that don\'t specify GraphQL schema and set providers', async () => {
+    const provider1 = {};
+    const token1 = Symbol.for('provider');
+
+    const moduleA = new GraphQLModule({
+      providers: [
+        {
+          provide: token1,
+          useValue: provider1
+        }
+      ]
+    });
+
+    const provider2 = {};
+    const token2 = Symbol.for('provider2');
+
+    const moduleB = new GraphQLModule({
+      imports: [moduleA],
+      providers: [
+        {
+          provide: token2,
+          useValue: provider2
+        }
+      ]
+    });
+
+    const moduleApp = new GraphQLModule({
+      imports: [moduleA, moduleB],
+      typeDefs: gql`
+        type Query {
+          ping: String
+        }
+      `
+    });
+
+    const schema = moduleApp.schema;
+    const schemaAsync = await moduleApp.schemaAsync;
+
+    expect(schema).toBeDefined();
+    expect(schemaAsync).toBeDefined();
   });
 
   it('should put the correct providers to the injector', async () => {
@@ -499,6 +540,42 @@ describe('GraphQLModule', () => {
         `
       });
       expect(counter).toBe(3);
+    });
+
+    it('should call onRequest hook on each session when using injection tokens', async () => {
+      const providerToken = 'FooProvider';
+
+      let counter = 0;
+      @Injectable()
+      class FooProvider implements OnRequest {
+        onRequest() {
+          counter++;
+        }
+      }
+
+      const { schema } = new GraphQLModule({
+        typeDefs: gql`
+          type Query {
+            foo: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            foo: () => ''
+          }
+        },
+        providers: [{ provide: providerToken, useClass: FooProvider }]
+      });
+      await execute({
+        schema,
+
+        document: gql`
+          query {
+            foo
+          }
+        `
+      });
+      expect(counter).toBe(1);
     });
 
     it('should pass network session to onRequest hook', async () => {
@@ -1706,6 +1783,7 @@ describe('GraphQLModule', () => {
     });
     session.res.emit('finish');
   });
+  /*
   it.skip('should not have memory leak over multiple sessions with session-scoped providers', done => {
     @Injectable({
       scope: ProviderScope.Session
@@ -1884,7 +1962,7 @@ describe('GraphQLModule', () => {
       })
       .catch(done.fail);
   });
-
+*/
   it(`make sure it won't crash on deeply nested structure`, () => {
     const num = 30;
 
@@ -2082,5 +2160,50 @@ describe('GraphQLModule', () => {
     expect(result.data['featuredConcert']).toBeTruthy();
     expect(result.data['featuredConcert']['organiser']).toBeTruthy();
     expect(result.data['featuredConcert']['organiser']['address']).toBe('533 Peachtree Place');
+  });
+
+  it('should assign resolver to the type definition of child module', async () => {
+    const FooModule = new GraphQLModule({
+      typeDefs: /* GraphQL */ `
+        type Foo {
+          foo: String!
+        }
+      `
+    });
+    const BarModule = new GraphQLModule({
+      imports: [FooModule],
+      resolvers: {
+        Foo: {
+          foo: () => 'bar'
+        }
+      }
+    });
+    const { schema } = new GraphQLModule({
+      imports: [BarModule],
+      typeDefs: /* GraphQL */ `
+        type Query {
+          foo: Foo
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo: () => ({})
+        }
+      }
+    });
+
+    const result = await execute({
+      schema,
+      document: parse(/* GraphQL */ `
+        query {
+          foo {
+            foo
+          }
+        }
+      `)
+    });
+    expect(result.errors).toBeFalsy();
+    expect(result.data['foo']).toBeTruthy();
+    expect(result.data['foo']['foo']).toBe('bar');
   });
 });

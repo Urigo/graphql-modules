@@ -21,6 +21,9 @@ export class ModuleSessionInfo<Config = any, Session extends object = any, Conte
   get injector() {
     return this.module.injector.getSessionInjector(this.session);
   }
+  get injectorAsync() {
+    return this.module.injectorAsync.then(injector => injector.getSessionInjector(this.session));
+  }
   get config() {
     return this.module.config;
   }

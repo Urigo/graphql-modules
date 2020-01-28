@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const AccountsModule = new GraphQLModule({
+  name: 'AccountsModule',
   typeDefs: gql`
     extend type Query {
       me: User
@@ -29,7 +30,8 @@ const AccountsModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([AccountsModule])
+  schema: buildFederatedSchema([AccountsModule]),
+  context: session => session
 });
 
 server.listen({ port: 4001 }).then(({ url }) => {

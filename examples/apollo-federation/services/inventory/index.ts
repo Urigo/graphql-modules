@@ -3,6 +3,7 @@ import { buildFederatedSchema } from '@apollo/federation';
 import { GraphQLModule } from '@graphql-modules/core';
 
 const InventoryModule = new GraphQLModule({
+  name: 'InventoryModule',
   typeDefs: gql`
     extend type Product @key(fields: "upc") {
       upc: String! @external
@@ -31,7 +32,8 @@ const InventoryModule = new GraphQLModule({
 });
 
 const server = new ApolloServer({
-  schema: buildFederatedSchema([InventoryModule])
+  schema: buildFederatedSchema([InventoryModule]),
+  context: session => session
 });
 
 server.listen({ port: 4004 }).then(({ url }) => {
