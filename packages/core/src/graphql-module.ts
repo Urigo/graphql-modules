@@ -994,7 +994,7 @@ export class GraphQLModule<
     let resolvers = {} as SelfResolvers;
     let resolversDefinitions = this._options.resolvers;
     if (resolversDefinitions) {
-      if (typeof resolversDefinitions === 'function') {
+      if (resolversDefinitions instanceof Function) {
         this.checkConfiguration();
         resolversDefinitions = this.injector.call(resolversDefinitions, this);
       }
@@ -1018,7 +1018,7 @@ export class GraphQLModule<
         let resolvers = {} as SelfResolvers;
         let resolversDefinitions = await this._options.resolvers;
         if (resolversDefinitions) {
-          if (typeof resolversDefinitions === 'function') {
+          if (resolversDefinitions instanceof Function) {
             this.checkConfiguration();
             resolversDefinitions = await (await this.injectorAsync).call(resolversDefinitions, this);
           }
