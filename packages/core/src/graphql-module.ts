@@ -351,7 +351,7 @@ export class GraphQLModule<
     if (typeof this._cache.schema === 'undefined') {
       this.checkConfiguration();
       const selfImports = this.selfImports;
-      const importsSchemas = selfImports.map(module => module.schema).filter(schema => schema);
+      const importsSchemas = selfImports.map(module => module.schema).filter(Boolean);
       try {
         const selfTypeDefs = this.selfTypeDefs;
         const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
@@ -419,11 +419,11 @@ export class GraphQLModule<
                 );
                 const selfLogger = this.selfLogger;
                 const selfResolverValidationOptions = this.selfResolverValidationOptions;
-                const validImportsSchema = importsSchemas.filter(e => e);
+                const validImportsSchema = importsSchemas.filter(Boolean);
 
                 if (validImportsSchema.length || selfTypeDefs || selfExtraSchemas.length) {
                   this._cache.schema = await mergeSchemasAsync({
-                    schemas: [...validImportsSchema, ...selfExtraSchemas].filter(s => s),
+                    schemas: [...validImportsSchema, ...selfExtraSchemas].filter(Boolean),
                     typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
                     resolversComposition: selfEncapsulatedResolversComposition,
@@ -619,7 +619,7 @@ export class GraphQLModule<
             const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
             if (typeDefs.length) {
               this._cache.typeDefs = mergeTypeDefs(
-                typeDefs.filter(s => s),
+                typeDefs.filter(Boolean),
                 {
                   exclusions: this._exclusionsFromSchema,
                   useSchemaDefinition: false
@@ -938,7 +938,7 @@ export class GraphQLModule<
       if (typeof typeDefsDefinitions === 'string') {
         typeDefs = parse(typeDefsDefinitions);
       } else if (Array.isArray(typeDefsDefinitions)) {
-        typeDefsDefinitions = typeDefsDefinitions.filter(typeDefsDefinition => typeDefsDefinition);
+        typeDefsDefinitions = typeDefsDefinitions.filter(Boolean);
         if (typeDefsDefinitions.length) {
           typeDefs = mergeTypeDefs(typeDefsDefinitions, {
             useSchemaDefinition: false
@@ -971,7 +971,7 @@ export class GraphQLModule<
           if (typeof typeDefsDefinitions === 'string') {
             typeDefs = parse(typeDefsDefinitions);
           } else if (Array.isArray(typeDefsDefinitions)) {
-            typeDefsDefinitions = typeDefsDefinitions.filter(typeDefsDefinition => typeDefsDefinition);
+            typeDefsDefinitions = typeDefsDefinitions.filter(Boolean);
             if (typeDefsDefinitions.length) {
               typeDefs = mergeTypeDefs(typeDefsDefinitions, {
                 useSchemaDefinition: false

@@ -36,7 +36,7 @@ export function printCyclePath(cyclePath: { name: string; filePath: string }[]) 
 
         return prefix + (highlight ? bold(dep.name) : between ? dep.name : gray(dep.name));
       })
-      .filter(a => a)
+      .filter(Boolean)
       .join('\n')
   );
 }
