@@ -5,7 +5,7 @@ jobs:
       ignore:
       - gh-pages
     docker:
-    - image: circleci/node:10.18.1-browsers-legacy
+    - image: circleci/node:10.19.0-browsers-legacy
     steps:
       - checkout
       - restore_cache:
