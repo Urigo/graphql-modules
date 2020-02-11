@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@ardatan/bob": "0.2.7",
-    "@types/node": "12.12.26",
+    "@types/node": "12.12.27",
     "typescript": "3.5.3"
   }
 }
