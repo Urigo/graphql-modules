@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { AppModule } from './app/app.module';
+import { AppModule } from '@modules/app/app.module';
 import * as express from 'express';
 import * as graphQLHTTP from 'express-graphql';
 
