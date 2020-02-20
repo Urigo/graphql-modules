@@ -18,7 +18,7 @@
     "@ardatan/bob": "0.2.7",
     "jest": "25.1.0",
     "reflect-metadata": "0.1.13",
-    "typescript": "3.7.5"
+    "typescript": "3.8.2"
   },
   "dependencies": {
     "events": "3.1.0",
