@@ -35,7 +35,7 @@
     "dependency-graph": "0.9.0",
     "glob": "7.1.6",
     "ts-node": "8.6.2",
-    "typescript": "3.5.3"
+    "typescript": "3.8.2"
   },
   "devDependencies": {
     "@ardatan/bob": "0.2.7"
