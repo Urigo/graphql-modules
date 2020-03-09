@@ -6215,10 +6215,10 @@ macos-release@^2.2.0:
   resolved "https://registry.yarnpkg.com/macos-release/-/macos-release-2.3.0.tgz#eb1930b036c0800adebccd5f17bc4c12de8bb71f"
   integrity sha512-OHhSbtcviqMPt7yfw5ef5aghS2jzFVKEFyCJndQt2YpSQ9qRVSEv2axSJI1paVThEu+FFGs584h/1YhxjVqajA==
 
-madge@3.7.0:
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/madge/-/madge-3.7.0.tgz#b652081c8eadb57e8f9fb9b82b28c699307a1057"
-  integrity sha512-Qxv0lLgarPIptxD8PHS2nGyuYcyu21Y2dOSBH8O7hF8UEAEkMjjYpECYquBTOMoKNe6hKo1VnC3mCE/fn313XA==
+madge@3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/madge/-/madge-3.8.0.tgz#c76538c1a8accda297009a25ceb8b29b20c99b86"
+  integrity sha512-bcX2QxiTwWvZrNM+XkmZY1SPl18C2HGaQGhroj3YzqSRxQ1ns7WXCYDyGCfZwp/uLibnNd6IOWrRLOkCS+lpAg==
   dependencies:
     chalk "^3.0.0"
     commander "^4.0.1"
