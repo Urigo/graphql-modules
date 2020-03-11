@@ -11,7 +11,11 @@
     "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": "./src/",
+    "paths": {
+      "@modules/*": ["modules/*"]
+    }
   },
   "files": ["src/index.ts"]
 }
