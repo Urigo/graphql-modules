@@ -61,7 +61,7 @@ export interface OnDisconnect<WebSocket = any, ConnectionContext = any, Result =
 
 export type OnErrorFn = (e: Error) => any;
 export interface OnError {
-  onError: OnError;
+  onError: OnErrorFn;
 }
 
 export interface SubscriptionHooks<

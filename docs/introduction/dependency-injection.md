@@ -282,7 +282,7 @@ import { OnError } from '@graphql-modules/core';
 
 @Injectable()
 export class MyProvider implements OnError {
-  onResponse(error: Error) {
+  onError(error: Error) {
     // ... do your magic ...
     logError(error.message);
   }
