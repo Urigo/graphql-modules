@@ -9,12 +9,13 @@
     "build": "webpack",
     "preanalyze": "npx webpack --profile --json > dist/stats.json",
     "analyze": "npx webpack-bundle-analyzer dist/stats.json",
-    "test": "yarn build && bundlesize"
+    "test": "yarn build",
+    "check:bundle": "bundlesize"
   },
   "bundlesize": [
     {
       "path": "./dist/index.js",
-      "maxSize": "600KB"
+      "maxSize": "700KB"
     }
   ],
   "dependencies": {
