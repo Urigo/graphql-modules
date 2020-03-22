@@ -24,7 +24,7 @@
     "graphql": "^14.1.1"
   },
   "devDependencies": {
-    "@ardatan/bob": "0.2.7",
+    "bob-the-bundler": "0.3.4",
     "apollo-cache-inmemory": "1.6.5",
     "apollo-client": "2.6.8",
     "apollo-link-schema": "1.2.4",

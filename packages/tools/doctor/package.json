@@ -38,6 +38,6 @@
     "typescript": "3.8.3"
   },
   "devDependencies": {
-    "@ardatan/bob": "0.2.7"
+    "bob-the-bundler": "0.3.4"
   }
 }
