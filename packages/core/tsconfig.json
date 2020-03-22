@@ -23,6 +23,6 @@
     "noUnusedParameters": true,
     "downlevelIteration": true
   },
-  "files": ["src/index.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

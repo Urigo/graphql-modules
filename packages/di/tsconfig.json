@@ -3,10 +3,7 @@
     "experimentalDecorators": true,
     "module": "esnext",
     "target": "es2018",
-    "lib": [
-      "es2018",
-      "esnext.asynciterable"
-    ],
+    "lib": ["es2018", "esnext.asynciterable"],
     "suppressImplicitAnyIndexErrors": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -25,6 +22,6 @@
     "downlevelIteration": true,
     "strictFunctionTypes": true
   },
-  "files": ["src/index.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

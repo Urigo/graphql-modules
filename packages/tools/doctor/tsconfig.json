@@ -20,6 +20,6 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
-  "files": ["src/index.ts", "src/typings.d.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }
