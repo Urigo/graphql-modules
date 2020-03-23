@@ -327,12 +327,12 @@ describe('GraphQLModule', () => {
           typeDefs: [`scalar Date`, `type Query { foo: Date }`],
           resolvers: {
             Date: new GraphQLScalarType({
-              name: 'DateTime',
+              name: 'Date',
               serialize() {},
               parseValue() {},
               parseLiteral(ast) {
                 if (ast.kind !== Kind.STRING) {
-                  throw new TypeError(`DateTime cannot represent non string type`);
+                  throw new TypeError(`Date cannot represent non string type`);
                 }
                 const { value } = ast;
 
