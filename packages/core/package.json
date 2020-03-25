@@ -14,8 +14,8 @@
   "dependencies": {
     "@ardatan/graphql-tools": "4.1.0",
     "@graphql-modules/di": "0.7.14",
-    "@graphql-toolkit/common": "0.9.7",
-    "@graphql-toolkit/schema-merging": "0.9.7",
+    "@graphql-toolkit/common": "0.9.9",
+    "@graphql-toolkit/schema-merging": "0.9.9",
     "apollo-server-caching": "0.5.1",
     "deepmerge": "4.2.2",
     "tslib": "1.11.1"
