@@ -37,7 +37,7 @@
     "jest": "25.2.3",
     "jest-junit": "10.0.0",
     "lerna": "3.20.2",
-    "lint-staged": "10.0.9",
+    "lint-staged": "10.0.10",
     "prettier": "2.0.2",
     "reflect-metadata": "0.1.13",
     "replace-in-file": "5.0.2",
