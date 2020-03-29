@@ -29,7 +29,7 @@
     "apollo-client": "2.6.8",
     "apollo-link-schema": "1.2.4",
     "graphql-tag": "2.10.3",
-    "jest": "25.2.3",
+    "jest": "25.2.4",
     "typescript": "3.8.3"
   },
   "sideEffects": false,
