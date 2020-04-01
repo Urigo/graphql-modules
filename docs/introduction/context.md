@@ -39,6 +39,21 @@ In addition to the added `injector`, GraphQL Modules lets you add custom fields 
 
 Each module can have its own `context` function, which takes the network session that contains the request, the current context and the injector and can extend the GraphQL `context` with any field.
 
+In order to have the network session available in GraphQL Modules context builder function you need to pass the context in the Apollo Server configuration up like this:
+
+```typescript
+import './bootstrap';
+import { ApolloServer } from 'apollo-server';
+import { AppModule } from './app.module';
+
+const server = new ApolloServer({
+  modules: [AppModule],
+  context: AppModule.context, 
+  // or if you don't have one central AppModule do it like this:
+  // context: session => session
+});
+```
+
 To add a custom `context` to your `GraphQLModule`, do the following:
 
 ```typescript
