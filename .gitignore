@@ -27,3 +27,6 @@ docs/api/**/*.md
 
 test-results/
 junit.xml
+
+yarn.lock
+package-lock.json

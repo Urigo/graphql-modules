@@ -11,7 +11,6 @@ import {
 import {
   execute,
   GraphQLSchema,
-  printSchema,
   GraphQLString,
   defaultFieldResolver,
   print,
@@ -21,7 +20,7 @@ import {
 } from 'graphql';
 import { stripWhitespaces } from './utils';
 import gql from 'graphql-tag';
-import { SchemaDirectiveVisitor, makeExecutableSchema } from '@ardatan/graphql-tools';
+import { SchemaDirectiveVisitor, makeExecutableSchema } from 'graphql-tools';
 import { ModuleSessionInfo } from '../src/module-session-info';
 import {
   Injectable,
@@ -36,6 +35,7 @@ import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { KeyValueCache } from 'apollo-server-caching';
 import { EventEmitter } from 'events';
+import { printSchemaWithDirectives } from '@graphql-toolkit/common';
 
 jest.setTimeout(60000 * 10);
 describe('GraphQLModule', () => {
@@ -149,17 +149,13 @@ describe('GraphQLModule', () => {
 
     expect(schema).toBeDefined();
     expect(schema instanceof GraphQLSchema).toBeTruthy();
-    expect(stripWhitespaces(printSchema(schema))).toBe(
-      stripWhitespaces(`
+    expect(stripWhitespaces(printSchemaWithDirectives(schema))).toBe(
+      stripWhitespaces(/* GraphQL */`
+      schema {
+        query: Query
+      }
+
       type A {
-        f: String
-      }
-
-      type B {
-        f: String
-      }
-
-      type C {
         f: String
       }
 
@@ -167,6 +163,14 @@ describe('GraphQLModule', () => {
         a: A
         c: C
         b: B
+      }
+
+      type C {
+        f: String
+      }
+
+      type B {
+        f: String
       }`)
     );
   });

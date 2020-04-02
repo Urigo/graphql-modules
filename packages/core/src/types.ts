@@ -1,5 +1,5 @@
 import { GraphQLScalarType } from 'graphql';
-import { IResolverObject, IResolverOptions, IEnumResolver } from '@ardatan/graphql-tools';
+import { IResolverObject, IResolverOptions, IEnumResolver } from 'graphql-tools';
 import { Injector } from '@graphql-modules/di';
 import { ModuleSessionInfo } from './module-session-info';
 import { GraphQLModule } from './graphql-module';

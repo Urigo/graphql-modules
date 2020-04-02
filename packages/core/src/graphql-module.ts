@@ -1,4 +1,4 @@
-import { IDirectiveResolvers, IResolverValidationOptions } from '@ardatan/graphql-tools';
+import { IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
 import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
 import {
   getSchemaDirectiveFromDirectiveResolver,
