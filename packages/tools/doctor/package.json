@@ -1,6 +1,6 @@
 {
   "name": "@graphql-modules/doctor",
-  "version": "0.7.14",
+  "version": "0.7.15",
   "repository": "https://github.com/Urigo/graphql-modules.git",
   "homepage": "https://graphql-modules.com/",
   "license": "MIT",
@@ -25,7 +25,6 @@
     "access": "public"
   },
   "dependencies": {
-    "madge": "3.8.0",
     "@babel/core": "7.9.0",
     "@babel/parser": "7.9.4",
     "@babel/traverse": "7.9.0",
@@ -34,6 +33,7 @@
     "@types/node": "12.12.34",
     "dependency-graph": "0.9.0",
     "glob": "7.1.6",
+    "madge": "3.8.0",
     "ts-node": "8.8.1",
     "typescript": "3.8.3"
   },
