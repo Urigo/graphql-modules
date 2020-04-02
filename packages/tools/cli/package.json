@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "log-symbols": "3.0.0",
-    "chalk": "3.0.0",
+    "chalk": "4.0.0",
     "commander": "5.0.0",
     "@graphql-modules/doctor": "0.7.14"
   },
