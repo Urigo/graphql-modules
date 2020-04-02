@@ -21,7 +21,7 @@
     "tslib": "1.11.1"
   },
   "peerDependencies": {
-    "graphql": "^14.1.1"
+    "graphql": "^14.1.1 || ^15.0.0"
   },
   "devDependencies": {
     "apollo-cache-inmemory": "1.6.5",
