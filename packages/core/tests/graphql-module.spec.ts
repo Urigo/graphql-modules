@@ -1078,11 +1078,14 @@ describe('GraphQLModule', () => {
   });
   describe('Providers Scope', () => {
     it('should allow access to session scope providers from app scope providers', async () => {
+      let instanceCreationCount = 0;
       @Injectable({
         scope: ProviderScope.Session,
       })
       class ScopeLevelProvider {
-        constructor(private sessionInfo: ModuleSessionInfo) {}
+        constructor(private sessionInfo: ModuleSessionInfo) {
+          instanceCreationCount++;
+        }
 
         bar() {
           return this.sessionInfo.session.req.test;
@@ -1099,7 +1102,7 @@ describe('GraphQLModule', () => {
         }
       }
 
-      const { schema, context } = new GraphQLModule({
+      const { schema } = new GraphQLModule({
         typeDefs: gql`
           type Query {
             test: String!
@@ -1112,20 +1115,25 @@ describe('GraphQLModule', () => {
         },
         providers: [AppLevelProvider, ScopeLevelProvider],
       });
-      const contextValue = await context({ req: { test: 'BAR' } });
 
-      const result1 = await execute({
+      const execOptions = {
         schema,
-        contextValue,
         document: gql`
           query {
             test
           }
         `,
-      });
+      };
 
+      expect(instanceCreationCount).toBe(0);
+      const result1 = await execute({ ...execOptions, contextValue: { req: { test: 'BAR' } } });
+      expect(instanceCreationCount).toBe(1);
       expect(result1.errors).toBeUndefined();
       expect(result1.data['test']).toBe('BAR');
+      const result2 = await execute({ ...execOptions, contextValue: { req: { test: 'FOO' } } });
+      expect(instanceCreationCount).toBe(2);
+      expect(result2.errors).toBeUndefined();
+      expect(result2.data['test']).toBe('FOO');
     });
 
     it('should construct session scope on each network session', async () => {
