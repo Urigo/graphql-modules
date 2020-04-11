@@ -25,6 +25,7 @@
     "express": "4.16.4",
     "express-graphql": "0.7.1",
     "graphql": "14.2.1",
+    "graphql-tag": "^2.10.3",
     "reflect-metadata": "0.1.13",
     "typescript": "3.4.3"
   },

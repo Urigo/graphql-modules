@@ -11,7 +11,7 @@
     "sourceMap": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./"
   },
-  "files": ["src/index.ts"]
+  "files": ["gateway.ts"]
 }

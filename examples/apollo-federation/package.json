@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "tsc",
     "start-gateway": "ts-node gateway.ts",
     "start-service-accounts": "ts-node services/accounts/index.ts",
     "start-service-reviews": "ts-node services/reviews/index.ts",

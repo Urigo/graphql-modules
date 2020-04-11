@@ -14,7 +14,8 @@
     "@types/express-graphql": "0.6.2",
     "express": "4.16.4",
     "express-graphql": "0.7.1",
-    "graphql": "14.2.1", 
+    "graphql": "14.2.1",
+    "graphql-tag": "^2.10.3",
     "reflect-metadata": "0.1.13",
     "ts-node": "8.0.2",
     "typescript": "3.4.3"
