@@ -1,10 +1,17 @@
-import { IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
-import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
+import { IDirectiveResolvers, IResolverValidationOptions, addResolversToSchema } from 'graphql-tools';
+import {
+  MergeSchemasConfig,
+  mergeResolvers,
+  mergeSchemas,
+  mergeSchemasAsync,
+  mergeTypeDefs,
+} from '@graphql-toolkit/schema-merging';
 import {
   getSchemaDirectiveFromDirectiveResolver,
   printSchemaWithDirectives,
   ResolversComposerMapping,
-  composeResolvers
+  composeResolvers,
+  extractResolversFromSchema,
 } from '@graphql-toolkit/common';
 import { Provider, Injector, ProviderScope } from '@graphql-modules/di';
 import { DocumentNode, GraphQLSchema, parse, GraphQLScalarType } from 'graphql';
@@ -12,7 +19,7 @@ import {
   SchemaNotValidError,
   DependencyModuleUndefinedError,
   TypeDefNotFoundError,
-  ModuleConfigRequiredError
+  ModuleConfigRequiredError,
 } from './errors';
 import * as deepmerge from 'deepmerge';
 import { ModuleSessionInfo } from './module-session-info';
@@ -193,14 +200,14 @@ export class GraphQLModule<
     subscriptionHooks: undefined,
     imports: undefined,
     selfKeyValueCache: undefined,
-    selfLogger: undefined
+    selfLogger: undefined,
   };
 
   private _cacheAsync: ModuleCacheAsync<Session> = {
     schemaAsync: undefined,
     typeDefsAsync: undefined,
     resolversAsync: undefined,
-    injectorAsync: undefined
+    injectorAsync: undefined,
   };
 
   private _exclusionsFromSchema = new Array<string>();
@@ -221,7 +228,7 @@ export class GraphQLModule<
   forRoot(config: Config): GraphQLModule<Config, Session, Context, SelfResolvers> {
     this._moduleConfig = {
       ...this._moduleConfig,
-      ...config
+      ...config,
     };
     // clean cache
     this._cache = {
@@ -236,7 +243,7 @@ export class GraphQLModule<
       subscriptionHooks: undefined,
       imports: undefined,
       selfKeyValueCache: undefined,
-      selfLogger: undefined
+      selfLogger: undefined,
     };
     return this;
   }
@@ -245,7 +252,7 @@ export class GraphQLModule<
     if (config) {
       return new GraphQLModule<Config, Session, Context, SelfResolvers>(this._options, {
         ...this._moduleConfig,
-        ...config
+        ...config,
       });
     } else {
       return this;
@@ -271,7 +278,7 @@ export class GraphQLModule<
       subscriptionHooks: undefined,
       imports: undefined,
       selfKeyValueCache: undefined,
-      selfLogger: undefined
+      selfLogger: undefined,
     };
   }
 
@@ -297,17 +304,17 @@ export class GraphQLModule<
           hook: 'onRequest',
           args: [moduleSessionInfo],
           instantiate: true,
-          async: true
+          async: true,
         });
         return {
           injector: sessionInjector,
-          ...providedContextBuilder(session, excludeSession)
+          ...providedContextBuilder(session, excludeSession),
         };
       };
     }
     this._cache = {
       ...this._cache,
-      ...partialCache
+      ...partialCache,
     };
     return this;
   }
@@ -343,6 +350,58 @@ export class GraphQLModule<
   }
 
   /**
+   * Retrieve a configuration for merging schemas
+   *
+   * @param typeDefs - type definitions
+   * @param resolvers - functions that resolves values
+   * @param importsSchemas - imported schema definitions
+   * @param extraSchemas - additional schema definitions
+   */
+  private _getMergeSchemasConfig(
+    typeDefs: DocumentNode,
+    resolvers: SelfResolvers,
+    importsSchemas: GraphQLSchema[],
+    extraSchemas: GraphQLSchema[]
+  ) {
+    const validSchemas = [...importsSchemas, ...extraSchemas].filter(Boolean);
+    const encapsulatedValidSchemas = validSchemas.map((schema) => {
+      const resolvers = extractResolversFromSchema(schema) as SelfResolvers;
+      const updatedResolvers = this.addSessionInjectorToSelfResolversContext(resolvers);
+      return addResolversToSchema({
+        schema,
+        resolvers: updatedResolvers,
+      });
+    });
+
+    if (!typeDefs && !encapsulatedValidSchemas.length) {
+      return null;
+    }
+
+    const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
+      this.selfResolversComposition
+    );
+    const selfResolverValidationOptions = this.selfResolverValidationOptions;
+    const selfLogger = this.selfLogger;
+
+    const mergeSchemaConfig: MergeSchemasConfig = {
+      schemas: encapsulatedValidSchemas,
+      typeDefs: typeDefs || undefined,
+      resolvers,
+      resolversComposition: selfEncapsulatedResolversComposition,
+      resolverValidationOptions: selfResolverValidationOptions,
+      logger:
+        'clientError' in selfLogger
+          ? {
+              log: (message: string | Error) => selfLogger.clientError(message),
+            }
+          : undefined,
+      exclusions: this._exclusionsFromSchema,
+    };
+
+    return mergeSchemaConfig;
+  }
+
+  /**
    * Gets the application `GraphQLSchema` object.
    * If the schema object is not built yet, it compiles
    * the `typeDefs` and `resolvers` into `GraphQLSchema`
@@ -350,34 +409,16 @@ export class GraphQLModule<
   get schema() {
     if (typeof this._cache.schema === 'undefined') {
       this.checkConfiguration();
-      const selfImports = this.selfImports;
-      const importsSchemas = selfImports.map(module => module.schema).filter(Boolean);
       try {
-        const selfTypeDefs = this.selfTypeDefs;
         const selfEncapsulatedResolvers = this.addSessionInjectorToSelfResolversContext(this.selfResolvers);
-        const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-          this.selfResolversComposition
+        const importsSchemas = this.selfImports.map((module) => module.schema);
+        const mergeSchemasConfig = this._getMergeSchemasConfig(
+          this.selfTypeDefs,
+          selfEncapsulatedResolvers,
+          importsSchemas,
+          this.selfExtraSchemas
         );
-        const selfResolverValidationOptions = this.selfResolverValidationOptions;
-        const selfExtraSchemas = this.selfExtraSchemas;
-        if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
-          this._cache.schema = mergeSchemas({
-            schemas: [...importsSchemas, ...selfExtraSchemas],
-            typeDefs: selfTypeDefs || undefined,
-            resolvers: selfEncapsulatedResolvers,
-            resolversComposition: selfEncapsulatedResolversComposition,
-            resolverValidationOptions: selfResolverValidationOptions,
-            logger:
-              'clientError' in this.selfLogger
-                ? {
-                    log: message => this.selfLogger.clientError(message)
-                  }
-                : undefined,
-            exclusions: this._exclusionsFromSchema
-          });
-        } else {
-          this._cache.schema = null;
-        }
+        this._cache.schema = mergeSchemasConfig ? mergeSchemas(mergeSchemasConfig) : null;
       } catch (e) {
         if (e.message === 'Must provide typeDefs') {
           this._cache.schema = null;
@@ -405,40 +446,22 @@ export class GraphQLModule<
               this.checkConfiguration();
               try {
                 const selfTypeDefsAsync$ = this.selfTypeDefsAsync;
-                const selfEncapsulatedResolversAsync$ = this.selfResolversAsync.then(selfResolvers =>
+                const selfEncapsulatedResolversAsync$ = this.selfResolversAsync.then((selfResolvers) =>
                   this.addSessionInjectorToSelfResolversContext(selfResolvers)
                 );
                 const [selfTypeDefs, selfEncapsulatedResolvers, selfExtraSchemas, importsSchemas] = await Promise.all([
                   selfTypeDefsAsync$,
                   selfEncapsulatedResolversAsync$,
                   Promise.resolve().then(() => this.selfExtraSchemas),
-                  Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.schemaAsync)))
+                  Promise.resolve().then(() => Promise.all(this.selfImports.map((module) => module.schemaAsync))),
                 ]);
-                const selfEncapsulatedResolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
-                  this.selfResolversComposition
+                const mergeSchemasConfig = this._getMergeSchemasConfig(
+                  selfTypeDefs,
+                  selfEncapsulatedResolvers,
+                  importsSchemas,
+                  selfExtraSchemas
                 );
-                const selfLogger = this.selfLogger;
-                const selfResolverValidationOptions = this.selfResolverValidationOptions;
-                const validImportsSchema = importsSchemas.filter(Boolean);
-
-                if (validImportsSchema.length || selfTypeDefs || selfExtraSchemas.length) {
-                  this._cache.schema = await mergeSchemasAsync({
-                    schemas: [...validImportsSchema, ...selfExtraSchemas].filter(Boolean),
-                    typeDefs: selfTypeDefs || undefined,
-                    resolvers: selfEncapsulatedResolvers,
-                    resolversComposition: selfEncapsulatedResolversComposition,
-                    resolverValidationOptions: selfResolverValidationOptions,
-                    logger:
-                      'clientError' in selfLogger
-                        ? {
-                            log: (message: string | Error) => selfLogger.clientError(message)
-                          }
-                        : undefined,
-                    exclusions: this._exclusionsFromSchema
-                  });
-                } else {
-                  this._cache.schema = null;
-                }
+                this._cache.schema = mergeSchemasConfig ? await mergeSchemasAsync(mergeSchemasConfig) : null;
               } catch (e) {
                 if (e.message === 'Must provide typeDefs') {
                   this._cache.schema = null;
@@ -483,10 +506,10 @@ export class GraphQLModule<
           'onConnect',
           'onOperation',
           'onOperationComplete',
-          'onDisconnect'
+          'onDisconnect',
         ],
         initialProviders: this.selfProviders,
-        children: this.selfImports.map(module => module.injector)
+        children: this.selfImports.map((module) => module.injector),
       }));
       injector.onInstanceCreated = ({ instance }) => {
         if (
@@ -503,7 +526,7 @@ export class GraphQLModule<
         hook: 'onInit',
         args: [this],
         instantiate: true,
-        async: false
+        async: false,
       });
     }
     return this._cache.injector;
@@ -517,7 +540,7 @@ export class GraphQLModule<
             this.checkConfiguration();
             const [initialProviders, children] = await Promise.all([
               Promise.resolve().then(() => this.selfProviders),
-              Promise.resolve().then(() => Promise.all(this.selfImports.map(module => module.injectorAsync)))
+              Promise.resolve().then(() => Promise.all(this.selfImports.map((module) => module.injectorAsync))),
             ]);
             const injector = (this._cache.injector = new Injector<Session>({
               name: this.name,
@@ -531,10 +554,10 @@ export class GraphQLModule<
                 'onConnect',
                 'onOperation',
                 'onOperationComplete',
-                'onDisconnect'
+                'onDisconnect',
               ],
               initialProviders,
-              children
+              children,
             }));
             injector.onInstanceCreated = ({ instance }) => {
               if (
@@ -551,7 +574,7 @@ export class GraphQLModule<
               hook: 'onInit',
               args: [this],
               instantiate: true,
-              async: true
+              async: true,
             });
             resolve(this._cache.injector);
           } catch (e) {
@@ -568,7 +591,7 @@ export class GraphQLModule<
     if (typeof this._cache.extraSchemas) {
       const selfImports = this.selfImports;
       const importsExtraSchemas = selfImports
-        .map(module => module.extraSchemas)
+        .map((module) => module.extraSchemas)
         .reduce((extraSchemas, moduleExtraSchemas) => extraSchemas.concat(moduleExtraSchemas), []);
       const selfExtraSchemas = this.selfExtraSchemas;
       this._cache.extraSchemas = importsExtraSchemas.concat(selfExtraSchemas);
@@ -597,7 +620,7 @@ export class GraphQLModule<
       if (typeDefsArr.length) {
         this._cache.typeDefs = mergeTypeDefs(typeDefsArr, {
           exclusions: this._exclusionsFromSchema,
-          useSchemaDefinition: false
+          useSchemaDefinition: false,
         });
       } else {
         this._cache.typeDefs = null;
@@ -613,18 +636,15 @@ export class GraphQLModule<
           try {
             const [extraSchemas, importsTypeDefs, selfTypeDefs] = await Promise.all([
               Promise.resolve().then(() => this.selfExtraSchemas),
-              Promise.all(this.selfImports.map<any>(module => module.typeDefsAsync)),
-              this.selfTypeDefsAsync
+              Promise.all(this.selfImports.map<any>((module) => module.typeDefsAsync)),
+              this.selfTypeDefsAsync,
             ]);
             const typeDefs = importsTypeDefs.concat(extraSchemas).concat(selfTypeDefs);
             if (typeDefs.length) {
-              this._cache.typeDefs = mergeTypeDefs(
-                typeDefs.filter(Boolean),
-                {
-                  exclusions: this._exclusionsFromSchema,
-                  useSchemaDefinition: false
-                }
-              );
+              this._cache.typeDefs = mergeTypeDefs(typeDefs.filter(Boolean), {
+                exclusions: this._exclusionsFromSchema,
+                useSchemaDefinition: false,
+              });
             } else {
               this._cache.typeDefs = null;
             }
@@ -654,7 +674,7 @@ export class GraphQLModule<
       resolversToBeComposed.push(resolvers);
       const composedResolvers = composeResolvers(
         mergeResolvers(resolversToBeComposed, {
-          exclusions: this._exclusionsFromSchema
+          exclusions: this._exclusionsFromSchema,
         }),
         resolversComposition
       );
@@ -669,17 +689,17 @@ export class GraphQLModule<
         this._cacheAsync.resolversAsync = new Promise(async (resolve, reject) => {
           try {
             const resolversToBeComposed = await Promise.all([
-              ...this.selfImports.map<any>(module => module.resolversAsync),
-              this.selfResolversAsync.then(selfResolvers =>
+              ...this.selfImports.map<any>((module) => module.resolversAsync),
+              this.selfResolversAsync.then((selfResolvers) =>
                 this.addSessionInjectorToSelfResolversContext(selfResolvers)
-              )
+              ),
             ]);
             const resolversComposition = this.addSessionInjectorToSelfResolversCompositionContext(
               this.selfResolversComposition
             );
             const composedResolvers = composeResolvers(
               mergeResolvers(resolversToBeComposed, {
-                exclusions: this._exclusionsFromSchema
+                exclusions: this._exclusionsFromSchema,
               }),
               resolversComposition
             );
@@ -749,17 +769,17 @@ export class GraphQLModule<
                         hook: 'onConnect',
                         args: [connectionParams, websocket, connectionContext],
                         instantiate: true,
-                        async: true
+                        async: true,
                       }),
                       this._options.subscriptionHooks &&
                         this._options.subscriptionHooks.onConnect &&
-                        this._options.subscriptionHooks.onConnect(connectionParams, websocket, connectionContext)
+                        this._options.subscriptionHooks.onConnect(connectionParams, websocket, connectionContext),
                     ]))
                   );
                   resolve({
                     ...importsResult,
                     ...connectionModuleContext,
-                    ...hookResult
+                    ...hookResult,
                   });
                 } catch (e) {
                   reject(e);
@@ -792,17 +812,17 @@ export class GraphQLModule<
                         hook: 'onOperation',
                         args: [message, params, websocket],
                         instantiate: true,
-                        async: true
+                        async: true,
                       }),
                       this._options.subscriptionHooks &&
                         this._options.subscriptionHooks.onOperation &&
-                        this._options.subscriptionHooks.onOperation(message, params, websocket)
+                        this._options.subscriptionHooks.onOperation(message, params, websocket),
                     ]))
                   );
                   resolve({
                     ...importsResult,
                     ...moduleOnOperationResult,
-                    ...params
+                    ...params,
                   });
                 } catch (e) {
                   reject(e);
@@ -836,16 +856,16 @@ export class GraphQLModule<
                         hook: 'onOperationComplete',
                         args: [websocket, opId],
                         instantiate: true,
-                        async: true
+                        async: true,
                       }),
                       this._options.subscriptionHooks &&
                         this._options.subscriptionHooks.onOperationComplete &&
-                        this._options.subscriptionHooks.onOperationComplete(websocket, opId)
+                        this._options.subscriptionHooks.onOperationComplete(websocket, opId),
                     ]))
                   );
                   resolve({
                     ...importsResult,
-                    ...moduleOnOperationCompleteResult
+                    ...moduleOnOperationCompleteResult,
                   });
                 } catch (e) {
                   reject(e);
@@ -875,11 +895,11 @@ export class GraphQLModule<
                       hook: 'onDisconnect',
                       args: [websocket, connectionContext],
                       instantiate: true,
-                      async: true
+                      async: true,
                     }),
                     this._options.subscriptionHooks &&
                       this._options.subscriptionHooks.onDisconnect &&
-                      this._options.subscriptionHooks.onDisconnect(websocket, connectionContext)
+                      this._options.subscriptionHooks.onDisconnect(websocket, connectionContext),
                   ]);
                   this.destroySelfSession(websocket);
                   resolve();
@@ -890,7 +910,7 @@ export class GraphQLModule<
             );
           }
           return moduleOnDisconnect$Map.get(this);
-        }
+        },
       };
     }
     return this._cache.subscriptionHooks;
@@ -941,7 +961,7 @@ export class GraphQLModule<
         typeDefsDefinitions = typeDefsDefinitions.filter(Boolean);
         if (typeDefsDefinitions.length) {
           typeDefs = mergeTypeDefs(typeDefsDefinitions, {
-            useSchemaDefinition: false
+            useSchemaDefinition: false,
           });
         }
       } else if (typeDefsDefinitions instanceof GraphQLSchema) {
@@ -974,7 +994,7 @@ export class GraphQLModule<
             typeDefsDefinitions = typeDefsDefinitions.filter(Boolean);
             if (typeDefsDefinitions.length) {
               typeDefs = mergeTypeDefs(typeDefsDefinitions, {
-                useSchemaDefinition: false
+                useSchemaDefinition: false,
               });
             }
           } else if (typeDefsDefinitions instanceof GraphQLSchema) {
@@ -1044,7 +1064,7 @@ export class GraphQLModule<
         imports = this._options.imports;
       }
     }
-    if (imports.find(module => typeof module === 'undefined')) {
+    if (imports.find((module) => typeof module === 'undefined')) {
       throw new DependencyModuleUndefinedError(this.name);
     }
     return imports;
@@ -1065,14 +1085,14 @@ export class GraphQLModule<
       {
         provide: ModuleConfig(this),
         useValue: this.config,
-        overwrite: true
+        overwrite: true,
       },
       {
         provide: ModuleConfig,
         useValue: this.config,
-        overwrite: true
+        overwrite: true,
       },
-      ...providers
+      ...providers,
     ];
   }
 
@@ -1125,6 +1145,55 @@ export class GraphQLModule<
     );
   }
 
+  /**
+   * Retrieve a resolver function that can access the moduleContext
+   *
+   * @param originalResolver - function that resolves a value
+   * @param originalResolverSelf - a context the original resolver function should be invoked with
+   * @param argsLength - number of arguments that the original resolver function is expecting
+   */
+  private _getWrappedResolver(originalResolver: () => any, originalResolverSelf: any, argsLength = 4) {
+    return async (...args: any[]) => {
+      args.length = argsLength;
+      const contextIndex = argsLength - 2;
+      let appContext = args[contextIndex];
+      const info = args[contextIndex + 1];
+
+      if (appContext instanceof Promise) {
+        appContext = await appContext;
+      } else if (typeof appContext === 'undefined') {
+        appContext = info;
+      }
+      info.session = info.session || appContext.session || appContext;
+      let moduleContext;
+      try {
+        moduleContext = await this.context(info.session, true);
+      } catch (e) {
+        const logger = this.selfLogger;
+        if ('clientError' in logger) {
+          logger.clientError(e);
+        }
+        throw e;
+      }
+      info.schema = this._cache.schema || info.schema;
+      let result;
+      try {
+        args[contextIndex] = moduleContext;
+        result = await originalResolver.apply(originalResolverSelf, args);
+      } catch (e) {
+        if (argsLength === 4) {
+          moduleContext.injector.callHookWithArgsAsync({
+            hook: 'onError',
+            args: [e],
+            instantiate: true,
+          });
+        }
+        throw e;
+      }
+      return result;
+    };
+  }
+
   private addSessionInjectorToSelfResolversContext(selfResolvers: SelfResolvers) {
     for (const type in selfResolvers) {
       const typeResolvers = selfResolvers[type] as any;
@@ -1133,98 +1202,18 @@ export class GraphQLModule<
           const resolver = typeResolvers[prop];
           if (typeof resolver === 'function') {
             if (prop === '__resolveType' || prop === '__isTypeOf' || prop === '__resolveReference') {
-              typeResolvers[prop] = async (root: any, appContext: any, info: any) => {
-                if (appContext instanceof Promise) {
-                  appContext = await appContext;
-                } else if (typeof appContext === 'undefined') {
-                  appContext = info;
-                }
-                info.session = info.session || appContext.session || appContext;
-                let moduleContext;
-                try {
-                  moduleContext = await this.context(info.session, true);
-                } catch (e) {
-                  const logger = this.selfLogger;
-                  if ('clientError' in logger) {
-                    logger.clientError(e);
-                  }
-                  throw e;
-                }
-                info.schema = this._cache.schema || info.schema;
-                let result;
-                try {
-                  result = await resolver.call(typeResolvers, root, moduleContext, info);
-                } catch (e) {
-                  throw e;
-                }
-                return result;
-              };
+              typeResolvers[prop] = this._getWrappedResolver(resolver, typeResolvers, 3);
             } else {
-              typeResolvers[prop] = async (root: any, args: any, appContext: any, info: any) => {
-                if (appContext instanceof Promise) {
-                  appContext = await appContext;
-                } else if (typeof appContext === 'undefined') {
-                  appContext = info;
-                }
-                info.session = info.session || appContext.session || appContext;
-                let moduleContext;
-                try {
-                  moduleContext = await this.context(info.session, true);
-                } catch (e) {
-                  const logger = this.selfLogger;
-                  if ('clientError' in logger) {
-                    logger.clientError(e);
-                  }
-                  throw e;
-                }
-                info.schema = this._cache.schema || info.schema;
-                let result;
-                try {
-                  result = await resolver.call(typeResolvers[prop], root, args, moduleContext, info);
-                } catch (e) {
-                  moduleContext.injector.callHookWithArgsAsync({
-                    hook: 'onError',
-                    args: [e],
-                    instantiate: true
-                  });
-                  throw e;
-                }
-                return result;
-              };
+              typeResolvers[prop] = this._getWrappedResolver(resolver, typeResolvers[prop]);
             }
-          } else if (resolver && typeof resolver === 'object' && resolver['subscribe']) {
-            const subscriber = resolver['subscribe'];
-            typeResolvers[prop]['subscribe'] = async (root: any, args: any, appContext: any, info: any) => {
-              if (appContext instanceof Promise) {
-                appContext = await appContext;
-              } else if (typeof appContext === 'undefined') {
-                appContext = info;
+          } else if (resolver && typeof resolver === 'object') {
+            Object.keys(resolver).forEach((field) => {
+              const original = resolver[field];
+              if (typeof original !== 'function') {
+                return;
               }
-              info.session = info.session || appContext.session || appContext;
-              let moduleContext;
-              try {
-                moduleContext = await this.context(info.session, true);
-              } catch (e) {
-                const logger = this.selfLogger;
-                if ('clientError' in logger) {
-                  logger.clientError(e);
-                }
-                throw e;
-              }
-              info.schema = this._cache.schema || info.schema;
-              let result;
-              try {
-                result = await subscriber.call(typeResolvers[prop], root, args, moduleContext, info);
-              } catch (e) {
-                moduleContext.injector.callHookWithArgsAsync({
-                  hook: 'onError',
-                  args: [e],
-                  instantiate: true
-                });
-                throw e;
-              }
-              return result;
-            };
+              typeResolvers[prop][field] = this._getWrappedResolver(original, typeResolvers[prop]);
+            });
           }
         }
       }
@@ -1255,7 +1244,7 @@ export class GraphQLModule<
           info.schema = this._cache.schema || info.schema;
           return next(root, args, moduleContext, info);
         },
-        ...compositionArr
+        ...compositionArr,
       ];
     };
     for (const path in resolversComposition) {
@@ -1365,11 +1354,11 @@ export class GraphQLModule<
             new Promise(async (resolve, reject) => {
               try {
                 const importsContext: ModuleContext<{}> = {
-                  injector: undefined
+                  injector: undefined,
                 };
                 if (selfImports.length) {
                   const importsContexts = await Promise.all(
-                    selfImports.map(module => module.context(session, true, true))
+                    selfImports.map((module) => module.context(session, true, true))
                   );
                   Object.assign(importsContext, ...importsContexts);
                 }
@@ -1410,7 +1399,7 @@ export class GraphQLModule<
                       hook: 'onResponse',
                       args: [moduleSessionInfo],
                       instantiate: true,
-                      async: false
+                      async: false,
                     });
                     this.destroySelfSession(session);
                   });
@@ -1430,7 +1419,7 @@ export class GraphQLModule<
                   hook: 'onRequest',
                   args: [moduleSessionInfo],
                   instantiate: true,
-                  async: true
+                  async: true,
                 });
                 resolve(moduleSessionInfo.context);
               } catch (e) {
@@ -1442,7 +1431,7 @@ export class GraphQLModule<
         if (excludeInjector && excludeSession) {
           return this._sessionContext$Map.get(session);
         }
-        return this._sessionContext$Map.get(session).then(moduleContext => {
+        return this._sessionContext$Map.get(session).then((moduleContext) => {
           const finalContext = Object.assign({}, moduleContext);
           if (!excludeInjector) {
             finalContext.injector = this.injector.getSessionInjector(session);
