@@ -31,6 +31,7 @@
       "recipes/data-loader",
       "recipes/file-uploads",
       "recipes/db-connection-pooling",
+      "recipes/schema-directives",
       "recipes/apollo-server",
       "recipes/graphql-code-generator",
       "recipes/graphql-inspector",

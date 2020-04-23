@@ -1,4 +1,4 @@
-import { IDirectiveResolvers, IResolverValidationOptions } from 'graphql-tools';
+import { IDirectiveResolvers, IResolverValidationOptions, SchemaDirectiveVisitor } from 'graphql-tools';
 import { mergeResolvers, mergeSchemas, mergeSchemasAsync, mergeTypeDefs } from '@graphql-toolkit/schema-merging';
 import {
   getSchemaDirectiveFromDirectiveResolver,
@@ -126,6 +126,7 @@ export interface GraphQLModuleOptions<
   resolverValidationOptions?: GraphQLModuleOption<IResolverValidationOptions, Config, Session, Context>;
   defaultProviderScope?: GraphQLModuleOption<ProviderScope, Config, Session, Context>;
   subscriptionHooks?: SubscriptionHooks;
+  visitSchemaDirectives?: boolean;
 }
 
 /**
@@ -361,7 +362,7 @@ export class GraphQLModule<
         const selfResolverValidationOptions = this.selfResolverValidationOptions;
         const selfExtraSchemas = this.selfExtraSchemas;
         if (importsSchemas.length || selfTypeDefs || selfExtraSchemas.length) {
-          this._cache.schema = mergeSchemas({
+          const schema = mergeSchemas({
             schemas: [...importsSchemas, ...selfExtraSchemas],
             typeDefs: selfTypeDefs || undefined,
             resolvers: selfEncapsulatedResolvers,
@@ -375,6 +376,12 @@ export class GraphQLModule<
                 : undefined,
             exclusions: this._exclusionsFromSchema
           });
+
+          if (this._options.visitSchemaDirectives) {
+            SchemaDirectiveVisitor.visitSchemaDirectives(schema, this.schemaDirectives)
+          }
+
+          this._cache.schema = schema
         } else {
           this._cache.schema = null;
         }
@@ -422,7 +429,7 @@ export class GraphQLModule<
                 const validImportsSchema = importsSchemas.filter(Boolean);
 
                 if (validImportsSchema.length || selfTypeDefs || selfExtraSchemas.length) {
-                  this._cache.schema = await mergeSchemasAsync({
+                  const schema = await mergeSchemasAsync({
                     schemas: [...validImportsSchema, ...selfExtraSchemas].filter(Boolean),
                     typeDefs: selfTypeDefs || undefined,
                     resolvers: selfEncapsulatedResolvers,
@@ -436,6 +443,12 @@ export class GraphQLModule<
                         : undefined,
                     exclusions: this._exclusionsFromSchema
                   });
+
+                  if (this._options.visitSchemaDirectives) {
+                    SchemaDirectiveVisitor.visitSchemaDirectives(schema, this.schemaDirectives)
+                  }
+
+                  this._cache.schema = schema
                 } else {
                   this._cache.schema = null;
                 }
