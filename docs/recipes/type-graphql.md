@@ -6,7 +6,9 @@ sidebar_label: TypeGraphQL
 
 **TypeGraphQL** is a set of tools that provides you some decorators that can be used for writing your GraphQL definitions.
 You can define your type definitions and resolvers using **TypeScript** classes thanks to **TypeGraphQL** decorators.
-You can check out **[TypeGraphQL documents](https://typegraphql.ml/)** to learn more.
+You can check out **[TypeGraphQL documents](https://typegraphql.com/)** to learn more.
+
+Important: Make sure you follow the [installation steps](https://typegraphql.com/docs/installation.html), such as installing `reflect-metadata` and configuring your typescript correctly.
 
 On the other hand, GraphQL Modules provides encapsulated dependency injection which allows you to seperate your logic from resolvers.
 It makes testing easy, because you can mock providers and stuff for dependency indejection.
