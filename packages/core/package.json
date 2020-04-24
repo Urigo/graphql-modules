@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@graphql-modules/di": "0.7.15",
-    "@graphql-toolkit/common": "0.10.4",
-    "@graphql-toolkit/schema-merging": "0.10.4",
+    "@graphql-toolkit/common": "0.10.5",
+    "@graphql-toolkit/schema-merging": "0.10.5",
     "apollo-server-caching": "0.5.1",
     "deepmerge": "4.2.2",
     "graphql-tools": "5.0.0",
