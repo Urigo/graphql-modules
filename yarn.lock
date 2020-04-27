@@ -9454,10 +9454,10 @@ typedoc-plugin-docusaurus@1.0.14:
   dependencies:
     to-markdown "^3.1.1"
 
-typedoc@0.17.5:
-  version "0.17.5"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.17.5.tgz#5af90933347d06826fa080684a12e93e802b6abd"
-  integrity sha512-hL+pNd4lbhvvLUdsmgL2LOkcoAE63sBvDgrOECQBzcb/zHi2s8IeV1hXM4QYIu/REyAypCrgcI5hV7Ek1tKoRA==
+typedoc@0.17.6:
+  version "0.17.6"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.17.6.tgz#cab87a72c10e05429016d659a4c3071a5a3ffb61"
+  integrity sha512-pQiYnhG3yJk7939cv2n8uFoTsSgy5Hfiw0dgOQYa9nT9Ya1013dMctQdAXMj8JbNu7KhcauQyq9Zql9D/TziLw==
   dependencies:
     fs-extra "^8.1.0"
     handlebars "^4.7.6"

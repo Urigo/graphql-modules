@@ -44,7 +44,7 @@
     "rimraf": "3.0.2",
     "tslint": "6.1.1",
     "ts-jest": "25.4.0",
-    "typedoc": "0.17.5",
+    "typedoc": "0.17.6",
     "typedoc-plugin-docusaurus": "1.0.14"
   },
   "publishConfig": {
