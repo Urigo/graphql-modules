@@ -36,7 +36,7 @@
     "log-symbols": "3.0.0"
   },
   "devDependencies": {
-    "@types/node": "12.12.37",
+    "@types/node": "12.12.38",
     "bob-the-bundler": "0.3.4",
     "typescript": "3.8.3"
   }
