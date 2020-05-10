@@ -7,7 +7,7 @@ sidebar_label: Context
 In GraphQL, a context is an object shared by all the resolvers of a specific execution.
 It's useful for keeping data such as authentication info, the current user, database connection, data sources and other things you need for running your business logic.
 
-The context is available as the 3rd argument of each resolver:
+The context is available as the 3rd argument to each resolver:
 
 ```typescript
 const resolvers = {
@@ -18,6 +18,8 @@ const resolvers = {
 ```
 
 > You can read more about resolver in **[Apollo Server documentation](https://www.apollographql.com/docs/graphql-tools/resolvers#Resolver-function-signature)**.
+
+Since modules are isolated (see [why](https://medium.com/the-guild/why-is-true-modular-encapsulation-so-important-in-large-scale-graphql-projects-ed1778b03600)), there is no common context unless you explicitly create one. In the [case of authentication](https://www.apollographql.com/docs/apollo-server/security/authentication/#putting-user-info-on-the-context) for example, you need to create an authentication module that places the authenticated user into the context, then explicitly import that authentication module from each module that uses authentication.
 
 GraphQL Modules also uses the context; it adds to the context a field called `injector`, which you can use to get access to the dependency injection container of your `GraphQLModule`.
 
