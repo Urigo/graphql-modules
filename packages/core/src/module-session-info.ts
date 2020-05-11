@@ -5,7 +5,8 @@ export class ModuleSessionInfo<Config = any, Session extends object = any, Conte
   constructor(private _module: GraphQLModule<Config, Session, Context>, private _session: Session) {
     this.injector.provide({
       provide: ModuleSessionInfo,
-      useValue: this
+      useValue: this,
+      overwrite: true,
     });
   }
   get module() {

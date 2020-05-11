@@ -332,8 +332,8 @@ describe('GraphQLModule', () => {
           resolvers: {
             Date: new GraphQLScalarType({
               name: 'Date',
-              serialize() {},
-              parseValue() {},
+              serialize() { },
+              parseValue() { },
               parseLiteral(ast) {
                 if (ast.kind !== Kind.STRING) {
                   throw new TypeError(`Date cannot represent non string type`);
@@ -441,7 +441,7 @@ describe('GraphQLModule', () => {
 
       @Injectable()
       class ProviderB {
-        constructor(public providerA: ProviderA) {}
+        constructor(public providerA: ProviderA) { }
       }
 
       const moduleA = new GraphQLModule({ providers: [ProviderB] });
@@ -975,7 +975,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString
           });
 
-          field.resolve = async function(source, args, context, info) {
+          field.resolve = async function (source, args, context, info) {
             const date = await resolve.call(this, source, args, context, info);
             return date.toLocaleDateString();
           };
@@ -1020,7 +1020,7 @@ describe('GraphQLModule', () => {
             type: GraphQLString
           });
 
-          field.resolve = async function(source, args, context, info) {
+          field.resolve = async function (source, args, context, info) {
             const date = await resolve.call(this, source, args, context, info);
             return date.toLocaleDateString();
           };
@@ -1152,7 +1152,7 @@ describe('GraphQLModule', () => {
         scope: ProviderScope.Session
       })
       class ProviderA {
-        constructor(private moduleInfo: ModuleSessionInfo) {}
+        constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
           return this.moduleInfo.session.foo;
         }
@@ -1161,7 +1161,7 @@ describe('GraphQLModule', () => {
         scope: ProviderScope.Request
       })
       class ProviderB {
-        constructor(private moduleInfo: ModuleSessionInfo) {}
+        constructor(private moduleInfo: ModuleSessionInfo) { }
         test() {
           return this.moduleInfo.session.foo;
         }
@@ -2210,4 +2210,67 @@ describe('GraphQLModule', () => {
     expect(result.data['foo']).toBeTruthy();
     expect(result.data['foo']['foo']).toBe('bar');
   });
+  it('should mock context properly', async () => {
+    const AuthModule = new GraphQLModule({
+      typeDefs: gql`
+    type User {
+      id: String
+    }
+  `,
+      resolvers: {
+        User: {
+          id: user => user.id
+        }
+      },
+      context: req => {
+        // This is the "real" implementation
+        return {
+          user: {
+            id: req.headers["User-Id"]
+          }
+        };
+      }
+    });
+
+    const AdminModule = new GraphQLModule({
+      typeDefs: gql`
+    type Query {
+      me: User!
+    }
+  `,
+      imports: [AuthModule],
+      resolvers: {
+        Query: {
+          me: (root, args, context) => context.user
+        }
+      }
+    });
+
+    AuthModule.mock({
+      contextBuilder: ({ mockId }) => {
+        return {
+          user: {
+            id: mockId
+          }
+        } as any;
+      }
+    });
+
+    const result = await execute({
+      schema: AdminModule.schema,
+      contextValue: {
+        mockId: "1"
+      },
+      document: parse(/* GraphQL */ `
+        {
+          me {
+            id
+          }
+        }
+      `)
+    });
+
+    expect(result.data.me.id).toBe("1");
+    AuthModule.resetMock();
+  })
 });
