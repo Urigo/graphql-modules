@@ -301,7 +301,7 @@ export class GraphQLModule<
         });
         return {
           injector: sessionInjector,
-          ...providedContextBuilder(session, excludeSession)
+          ...(await providedContextBuilder(session, excludeSession))
         };
       };
     }
