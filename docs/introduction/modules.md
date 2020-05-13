@@ -4,41 +4,41 @@ title: What's a module?
 sidebar_label: What's a module?
 ---
 
-The GraphQL Modules approach lets you separate your backend implementation to small, reusable, easy-to-implement and easy-to-test pieces.
+The GraphQL Modules approach lets you separate your backend implementation into small, reusable, easy-to-implement and easy-to-test pieces.
 
 In GraphQL Modules, each module has its own GraphQL type definitions and resolver implementations.
 
-GraphQL `type`s, `enum`s and `union`s declared on GraphQL Modules are also extensible: modules can re-declare types and extend them as they wish.
+GraphQL `type`s, `enum`s and `union`s declared in GraphQL Modules are also extensible: modules can re-declare types and extend them as they wish.
 
-The idea behind it is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only does what it needs to. In this way it's easier to write, maintain and test.
+The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
 
 ## Module Structure
 
-Each GraphQL `module` is built behind the basics of GraphQL:
+Each GraphQL `module` is built using the basics of GraphQL:
 
 - Type definitions
 - Resolvers
 
-And as your application grows, modules can have:
+As your application grows, modules can have:
 
 - External configurations
-- Dependencies for other modules
-- Providers (we will elaborate about it in Dependency Injection part)
+- Dependencies on other modules
+- Providers (we will elaborate on this in the [Dependency Injection](dependency-injection) section)
 
 ## Modules Example
 
-To get a better understanding of module structures and its extensibility, let's make an example app with four modules:
+To get a better understanding of the structure and extensibility of modules, let's make an example app with four modules:
 
 - User (define what a user in our app should have)
-- Authentication (defines only what is needed for users' authentication)
-- Profile (define users' profile)
-- Gallery (defined users' photo gallery)
+- Authentication (define only what is needed to authenticate users)
+- Profile (define a user's profile)
+- Gallery (define a user's photo gallery)
 
-Let's understand how to define each module's schema and how to separate it to smaller pieces.
+Let's understand how to define each module's schema and how to separate it into smaller pieces.
 
 #### User Module
 
-This module allows querying users by id and it defines only the very basic fields.
+This module allows querying users by id and defines only the very basic fields.
 
 ```graphql
 type Query {
