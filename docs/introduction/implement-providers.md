@@ -4,7 +4,7 @@ title: Implement Your Providers
 sidebar_label: Implement Providers
 ---
 
-When your app grows and becomes more complex, you can use **Providers** (it's just a class to implement your resolvers' logic.
+When your app grows and becomes more complex, you can use **Providers** - classes that implement your resolvers' logic.
 
 You can define a provider and add it to your module.
 
