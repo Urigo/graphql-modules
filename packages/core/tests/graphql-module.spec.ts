@@ -1071,6 +1071,61 @@ describe('GraphQLModule', () => {
 
       expect(result.data['today']).toEqual(new Date().toLocaleDateString());
     });
+
+    it('should visit directives if visitSchemaDirectives option is set to true', async () => {
+      const typeDefs = gql`
+        directive @date on FIELD_DEFINITION
+
+        scalar Date
+
+        type Query {
+          today: Date @date
+        }
+      `;
+
+      class FormattableDateDirective extends SchemaDirectiveVisitor {
+        public visitFieldDefinition(field) {
+          const { resolve = defaultFieldResolver } = field;
+
+          field.args.push({
+            name: 'format',
+            type: GraphQLString
+          });
+
+          field.resolve = async function (source, args, context, info) {
+            const date = await resolve.call(this, source, args, context, info);
+            return date.toLocaleDateString();
+          };
+
+          field.type = GraphQLString;
+        }
+      }
+
+      const { schema, schemaDirectives } = new GraphQLModule({
+        typeDefs,
+        resolvers: {
+          Query: {
+            today: () => new Date()
+          }
+        },
+        schemaDirectives: {
+          date: FormattableDateDirective
+        },
+        visitSchemaDirectives: true,
+      });
+
+      const result = await execute({
+        schema,
+
+        document: gql`
+          query {
+            today
+          }
+        `
+      });
+
+      expect(result.data['today']).toEqual(new Date().toLocaleDateString());
+    })
   });
   describe('Providers Scope', () => {
     it('should construct session scope on each network session', async () => {
