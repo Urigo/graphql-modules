@@ -29,6 +29,11 @@
     "ci:release:canary": "git update-index --assume-unchanged .npmrc && lerna publish --ignore bundle-test --force-publish=\"*\" --preid \"alpha-`git rev-parse --short HEAD`\" --canary --exact --yes",
     "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "devDependencies": {
     "@types/jest": "25.2.2",
     "bundlesize": "0.18.0",
@@ -42,10 +47,11 @@
     "reflect-metadata": "0.1.13",
     "replace-in-file": "6.0.0",
     "rimraf": "3.0.2",
-    "tslint": "6.1.2",
     "ts-jest": "25.5.1",
+    "tslint": "6.1.2",
     "typedoc": "0.17.6",
-    "typedoc-plugin-docusaurus": "1.0.14"
+    "typedoc-plugin-docusaurus": "1.0.14",
+    "typescript": "3.9.2"
   },
   "publishConfig": {
     "access": "public"
@@ -53,8 +59,7 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "tslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "prettier": {

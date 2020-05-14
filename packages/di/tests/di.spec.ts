@@ -10,7 +10,7 @@ describe('Dependency Injection', () => {
       }
     }
     const injector = new Injector({
-      initialProviders: [FooProvider]
+      initialProviders: [FooProvider],
     });
     expect(injector.get(FooProvider).foo()).toBe('FOO');
     injector.provide({
@@ -19,8 +19,8 @@ describe('Dependency Injection', () => {
       useValue: {
         foo() {
           return 'BAR';
-        }
-      }
+        },
+      },
     });
     expect(injector.get(FooProvider).foo()).toBe('BAR');
   });

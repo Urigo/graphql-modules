@@ -5,7 +5,7 @@ import {
   ValueProvider,
   ClassProvider,
   FactoryProvider,
-  TypeProvider
+  TypeProvider,
 } from './types';
 
 export const DESIGN_PARAMTYPES = 'design:paramtypes';
