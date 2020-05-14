@@ -4,11 +4,11 @@ title: Dependency Injection
 sidebar_label: Dependency Injection
 ---
 
-GraphQL Modules lets you use dependency injection between your modules, and lets you inject configs, functions, classes and instances to your modules.
+GraphQL Modules lets you use dependency injection among your modules, and lets you inject configs, functions, classes and instances into your modules.
 
-We expose a simple API that covers most use cases on relations between backend modules.
+We expose a simple API that covers most use cases concerning backend modules.
 
-We learned not to force you to use dependency injection too early in the process, because dependency injection makes sense just on some specific use cases and using it can be recommendable only when your codebase is quite large and you need to move fast.
+We learned not to force using dependency injection too early in the process, because dependency injection makes sense only in some specific use cases, and using it can be recommended only when your codebase is quite large and you need to move fast.
 
 GraphQL Modules lets you choose whether to use dependency injection or not.
 
@@ -58,7 +58,7 @@ export class UserProvider {
 
 > The lifecycle of a `Provider` is by default a singleton. So you can use the implemented functions as utility and still use `this` to save global variables.
 
-And to use this function from our Provider in the actual resolver implementation, get `injector` from `context`:
+To use this function from our Provider in the actual resolver implementation, get `injector` from `context`:
 
 ```typescript
 import { ModuleContext } from '@graphql-modules/core';
@@ -136,7 +136,7 @@ You can use custom injection tokens to identify your injectables.
 ### Class
 
 We have already learned how to provide classes:
-just specify the class in the list of `providers` on your module declaration.
+just specify the class in the list of `providers` in your module declaration.
 
 ```typescript
 export const MyModule = new GraphQLModule({
@@ -251,7 +251,7 @@ export class AuthProvider implements OnRequest {
 
 ### `OnResponse` hook (experimental)
 
-It takes the same parameter as the `OnRequest` hook but gets called even before the server sends an HTTP response to the client.
+It takes the same parameter as the `OnRequest` hook but gets called right before the server sends the HTTP response to the client.
 
 Example:
 
@@ -323,7 +323,7 @@ export class AuthProvider implements OnConnect {
 ### `OnDisconnect` hook
 
 This hook is similar to `OnResponse` but it is called on the termination of the WebSocket connection.
-It is exactly same with `OnDisconnect` hook passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
+It is exactly the same as the `OnDisconnect` hook passed to `subscriptions` in **[SubscriptionServer](https://github.com/apollographql/subscriptions-transport-ws)**.
 
 See also **[Apollo document on authentication over WebSocket](https://www.apollographql.com/docs/graphql-subscriptions/authentication.html)**.
 
@@ -343,7 +343,7 @@ export class MyProvider implements OnDisconnect {
 > The `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
 > See also **[API of `OnDisconnect`](/docs/api/core/api-interfaces-ondisconnect)**.
 
-> The other `OnOperation` and `OnOperationComplete` hooks work similar to GraphQL Subscription Server implementation.
+> The other `OnOperation` and `OnOperationComplete` hooks work similarly to the GraphQL Subscription Server implementation.
 > See also **[the document of subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)**.
 
 ## Provider Scopes
@@ -378,9 +378,9 @@ export class MyProvider {}
 
 When a network request arrives at your GraphQL server, the GraphQL server calls the context factory of the parent module.
 The parent module creates a session injector and instantiates session-scoped providers with the session object which contains the current context, session injector and network request.
-This session object is passed through the module's resolvers using the module’s context.
+This session object is passed through the module's resolvers using the module's context.
 
-In other words, providers defined in the session scope are constructed at the beginning of the network request and then kept until the network request is closed.
+In other words, providers defined in the session scope are constructed at the start of the network request and then kept until the network request is closed.
 Whereas application-scoped providers are kept during the application runtime and shared between all the following network requests and resolvers in the requests, this type of providers would not be shared between different requests; in resolver calls those belong to the same network request.
 
 This session scope is kept on memory for all the following network requests of the same connection if the connection uses WebSocket. For regular HTTP, it is terminated immediately.
@@ -388,7 +388,7 @@ This session scope is kept on memory for all the following network requests of t
 ### Request Scope
 
 If you have request-scope'd providers in your GraphQL Module, these providers are generated in every injection.
-This means a request-scoped provider is never kept by neither the application state nor the session state.
+This means a request-scoped provider is never kept by neither the application state, nor the session state.
 So this type of providers works just like a [factory](https://en.wikipedia.org/wiki/Factory_method_pattern).
 It creates an instance each time you request from the injector.
 
