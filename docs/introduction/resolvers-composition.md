@@ -5,11 +5,11 @@ sidebar_label: Resolvers Composition
 ---
 
 GraphQL Modules has another powerful feature called 'Resolvers Composition'.
-With this feature, you can easily make sure each of your modules only does what it has to do as business logic and does not do unrelated things.
+With this feature, you can easily make sure each of your modules only performs the business logic it needs to do, and does not perform unrelated operations.
 
 ## With Basic Resolvers
 
-For example, if you have a simple server with authentication and you wish to make sure that one of your queries is protected and only allowed for authenticated users and for users with the `EDITOR` role, your resolver needs to verify these rules as well:
+For example, if you have a simple server with authentication and you wish to make sure that one of your queries is protected and only allowed for authenticated users with the `EDITOR` role, your resolver needs to verify these rules as well:
 
 ```typescript
 const resolvers = {
@@ -21,7 +21,7 @@ const resolvers = {
       }
 
       // Make sure that the user has the correct roles
-      if (!context.currentUser.roles || context.currentUser.roles.includes('EDITOR')) {
+      if (!context.currentUser.roles || !context.currentUser.roles.includes('EDITOR')) {
         throw new Error('You are not authorized!');
       }
 
@@ -36,12 +36,12 @@ const resolvers = {
 };
 ```
 
-But this is part of your business logic;
-it's just part of the flow that you should run before accessing your resolver.
+But the authorization checks are not part of your business logic;
+they're just part of the flow that you should run before accessing your resolver.
 
 GraphQL Modules lets you separate these concerns: you can implement only the business logic of your resolver and then the app that consumes the module will wrap the resolver with custom logic.
 
-This works just as **middleware** implementation.
+The concept is similar to that of **middleware**.
 
 Let's strip the resolver of all the unnecessary code:
 
@@ -61,7 +61,7 @@ const resolvers = {
 
 And let's create utility functions in different files with the logic we have removed here.
 
-We can implement it just like a GraphQL resolver; we now need to tell GraphQL Modules that the process has been okay by using the `next` function.
+We can implement authentication and authorization just like GraphQL resolvers; we need to tell GraphQL Modules that the process has succeeded by calling the `next` function.
 
 ```typescript
 export const isAuthenticated = () => (next) => async (root, args, context, info) => {
@@ -73,7 +73,7 @@ export const isAuthenticated = () => (next) => async (root, args, context, info)
 };
 
 export const hasRole = (role: string) => (next) => async (root, args, context, info) => {
-  if (!context.currentUser.roles || context.currentUser.roles.includes(role)) {
+  if (!context.currentUser.roles || !context.currentUser.roles.includes(role)) {
     throw new Error('You are not authorized!');
   }
 
@@ -81,7 +81,7 @@ export const hasRole = (role: string) => (next) => async (root, args, context, i
 };
 ```
 
-Now on our `GraphQLModule` declaration, let's add `resolversComposition` with a map from `TypeName.fieldName` to the function/functions we wish to wrap the resolver with.
+Now in our `GraphQLModule` declaration, let's add `resolversComposition` with a map from `TypeName.fieldName` to the function/functions we wish to wrap the resolver with.
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
@@ -115,4 +115,4 @@ In this case, Before each execution of any resolver under `Query`, GraphQL Modul
 
 The great thing about resolvers composition is that each of our resolvers just does its own job without unrelated logic and the app can extend resolvers later on arbitrary rules.
 
-Now it's easier to re-use modules: you can implement the logic once and wrap it on different rules later.
+Now it's easier to re-use modules: you can implement the logic once and wrap it with different rules later.
