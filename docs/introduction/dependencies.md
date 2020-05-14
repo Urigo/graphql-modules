@@ -5,19 +5,16 @@ sidebar_label: Dependencies Between Modules
 ---
 
 With GraphQL Modules you can create dependencies between modules.
-It will effect the initialization order, and effect the order that `Provider`s are loaded.
+They will affect the initialization order, and the order in which `Provider`s are loaded.
 
-To add a dependency to another module, start by adding the `dependencies` array to your module declaration.
+To add a dependency to another module, start by adding the `imports` array to your module declaration.
 
-To see it in action, let's add another module. We will then demonstrate it in the `my-module`.
-
-Let's add a new module called `my-second-module`:
+To see it in action, let's add a new module called `my-second-module`:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
 import * as typeDefs from './schema.graphql';
 import resolvers from './resolvers';
-import { UserProvider } from './user.provider';
 
 export const MySecondModule = new GraphQLModule({
   typeDefs,
@@ -25,7 +22,7 @@ export const MySecondModule = new GraphQLModule({
 });
 ```
 
-Now, you can add a direct dependency by adding to our first module:
+Now, we can add a direct dependency by adding to our first module:
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
