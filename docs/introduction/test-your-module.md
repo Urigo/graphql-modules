@@ -98,4 +98,16 @@ UsersModule.mock({
 });
 ```
 
-Then, run `jest` to get your test results.
+For authentication (a common use case for mocking the context), if `UsersModule` imports `AuthModule` and you want to mock the logged in user during tests to have an admin role, you can do this in `beforeAll`:
+
+```ts
+AuthModule.mock({
+  contextBuilder: () => ({
+    user: {
+      roles: ['admin'],
+    },
+  }),
+});
+```
+
+In `afterAll`, or when you're done with the mock, run `AuthModule.resetMock()`.
