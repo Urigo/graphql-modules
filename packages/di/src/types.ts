@@ -37,10 +37,10 @@ export interface ProviderOptions {
 export enum ProviderScope {
   Application = 'APPLICATION',
   Request = 'REQUEST',
-  Session = 'SESSION'
+  Session = 'SESSION',
 }
 
 export type Instances<Dependencies extends Array<ServiceIdentifier<any>>> = {
-  [Key in keyof Dependencies]: Dependencies[Key] extends Type<any> ? InstanceType<Dependencies[Key]> : any
+  [Key in keyof Dependencies]: Dependencies[Key] extends Type<any> ? InstanceType<Dependencies[Key]> : any;
 };
 export type ExtendedSession<Session> = Session & { nameSessionInjectorMap: Map<string, Injector> };

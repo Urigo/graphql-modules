@@ -2,7 +2,7 @@ import { DESIGN_PARAMTYPES, PROVIDER_OPTIONS, PROPERTY_KEYS } from './utils';
 import { ProviderOptions } from './types';
 
 export function Injectable(options: ProviderOptions = {}): ClassDecorator {
-  return target => {
+  return (target) => {
     const existingDesignParamTypes = Reflect.getMetadata(DESIGN_PARAMTYPES, target) || [];
     Reflect.defineMetadata(DESIGN_PARAMTYPES, existingDesignParamTypes, target);
     Reflect.defineMetadata(PROVIDER_OPTIONS, options, target);
