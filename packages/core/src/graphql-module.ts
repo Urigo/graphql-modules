@@ -207,7 +207,7 @@ export class GraphQLModule<
   private _exclusionsFromSchema = new Array<string>();
 
   /**
-   * Creates a new `GraphQLModule` instance, merged it's type definitions and resolvers.
+   * Creates a new `GraphQLModule` instance, merging its type definitions and resolvers.
    * @param options - module configuration
    */
   constructor(
@@ -276,6 +276,7 @@ export class GraphQLModule<
     };
   }
 
+  /** Mock the contextBuilder */
   mock(partialCache?: Partial<ModuleCache<Session, Context>>) {
     if (partialCache.contextBuilder) {
       const providedContextBuilder = partialCache.contextBuilder;
@@ -313,6 +314,7 @@ export class GraphQLModule<
     return this;
   }
 
+  /** Remove the contextBuidler mock */
   resetMock() {
     this.clearCache();
     return this;
