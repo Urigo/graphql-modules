@@ -63,7 +63,7 @@ const siteConfig = {
   usePrism: true,
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ['https://buttons.github.io/buttons.js'],
+  scripts: ['https://buttons.github.io/buttons.js', 'https://the-guild.dev/static/banner.js'],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
