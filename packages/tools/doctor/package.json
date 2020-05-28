@@ -34,7 +34,7 @@
     "dependency-graph": "0.9.0",
     "glob": "7.1.6",
     "madge": "3.9.0",
-    "ts-node": "8.10.1",
+    "ts-node": "8.10.2",
     "typescript": "3.9.3"
   },
   "devDependencies": {
