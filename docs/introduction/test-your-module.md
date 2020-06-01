@@ -74,7 +74,8 @@ describe('UserModule', () => {
             username
           }
         }
-      `
+      `,
+      contextValue: {},
     });
     expect(result.errors).toBeFalsy();
     expect(result.data['userById']['id']).toBe('ANOTHERID');
