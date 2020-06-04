@@ -35,7 +35,7 @@
     "glob": "7.1.6",
     "madge": "3.9.0",
     "ts-node": "8.10.2",
-    "typescript": "3.9.3"
+    "typescript": "3.9.5"
   },
   "devDependencies": {
     "bob-the-bundler": "0.3.4"
