@@ -1,9 +1,11 @@
-import { Injectable } from '@graphql-modules/di';
+import { Injectable } from 'graphql-modules';
 
-const users = [{
-  _id: 0,
-  username: 'Sample User',
-}];
+const users = [
+  {
+    _id: 0,
+    username: 'Sample User',
+  },
+];
 
 @Injectable()
 export class Users {

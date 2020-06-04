@@ -1,32 +1,34 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directories
 node_modules
-.idea
+
+# Optional npm cache directory
+.npm
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Builds
 dist
-build
-out
-temp
-lerna-debug.log
-packages/*/yarn.lock
-packages/*/yarn-error.log
-examples/*/yarn.lock
-packages/*/yarn-error.log
-yarn-error.log
 
-.DS_Store
+# IDE
+.idea
+.vscode
 
-lib/core/metadata.js
-lib/core/MetadataBlog.js
-
-website/translated_docs
-website/build/
-website/yarn.lock
-website/functions
-website/node_modules
-website/i18n/*
-
-docs/api/**/*.md
-
-test-results/
-junit.xml
-
-yarn.lock
-package-lock.json
+.bob
+tsconfig.tsbuildinfo

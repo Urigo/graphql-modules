@@ -1,13 +1,35 @@
+declare global {
+  namespace GraphQLModules {
+    interface GlobalContext {
+      request: any;
+    }
+  }
+}
+
 import 'reflect-metadata';
-import { AppModule } from './app/app.module';
-import * as express from 'express';
-import * as graphQLHTTP from 'express-graphql';
+import { createApplication } from 'graphql-modules';
+import express from 'express';
+import graphQLHTTP from 'express-graphql';
+import { UserModule } from './app/user/user.module';
+import { AuthModule } from './app/auth/auth.module';
+import { SocialNetworkModule } from './app/social-network/social-network.module';
 
-const app = express();
+const server = express();
+const app = createApplication({
+  modules: [UserModule, AuthModule, SocialNetworkModule],
+});
+const execute = app.createExecution();
 
-app.use('/graphql', graphQLHTTP({
-    schema: AppModule.schema,
+server.use(
+  '/graphql',
+  graphQLHTTP((request: any) => ({
+    schema: app.schema,
     graphiql: true,
-}));
+    customExecuteFn: execute as any,
+    context: { request },
+  }))
+);
 
-app.listen(4000);
+server.listen(4000, () => {
+  console.log('Live http://localhost:4000/graphql');
+});

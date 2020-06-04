@@ -1,19 +1,16 @@
-import { GraphQLModule } from '@graphql-modules/core';
-import gql from 'graphql-tag';
-import { UserModule } from '../user/user.module';
+import { createModule, gql } from 'graphql-modules';
 
-export const SocialNetworkModule = new GraphQLModule({
+export const SocialNetworkModule = createModule({
+  id: 'social-network',
+  dirname: __dirname,
   typeDefs: gql`
-    type User {
+    extend type User {
       friends: [User]
     }
   `,
   resolvers: {
     User: {
-      friends: user => user.friends,
+      friends: (user: any) => user.friends,
     },
   },
-  imports: [
-    UserModule,
-  ],
 });

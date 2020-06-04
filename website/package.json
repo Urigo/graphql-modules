@@ -1,21 +1,31 @@
 {
   "scripts": {
-    "examples": "docusaurus-examples",
-    "start": "docusaurus-start",
-    "build": "yarn build:app && yarn build:lambda",
-    "build:app": "docusaurus-build",
-    "build:lambda": "netlify-lambda build lambda",
-    "publish-gh-pages": "docusaurus-publish",
-    "write-translations": "docusaurus-write-translations",
-    "rename-version": "docusaurus-rename-version"
-  },
-  "devDependencies": {
-    "docusaurus": "1.14.4",
-    "netlify-lambda": "1.6.3"
+    "start": "yarn api && docusaurus start",
+    "build": "yarn api && node ./links.js && docusaurus build",
+    "deploy": "docusaurus deploy",
+    "api": "node ./scripts/api-doc.js"
   },
   "dependencies": {
-    "babel-preset-minify": "0.5.1",
-    "sendmail": "1.6.1",
-    "sweetalert2": "9.15.1"
+    "@docusaurus/core": "2.0.0-alpha.56",
+    "@docusaurus/preset-classic": "2.0.0-alpha.56",
+    "@docusaurus/plugin-ideal-image": "2.0.0-alpha.56",
+    "@phenomnomnominal/tsquery": "4.1.0",
+    "globby": "11.0.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "remark-import-partial": "0.0.2",
+    "typescript": "3.9.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
