@@ -1,34 +1,19 @@
-import { GraphQLModule } from '@graphql-modules/core';
-import { Request } from 'express';
-import gql from 'graphql-tag';
-import { UserModule } from '../user/user.module';
+import { createModule, gql } from 'graphql-modules';
 
-export const AuthModule = new GraphQLModule({
+export const AuthModule = createModule({
+  id: 'auth',
+  dirname: __dirname,
   typeDefs: gql`
     type Query {
       me: User
     }
-
-    type User {
-      id: String
-    }
   `,
   resolvers: {
-    User: {
-      id: user => user._id
-    },
     Query: {
-      me: (root, args, context) => context.authenticatedUser
-    }
-  },
-  imports: [UserModule],
-  context: async (session: { req: Request }) => {
-    const authHeader = session.req.headers.authorization;
-    return {
-      authenticatedUser: {
+      me: () => ({
         _id: 1,
-        username: 'me'
-      }
-    };
-  }
+        username: 'me',
+      }),
+    },
+  },
 });

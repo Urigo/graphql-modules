@@ -1,4 +1,4 @@
-import { Injectable } from '@graphql-modules/di';
+import { Injectable } from 'graphql-modules';
 import { Users } from '../../user/providers/users';
 
 const posts = [
@@ -21,9 +21,7 @@ const posts = [
 
 @Injectable()
 export class Blog {
-  constructor(
-    private users: Users,
-  ) {}
+  constructor(private users: Users) {}
 
   getPostsOf(userId: number) {
     return posts.filter(({ authorId }) => userId === authorId);

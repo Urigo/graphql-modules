@@ -5,39 +5,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register ./src/index.ts",
+    "start": "ts-node --project ../../tsconfig.app.json ./src/index.ts",
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.7.0",
-    "@types/express": "4.16.1",
-    "@types/express-graphql": "0.6.2",
-    "express": "4.16.4",
-    "express-graphql": "0.7.1",
-    "graphql": "14.2.1",
-    "reflect-metadata": "0.1.13",
-    "ts-node": "8.0.2",
-    "tsconfig-paths": "^3.9.0",
-    "typescript": "3.4.3"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
-  "devDependencies": {
-    "@types/jest": "23.3.2",
-    "graphql-tag": "^2.10.3",
-    "jest": "23.5.0",
-    "ts-jest": "23.1.4"
+    "graphql-modules": "0.0.0-PLACEHOLDER"
   }
 }

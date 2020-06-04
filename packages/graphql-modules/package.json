@@ -1,0 +1,27 @@
+{
+  "name": "graphql-modules",
+  "version": "0.0.0-PLACEHOLDER",
+  "author": "Kamil Kisiela",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "typings": "dist/index.d.ts",
+  "typescript": {
+    "definition": "dist/index.d.ts"
+  },
+  "scripts": {
+    "prepack": "bob prepack"
+  },
+  "peerDependencies": {
+    "graphql": "^14.0.0 || ^15.0.0"
+  },
+  "dependencies": {
+    "@graphql-tools/schema": "^6.0.0",
+    "ramda": "0.27.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  }
+}
