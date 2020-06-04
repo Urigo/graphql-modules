@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node ./src/index.ts",
+    "start": "ts-node -r tsconfig-paths/register ./src/index.ts",
     "test": "jest"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "graphql": "14.2.1",
     "reflect-metadata": "0.1.13",
     "ts-node": "8.0.2",
+    "tsconfig-paths": "^3.9.0",
     "typescript": "3.4.3"
   },
   "jest": {
