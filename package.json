@@ -45,7 +45,7 @@
     "lint-staged": "10.2.9",
     "prettier": "2.0.5",
     "reflect-metadata": "0.1.13",
-    "replace-in-file": "6.0.0",
+    "replace-in-file": "6.1.0",
     "rimraf": "3.0.2",
     "ts-jest": "26.1.0",
     "tslint": "6.1.2",
