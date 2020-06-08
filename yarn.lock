@@ -6549,10 +6549,10 @@ macos-release@^2.2.0:
   resolved "https://registry.yarnpkg.com/macos-release/-/macos-release-2.3.0.tgz#eb1930b036c0800adebccd5f17bc4c12de8bb71f"
   integrity sha512-OHhSbtcviqMPt7yfw5ef5aghS2jzFVKEFyCJndQt2YpSQ9qRVSEv2axSJI1paVThEu+FFGs584h/1YhxjVqajA==
 
-madge@3.9.0:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/madge/-/madge-3.9.0.tgz#7bcc6d6265e88049685cb5bb075cd1b16b90fcf5"
-  integrity sha512-ABR2ZTFga+TPLzlu2u46lcv8WwOzoI6VMTMqe3DyaY0igzyGpXiOIH1vAtziSKC4UHuyTpwkfhjWN5qOYR/5OA==
+madge@3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/madge/-/madge-3.9.1.tgz#a9c96192cc42af59705ff43b1f06531072ee2f02"
+  integrity sha512-odgd7EhFNrr0Opl3QAzevAcql0KL430A/9BgwgN0IjYj830AboEK2QPTmuJHhSCrt4miEs19x38ToGMqYVzKiw==
   dependencies:
     chalk "^4.0.0"
     commander "^5.1.0"
@@ -6574,6 +6574,7 @@ madge@3.9.0:
     pluralize "^8.0.0"
     pretty-ms "^7.0.0"
     rc "^1.2.7"
+    typescript "^3.7.5"
     walkdir "^0.4.1"
 
 make-dir@^1.0.0:
