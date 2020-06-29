@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/jest": "25.2.3",
     "bundlesize": "0.18.0",
-    "graphql": "15.1.0",
+    "graphql": "15.2.0",
     "husky": "4.2.5",
     "jest": "26.1.0",
     "jest-junit": "10.0.0",
