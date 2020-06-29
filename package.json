@@ -49,7 +49,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "26.1.1",
     "tslint": "6.1.2",
-    "typedoc": "0.11.0",
+    "typedoc": "0.17.8",
     "typedoc-plugin-docusaurus": "1.0.14",
     "typescript": "3.9.5"
   },
