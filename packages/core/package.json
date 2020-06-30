@@ -15,7 +15,7 @@
     "@graphql-modules/di": "0.7.17",
     "@graphql-toolkit/common": "0.10.7",
     "@graphql-toolkit/schema-merging": "0.10.7",
-    "apollo-server-caching": "0.5.1",
+    "apollo-server-caching": "0.5.2",
     "deepmerge": "4.2.2",
     "graphql-tools": "5.0.0",
     "tslib": "2.0.0"
