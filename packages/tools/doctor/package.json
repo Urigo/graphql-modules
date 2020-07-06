@@ -30,7 +30,7 @@
     "@babel/traverse": "7.10.1",
     "@types/babel__traverse": "7.0.13",
     "@types/glob": "7.1.2",
-    "@types/node": "12.12.47",
+    "@types/node": "12.12.48",
     "dependency-graph": "0.9.0",
     "glob": "7.1.6",
     "madge": "3.9.2",
