@@ -30,7 +30,7 @@
     "bob-the-bundler": "0.3.4",
     "graphql-tag": "2.10.4",
     "jest": "26.1.0",
-    "typescript": "3.9.6"
+    "typescript": "3.9.7"
   },
   "sideEffects": false,
   "main": "dist/index.cjs.js",
