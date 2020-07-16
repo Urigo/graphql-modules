@@ -1,9 +1,11 @@
-const { GraphQLModule } = require('@graphql-modules/core');
+const { createModule, gql } = require('../../../../../dist/graphql-modules/src');
 const { Users } = require('./providers/users');
 const resolvers = require('./resolvers');
 const gql = require('graphql-tag');
 
-module.exports.UserModule = new GraphQLModule({
+module.exports.UserModule = createModule({
+  id: 'user',
+  dirname: __dirname,
   providers: [Users],
   resolvers,
   typeDefs: gql`

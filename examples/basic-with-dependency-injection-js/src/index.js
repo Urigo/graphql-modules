@@ -1,13 +1,23 @@
 require('reflect-metadata');
-const { AppModule } = require('./modules/app/app.module');
+const { BlogModule } = require('./modules/blog');
+const { UserModule } = require('./modules/user');
 const express = require('express');
 const graphQLHTTP = require('express-graphql');
 
-const app = express();
+const app = createApplication({
+  modules: [BlogModule, UserModule],
+});
 
-app.use('/graphql', graphQLHTTP({
+const server = express();
+
+const execute = app.createExecution();
+
+server.use('/graphql', graphQLHTTP({
   schema: AppModule.schema,
+  customExecuteFn: execute,
   graphiql: true,
 }));
 
-app.listen(4000);
+server.listen(4000, () => {
+  console.log('Live http://localhost:4000/graphql');
+});

@@ -1,4 +1,4 @@
-const { Injectable } = require('@graphql-modules/di');
+const { Injectable } = require('../../../../../../dist/graphql-modules/src');
 
 const users = [{
   _id: 0,
