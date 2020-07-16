@@ -1,0 +1,33 @@
+{
+  "name": "examples-di",
+  "version": "0.7.0",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@graphql-modules/core": "0.7.0",
+    "express": "4.16.4",
+    "express-graphql": "0.7.1",
+    "graphql": "14.2.1",
+    "graphql-tag": "^2.10.3",
+    "reflect-metadata": "0.1.13"
+  },
+  "jest": {
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "devDependencies": {
+    "jest": "23.5.0"
+  }
+}
