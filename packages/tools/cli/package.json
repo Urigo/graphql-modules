@@ -38,6 +38,6 @@
   "devDependencies": {
     "@types/node": "12.12.50",
     "bob-the-bundler": "0.3.4",
-    "typescript": "3.9.6"
+    "typescript": "3.9.7"
   }
 }
