@@ -1,8 +1,8 @@
-import {GraphQLModule} from '@graphql-modules/core';
-import {Blog} from './providers/blog';
+import { GraphQLModule } from '@graphql-modules/core';
+import { Blog } from './providers/blog';
 import gql from 'graphql-tag';
 import resolvers from './resolvers';
-import { UserModule } from '@modules/user';
+import { UserModule } from '../user';
 
 export const BlogModule = new GraphQLModule({
   imports: [UserModule],
