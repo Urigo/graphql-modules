@@ -29,7 +29,7 @@
     "apollo-link-schema": "1.2.5",
     "bob-the-bundler": "0.3.4",
     "graphql-tag": "2.11.0",
-    "jest": "26.1.0",
+    "jest": "26.2.0",
     "typescript": "3.9.7"
   },
   "sideEffects": false,
