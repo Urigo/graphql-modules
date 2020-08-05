@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "docusaurus": "1.14.6",
-    "netlify-lambda": "1.6.3"
+    "netlify-lambda": "2.0.1"
   },
   "dependencies": {
     "babel-preset-minify": "0.5.1",
