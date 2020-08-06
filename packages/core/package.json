@@ -18,7 +18,7 @@
     "apollo-server-caching": "0.5.2",
     "deepmerge": "4.2.2",
     "graphql-tools": "5.0.0",
-    "tslib": "2.0.0"
+    "tslib": "2.0.1"
   },
   "peerDependencies": {
     "graphql": "^14.1.1 || ^15.0.0"
