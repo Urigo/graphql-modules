@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "bob-the-bundler": "0.3.4",
-    "jest": "26.3.0",
+    "jest": "26.4.0",
     "reflect-metadata": "0.1.13",
     "typescript": "3.9.7"
   },
