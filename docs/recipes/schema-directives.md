@@ -8,7 +8,7 @@ GraphQL Modules allows you to define schema directives on a per-module basis. Fo
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core';
-import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
 
 const typeDefs = gql`
   directive @date on FIELD_DEFINITION
@@ -47,20 +47,22 @@ const schemaDirectives = {
   date: FormattableDateDirective
 };
 
-const { schema } = new GraphQLModule({
+const CommonModule = new GraphQLModule({
   typeDefs,
   resolvers,
   schemaDirectives,
 });
 ```
 
-GraphQL Modules won't automatically apply your directives when it generates a schema for a module to avoid applying the same directive more than once. However, you can set the `visitSchemaDirectives` option to `true` in your root module and the directives from all your combined modules will be applied to your final schema.
+GraphQL Modules won't automatically apply your directives when it generates a schema for a module to avoid applying the same directive more than once. However, you can set the `visitSchemaDirectives` option to `true` in your **root module** and the directives from all your combined modules will be applied to your final schema.
 
 ```typescript
 const { schema } = new GraphQLModule({
   typeDefs,
   resolvers,
-  schemaDirectives,
+  imports: [
+      CommonModule,
+  ],
   visitSchemaDirectives: true,
 });
 ```
