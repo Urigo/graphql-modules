@@ -1,9 +1,6 @@
 name: Canary Release
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -11,7 +8,7 @@ jobs:
   publish-canary:
     name: Publish Canary
     runs-on: ubuntu-latest
-    if: contains(github.actor, 'dependabot') == false
+    if: contains(github.actor, 'dependabot') == false && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout Master
         uses: actions/checkout@v1
