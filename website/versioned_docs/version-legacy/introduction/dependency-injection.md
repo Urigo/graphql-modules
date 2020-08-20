@@ -249,8 +249,6 @@ export class AuthProvider implements OnRequest {
 ```
 
 > The `OnRequest` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
-> See also **[API of `OnRequest`](/docs/api/core/api-interfaces-onrequest)**.
-> See also **[API of `ModuleSessionInfo`](/docs/api/core/api-classes-modulesessioninfo)**.
 
 ### `OnResponse` hook (experimental)
 
@@ -272,8 +270,6 @@ export class MyProvider implements OnResponse {
 ```
 
 > The `OnResponse` hook is called on each HTTP GraphQL request with a single `ModuleSessionInfo` parameter.
-> See also **[API of `OnResponse`](/docs/api/core/api-interfaces-onresponse)**.
-> See also **[API of `ModuleSessionInfo`](/docs/api/core/api-classes-modulesessioninfo)**.
 
 ### `OnError` hook (experimental)
 
@@ -321,7 +317,6 @@ export class AuthProvider implements OnConnect {
 ```
 
 > The `OnConnect` hook is called once for each WebSocket GraphQL connection.
-> See also **[API of `OnConnect`](/docs/api/core/api-interfaces-onconnct)**.
 
 ### `OnDisconnect` hook
 
@@ -344,7 +339,6 @@ export class MyProvider implements OnDisconnect {
 ```
 
 > The `OnDisconnect` hook is called once for each WebSocket GraphQL connection.
-> See also **[API of `OnDisconnect`](/docs/api/core/api-interfaces-ondisconnect)**.
 
 > The other `OnOperation` and `OnOperationComplete` hooks work similarly to the GraphQL Subscription Server implementation.
 > See also **[the document of subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws)**.

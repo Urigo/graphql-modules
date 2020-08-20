@@ -17,7 +17,7 @@ Each GraphQL `module` is built using the basics of GraphQL:
 - Type definitions
 - Resolve functions
 
-As your application grows, modules can use [Dependency Injection](dependency-injection).
+As your application grows, modules can use [Dependency Injection](./di/introduction).
 
 The structure of GraphQL API with GraphQL Modules is flat. Modules are on the same level and there's Application on top of them.
 

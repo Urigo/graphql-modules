@@ -60,9 +60,9 @@ const resolvers = {
 
 ## Context in Dependency Injection
 
-> To get familiar with Dependency Injection, please read the ["Dependency Injection - Introduction"](../di/introduction) chapter.
+> To get familiar with Dependency Injection, please read the ["Dependency Injection - Introduction"](../di/introduction.md) chapter.
 
-The Context can be accessed directly in resolve function or within Dependency Injection using [`CONTEXT`](../api#context) token.
+The Context can be accessed directly in resolve function or within Dependency Injection using [`CONTEXT`](../api.md#context) token.
 
 ```typescript
 import { CONTEXT, Inject, Injectable } from 'graphql-modules';

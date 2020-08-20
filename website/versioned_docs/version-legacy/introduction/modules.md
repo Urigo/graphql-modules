@@ -23,7 +23,7 @@ As your application grows, modules can have:
 
 - External configurations
 - Dependencies on other modules
-- Providers (we will elaborate on this in the [Dependency Injection](dependency-injection) section)
+- Providers (we will elaborate on this in the [Dependency Injection](./dependency-injection.md) section)
 
 ## Modules Example
 

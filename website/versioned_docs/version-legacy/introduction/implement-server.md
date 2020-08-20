@@ -36,4 +36,4 @@ app.listen(4000);
 
 > To test your server, run `ts-node index.ts` and try to open `http://localhost:4000/`. See the **[GraphiQL](https://github.com/graphql/graphiql)** UI.
 
-> If you want to use **[Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html)**, check the **[Integrate with Apollo Server](/docs/recipes/apollo-server)** section.
+> If you want to use **[Apollo-Server](https://www.apollographql.com/docs/apollo-server/getting-started.html)**, check the **[Integrate with Apollo Server](../recipes/apollo-server.md)** section.

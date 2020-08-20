@@ -136,4 +136,4 @@ export const myModule = createModule({
 
 **Directly** accessing a Singleton service in an Operation scoped service is possible, but not the other way around.
 
-With [`@ExecutionContext`](../advanced/execution-context) decorator, your Singleton services will be able to **indirectly** access Operation scoped Tokens and Services.
+With [`@ExecutionContext`](../advanced/execution-context.md) decorator, your Singleton services will be able to **indirectly** access Operation scoped Tokens and Services.

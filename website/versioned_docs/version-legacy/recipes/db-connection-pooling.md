@@ -14,7 +14,7 @@ The other example combines **[generic-pool](https://github.com/coopernurse/node-
 
 We define two providers in `DatabaseModule`: `Pool` is application scoped and `DatabaseProvider` is session-scoped.
 So, it will provide us different clients from connection pool for each session/network request.
-See **[Dependency Injection](/docs/introduction/dependency-injection)** to learn more about provider scopes.
+See **[Dependency Injection](../introduction/dependency-injection.md)** to learn more about provider scopes.
 
 `database.module.ts`
 
@@ -34,7 +34,7 @@ export const DatabaseModule = new GraphQLModule({
 > You can define external classes as **Provider** in GraphQL Modules. In the example above, `Pool` will be constructed once in the application scope.
 
 And we will use the `OnResponse` hook to release the client to the pool after we've done with it.
-See **[Dependency Injection](/docs/introduction/dependency-injection)** to learn more about hooks.
+See **[Dependency Injection](../introduction/dependency-injection.md)** to learn more about hooks.
 
 `DatabaseProvider` will be created on a session level while the instance of `Pool` will be the same instance always in the application level.
 

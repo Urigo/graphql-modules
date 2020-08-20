@@ -340,5 +340,5 @@ class Posts {
 
 GraphQL Modules have a set of built-in and ready to use Tokens. They may be handy in some situations.
 
-- [`CONTEXT`](../api#context) - represents a provided GraphQL Context (`GraphQLModules.GlobalContext`)
-- [`MODULE_ID`](<(../api#module_id)>) - represents an id of a module
+- [`CONTEXT`](../api.md#context) - represents a provided GraphQL Context (`GraphQLModules.GlobalContext`)
+- [`MODULE_ID`](../api.md#module_id) - represents an id of a module

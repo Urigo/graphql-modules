@@ -50,7 +50,7 @@ A return type of `createApplication` function.
   Important when using GraphQL Subscriptions.
 - `createExecution` - Creates a `execute` function that runs the execution phase of GraphQL.
   Important when using GraphQL Queries and Mutations.
-- `__createApolloExecutor` - Experimental
+- `createSchemaForApollo` - Experimental
 
 ## ApplicationConfig
 

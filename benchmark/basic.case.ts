@@ -123,6 +123,7 @@ async function graphql(schema: GraphQLSchema, executeFn: typeof execute) {
 
 // add tests
 suite
+  // Regular
   .add('GraphQL Modules w DI', async () => {
     await graphql(appWithDI.schema, appWithDI.createExecution());
   })
@@ -132,6 +133,14 @@ suite
   .add('GraphQL Modules w/o DI', async () => {
     await graphql(app.schema, app.createExecution());
   })
+  // Apollo Server
+  .add('ApolloServer - GraphQL Modules w DI', async () => {
+    await graphql(appWithDI.createSchemaForApollo(), execute);
+  })
+  .add('ApolloServer - GraphQL Modules w/o DI', async () => {
+    await graphql(app.createSchemaForApollo(), execute);
+  })
+  // ...
   .on('cycle', (event: any) => {
     console.log(String(event.target));
   })

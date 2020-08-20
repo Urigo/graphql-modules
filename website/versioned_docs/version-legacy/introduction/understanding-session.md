@@ -136,4 +136,4 @@ app.use('/graphql', graphqlHTTP({
 ```
 
 This is what `Session` means in GraphQL Modules.
-You can read more about **[Provider Scopes](/docs/recipes/dependency-injection#provider-scopes)** in the **Dependency Injection** section.
+You can read more about **[Provider Scopes](./dependency-injection.md#provider-scopes)** in the **Dependency Injection** section.

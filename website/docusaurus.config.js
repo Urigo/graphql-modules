@@ -9,8 +9,13 @@ module.exports = {
   organizationName: 'Urigo',
   projectName: 'graphql-modules',
 
+  onBrokenLinks: 'throw',
+
   themeConfig: {
-    disableDarkMode: true,
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: true,
+    },
     sidebarCollapsible: true,
     image: 'img/logo.svg',
     prism: {
@@ -22,23 +27,14 @@ module.exports = {
         alt: 'GraphQL Modules Logo',
         src: 'img/just-logo.svg',
       },
-      links: [
+      items: [
         {
-          label: 'Version',
+          type: 'docsVersionDropdown',
           position: 'left',
-          items: [
-            {
-              label: 'Latest',
-              to: '/docs/index',
-            },
-            {
-              label: 'Legacy',
-              to: '/docs/legacy/introduction/getting-started',
-            },
-          ],
+          nextVersionLabel: '1.0.0-next',
         },
         {
-          to: '/docs/',
+          to: '/docs',
           activeBasePath: '/docs',
           label: 'Documentation',
           position: 'right',
@@ -63,21 +59,33 @@ module.exports = {
           items: [
             {
               label: 'Getting Started',
-              to: 'docs/index',
+              to: 'docs',
             },
             {
-              label: `What's a Module`,
-              to: 'docs/introduction/modules',
+              label: `Essentials`,
+              to: 'docs/essentials/type-definitions',
             },
             {
               label: 'Dependency Injection',
-              to: 'docs/introduction/dependency-injection',
+              to: 'docs/di/introduction',
+            },
+            {
+              label: 'Advanced',
+              to: 'docs/advanced/subscriptions',
+            },
+            {
+              label: 'Recipes',
+              to: 'docs/recipes/dataloader',
             },
           ],
         },
         {
           title: 'Community',
           items: [
+            {
+              label: 'Our website',
+              href: 'https://the-guild.dev',
+            },
             {
               label: 'Discord',
               href: 'https://the-guild.dev/discord',
@@ -125,6 +133,16 @@ module.exports = {
     googleAnalytics: {
       trackingID: 'UA-128969121-4',
     },
+    gtag: {
+      trackingID: 'UA-128969121-4',
+    },
+    // algolia: {
+    //   apiKey: '---',
+    //   indexName: 'apollo-angular',
+    //   searchParameters: {
+    //     facetFilters: [`version:${versions[0]}`],
+    //   },
+    // },
   },
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
@@ -142,9 +160,9 @@ module.exports = {
       {
         docs: {
           path: 'docs',
+          homePageId: 'index',
           include: ['**/*.md', '**/*.mdx'],
           sidebarPath: require.resolve('./sidebars.js'),
-          skipNextRelease: false,
           editUrl:
             'https://github.com/Urigo/graphql-modules/edit/master/website/',
           remarkPlugins: [require('remark-import-partial')],

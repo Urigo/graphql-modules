@@ -13,7 +13,7 @@ GraphQL Modules considers data sources as providers and passes the cache logic o
 Let's assume you have a data source class for the communication between your external REST API.
 All you need to do is add the `Injectable` decorator for this class to let the class be part of GraphQL Modules dependency injection.
 
-> `ProviderScope.Session` is the recommended scope for data sources, it will ensure API responses are not cached between sessions. See **[Provider Scopes](/docs/introduction/dependency-injection#provider-scopes)**.
+> `ProviderScope.Session` is the recommended scope for data sources, it will ensure API responses are not cached between sessions. See **[Provider Scopes](../introduction/dependency-injection#provider-scopes)**.
 
 See also **[Data sources - Apollo Server](https://www.apollographql.com/docs/apollo-server/data/data-sources/)**.
 

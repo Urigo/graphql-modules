@@ -6,7 +6,7 @@ title: Middlewares
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Middleware is a way to intercept individual resolve functions or a group of them and return a different result or throw an exception based on a condition. Each middleware can access everything that resolve function receives. The ability to access context and the [`Injector`](../di/introduction) makes it even more powerful.
+Middleware is a way to intercept individual resolve functions or a group of them and return a different result or throw an exception based on a condition. Each middleware can access everything that resolve function receives. The ability to access context and the [`Injector`](../di/introduction.md) makes it even more powerful.
 
 ## Middleware function
 

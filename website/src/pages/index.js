@@ -6,8 +6,7 @@
  */
 
 import React from 'react';
-import Navbar from '@theme/Navbar';
-import Head from '@docusaurus/Head';
+import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Footer from '@theme/Footer';
 import { Companies } from '../ui/home/companies';
@@ -19,29 +18,12 @@ import { Intro } from '../ui/home/intro';
 export default function Index() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
-  const { title, tagline, url, favicon } = siteConfig;
+  const { tagline, url } = siteConfig;
 
   const ogImage = `${url}/img/graphql-modules-cover.png`;
 
   return (
-    <>
-      <Head>
-        <meta property="og:description" content={tagline} />
-        <meta charSet="utf-8" />
-        <meta property="og:image" content={ogImage} />
-        <meta property="twitter:image" content={ogImage} />
-        <meta name="twitter:image:alt" content="Image for GraphQL Modules" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta property="og:title" content={`${title} - ${tagline}`} />
-        <meta name="description" content={tagline} />
-        <meta property="og:description" content={tagline} />
-        <meta property="og:url" content={url} />
-        <link rel="shortcut icon" href={favicon}></link>
-        <title>
-          {title} - {tagline}
-        </title>
-      </Head>
-      <Navbar />
+    <Layout description={tagline} image={ogImage} permalink={url} noFooter>
       <div className="backgroundTop"></div>
       <Intro />
       <Companies />
@@ -49,6 +31,6 @@ export default function Index() {
       <FrameworkDetails />
       <ContactUs />
       <Footer />
-    </>
+    </Layout>
   );
 }

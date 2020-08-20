@@ -53,4 +53,4 @@ Every Service or Injection Token is created once and the same instance is availa
 
 In GraphQL Modules, we have two kinds of scope, `Singleton` and `Operation`.
 
-`Operation` scope means that a service is created for each incoming GraphQL Operation and destroyed once request is resolved. Read more about [Scopes](./scopes) in a separate chapter.
+`Operation` scope means that a service is created for each incoming GraphQL Operation and destroyed once request is resolved. Read more about [Scopes](./scopes.md) in a separate chapter.
