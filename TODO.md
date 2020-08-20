@@ -1,0 +1,2 @@
+- [x] rename `createApp` to `createApplication`
+- [ ] write a long message of what the new modules are as an introduction to Gago instead of a video call

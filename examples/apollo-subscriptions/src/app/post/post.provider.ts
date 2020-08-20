@@ -1,4 +1,4 @@
-import { Injectable } from '@graphql-modules/di';
+import { Injectable } from 'graphql-modules';
 import { PubSub } from 'graphql-subscriptions';
 
 export interface Post {
@@ -9,12 +9,16 @@ export interface Post {
 @Injectable()
 export class PostsProvider {
   posts: Post[] = [];
+
   constructor(private pubSub: PubSub) {}
+
   getPosts() {
     return this.posts;
   }
+
   addPost(post: Post) {
     this.posts.push(post);
     this.pubSub.publish('POST_ADDED', { postAdded: post });
+    return post;
   }
 }

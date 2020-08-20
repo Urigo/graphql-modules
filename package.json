@@ -1,69 +1,54 @@
 {
+  "name": "graphql-modules-platform",
   "private": true,
-  "repository": "https://github.com/Urigo/graphql-modules.git",
-  "homepage": "https://graphql-modules.com/",
-  "author": "dotansimha <dotansimha@gmail.com>",
+  "version": "0.0.0",
   "license": "MIT",
   "workspaces": {
     "packages": [
       "packages/*",
-      "packages/tools/*",
-      "bundle-test"
-    ],
-    "nohoist": [
-      "**/react-scripts",
-      "**/react-scripts/**"
+      "examples/*"
     ]
   },
   "scripts": {
-    "test": "lerna run test",
-    "build": "lerna run build",
-    "build:api-docs": "./generate-api-docs.sh",
-    "lint": "tslint -c tslint.json 'packages/*/src/**/*.ts'",
-    "format": "prettier --write 'packages/*/{src,tests}/**/*.ts'",
-    "precommit": "lint-staged",
-    "clean": "lerna clean --yes && rm -rf node_modules",
-    "prerelease": "yarn build && yarn test",
-    "release": "lerna publish --exact --force-publish=\"*\" --ignore bundle-test",
-    "release:canary": "lerna publish --force-publish=\"*\" --canary --exact --ignore bundle-test",
-    "ci:release:canary": "git update-index --assume-unchanged .npmrc && lerna publish --ignore bundle-test --force-publish=\"*\" --preid \"alpha-`git rev-parse --short HEAD`\" --canary --exact --yes",
-    "deploy-website": "yarn build:api-docs && cd website && yarn && yarn build"
+    "build": "tsc --project tsconfig.json && bob build",
+    "test": "jest",
+    "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
+    "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts"
+  },
+  "devDependencies": {
+    "@types/benchmark": "1.0.33",
+    "@types/express": "4.17.6",
+    "@types/jest": "26.0.0",
+    "@types/node": "14.0.13",
+    "@types/ramda": "0.27.6",
+    "apollo-server": "2.16.1",
+    "apollo-server-express": "2.16.1",
+    "artillery": "1.6.0",
+    "benchmark": "2.1.4",
+    "bob-the-bundler": "1.0.2",
+    "dataloader": "2.0.0",
+    "express": "4.17.1",
+    "express-graphql": "0.9.0",
+    "graphql": "15.1.0",
+    "graphql-subscriptions": "1.1.0",
+    "husky": "4.2.5",
+    "jest": "26.0.1",
+    "prettier": "2.0.5",
+    "pretty-quick": "2.0.1",
+    "reflect-metadata": "0.1.13",
+    "subscriptions-transport-ws": "0.9.16",
+    "ts-jest": "26.1.0",
+    "ts-node": "8.10.2",
+    "typescript": "3.9.5"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": true,
+    "singleQuote": true
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "pretty-quick --staged"
     }
-  },
-  "devDependencies": {
-    "@types/jest": "25.2.3",
-    "bundlesize": "0.18.0",
-    "graphql": "15.3.0",
-    "husky": "4.2.5",
-    "jest": "26.4.1",
-    "jest-junit": "10.0.0",
-    "lerna": "3.22.1",
-    "lint-staged": "10.2.11",
-    "prettier": "2.0.5",
-    "reflect-metadata": "0.1.13",
-    "replace-in-file": "6.1.0",
-    "rimraf": "3.0.2",
-    "ts-jest": "26.2.0",
-    "tslint": "6.1.3",
-    "typedoc": "0.18.0",
-    "typedoc-plugin-docusaurus": "1.0.14",
-    "typescript": "3.9.7"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "tslint --fix",
-      "prettier --write"
-    ]
-  },
-  "prettier": {
-    "printWidth": 120,
-    "singleQuote": true
   }
 }

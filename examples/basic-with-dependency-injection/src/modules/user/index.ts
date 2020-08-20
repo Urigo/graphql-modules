@@ -1,9 +1,10 @@
-import { GraphQLModule } from '@graphql-modules/core';
+import { createModule, gql } from 'graphql-modules';
 import { Users } from './providers/users';
 import resolvers from './resolvers';
-import gql from 'graphql-tag';
 
-export const UserModule = new GraphQLModule({
+export const UserModule = createModule({
+  id: 'user',
+  dirname: __dirname,
   providers: [Users],
   resolvers,
   typeDefs: gql`
