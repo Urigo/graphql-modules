@@ -40,7 +40,7 @@
     "graphql": "15.3.0",
     "husky": "4.2.5",
     "jest": "26.4.1",
-    "jest-junit": "10.0.0",
+    "jest-junit": "11.1.0",
     "lerna": "3.22.1",
     "lint-staged": "10.2.11",
     "prettier": "2.0.5",
