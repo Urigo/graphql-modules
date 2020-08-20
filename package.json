@@ -13,7 +13,8 @@
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
-    "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts"
+    "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
+    "deploy-website": "cd website && yarn && yarn build"
   },
   "devDependencies": {
     "@types/benchmark": "1.0.33",
