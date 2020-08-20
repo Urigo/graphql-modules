@@ -4,12 +4,11 @@ import { createServer } from 'http';
 import { ApolloServer } from 'apollo-server-express';
 import { graphqlApplication } from './app';
 
-const { schema, createExecution, createSubscription } = graphqlApplication;
+const { createSchemaForApollo } = graphqlApplication;
+const schema = createSchemaForApollo();
 
 const server = new ApolloServer({
   schema,
-  executeFn: createExecution(),
-  subscribeFn: createSubscription(),
 });
 
 const app = express();

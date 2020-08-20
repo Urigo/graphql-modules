@@ -121,12 +121,10 @@ values={[
 import { ApolloServer } from 'apollo-server';
 import { application } from './application';
 
-const execute = application.createExecution();
-const schema = application.schema;
+const schema = application.createSchemaForApollo();
 
 const server = new ApolloServer({
   schema,
-  executeFn: execute,
 });
 
 server.listen().then(({ url }) => {

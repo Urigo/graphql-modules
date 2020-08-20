@@ -147,14 +147,10 @@ import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server';
 import { application } from './application';
 
-const execute = application.createExecution();
-const subscribe = application.createSubscription();
-const schema = application.schema;
+const schema = application.createSchemaForApollo();
 
 const server = new ApolloServer({
   schema,
-  executeFn: execute,
-  subscribeFn: subscribe,
 });
 
 server.listen().then(({ url }) => {

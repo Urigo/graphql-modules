@@ -15,8 +15,8 @@ async function main() {
 
   const blocks = await Promise.all(files.map(markdownAPI));
 
-  const normalizedBlocks = blocks
-    .flat()
+  const normalizedBlocks = []
+    .concat(...blocks)
     .slice()
     .sort((a, b) => compare(a.identifier, b.identifier))
     .map((o) => o.content);

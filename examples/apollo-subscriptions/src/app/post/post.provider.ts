@@ -19,5 +19,6 @@ export class PostsProvider {
   addPost(post: Post) {
     this.posts.push(post);
     this.pubSub.publish('POST_ADDED', { postAdded: post });
+    return post;
   }
 }

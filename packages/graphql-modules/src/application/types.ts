@@ -1,10 +1,4 @@
-import {
-  execute,
-  subscribe,
-  DocumentNode,
-  GraphQLSchema,
-  ExecutionResult,
-} from 'graphql';
+import { execute, subscribe, DocumentNode, GraphQLSchema } from 'graphql';
 import { Provider } from '../di';
 import { Resolvers, Module } from '../module/types';
 import { Single } from '../shared/types';
@@ -12,18 +6,6 @@ import { MiddlewareMap } from '../shared/middleware';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
-
-interface ApolloExecutorContext {
-  document: DocumentNode;
-  context: any;
-  request: {
-    variables?: any;
-  };
-  operationName?: string;
-}
-type ApolloExecutor = (
-  ctx: ApolloExecutorContext
-) => ExecutionResult | Promise<ExecutionResult>;
 
 /**
  * @api
@@ -55,9 +37,7 @@ export type Application = {
   /**
    * Experimental
    */
-  __createApolloExecutor(options?: {
-    execute?: typeof execute;
-  }): ApolloExecutor;
+  createSchemaForApollo(): GraphQLSchema;
 };
 
 /**

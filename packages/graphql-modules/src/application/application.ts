@@ -9,6 +9,7 @@ import {
   GraphQLTypeResolver,
 } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { wrapSchema } from '@graphql-tools/wrap';
 import {
   ReflectiveInjector,
   onlySingletonProviders,
@@ -25,9 +26,6 @@ import tapAsyncIterator, {
 } from '../shared/utils';
 import { CONTEXT } from './tokens';
 import { ApplicationConfig, Application } from './types';
-
-type Execution = typeof execute;
-type Subscription = typeof subscribe;
 
 type ExecutionContextBuilder<
   TContext extends {
@@ -217,127 +215,144 @@ export function createApplication(config: ApplicationConfig): Application {
     };
   };
 
+  const createSubscription: Application['createSubscription'] = (options) => {
+    // Custom or original subscribe function
+    const subscribeFn = options?.subscribe || subscribe;
+
+    return (
+      argsOrSchema: SubscriptionArgs | GraphQLSchema,
+      document?: DocumentNode,
+      rootValue?: any,
+      contextValue?: any,
+      variableValues?: Maybe<{ [key: string]: any }>,
+      operationName?: Maybe<string>,
+      fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
+      subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>
+    ) => {
+      // Create an subscription context
+      const { context, onDestroy } = contextBuilder(
+        isNotSchema<SubscriptionArgs>(argsOrSchema)
+          ? argsOrSchema.contextValue
+          : contextValue
+      );
+
+      const subscriptionArgs: SubscriptionArgs = isNotSchema<SubscriptionArgs>(
+        argsOrSchema
+      )
+        ? {
+            ...argsOrSchema,
+            contextValue: context,
+          }
+        : {
+            schema: argsOrSchema,
+            document: document!,
+            rootValue,
+            contextValue: context,
+            variableValues,
+            operationName,
+            fieldResolver,
+            subscribeFieldResolver,
+          };
+
+      let isIterable = false;
+
+      // It's important to wrap the subscribeFn within a promise
+      // so we can easily control the end of subscription (with finally)
+      return Promise.resolve()
+        .then(() => subscribeFn(subscriptionArgs))
+        .then((sub) => {
+          if (isAsyncIterable(sub)) {
+            isIterable = true;
+            return tapAsyncIterator(sub, onDestroy);
+          }
+          return sub;
+        })
+        .finally(() => {
+          if (!isIterable) {
+            onDestroy();
+          }
+        });
+    };
+  };
+
+  const createExecution: Application['createExecution'] = (options) => {
+    // Custom or original execute function
+    const executeFn = options?.execute || execute;
+
+    return (
+      argsOrSchema: ExecutionArgs | GraphQLSchema,
+      document?: DocumentNode,
+      rootValue?: any,
+      contextValue?: any,
+      variableValues?: Maybe<{ [key: string]: any }>,
+      operationName?: Maybe<string>,
+      fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
+      typeResolver?: Maybe<GraphQLTypeResolver<any, any>>
+    ) => {
+      // Create an execution context
+      const { context, onDestroy } = contextBuilder(
+        isNotSchema<ExecutionArgs>(argsOrSchema)
+          ? argsOrSchema.contextValue
+          : contextValue
+      );
+
+      const executionArgs: ExecutionArgs = isNotSchema<ExecutionArgs>(
+        argsOrSchema
+      )
+        ? {
+            ...argsOrSchema,
+            contextValue: context,
+          }
+        : {
+            schema: argsOrSchema,
+            document: document!,
+            rootValue,
+            contextValue: context,
+            variableValues,
+            operationName,
+            fieldResolver,
+            typeResolver,
+          };
+
+      // It's important to wrap the executeFn within a promise
+      // so we can easily control the end of execution (with finally)
+      return Promise.resolve()
+        .then(() => executeFn(executionArgs))
+        .finally(onDestroy);
+    };
+  };
+
   return {
     typeDefs,
     resolvers,
     schema,
-    createSubscription(options): Subscription {
-      // Custom or original subscribe function
-      const subscribeFn = options?.subscribe || subscribe;
+    createSubscription,
+    createExecution,
+    createSchemaForApollo() {
+      const execution = createExecution();
+      const subscription = createSubscription();
 
-      return (
-        argsOrSchema: SubscriptionArgs | GraphQLSchema,
-        document?: DocumentNode,
-        rootValue?: any,
-        contextValue?: any,
-        variableValues?: Maybe<{ [key: string]: any }>,
-        operationName?: Maybe<string>,
-        fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
-        subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>
-      ) => {
-        // Create an subscription context
-        const { context, onDestroy } = contextBuilder(
-          isNotSchema<SubscriptionArgs>(argsOrSchema)
-            ? argsOrSchema.contextValue
-            : contextValue
-        );
-
-        const subscriptionArgs: SubscriptionArgs = isNotSchema<
-          SubscriptionArgs
-        >(argsOrSchema)
-          ? {
-              ...argsOrSchema,
-              contextValue: context,
-            }
-          : {
-              schema: argsOrSchema,
-              document: document!,
-              rootValue,
-              contextValue: context,
-              variableValues,
-              operationName,
-              fieldResolver,
-              subscribeFieldResolver,
-            };
-
-        let isIterable = false;
-
-        // It's important to wrap the subscribeFn within a promise
-        // so we can easily control the end of subscription (with finally)
-        return Promise.resolve()
-          .then(() => subscribeFn(subscriptionArgs))
-          .then((sub) => {
-            if (isAsyncIterable(sub)) {
-              isIterable = true;
-              return tapAsyncIterator(sub, onDestroy);
-            }
-            return sub;
-          })
-          .finally(() => {
-            if (!isIterable) {
-              onDestroy();
-            }
-          });
-      };
-    },
-    createExecution(options): Execution {
-      // Custom or original execute function
-      const executeFn = options?.execute || execute;
-
-      return (
-        argsOrSchema: ExecutionArgs | GraphQLSchema,
-        document?: DocumentNode,
-        rootValue?: any,
-        contextValue?: any,
-        variableValues?: Maybe<{ [key: string]: any }>,
-        operationName?: Maybe<string>,
-        fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
-        typeResolver?: Maybe<GraphQLTypeResolver<any, any>>
-      ) => {
-        // Create an execution context
-        const { context, onDestroy } = contextBuilder(
-          isNotSchema<ExecutionArgs>(argsOrSchema)
-            ? argsOrSchema.contextValue
-            : contextValue
-        );
-
-        const executionArgs: ExecutionArgs = isNotSchema<ExecutionArgs>(
-          argsOrSchema
-        )
-          ? {
-              ...argsOrSchema,
-              contextValue: context,
-            }
-          : {
-              schema: argsOrSchema,
-              document: document!,
-              rootValue,
-              contextValue: context,
-              variableValues,
-              operationName,
-              fieldResolver,
-              typeResolver,
-            };
-
-        // It's important to wrap the executeFn within a promise
-        // so we can easily control the end of execution (with finally)
-        return Promise.resolve()
-          .then(() => executeFn(executionArgs))
-          .finally(onDestroy);
-      };
-    },
-    __createApolloExecutor(options) {
-      const execute = this.createExecution(options);
-
-      return function apolloExecutor(ctx) {
-        return execute({
-          schema,
-          document: ctx.document,
-          contextValue: ctx.context,
-          variableValues: ctx.request.variables,
-          operationName: ctx.operationName,
-        });
-      };
+      return wrapSchema({
+        schema,
+        executor(input) {
+          return execution({
+            schema,
+            document: input.document,
+            variableValues: input.variables,
+            contextValue: input.context,
+            rootValue: input.info?.rootValue,
+          }) as any;
+        },
+        subscriber(input) {
+          return subscription({
+            schema,
+            document: input.document,
+            variableValues: input.variables,
+            contextValue: input.context,
+            rootValue: input.info?.rootValue,
+          }) as any;
+        },
+      });
     },
   };
 }
