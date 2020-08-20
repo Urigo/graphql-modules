@@ -29,7 +29,7 @@
     "bob-the-bundler": "1.0.2",
     "dataloader": "2.0.0",
     "express": "4.17.1",
-    "express-graphql": "0.9.0",
+    "express-graphql": "0.11.0",
     "graphql": "15.1.0",
     "graphql-subscriptions": "1.1.0",
     "husky": "4.2.5",
