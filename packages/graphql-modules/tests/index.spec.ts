@@ -664,8 +664,13 @@ test('Use useFactory with deps', async () => {
 });
 
 test('Application allows injector access', () => {
-  const app = createApplication({ modules: [] });
-  expect(app.injector).toBeDefined();
+  @Injectable()
+  class SomeProvider {}
+  const { injector } = createApplication({
+    modules: [],
+    providers: [SomeProvider],
+  });
+  expect(injector.get(SomeProvider)).toBeInstanceOf(SomeProvider);
 });
 
 // test("testModule testing util", async () => {
