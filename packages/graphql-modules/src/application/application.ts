@@ -326,6 +326,7 @@ export function createApplication(config: ApplicationConfig): Application {
     typeDefs,
     resolvers,
     schema,
+    injector: appInjector,
     createSubscription,
     createExecution,
     createSchemaForApollo() {

@@ -663,6 +663,11 @@ test('Use useFactory with deps', async () => {
   expect(requestSpy).toHaveBeenCalledWith(request);
 });
 
+test('Application allows injector access', () => {
+  const app = createApplication({ modules: [] });
+  expect(app.injector).toBeDefined();
+});
+
 // test("testModule testing util", async () => {
 //   @Injectable()
 //   class Posts {
