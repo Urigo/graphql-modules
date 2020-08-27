@@ -23,6 +23,7 @@ import tapAsyncIterator, {
   isDefined,
   isAsyncIterable,
   once,
+  uniqueId,
 } from '../shared/utils';
 import { CONTEXT } from './tokens';
 import { ApplicationConfig, Application } from './types';
@@ -49,6 +50,8 @@ export interface InternalAppContext {
     context: GraphQLModules.GlobalContext
   ): GraphQLModules.ModuleContext;
 }
+
+const CONTEXT_ID = Symbol.for('context-id');
 
 /**
  * @api
@@ -329,19 +332,62 @@ export function createApplication(config: ApplicationConfig): Application {
     createSubscription,
     createExecution,
     createSchemaForApollo() {
-      const execution = createExecution();
+      const sessions: Record<
+        string,
+        {
+          count: number;
+          session: {
+            onDestroy(): void;
+            context: InternalAppContext
+          }
+        }
+      > = {};
       const subscription = createSubscription();
+
+      function getSession(ctx: any) {
+        if (!ctx[CONTEXT_ID]) {
+          ctx[CONTEXT_ID] = uniqueId((id) => !sessions[id]);
+          const { context, onDestroy } = contextBuilder(ctx);
+
+          sessions[ctx[CONTEXT_ID]] = {
+            count: 0,
+            session: {
+              context,
+              onDestroy() {
+                if (--sessions[ctx[CONTEXT_ID]].count === 0) {
+                  onDestroy();
+                  delete sessions[ctx[CONTEXT_ID]]
+                }
+              },
+            },
+          };
+        }
+
+        sessions[ctx[CONTEXT_ID]].count++;
+
+        return sessions[ctx[CONTEXT_ID]].session;
+      }
 
       return wrapSchema({
         schema,
         executor(input) {
-          return execution({
-            schema,
-            document: input.document,
-            variableValues: input.variables,
-            contextValue: input.context,
-            rootValue: input.info?.rootValue,
-          }) as any;
+          // Create an execution context
+          const { context, onDestroy } = getSession(input.context!);
+
+          // It's important to wrap the executeFn within a promise
+          // so we can easily control the end of execution (with finally)
+          return Promise.resolve()
+            .then(
+              () =>
+                execute({
+                  schema,
+                  document: input.document,
+                  contextValue: context,
+                  variableValues: input.variables,
+                  rootValue: input.info?.rootValue,
+                }) as any
+            )
+            .finally(onDestroy);
         },
         subscriber(input) {
           return subscription({

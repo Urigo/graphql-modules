@@ -81,3 +81,11 @@ export function once(cb: () => void) {
     }
   };
 }
+
+export function uniqueId(isNotUsed: (id: string) => boolean) {
+  let id: string;
+
+  while(!isNotUsed(id = Math.random().toString(16).substr(2))) {}
+
+  return id;
+}
