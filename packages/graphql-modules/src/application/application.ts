@@ -105,11 +105,12 @@ export function createApplication(config: ApplicationConfig): Application {
 
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
-  const typeDefs = mergeTypeDefs(flatten(modules.map((mod) => mod.typeDefs)));
-  const resolvers = mergeResolvers(
-    modules.map((mod) => mod.resolvers).filter(isDefined)
-  );
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
+  const resolvers = modules.map((mod) => mod.resolvers).filter(isDefined);
+  const schema = makeExecutableSchema({
+    typeDefs: mergeTypeDefs(typeDefs),
+    resolvers: mergeResolvers(resolvers),
+  });
 
   // This is very critical. It creates an execution context.
   // It has to run on every operation.
