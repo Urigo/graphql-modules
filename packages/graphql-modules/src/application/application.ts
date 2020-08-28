@@ -21,7 +21,6 @@ import { ID, Maybe } from '../shared/types';
 import { ModuleDuplicatedError } from '../shared/errors';
 import tapAsyncIterator, {
   flatten,
-  isDefined,
   isAsyncIterable,
   once,
   uniqueId,
@@ -106,7 +105,9 @@ export function createApplication(config: ApplicationConfig): Application {
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
   const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
-  const resolvers = mergeResolvers(modules.map((mod) => mod.resolvers).filter(Boolean));
+  const resolvers = mergeResolvers(
+    modules.map((mod) => mod.resolvers).filter(Boolean)
+  );
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   // This is very critical. It creates an execution context.
@@ -339,8 +340,8 @@ export function createApplication(config: ApplicationConfig): Application {
           count: number;
           session: {
             onDestroy(): void;
-            context: InternalAppContext
-          }
+            context: InternalAppContext;
+          };
         }
       > = {};
       const subscription = createSubscription();
@@ -357,7 +358,7 @@ export function createApplication(config: ApplicationConfig): Application {
               onDestroy() {
                 if (--sessions[ctx[CONTEXT_ID]].count === 0) {
                   onDestroy();
-                  delete sessions[ctx[CONTEXT_ID]]
+                  delete sessions[ctx[CONTEXT_ID]];
                 }
               },
             },
