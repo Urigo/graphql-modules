@@ -9,7 +9,7 @@ import {
   GraphQLTypeResolver,
 } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { mergeResolvers } from '@graphql-tools/merge';
+import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge';
 import { wrapSchema } from '@graphql-tools/wrap';
 import {
   ReflectiveInjector,
@@ -105,7 +105,7 @@ export function createApplication(config: ApplicationConfig): Application {
 
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
-  const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
+  const typeDefs = mergeTypeDefs(flatten(modules.map((mod) => mod.typeDefs)));
   const resolvers = mergeResolvers(
     modules.map((mod) => mod.resolvers).filter(isDefined)
   );
