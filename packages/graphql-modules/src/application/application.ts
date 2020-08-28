@@ -21,6 +21,7 @@ import { ID, Maybe } from '../shared/types';
 import { ModuleDuplicatedError } from '../shared/errors';
 import tapAsyncIterator, {
   flatten,
+  isDefined,
   isAsyncIterable,
   once,
   uniqueId,
@@ -106,7 +107,7 @@ export function createApplication(config: ApplicationConfig): Application {
   // is not expensive since it happens only once
   const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
   const resolvers = mergeResolvers(
-    modules.map((mod) => mod.resolvers).filter(Boolean)
+    modules.map((mod) => mod.resolvers).filter(isDefined)
   );
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
