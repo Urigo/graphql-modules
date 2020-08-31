@@ -1,5 +1,5 @@
 import { execute, subscribe, DocumentNode, GraphQLSchema } from 'graphql';
-import { Provider } from '../di';
+import { Provider, Injector } from '../di';
 import { Resolvers, Module } from '../module/types';
 import { Single } from '../shared/types';
 import { MiddlewareMap } from '../shared/middleware';
@@ -24,6 +24,10 @@ export type Application = {
    * Ready to use GraphQLSchema object combined from modules.
    */
   readonly schema: GraphQLSchema;
+  /**
+   * The application (Singleton) injector.
+   */
+  readonly injector: Injector;
   /**
    * Creates a `subscribe` function that runs the subscription phase of GraphQL.
    * Important when using GraphQL Subscriptions.
