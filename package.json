@@ -33,7 +33,7 @@
     "graphql": "15.1.0",
     "graphql-subscriptions": "1.1.0",
     "husky": "4.3.0",
-    "jest": "26.0.1",
+    "jest": "26.4.2",
     "prettier": "2.0.5",
     "pretty-quick": "2.0.1",
     "reflect-metadata": "0.1.13",
