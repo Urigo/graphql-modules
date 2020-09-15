@@ -30,6 +30,7 @@ export {
 export { Middleware, MiddlewareContext } from './shared/middleware';
 import './shared/types';
 export { gql } from './shared/gql';
+export * from './shared/di';
 
 // testing
 export * from './testing/test-module';
