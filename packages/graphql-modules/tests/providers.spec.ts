@@ -316,7 +316,11 @@ test('fail on circular dependencies', async () => {
     }
   }
 
-  const injector = ReflectiveInjector.create('main', [Foo, Bar]);
+  const providers = ReflectiveInjector.resolve([Foo, Bar]);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'main',
+    providers,
+  });
   expect(() => {
     injector.get(Foo);
   }).toThrowError(
@@ -324,4 +328,168 @@ test('fail on circular dependencies', async () => {
       Bar
     )} -> ${stringify(Foo)})`
   );
+});
+
+test('Global Token provided by one module should be accessible by other modules (operation)', async () => {
+  @Injectable({
+    scope: Scope.Operation,
+    global: true,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [fooModule, barModule],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      foo
+      bar
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    foo: 'ipsum',
+    bar: 'ipsum',
+  });
+});
+
+test('Global Token provided by one module should be accessible by other modules (singleton)', async () => {
+  @Injectable({
+    scope: Scope.Singleton,
+    global: true,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [fooModule, barModule],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      foo
+      bar
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    foo: 'ipsum',
+    bar: 'ipsum',
+  });
 });
