@@ -22,6 +22,8 @@ declare global {
       moduleId: ID;
     } & GlobalContext;
 
+    export type AppContext = Omit<ModuleContext, 'moduleId'>;
+
     export type Context = ModuleContext;
 
     export interface GlobalContext {}

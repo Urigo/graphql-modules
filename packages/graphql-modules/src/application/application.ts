@@ -130,18 +130,21 @@ export function createApplication(config: ApplicationConfig): Application {
       });
     }
 
+    let operationAppInjector: ReflectiveInjector;
+    let appContext: GraphQLModules.AppContext;
+
     // It's very important to recreate a Singleton Injector
     // and add an execution context getter function
     // We do this so Singleton provider can access the ExecutionContext via Proxy
     const singletonAppProxyInjector = ReflectiveInjector.createWithExecutionContext(
       appInjector,
-      () => context
+      () => appContext
     );
 
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
     // Operation scoped - means it's created and destroyed on every GraphQL Operation
-    const operationAppInjector = ReflectiveInjector.create(
+    operationAppInjector = ReflectiveInjector.create(
       'App (Operation Scope)',
       appOperationProviders.concat({
         provide: CONTEXT,
@@ -149,6 +152,12 @@ export function createApplication(config: ApplicationConfig): Application {
       }),
       singletonAppProxyInjector
     );
+
+    // Create a context for application-level ExecutionContext
+    appContext = {
+      ...context,
+      injector: operationAppInjector,
+    };
 
     // Track Providers with OnDestroy hooks
     registerProvidersToDestroy(operationAppInjector);
@@ -339,8 +348,8 @@ export function createApplication(config: ApplicationConfig): Application {
           count: number;
           session: {
             onDestroy(): void;
-            context: InternalAppContext
-          }
+            context: InternalAppContext;
+          };
         }
       > = {};
       const subscription = createSubscription();
@@ -357,7 +366,7 @@ export function createApplication(config: ApplicationConfig): Application {
               onDestroy() {
                 if (--sessions[ctx[CONTEXT_ID]].count === 0) {
                   onDestroy();
-                  delete sessions[ctx[CONTEXT_ID]]
+                  delete sessions[ctx[CONTEXT_ID]];
                 }
               },
             },
