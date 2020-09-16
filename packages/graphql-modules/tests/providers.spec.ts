@@ -11,6 +11,66 @@ import {
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { parse, execute } from 'graphql';
 
+test('No error in case of module without providers', async () => {
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const mod = createModule({
+    id: 'lorem',
+    typeDefs: gql`
+      type Query {
+        lorem: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        lorem(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [Data],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      lorem
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  // Should resolve data correctly
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    lorem: 'ipsum',
+  });
+});
+
 test('Operation scoped provider should be created once per GraphQL Operation', async () => {
   const constructorSpy = jest.fn();
   const loadSpy = jest.fn();
