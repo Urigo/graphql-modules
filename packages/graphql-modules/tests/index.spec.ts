@@ -19,6 +19,35 @@ const Test = new InjectionToken<string>('test');
 const posts = ['Foo', 'Bar'];
 const comments = ['Comment #1', 'Comment #2'];
 
+test('should allow to add __isTypeOf to type resolvers', () => {
+  const m1 = createModule({
+    id: 'test',
+    typeDefs: parse(
+      `type Query { entity: Node } interface Node { id: ID! } type Entity implements Node { id: ID f: String }`
+    ),
+    resolvers: {
+      Query: {
+        entity: () => ({
+          id: 1,
+          type: 'entity',
+        }),
+      },
+      Entity: {
+        __isTypeOf: (obj: any) => obj.type === 'entity',
+        id: () => 1,
+        f: () => 'test',
+      },
+    },
+  });
+
+  // @ts-ignore
+  expect(() => {
+    createApplication({
+      modules: [m1],
+    });
+  }).not.toThrow();
+});
+
 test('basic', async () => {
   const spies = {
     logger: jest.fn(),
