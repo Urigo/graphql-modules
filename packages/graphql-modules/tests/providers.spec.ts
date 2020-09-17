@@ -74,6 +74,33 @@ test('No error in case of module without providers', async () => {
   });
 });
 
+test('Make sure we have readable error', async () => {
+  @Injectable({ scope: Scope.Singleton })
+  class P1 {}
+
+  @Injectable({ scope: Scope.Singleton })
+  class P2 {
+    // @ts-ignore
+    constructor(private p1: P1) {}
+  }
+
+  const m1 = createModule({
+    id: 'm1',
+    providers: [P1],
+    typeDefs: parse(`type Query { m1: String }`),
+  });
+  const m2 = createModule({
+    id: 'm2',
+    providers: [P2],
+    typeDefs: parse(`type Query { m2: String }`),
+  });
+
+  expect(() => {
+    const app = createApplication({ modules: [m1, m2] });
+    app.injector.get(P2);
+  }).toThrow('No provider for P1! (P2 -> P1)');
+});
+
 test('Operation scoped provider should be created once per GraphQL Operation', async () => {
   const constructorSpy = jest.fn();
   const loadSpy = jest.fn();
