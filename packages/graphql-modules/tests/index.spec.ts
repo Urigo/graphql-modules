@@ -40,7 +40,6 @@ test('should allow to add __isTypeOf to type resolvers', () => {
     },
   });
 
-  // @ts-ignore
   expect(() => {
     createApplication({
       modules: [m1],
