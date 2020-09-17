@@ -9,6 +9,7 @@ import {
   InputObjectTypeExtensionNode,
   FieldDefinitionNode,
   InputValueDefinitionNode,
+  Kind,
 } from 'graphql';
 import { ModuleConfig } from './types';
 import { ID } from '../shared/types';
@@ -36,10 +37,20 @@ export function metadataFactory(
       | InterfaceTypeDefinitionNode
       | InputObjectTypeDefinitionNode
   ) {
-    if (node.fields) {
-      implemented[node.name.value] = (node.fields as Array<
-        InputValueDefinitionNode | FieldDefinitionNode
-      >).map((field) => field.name.value);
+    if (!implemented[node.name.value]) {
+      implemented[node.name.value] = [];
+    }
+
+    if (node.fields && node.fields.length > 0) {
+      implemented[node.name.value].push(
+        ...(node.fields as Array<
+          InputValueDefinitionNode | FieldDefinitionNode
+        >).map((field) => field.name.value)
+      );
+    }
+
+    if (node.kind === Kind.OBJECT_TYPE_DEFINITION) {
+      implemented[node.name.value].push('__isTypeOf');
     }
   }
 
