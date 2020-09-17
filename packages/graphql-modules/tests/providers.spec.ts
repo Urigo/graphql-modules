@@ -317,7 +317,10 @@ test('fail on circular dependencies', async () => {
   }
 
   const providers = ReflectiveInjector.resolve([Foo, Bar]);
-  const injector = ReflectiveInjector.createFromResolved('main', providers);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'main',
+    providers
+  });
   expect(() => {
     injector.get(Foo);
   }).toThrowError(
@@ -325,6 +328,116 @@ test('fail on circular dependencies', async () => {
       Bar
     )} -> ${stringify(Foo)})`
   );
+});
+
+test('Redirect to original Injector in proxied injector', async () => {
+  const constructorSpy = jest.fn();
+  class Data {
+    constructor() {
+      constructorSpy();
+    }
+
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const providers = ReflectiveInjector.resolve([Data]);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'main',
+    providers,
+  });
+  const proxyInjector = ReflectiveInjector.createWithExecutionContext(
+    injector,
+    () => {}
+  );
+
+  injector.get(Data);
+  expect(constructorSpy).toHaveBeenCalledTimes(1);
+
+  proxyInjector.get(Data);
+  expect(constructorSpy).toHaveBeenCalledTimes(1);
+});
+
+test('Singleton scoped provider should be created once', async () => {
+  const constructorSpy = jest.fn();
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Data {
+    constructor() {
+      constructorSpy();
+    }
+
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const mod = createModule({
+    id: 'mod',
+    // providers: [Data],
+    typeDefs: gql`
+      type Query {
+        lorem: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        lorem(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [Data],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      lorem
+    }
+  `);
+
+  const execution = app.createExecution();
+
+  const result1 = await execution({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result1.errors).toBeUndefined();
+  expect(result1.data).toEqual({
+    lorem: 'ipsum',
+  });
+  expect(constructorSpy).toHaveBeenCalledTimes(1);
+
+  const result2 = await execution({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result2.errors).toBeUndefined();
+  expect(result2.data).toEqual({
+    lorem: 'ipsum',
+  });
+  expect(constructorSpy).toHaveBeenCalledTimes(1);
 });
 
 test.skip('Global Token provided by one module should be accessible by other modules (operation)', async () => {

@@ -57,9 +57,9 @@ export function moduleFactory(config: ModuleConfig): Module {
       resolvedModule.operationProviders = operationProviders;
 
       // Create a  module-level Singleton injector
-      const injector = ReflectiveInjector.createFromResolved(
-        `Module "${config.id}" (Singleton Scope)`,
-        resolvedModule.singletonProviders.concat(
+      const injector = ReflectiveInjector.createFromResolved({
+        name: `Module "${config.id}" (Singleton Scope)`,
+        providers: resolvedModule.singletonProviders.concat(
           resolveProviders([
             {
               // with module's id, useful in Logging and stuff
@@ -68,12 +68,8 @@ export function moduleFactory(config: ModuleConfig): Module {
             },
           ])
         ),
-        app.injector
-      );
-
-      // Instantiate all providers
-      // Happens only once, on app / module creation
-      // injector.instantiateAll();
+        parent: app.injector,
+      });
 
       // We attach injector property to existing `mod` object
       // because we want to keep references

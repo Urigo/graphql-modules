@@ -84,20 +84,16 @@ export function createApplication(config: ApplicationConfig): Application {
   const appSingletonProviders = ReflectiveInjector.resolve(
     onlySingletonProviders(providers)
   );
-  const appInjector = ReflectiveInjector.createFromResolved(
-    'App (Singleton Scope)',
-    appSingletonProviders
-  );
+  const appInjector = ReflectiveInjector.createFromResolved({
+    name: 'App (Singleton Scope)',
+    providers: appSingletonProviders,
+  });
   // Filter Operation-scoped providers, and keep it here
   // so we don't do it over and over again
   const appOperationProviders = ReflectiveInjector.resolve(
     onlyOperationProviders(providers)
   );
   const middlewareMap = config.middlewares || {};
-
-  // Instantiate all providers
-  // Happens only once, on app creation
-  // appInjector.instantiateAll();
 
   // Create all modules
   const modules = config.modules.map((mod) =>
@@ -174,9 +170,9 @@ export function createApplication(config: ApplicationConfig): Application {
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
     // Operation scoped - means it's created and destroyed on every GraphQL Operation
-    operationAppInjector = ReflectiveInjector.createFromResolved(
-      'App (Operation Scope)',
-      appOperationProviders.concat(
+    operationAppInjector = ReflectiveInjector.createFromResolved({
+      name: 'App (Operation Scope)',
+      providers: appOperationProviders.concat(
         ReflectiveInjector.resolve([
           {
             provide: CONTEXT,
@@ -184,8 +180,8 @@ export function createApplication(config: ApplicationConfig): Application {
           },
         ])
       ),
-      singletonAppProxyInjector
-    );
+      parent: singletonAppProxyInjector,
+    });
 
     // Create a context for application-level ExecutionContext
     appContext = {
@@ -232,21 +228,23 @@ export function createApplication(config: ApplicationConfig): Application {
 
             // Create module-level Operation-scoped Injector
             const operationModuleInjector = ReflectiveInjector.createFromResolved(
-              `Module "${moduleId}" (Operation Scope)`,
-              providers.concat(
-                ReflectiveInjector.resolve([
-                  {
-                    provide: CONTEXT,
-                    useFactory() {
-                      return contextCache[moduleId];
+              {
+                name: `Module "${moduleId}" (Operation Scope)`,
+                providers: providers.concat(
+                  ReflectiveInjector.resolve([
+                    {
+                      provide: CONTEXT,
+                      useFactory() {
+                        return contextCache[moduleId];
+                      },
                     },
-                  },
-                ])
-              ),
-              // This injector has a priority
-              singletonModuleProxyInjector,
-              // over this one
-              operationAppInjector
+                  ])
+                ),
+                // This injector has a priority
+                parent: singletonModuleProxyInjector,
+                // over this one
+                fallbackParent: operationAppInjector,
+              }
             );
 
             // Same as on application level, we need to collect providers with OnDestroy hooks
