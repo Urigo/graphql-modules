@@ -7,15 +7,15 @@ import {
   ReflectiveInjector,
   onlySingletonProviders,
   onlyOperationProviders,
-  Provider,
 } from '../di';
+import { ResolvedProvider, resolveProviders } from './../di/resolution';
 import { MiddlewareMap } from '../shared/middleware';
 import { Single } from '../shared/types';
 
 export type ResolvedModule = {
   injector: ReflectiveInjector;
-  singletonProviders: Array<Provider<any>>;
-  operationProviders: Array<Provider<any>>;
+  singletonProviders: Array<ResolvedProvider>;
+  operationProviders: Array<ResolvedProvider>;
   resolvers?: Single<Resolvers>;
 } & Omit<Module, 'factory'>;
 
@@ -32,36 +32,48 @@ export function moduleFactory(config: ModuleConfig): Module {
       ? config.providers()
       : config.providers;
 
+  // Filter providers and keep them this way
+  // so we don't do this filtering multiple times.
+  // Providers don't change over time, so it's safe to do it.
+  const operationProviders = ReflectiveInjector.resolve(
+    onlyOperationProviders(providers)
+  );
+  const singletonProviders = ReflectiveInjector.resolve(
+    onlySingletonProviders(providers)
+  );
+
   const mod: Module = {
     id: config.id,
     metadata,
     typeDefs,
     providers,
+    operationProviders,
+    singletonProviders,
     // Factory is called once on application creation,
     // before we even handle GraphQL Operation
     factory(app) {
       const resolvedModule: Partial<ResolvedModule> = mod;
-
-      // Filter providers and keep them this way
-      // so we don't do this filtering multiple times.
-      // Providers don't change over time, so it's safe to do it.
-      resolvedModule.operationProviders = onlyOperationProviders(providers);
-      resolvedModule.singletonProviders = onlySingletonProviders(providers);
+      resolvedModule.singletonProviders = singletonProviders;
+      resolvedModule.operationProviders = operationProviders;
 
       // Create a  module-level Singleton injector
-      const injector = ReflectiveInjector.create(
+      const injector = ReflectiveInjector.createFromResolved(
         `Module "${config.id}" (Singleton Scope)`,
-        resolvedModule.singletonProviders.concat({
-          // with module's id, useful in Logging and stuff
-          provide: MODULE_ID,
-          useValue: config.id,
-        }),
+        resolvedModule.singletonProviders.concat(
+          resolveProviders([
+            {
+              // with module's id, useful in Logging and stuff
+              provide: MODULE_ID,
+              useValue: config.id,
+            },
+          ])
+        ),
         app.injector
       );
 
       // Instantiate all providers
       // Happens only once, on app / module creation
-      injector.instantiateAll();
+      // injector.instantiateAll();
 
       // We attach injector property to existing `mod` object
       // because we want to keep references

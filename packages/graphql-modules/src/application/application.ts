@@ -27,6 +27,7 @@ import tapAsyncIterator, {
 } from '../shared/utils';
 import { CONTEXT } from './tokens';
 import { ApplicationConfig, Application } from './types';
+import { GlobalProviderMap, ResolvedProvider } from '../di/resolution';
 
 type ExecutionContextBuilder<
   TContext extends {
@@ -80,18 +81,23 @@ export function createApplication(config: ApplicationConfig): Application {
       ? config.providers()
       : config.providers;
   // Creates an Injector with singleton classes at application level
-  const appInjector = ReflectiveInjector.create(
-    'App (Singleton Scope)',
+  const appSingletonProviders = ReflectiveInjector.resolve(
     onlySingletonProviders(providers)
+  );
+  const appInjector = ReflectiveInjector.createFromResolved(
+    'App (Singleton Scope)',
+    appSingletonProviders
   );
   // Filter Operation-scoped providers, and keep it here
   // so we don't do it over and over again
-  const appOperationProviders = onlyOperationProviders(providers);
+  const appOperationProviders = ReflectiveInjector.resolve(
+    onlyOperationProviders(providers)
+  );
   const middlewareMap = config.middlewares || {};
 
   // Instantiate all providers
   // Happens only once, on app creation
-  appInjector.instantiateAll();
+  // appInjector.instantiateAll();
 
   // Create all modules
   const modules = config.modules.map((mod) =>
@@ -101,6 +107,30 @@ export function createApplication(config: ApplicationConfig): Application {
     })
   );
   const moduleMap = createModuleMap(modules);
+
+  const singletonGlobalProviders: GlobalProviderMap = new Map();
+
+  function addToMap(
+    provider: ResolvedProvider,
+    registry: GlobalProviderMap,
+    injector: ReflectiveInjector
+  ) {
+    if (provider.factory.isGlobal) {
+      if (registry.has(provider.key.id)) {
+        throw new Error('Collision');
+      }
+
+      registry.set(provider.key.id, injector);
+    }
+  }
+
+  modules.forEach((mod) => {
+    mod.singletonProviders.forEach((provider) => {
+      addToMap(provider, singletonGlobalProviders, mod.injector);
+    });
+  });
+
+  appInjector._globalProvidersMap = singletonGlobalProviders;
 
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
@@ -144,12 +174,16 @@ export function createApplication(config: ApplicationConfig): Application {
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
     // Operation scoped - means it's created and destroyed on every GraphQL Operation
-    operationAppInjector = ReflectiveInjector.create(
+    operationAppInjector = ReflectiveInjector.createFromResolved(
       'App (Operation Scope)',
-      appOperationProviders.concat({
-        provide: CONTEXT,
-        useValue: context,
-      }),
+      appOperationProviders.concat(
+        ReflectiveInjector.resolve([
+          {
+            provide: CONTEXT,
+            useValue: context,
+          },
+        ])
+      ),
       singletonAppProxyInjector
     );
 
@@ -197,16 +231,18 @@ export function createApplication(config: ApplicationConfig): Application {
             );
 
             // Create module-level Operation-scoped Injector
-            const operationModuleInjector = ReflectiveInjector.create(
+            const operationModuleInjector = ReflectiveInjector.createFromResolved(
               `Module "${moduleId}" (Operation Scope)`,
-              providers.concat([
-                {
-                  provide: CONTEXT,
-                  useFactory() {
-                    return contextCache[moduleId];
+              providers.concat(
+                ReflectiveInjector.resolve([
+                  {
+                    provide: CONTEXT,
+                    useFactory() {
+                      return contextCache[moduleId];
+                    },
                   },
-                },
-              ]),
+                ])
+              ),
               // This injector has a priority
               singletonModuleProxyInjector,
               // over this one

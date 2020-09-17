@@ -4,6 +4,7 @@ import {
   ResolvedFactory,
   resolveProviders,
   Dependency,
+  GlobalProviderMap,
 } from './resolution';
 import { Key } from './registry';
 import {
@@ -28,10 +29,11 @@ export class ReflectiveInjector implements Injector {
   _constructionCounter: number = 0;
   _providers: ResolvedProvider[];
   _executionContextGetter?: () => any;
+  _globalProvidersMap: GlobalProviderMap;
 
   private _fallbackParent: Injector | null;
   private _parent: Injector | null;
-  private _instantiated = false;
+  // private _instantiated = false;
   private _keyIds: number[];
   private _objs: any[];
 
@@ -39,12 +41,14 @@ export class ReflectiveInjector implements Injector {
     name: string,
     providers: ResolvedProvider[],
     parent?: Injector | null,
-    fallbackParent?: Injector | null
+    fallbackParent?: Injector | null,
+    globalProvidersMap: GlobalProviderMap = new Map()
   ) {
     this.displayName = name;
     this._parent = parent || null;
     this._fallbackParent = fallbackParent || null;
     this._providers = providers;
+    this._globalProvidersMap = globalProvidersMap;
 
     const len = this._providers.length;
 
@@ -57,6 +61,9 @@ export class ReflectiveInjector implements Injector {
     }
   }
 
+  /**
+   * @deprecated
+   */
   static create(
     name: string,
     providers: Provider[],
@@ -71,15 +78,35 @@ export class ReflectiveInjector implements Injector {
     );
   }
 
+  static createFromResolved(
+    name: string,
+    providers: ResolvedProvider[],
+    parent?: Injector,
+    fallbackParent?: Injector,
+    globalProvidersMap?: GlobalProviderMap
+  ) {
+    return new ReflectiveInjector(
+      name,
+      providers,
+      parent,
+      fallbackParent,
+      globalProvidersMap
+    );
+  }
+
+  static resolve(providers: Provider[]) {
+    return resolveProviders(providers);
+  }
+
   static createWithExecutionContext(
     injector: ReflectiveInjector,
     executionContextGetter: () => any
   ) {
-    if (!injector._instantiated) {
-      throw new Error(
-        'Internal: Received Injector is not instantiated. Should call instantiateAll() method.'
-      );
-    }
+    // if (!injector._instantiated) {
+    //   throw new Error(
+    //     'Internal: Received Injector is not instantiated. Should call instantiateAll() method.'
+    //   );
+    // }
 
     const proxied: number[] = [];
     const providers = injector._providers.map((provider, i) => {
@@ -103,7 +130,13 @@ export class ReflectiveInjector implements Injector {
 
         return new ResolvedProvider(
           provider.key,
-          new ResolvedFactory(proxyFactory, [], [], false)
+          new ResolvedFactory(
+            proxyFactory,
+            [],
+            [],
+            false,
+            false /* but I'm not sure */
+          )
         );
       }
 
@@ -114,7 +147,8 @@ export class ReflectiveInjector implements Injector {
       injector.displayName + ' (Proxy)',
       providers,
       injector.parent,
-      injector.fallbackParent
+      injector.fallbackParent,
+      injector._globalProvidersMap
     );
 
     newInjector._objs = [...injector._objs];
@@ -122,7 +156,7 @@ export class ReflectiveInjector implements Injector {
     proxied.forEach((i) => {
       newInjector._objs[i] = UNDEFINED;
     });
-    newInjector.instantiateAll();
+    // newInjector.instantiateAll();
 
     return newInjector;
   }
@@ -135,20 +169,17 @@ export class ReflectiveInjector implements Injector {
     return this._fallbackParent;
   }
 
-  get instantiated() {
-    return this._instantiated;
-  }
-
   get(token: any, notFoundValue: any = _THROW_IF_NOT_FOUND): any {
+    debugger;
     return this._getByKey(Key.get(token), notFoundValue);
   }
 
-  instantiateAll() {
-    this._providers.forEach((provider) => {
-      this.get(provider.key);
-    });
-    this._instantiated = true;
-  }
+  // instantiateAll() {
+  //   this._providers.forEach((provider) => {
+  //     this.get(provider.key);
+  //   });
+  //   this._instantiated = true;
+  // }
 
   private _getByKey(key: Key, notFoundValue: any): any {
     let inj: Injector | null = this;
@@ -203,6 +234,10 @@ export class ReflectiveInjector implements Injector {
   }
 
   _getObjByKeyId(keyId: number): any {
+    if (this._globalProvidersMap?.has(keyId)) {
+      return this._globalProvidersMap.get(keyId)?._getObjByKeyId(keyId);
+    }
+
     for (let i = 0; i < this._keyIds.length; i++) {
       if (this._keyIds[i] === keyId) {
         if (this._objs[i] === UNDEFINED) {

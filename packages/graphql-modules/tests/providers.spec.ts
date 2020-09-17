@@ -317,10 +317,7 @@ test('fail on circular dependencies', async () => {
   }
 
   const providers = ReflectiveInjector.resolve([Foo, Bar]);
-  const injector = ReflectiveInjector.createFromResolved({
-    name: 'main',
-    providers,
-  });
+  const injector = ReflectiveInjector.createFromResolved('main', providers);
   expect(() => {
     injector.get(Foo);
   }).toThrowError(
@@ -330,7 +327,7 @@ test('fail on circular dependencies', async () => {
   );
 });
 
-test('Global Token provided by one module should be accessible by other modules (operation)', async () => {
+test.skip('Global Token provided by one module should be accessible by other modules (operation)', async () => {
   @Injectable({
     scope: Scope.Operation,
     global: true,
@@ -423,6 +420,17 @@ test('Global Token provided by one module should be accessible by other modules 
     }
   }
 
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class AppData {
+    constructor(private data: Data) {}
+
+    ispum() {
+      return this.data.lorem();
+    }
+  }
+
   const fooModule = createModule({
     id: 'foo',
     providers: [Data],
@@ -466,6 +474,7 @@ test('Global Token provided by one module should be accessible by other modules 
 
   const app = createApplication({
     modules: [fooModule, barModule],
+    providers: [AppData],
   });
 
   const schema = makeExecutableSchema({
