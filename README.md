@@ -44,7 +44,7 @@ Just take a look at the build status on Github Actions and find "Publish Canary"
 More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs)
 
 ```js
-import { createModule, createAppliction } from 'graphql-modules';
+import { createModule, createApplication } from 'graphql-modules';
 
 const module = createModule({
   id: 'my-module',
@@ -62,7 +62,7 @@ const module = createModule({
   resolvers: blogResolvers,
 });
 
-const application = createAppliction({
+const application = createApplication({
   modules: [module],
 });
 ```
