@@ -27,6 +27,7 @@ import tapAsyncIterator, {
 } from '../shared/utils';
 import { CONTEXT } from './tokens';
 import { ApplicationConfig, Application } from './types';
+import { createGlobalProvidersMap, attachGlobalProvidersMap } from './di';
 
 type ExecutionContextBuilder<
   TContext extends {
@@ -102,30 +103,15 @@ export function createApplication(config: ApplicationConfig): Application {
     })
   );
   const moduleMap = createModuleMap(modules);
+  const singletonGlobalProvidersMap = createGlobalProvidersMap({ modules });
 
-  const singletonGlobalProvidersMap: {
-    /**
-     * Provider key -> Module ID
-     */
-    [key: string]: string;
-  } = {};
-
-  modules.forEach((mod) => {
-    mod.singletonProviders.forEach((provider) => {
-      if (provider.factory.isGlobal) {
-        singletonGlobalProvidersMap[provider.key.id] = mod.id;
-      }
-    });
+  attachGlobalProvidersMap({
+    injector: appInjector,
+    globalProvidersMap: singletonGlobalProvidersMap,
+    moduleInjectorGetter(moduleId) {
+      return moduleMap.get(moduleId)!.injector;
+    },
   });
-
-  appInjector._globalProvidersMap = {
-    has(key) {
-      return typeof singletonGlobalProvidersMap[key] === 'string';
-    },
-    get(key) {
-      return moduleMap.get(singletonGlobalProvidersMap[key])!.injector;
-    },
-  };
 
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
@@ -180,14 +166,13 @@ export function createApplication(config: ApplicationConfig): Application {
       proxyModuleMap.set(moduleId, singletonModuleProxyInjector);
     });
 
-    singletonAppProxyInjector._globalProvidersMap = {
-      has(key) {
-        return typeof singletonGlobalProvidersMap[key] === 'string';
+    attachGlobalProvidersMap({
+      injector: singletonAppProxyInjector,
+      globalProvidersMap: singletonGlobalProvidersMap,
+      moduleInjectorGetter(moduleId) {
+        return proxyModuleMap.get(moduleId)!;
       },
-      get(key) {
-        return proxyModuleMap.get(singletonGlobalProvidersMap[key])!;
-      },
-    };
+    });
 
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
@@ -269,6 +254,7 @@ export function createApplication(config: ApplicationConfig): Application {
 
           // HEY HEY HEY: changing `parent` of singleton injector may be incorret
           // what if we get two operations and we're in the middle of two async actions?
+          // I think it's okay becasue providers are resolved synchronously
           (moduleMap.get(moduleId)!
             .injector as any)._parent = singletonAppProxyInjector;
 

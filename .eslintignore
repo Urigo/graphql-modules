@@ -1,2 +1,5 @@
 **/*.spec.ts
 **/dist
+benchmark
+examples
+website
