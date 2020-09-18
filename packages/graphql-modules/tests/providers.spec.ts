@@ -161,7 +161,9 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
   });
 
   expect(constructorSpy).toHaveBeenCalledTimes(1);
-  expect(constructorSpy).toHaveBeenCalledWith(contextValue);
+  expect(constructorSpy).toHaveBeenCalledWith(
+    expect.objectContaining(contextValue)
+  );
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);
@@ -254,7 +256,9 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
   });
 
   expect(constructorSpy).toHaveBeenCalledTimes(1);
-  expect(constructorSpy).toHaveBeenCalledWith(contextValue);
+  expect(constructorSpy).toHaveBeenCalledWith(
+    expect.objectContaining(contextValue)
+  );
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);
