@@ -1,44 +1,19 @@
-import {
-  execute,
-  subscribe,
-  DocumentNode,
-  GraphQLSchema,
-  ExecutionArgs,
-  SubscriptionArgs,
-  GraphQLFieldResolver,
-  GraphQLTypeResolver,
-} from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { wrapSchema } from '@graphql-tools/wrap';
 import {
   ReflectiveInjector,
   onlySingletonProviders,
   onlyOperationProviders,
 } from '../di';
 import { ResolvedModule } from '../module/factory';
-import { ID, Maybe } from '../shared/types';
+import { ID } from '../shared/types';
 import { ModuleDuplicatedError } from '../shared/errors';
-import tapAsyncIterator, {
-  flatten,
-  isDefined,
-  isAsyncIterable,
-  once,
-  uniqueId,
-} from '../shared/utils';
-import { CONTEXT } from './tokens';
+import { flatten, isDefined } from '../shared/utils';
 import { ApplicationConfig, Application } from './types';
 import { createGlobalProvidersMap, attachGlobalProvidersMap } from './di';
-
-type ExecutionContextBuilder<
-  TContext extends {
-    [key: string]: any;
-  } = {}
-> = (
-  context: TContext
-) => {
-  context: InternalAppContext;
-  onDestroy: () => void;
-};
+import { createContextBuilder } from './context';
+import { executionCreator } from './execution';
+import { subscriptionCreator } from './subscription';
+import { apolloSchemaCreator } from './apollo';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
 
@@ -51,8 +26,6 @@ export interface InternalAppContext {
     context: GraphQLModules.GlobalContext
   ): GraphQLModules.ModuleContext;
 }
-
-const CONTEXT_ID = Symbol.for('context-id');
 
 /**
  * @api
@@ -119,257 +92,20 @@ export function createApplication(config: ApplicationConfig): Application {
   const resolvers = modules.map((mod) => mod.resolvers).filter(isDefined);
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-  // This is very critical. It creates an execution context.
-  // It has to run on every operation.
-  const contextBuilder: ExecutionContextBuilder<GraphQLModules.GlobalContext> = (
-    context
-  ) => {
-    // Cache for context per module
-    let contextCache: Record<ID, GraphQLModules.ModuleContext> = {};
-    // A list of providers with OnDestroy hooks
-    // It's a tuple because we want to know which Injector controls the provider
-    // and we want to know if the provider was even instantiated.
-    let providersToDestroy: Array<[ReflectiveInjector, number]> = [];
+  const contextBuilder = createContextBuilder({
+    appInjector,
+    appLevelOperationProviders: appOperationProviders,
+    moduleMap,
+    singletonGlobalProvidersMap,
+  });
 
-    function registerProvidersToDestroy(injector: ReflectiveInjector) {
-      injector._providers.forEach((provider) => {
-        if (provider.factory.hasOnDestroyHook) {
-          // keep provider key's id (it doesn't change over time)
-          // and related injector
-          providersToDestroy.push([injector, provider.key.id]);
-        }
-      });
-    }
-
-    let operationAppInjector: ReflectiveInjector;
-    let appContext: GraphQLModules.AppContext;
-
-    // It's very important to recreate a Singleton Injector
-    // and add an execution context getter function
-    // We do this so Singleton provider can access the ExecutionContext via Proxy
-    const singletonAppProxyInjector = ReflectiveInjector.createWithExecutionContext(
-      appInjector,
-      () => appContext
-    );
-
-    // It's very important to recreate a Singleton Injector
-    // and add an execution context getter function
-    // We do this so Singleton provider can access the ExecutionContext via Proxy
-    const proxyModuleMap = new Map<string, ReflectiveInjector>();
-
-    moduleMap.forEach((mod, moduleId) => {
-      const singletonModuleInjector = mod.injector;
-      const singletonModuleProxyInjector = ReflectiveInjector.createWithExecutionContext(
-        singletonModuleInjector,
-        () => contextCache[moduleId]
-      );
-      proxyModuleMap.set(moduleId, singletonModuleProxyInjector);
-    });
-
-    attachGlobalProvidersMap({
-      injector: singletonAppProxyInjector,
-      globalProvidersMap: singletonGlobalProvidersMap,
-      moduleInjectorGetter(moduleId) {
-        return proxyModuleMap.get(moduleId)!;
-      },
-    });
-
-    // As the name of the Injector says, it's an Operation scoped Injector
-    // Application level
-    // Operation scoped - means it's created and destroyed on every GraphQL Operation
-    operationAppInjector = ReflectiveInjector.createFromResolved({
-      name: 'App (Operation Scope)',
-      providers: appOperationProviders.concat(
-        ReflectiveInjector.resolve([
-          {
-            provide: CONTEXT,
-            useValue: context,
-          },
-        ])
-      ),
-      parent: singletonAppProxyInjector,
-    });
-
-    // Create a context for application-level ExecutionContext
-    appContext = {
-      ...context,
-      injector: operationAppInjector,
-    };
-
-    // Track Providers with OnDestroy hooks
-    registerProvidersToDestroy(operationAppInjector);
-
-    return {
-      onDestroy: once(() => {
-        providersToDestroy.forEach(([injector, keyId]) => {
-          // If provider was instantiated
-          if (injector._isObjectDefinedByKeyId(keyId)) {
-            // call its OnDestroy hook
-            injector._getObjByKeyId(keyId).onDestroy();
-          }
-        });
-        contextCache = {};
-      }),
-      context: {
-        // We want to pass the received context
-        ...(context || {}),
-        // Here's something very crutial
-        // It's a function that is used in module's context creation
-        ɵgetModuleContext(moduleId, ctx) {
-          // Reuse a context or create if not available
-          if (!contextCache[moduleId]) {
-            // We're interested in operation-scoped providers only
-            const providers = moduleMap.get(moduleId)?.operationProviders!;
-
-            // Create module-level Operation-scoped Injector
-            const operationModuleInjector = ReflectiveInjector.createFromResolved(
-              {
-                name: `Module "${moduleId}" (Operation Scope)`,
-                providers: providers.concat(
-                  ReflectiveInjector.resolve([
-                    {
-                      provide: CONTEXT,
-                      useFactory() {
-                        return contextCache[moduleId];
-                      },
-                    },
-                  ])
-                ),
-                // This injector has a priority
-                parent: proxyModuleMap.get(moduleId),
-                // over this one
-                fallbackParent: operationAppInjector,
-              }
-            );
-
-            // Same as on application level, we need to collect providers with OnDestroy hooks
-            registerProvidersToDestroy(operationModuleInjector);
-
-            contextCache[moduleId] = {
-              ...ctx,
-              injector: operationModuleInjector,
-              moduleId,
-            };
-          }
-
-          // HEY HEY HEY: changing `parent` of singleton injector may be incorret
-          // what if we get two operations and we're in the middle of two async actions?
-          // I think it's okay becasue providers are resolved synchronously
-          (moduleMap.get(moduleId)!
-            .injector as any)._parent = singletonAppProxyInjector;
-
-          return contextCache[moduleId];
-        },
-      },
-    };
-  };
-
-  const createSubscription: Application['createSubscription'] = (options) => {
-    // Custom or original subscribe function
-    const subscribeFn = options?.subscribe || subscribe;
-
-    return (
-      argsOrSchema: SubscriptionArgs | GraphQLSchema,
-      document?: DocumentNode,
-      rootValue?: any,
-      contextValue?: any,
-      variableValues?: Maybe<{ [key: string]: any }>,
-      operationName?: Maybe<string>,
-      fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
-      subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>
-    ) => {
-      // Create an subscription context
-      const { context, onDestroy } = contextBuilder(
-        isNotSchema<SubscriptionArgs>(argsOrSchema)
-          ? argsOrSchema.contextValue
-          : contextValue
-      );
-
-      const subscriptionArgs: SubscriptionArgs = isNotSchema<SubscriptionArgs>(
-        argsOrSchema
-      )
-        ? {
-            ...argsOrSchema,
-            contextValue: context,
-          }
-        : {
-            schema: argsOrSchema,
-            document: document!,
-            rootValue,
-            contextValue: context,
-            variableValues,
-            operationName,
-            fieldResolver,
-            subscribeFieldResolver,
-          };
-
-      let isIterable = false;
-
-      // It's important to wrap the subscribeFn within a promise
-      // so we can easily control the end of subscription (with finally)
-      return Promise.resolve()
-        .then(() => subscribeFn(subscriptionArgs))
-        .then((sub) => {
-          if (isAsyncIterable(sub)) {
-            isIterable = true;
-            return tapAsyncIterator(sub, onDestroy);
-          }
-          return sub;
-        })
-        .finally(() => {
-          if (!isIterable) {
-            onDestroy();
-          }
-        });
-    };
-  };
-
-  const createExecution: Application['createExecution'] = (options) => {
-    // Custom or original execute function
-    const executeFn = options?.execute || execute;
-
-    return (
-      argsOrSchema: ExecutionArgs | GraphQLSchema,
-      document?: DocumentNode,
-      rootValue?: any,
-      contextValue?: any,
-      variableValues?: Maybe<{ [key: string]: any }>,
-      operationName?: Maybe<string>,
-      fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>,
-      typeResolver?: Maybe<GraphQLTypeResolver<any, any>>
-    ) => {
-      // Create an execution context
-      const { context, onDestroy } = contextBuilder(
-        isNotSchema<ExecutionArgs>(argsOrSchema)
-          ? argsOrSchema.contextValue
-          : contextValue
-      );
-
-      const executionArgs: ExecutionArgs = isNotSchema<ExecutionArgs>(
-        argsOrSchema
-      )
-        ? {
-            ...argsOrSchema,
-            contextValue: context,
-          }
-        : {
-            schema: argsOrSchema,
-            document: document!,
-            rootValue,
-            contextValue: context,
-            variableValues,
-            operationName,
-            fieldResolver,
-            typeResolver,
-          };
-
-      // It's important to wrap the executeFn within a promise
-      // so we can easily control the end of execution (with finally)
-      return Promise.resolve()
-        .then(() => executeFn(executionArgs))
-        .finally(onDestroy);
-    };
-  };
+  const createSubscription = subscriptionCreator({ contextBuilder });
+  const createExecution = executionCreator({ contextBuilder });
+  const createSchemaForApollo = apolloSchemaCreator({
+    createSubscription,
+    contextBuilder,
+    schema,
+  });
 
   return {
     typeDefs,
@@ -378,75 +114,7 @@ export function createApplication(config: ApplicationConfig): Application {
     injector: appInjector,
     createSubscription,
     createExecution,
-    createSchemaForApollo() {
-      const sessions: Record<
-        string,
-        {
-          count: number;
-          session: {
-            onDestroy(): void;
-            context: InternalAppContext;
-          };
-        }
-      > = {};
-      const subscription = createSubscription();
-
-      function getSession(ctx: any) {
-        if (!ctx[CONTEXT_ID]) {
-          ctx[CONTEXT_ID] = uniqueId((id) => !sessions[id]);
-          const { context, onDestroy } = contextBuilder(ctx);
-
-          sessions[ctx[CONTEXT_ID]] = {
-            count: 0,
-            session: {
-              context,
-              onDestroy() {
-                if (--sessions[ctx[CONTEXT_ID]].count === 0) {
-                  onDestroy();
-                  delete sessions[ctx[CONTEXT_ID]];
-                }
-              },
-            },
-          };
-        }
-
-        sessions[ctx[CONTEXT_ID]].count++;
-
-        return sessions[ctx[CONTEXT_ID]].session;
-      }
-
-      return wrapSchema({
-        schema,
-        executor(input) {
-          // Create an execution context
-          const { context, onDestroy } = getSession(input.context!);
-
-          // It's important to wrap the executeFn within a promise
-          // so we can easily control the end of execution (with finally)
-          return Promise.resolve()
-            .then(
-              () =>
-                execute({
-                  schema,
-                  document: input.document,
-                  contextValue: context,
-                  variableValues: input.variables,
-                  rootValue: input.info?.rootValue,
-                }) as any
-            )
-            .finally(onDestroy);
-        },
-        subscriber(input) {
-          return subscription({
-            schema,
-            document: input.document,
-            variableValues: input.variables,
-            contextValue: input.context,
-            rootValue: input.info?.rootValue,
-          }) as any;
-        },
-      });
-    },
+    createSchemaForApollo,
   };
 }
 
@@ -478,8 +146,4 @@ function createModuleMap(modules: ResolvedModule[]): ModulesMap {
   }
 
   return moduleMap;
-}
-
-function isNotSchema<T>(obj: any): obj is T {
-  return obj instanceof GraphQLSchema === false;
 }
