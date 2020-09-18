@@ -9,10 +9,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@graphql-modules/core": "0.7.0",
-    "express": "4.16.4",
+    "@graphql-modules/core": "0.7.17",
+    "express": "4.17.1",
     "express-graphql": "0.7.1",
-    "graphql": "14.2.1",
+    "graphql": "15.3.0",
     "graphql-tag": "^2.10.3",
     "reflect-metadata": "0.1.13"
   },
@@ -28,6 +28,6 @@
     ]
   },
   "devDependencies": {
-    "jest": "23.5.0"
+    "jest": "26.4.2"
   }
 }
