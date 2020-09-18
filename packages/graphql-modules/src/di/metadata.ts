@@ -1,3 +1,4 @@
+import { noInjectableError } from './errors';
 import { Type, ProviderOptions, InjectionToken } from './providers';
 
 export const INJECTABLE = Symbol('di:injectable');
@@ -12,8 +13,17 @@ export interface InjectableMetadata {
   options?: ProviderOptions;
 }
 
-export function readInjectableMetadata(type: Type<any>): InjectableMetadata {
-  return (type as any)[INJECTABLE];
+export function readInjectableMetadata(
+  type: Type<any>,
+  throwOnMissing?: boolean
+): InjectableMetadata {
+  const meta = (type as any)[INJECTABLE];
+
+  if (!meta && throwOnMissing) {
+    throw noInjectableError(type);
+  }
+
+  return meta;
 }
 
 export function ensureInjectableMetadata(type: Type<any>) {
