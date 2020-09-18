@@ -7,9 +7,12 @@ import {
   CONTEXT,
   Scope,
   gql,
+  forwardRef,
 } from '../src';
+import { ReflectiveInjector } from '../src/di';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { parse, execute } from 'graphql';
+import { stringify } from '../src/di/utils';
 
 test('No error in case of module without providers', async () => {
   @Injectable({
@@ -262,4 +265,36 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);
+});
+
+test('fail on circular dependencies', async () => {
+  const fooSpy = jest.fn();
+  const barSpy = jest.fn();
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Foo {
+    constructor(@Inject(forwardRef(() => Bar)) bar: any) {
+      fooSpy(bar);
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Bar {
+    constructor(@Inject(forwardRef(() => Foo)) foo: any) {
+      barSpy(foo);
+    }
+  }
+
+  const injector = ReflectiveInjector.create('main', [Foo, Bar]);
+  expect(() => {
+    injector.get(Foo);
+  }).toThrowError(
+    `Cannot instantiate cyclic dependency! (${stringify(Foo)} -> ${stringify(
+      Bar
+    )} -> ${stringify(Foo)})`
+  );
 });
