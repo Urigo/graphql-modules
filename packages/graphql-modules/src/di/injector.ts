@@ -234,7 +234,7 @@ export class ReflectiveInjector implements Injector {
       );
     } catch (e) {
       if (e.addKey) {
-        e.addKey(this, provider.key);
+        e.addKey(provider.key);
       }
       throw e;
     }
@@ -262,5 +262,9 @@ export class ReflectiveInjector implements Injector {
 
   private _getMaxNumberOfObjects(): number {
     return this._objs.length;
+  }
+
+  toString(): string {
+    return this.displayName;
   }
 }
