@@ -139,13 +139,13 @@ function resolveFactory(provider: NormalizedProvider): ResolvedFactory {
 }
 
 function dependenciesFor(type: any): Dependency[] {
-  const { params } = readInjectableMetadata(type);
+  const { params } = readInjectableMetadata(type, true);
 
   if (!params) {
     return [];
   }
 
-  if (params.some((p) => p == null)) {
+  if (params.some((p) => p.type == null)) {
     throw noAnnotationError(type, params);
   }
 
@@ -153,7 +153,7 @@ function dependenciesFor(type: any): Dependency[] {
 }
 
 function executionContextInFor(type: any): Array<string | symbol> {
-  const { options } = readInjectableMetadata(type);
+  const { options } = readInjectableMetadata(type, true);
 
   if (
     options?.executionContextIn &&

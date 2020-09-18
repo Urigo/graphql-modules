@@ -16,7 +16,7 @@ export function isToken(v: any): v is InjectionToken<any> {
 }
 
 export function isType(v: any): v is Type<any> {
-  return typeof v === 'function';
+  return typeof v === 'function' && v !== Object;
 }
 
 export interface AbstractType<T> extends Function {
@@ -67,7 +67,7 @@ export enum Scope {
 export function onlySingletonProviders(providers: Provider[] = []): Provider[] {
   return providers.filter((provider) => {
     if (isType(provider)) {
-      const { options } = readInjectableMetadata(provider);
+      const { options } = readInjectableMetadata(provider, true);
       return options?.scope !== Scope.Operation;
     } else {
       return provider.scope !== Scope.Operation;
@@ -78,7 +78,7 @@ export function onlySingletonProviders(providers: Provider[] = []): Provider[] {
 export function onlyOperationProviders(providers: Provider[] = []): Provider[] {
   return providers.filter((provider) => {
     if (isType(provider)) {
-      const { options } = readInjectableMetadata(provider);
+      const { options } = readInjectableMetadata(provider, true);
       return options?.scope === Scope.Operation;
     } else {
       return provider.scope === Scope.Operation;

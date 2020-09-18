@@ -15,6 +15,10 @@ export function invalidProviderError(provider: any) {
   );
 }
 
+export function noInjectableError(type: Type<any>): Error {
+  return Error(`Missing @Injectable decorator for '${stringify(type)}'`);
+}
+
 export function noAnnotationError(
   typeOrFunc: Type<any> | InjectionToken<any> | Function,
   params: InjectableParamMetadata[]
@@ -73,11 +77,9 @@ export function instantiationError(
     key,
     function (this: InjectionError) {
       const first = stringify(this.keys[0].token);
-      return `${
+      return `Error during instantiation of ${first}: ${
         getOriginalError(this).message
-      }: Error during instantiation of ${first}!${constructResolvingPath(
-        this.keys
-      )}.`;
+      }${constructResolvingPath(this.keys)}`;
     },
     originalException
   );

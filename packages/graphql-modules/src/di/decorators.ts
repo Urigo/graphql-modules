@@ -7,8 +7,16 @@ import {
 } from './metadata';
 import { Injector } from './injector';
 
+function ensureReflect() {
+  if (!(Reflect && Reflect.getOwnMetadata)) {
+    throw 'reflect-metadata shim is required when using class decorators';
+  }
+}
+
 export function Injectable(options?: ProviderOptions): ClassDecorator {
   return (target) => {
+    ensureReflect();
+
     const params: Type<any>[] = (
       Reflect.getMetadata('design:paramtypes', target) || []
     ).map((param: any) => (isType(param) ? param : null));
@@ -40,6 +48,7 @@ export function Injectable(options?: ProviderOptions): ClassDecorator {
 
 export function Optional(): ParameterDecorator {
   return (target, _, index) => {
+    ensureReflect();
     ensureInjectableMetadata(target as any);
     const meta = readInjectableMetadata(target as any);
 
@@ -54,6 +63,7 @@ export function Inject(
   type: Type<any> | InjectionToken<any>
 ): ParameterDecorator {
   return (target, _, index) => {
+    ensureReflect();
     ensureInjectableMetadata(target as any);
     const meta = readInjectableMetadata(target as any);
 
@@ -70,6 +80,7 @@ export type ExecutionContext = {
 
 export function ExecutionContext(): PropertyDecorator {
   return (obj, propertyKey) => {
+    ensureReflect();
     const target = obj.constructor;
 
     ensureInjectableMetadata(target as any);
