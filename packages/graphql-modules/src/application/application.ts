@@ -202,7 +202,9 @@ export function createApplication(config: ApplicationConfig): Application {
               providers.concat([
                 {
                   provide: CONTEXT,
-                  useValue: context,
+                  useFactory() {
+                    return contextCache[moduleId];
+                  },
                 },
               ]),
               // This injector has a priority
