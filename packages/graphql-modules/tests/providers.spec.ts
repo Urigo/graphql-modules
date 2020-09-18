@@ -732,3 +732,77 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
   expect(logger).toHaveBeenNthCalledWith(1, 'info');
   expect(logger).toHaveBeenNthCalledWith(2, 'info');
 });
+
+test('Detect collision of two identical global providers (singleton)', async () => {
+  @Injectable({
+    scope: Scope.Singleton,
+    global: true,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class AppData {
+    constructor(private data: Data) {}
+
+    ispum() {
+      return this.data.lorem();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    providers: [Data],
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  expect(() => {
+    createApplication({
+      modules: [fooModule, barModule],
+      providers: [AppData],
+    });
+  }).toThrowError(
+    `Failed to define 'Data' token as global. Token provided by two modules: 'bar', 'foo'`
+  );
+});

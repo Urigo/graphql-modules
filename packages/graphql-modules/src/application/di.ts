@@ -1,5 +1,6 @@
 import { ResolvedModule } from '../module/factory';
 import { ReflectiveInjector } from '../di';
+import { ResolvedProvider } from '../di/resolution';
 
 export function createGlobalProvidersMap({
   modules,
@@ -16,7 +17,16 @@ export function createGlobalProvidersMap({
   modules.forEach((mod) => {
     mod.singletonProviders.forEach((provider) => {
       if (provider.factory.isGlobal) {
-        singletonGlobalProvidersMap[provider.key.id] = mod.id;
+        const key = provider.key.id;
+
+        if (singletonGlobalProvidersMap[key]) {
+          throw duplicatedGlobalTokenError(provider, [
+            mod.id,
+            singletonGlobalProvidersMap[key],
+          ]);
+        }
+
+        singletonGlobalProvidersMap[key] = mod.id;
       }
     });
   });
@@ -43,4 +53,16 @@ export function attachGlobalProvidersMap({
       return moduleInjectorGetter(globalProvidersMap[key]);
     },
   };
+}
+
+export function duplicatedGlobalTokenError(
+  provider: ResolvedProvider,
+  modules: [string, string]
+): Error {
+  return Error(
+    [
+      `Failed to define '${provider.key.displayName}' token as global.`,
+      `Token provided by two modules: '${modules.join("', '")}'`,
+    ].join(' ')
+  );
 }
