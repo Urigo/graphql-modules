@@ -4,6 +4,7 @@ import {
   createModule,
   Injectable,
   Inject,
+  InjectionToken,
   CONTEXT,
   Scope,
   gql,
@@ -614,4 +615,120 @@ test('Global Token provided by one module should be accessible by other modules 
     foo: 'ipsum',
     bar: 'ipsum',
   });
+});
+
+test('Global Token (module) should use other local tokens (singleton)', async () => {
+  const LogLevel = new InjectionToken<string>('log-level');
+  const logger = jest.fn();
+
+  @Injectable({
+    scope: Scope.Singleton,
+    global: true,
+  })
+  class Data {
+    constructor(@Inject(LogLevel) private logLevel: string) {}
+
+    lorem() {
+      logger(this.logLevel);
+      return 'ipsum';
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class AppData {
+    constructor(private data: Data) {}
+
+    ispum() {
+      return this.data.lorem();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data, { provide: LogLevel, useValue: 'info' }],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    providers: [
+      {
+        provide: LogLevel,
+        useValue: 'error',
+      },
+    ],
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [fooModule, barModule],
+    providers: [
+      AppData,
+      {
+        provide: LogLevel,
+        useValue: 'verbose',
+      },
+    ],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      foo
+      bar
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    foo: 'ipsum',
+    bar: 'ipsum',
+  });
+
+  expect(logger).toHaveBeenCalledTimes(2);
+  expect(logger).toHaveBeenNthCalledWith(1, 'info');
+  expect(logger).toHaveBeenNthCalledWith(2, 'info');
 });

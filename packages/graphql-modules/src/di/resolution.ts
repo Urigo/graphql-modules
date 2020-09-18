@@ -20,7 +20,10 @@ export type NormalizedProvider<T = any> =
 
 const _EMPTY_LIST: any[] = [];
 
-export type GlobalProviderMap = Map<Key['id'], ReflectiveInjector>;
+export type GlobalProviderMap = {
+  has(key: Key['id']): boolean;
+  get(key: Key['id']): ReflectiveInjector;
+};
 
 export class ResolvedProvider {
   constructor(public key: Key, public factory: ResolvedFactory) {}

@@ -27,7 +27,6 @@ import tapAsyncIterator, {
 } from '../shared/utils';
 import { CONTEXT } from './tokens';
 import { ApplicationConfig, Application } from './types';
-import { GlobalProviderMap, ResolvedProvider } from '../di/resolution';
 
 type ExecutionContextBuilder<
   TContext extends {
@@ -104,29 +103,29 @@ export function createApplication(config: ApplicationConfig): Application {
   );
   const moduleMap = createModuleMap(modules);
 
-  const singletonGlobalProviders: GlobalProviderMap = new Map();
-
-  function addToMap(
-    provider: ResolvedProvider,
-    registry: GlobalProviderMap,
-    injector: ReflectiveInjector
-  ) {
-    if (provider.factory.isGlobal) {
-      if (registry.has(provider.key.id)) {
-        throw new Error('Collision');
-      }
-
-      registry.set(provider.key.id, injector);
-    }
-  }
+  const singletonGlobalProvidersMap: {
+    /**
+     * Provider key -> Module ID
+     */
+    [key: string]: string;
+  } = {};
 
   modules.forEach((mod) => {
     mod.singletonProviders.forEach((provider) => {
-      addToMap(provider, singletonGlobalProviders, mod.injector);
+      if (provider.factory.isGlobal) {
+        singletonGlobalProvidersMap[provider.key.id] = mod.id;
+      }
     });
   });
 
-  appInjector._globalProvidersMap = singletonGlobalProviders;
+  appInjector._globalProvidersMap = {
+    has(key) {
+      return typeof singletonGlobalProvidersMap[key] === 'string';
+    },
+    get(key) {
+      return moduleMap.get(singletonGlobalProvidersMap[key])!.injector;
+    },
+  };
 
   // Creating a schema, flattening the typedefs and resolvers
   // is not expensive since it happens only once
@@ -166,6 +165,29 @@ export function createApplication(config: ApplicationConfig): Application {
       appInjector,
       () => appContext
     );
+
+    // It's very important to recreate a Singleton Injector
+    // and add an execution context getter function
+    // We do this so Singleton provider can access the ExecutionContext via Proxy
+    const proxyModuleMap = new Map<string, ReflectiveInjector>();
+
+    moduleMap.forEach((mod, moduleId) => {
+      const singletonModuleInjector = mod.injector;
+      const singletonModuleProxyInjector = ReflectiveInjector.createWithExecutionContext(
+        singletonModuleInjector,
+        () => contextCache[moduleId]
+      );
+      proxyModuleMap.set(moduleId, singletonModuleProxyInjector);
+    });
+
+    singletonAppProxyInjector._globalProvidersMap = {
+      has(key) {
+        return typeof singletonGlobalProvidersMap[key] === 'string';
+      },
+      get(key) {
+        return proxyModuleMap.get(singletonGlobalProvidersMap[key])!;
+      },
+    };
 
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
@@ -213,18 +235,6 @@ export function createApplication(config: ApplicationConfig): Application {
           if (!contextCache[moduleId]) {
             // We're interested in operation-scoped providers only
             const providers = moduleMap.get(moduleId)?.operationProviders!;
-            // Module-level Singleton Injector
-            const singletonModuleInjector = moduleMap.get(moduleId)!.injector;
-
-            (singletonModuleInjector as any)._parent = singletonAppProxyInjector;
-
-            // It's very important to recreate a Singleton Injector
-            // and add an execution context getter function
-            // We do this so Singleton provider can access the ExecutionContext via Proxy
-            const singletonModuleProxyInjector = ReflectiveInjector.createWithExecutionContext(
-              singletonModuleInjector,
-              () => contextCache[moduleId]
-            );
 
             // Create module-level Operation-scoped Injector
             const operationModuleInjector = ReflectiveInjector.createFromResolved(
@@ -241,7 +251,7 @@ export function createApplication(config: ApplicationConfig): Application {
                   ])
                 ),
                 // This injector has a priority
-                parent: singletonModuleProxyInjector,
+                parent: proxyModuleMap.get(moduleId),
                 // over this one
                 fallbackParent: operationAppInjector,
               }
@@ -256,6 +266,11 @@ export function createApplication(config: ApplicationConfig): Application {
               moduleId,
             };
           }
+
+          // HEY HEY HEY: changing `parent` of singleton injector may be incorret
+          // what if we get two operations and we're in the middle of two async actions?
+          (moduleMap.get(moduleId)!
+            .injector as any)._parent = singletonAppProxyInjector;
 
           return contextCache[moduleId];
         },
