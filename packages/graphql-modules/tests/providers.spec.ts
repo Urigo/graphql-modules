@@ -77,29 +77,69 @@ test('No error in case of module without providers', async () => {
 
 test('Make sure we have readable error', async () => {
   @Injectable({ scope: Scope.Singleton })
-  class P1 {}
+  class P1 {
+    value() {
+      return 'foo';
+    }
+  }
 
   @Injectable({ scope: Scope.Singleton })
   class P2 {
-    // @ts-ignore
     constructor(private p1: P1) {}
+
+    value() {
+      return this.p1.value();
+    }
   }
 
   const m1 = createModule({
     id: 'm1',
     providers: [P1],
-    typeDefs: parse(`type Query { m1: String }`),
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        m1: String
+      }
+    `),
   });
   const m2 = createModule({
     id: 'm2',
     providers: [P2],
-    typeDefs: parse(`type Query { m2: String }`),
+    typeDefs: parse(/* GraphQL */ `
+      extend type Query {
+        m2: String
+      }
+    `),
+    resolvers: {
+      Query: {
+        m2(_parent: {}, _args: {}, { injector }: GraphQLModules.ModuleContext) {
+          return injector.get(P2).value();
+        },
+      },
+    },
   });
 
-  expect(() => {
-    const app = createApplication({ modules: [m1, m2] });
-    app.injector.get(P2);
-  }).toThrow('No provider for P1! (P2 -> P1)');
+  const app = createApplication({ modules: [m2, m1] });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+  const document = parse(/* GraphQL */ `
+    {
+      m2
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue: {},
+    document,
+  });
+  expect(result.errors).toBeDefined();
+  expect(result.errors).toHaveLength(1);
+  expect(result.errors![0].message).toBe(
+    'No provider for P1! (P2 -> P1) - in Module "m2" (Singleton Scope)'
+  );
 });
 
 test('Operation scoped provider should be created once per GraphQL Operation', async () => {
@@ -320,7 +360,7 @@ test('fail on circular dependencies', async () => {
   const providers = ReflectiveInjector.resolve([Foo, Bar]);
   const injector = ReflectiveInjector.createFromResolved({
     name: 'main',
-    providers
+    providers,
   });
   expect(() => {
     injector.get(Foo);
@@ -333,6 +373,8 @@ test('fail on circular dependencies', async () => {
 
 test('Redirect to original Injector in proxied injector', async () => {
   const constructorSpy = jest.fn();
+
+  @Injectable()
   class Data {
     constructor() {
       constructorSpy();
