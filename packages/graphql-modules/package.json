@@ -1,6 +1,6 @@
 {
   "name": "graphql-modules",
-  "version": "0.0.0-PLACEHOLDER",
+  "version": "0.7.17",
   "author": "Kamil Kisiela",
   "license": "MIT",
   "sideEffects": false,

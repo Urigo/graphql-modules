@@ -9,6 +9,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "graphql-modules": "0.0.0-PLACEHOLDER"
+    "graphql-modules": "0.7.17"
   }
 }
