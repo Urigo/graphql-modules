@@ -11,6 +11,7 @@ export function getOriginalError(error: Error): Error {
 }
 
 function defaultErrorLogger(console: Console, ...values: any[]) {
+  // eslint-disable-next-line no-console
   (<any>console.error)(...values);
 }
 

@@ -125,7 +125,7 @@ test('basic', async () => {
       Events,
       {
         provide: Test,
-        useValue: 'local',
+        useValue: 'mod',
       },
     ],
     typeDefs: gql`
@@ -198,7 +198,7 @@ test('basic', async () => {
       Logger,
       {
         provide: Test,
-        useValue: 'global',
+        useValue: 'app',
       },
     ],
   });
@@ -235,8 +235,8 @@ test('basic', async () => {
   });
 
   // Child Injector has priority over Parent Injector
-  expect(spies.posts.test).toHaveBeenCalledWith('local');
-  expect(spies.comments.test).toHaveBeenCalledWith('global');
+  expect(spies.posts.test).toHaveBeenCalledWith('mod');
+  expect(spies.comments.test).toHaveBeenCalledWith('app');
 
   // Value of MODULE_ID according to module's resolver
   expect(spies.posts.moduleId).toHaveBeenCalledWith('posts');

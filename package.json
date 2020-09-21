@@ -14,6 +14,7 @@
     "release": "changeset publish",
     "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
+    "lint": "eslint \"packages/**\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
@@ -24,20 +25,23 @@
     "@types/jest": "26.0.14",
     "@types/node": "14.11.1",
     "@types/ramda": "0.27.17",
+    "@typescript-eslint/eslint-plugin": "4.1.1",
+    "@typescript-eslint/parser": "4.1.1",
     "apollo-server": "2.17.0",
     "apollo-server-express": "2.17.0",
     "artillery": "1.6.1",
     "benchmark": "2.1.4",
     "bob-the-bundler": "1.1.0",
     "dataloader": "2.0.0",
+    "eslint": "7.9.0",
     "express": "4.17.1",
     "express-graphql": "0.11.0",
     "graphql": "15.3.0",
     "graphql-subscriptions": "1.1.0",
     "husky": "4.3.0",
     "jest": "26.4.2",
+    "lint-staged": "10.4.0",
     "prettier": "2.1.2",
-    "pretty-quick": "3.0.2",
     "reflect-metadata": "0.1.13",
     "subscriptions-transport-ws": "0.9.18",
     "ts-jest": "26.4.0",
@@ -51,7 +55,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.ts": "eslint",
+    "*{js,json,css,md,ts,tsx}": "prettier --write"
   }
 }

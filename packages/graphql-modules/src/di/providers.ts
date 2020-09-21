@@ -57,6 +57,7 @@ export type Provider<T = any> =
 export interface ProviderOptions {
   scope?: Scope;
   executionContextIn?: Array<string | symbol>;
+  global?: boolean;
 }
 
 export enum Scope {

@@ -1,3 +1,5 @@
+import { GraphQLSchema } from 'graphql';
+
 export function flatten<T>(arr: T[]): T extends (infer A)[] ? A[] : T[] {
   return Array.prototype.concat(...arr) as any;
 }
@@ -26,7 +28,7 @@ export function isAsyncIterable(obj: any): obj is AsyncIterableIterator<any> {
   return obj && typeof obj[Symbol.asyncIterator] === 'function';
 }
 
-export default function tapAsyncIterator<T>(
+export function tapAsyncIterator<T>(
   iterable: AsyncIterable<T>,
   doneCallback: () => void
 ): AsyncGenerator<T> {
@@ -85,7 +87,11 @@ export function once(cb: () => void) {
 export function uniqueId(isNotUsed: (id: string) => boolean) {
   let id: string;
 
-  while(!isNotUsed(id = Math.random().toString(16).substr(2))) {}
+  while (!isNotUsed((id = Math.random().toString(16).substr(2)))) {}
 
   return id;
+}
+
+export function isNotSchema<T>(obj: any): obj is T {
+  return obj instanceof GraphQLSchema === false;
 }

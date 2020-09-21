@@ -312,6 +312,71 @@ class Posts {
 </TabItem>
 </Tabs>
 
+## Global Providers and Token
+
+Module is able to share tokens and providers with other modules, even application. When enabling a global flag, the provider still depends on an original Injector.
+
+> Global flag is not available in Operation scope.
+
+<Tabs
+defaultValue="definition"
+values={[
+{label: 'Definition', value: 'definition'},
+{label: 'Usage', value: 'usage'},
+]}>
+<TabItem value="definition">
+
+```typescript
+// Users module
+
+@Injectable({
+  global: true,
+})
+export class Auth {
+  constructor(private logger: Logger) {}
+
+  getCurrentUser() {
+    logger.debug(`Asking for authenticated user`);
+    return /*... */;
+  }
+}
+```
+
+</TabItem>
+<TabItem value="usage">
+
+```typescript
+// Posts module
+
+@Injectable()
+export class Posts {
+  constructor(private auth: Auth, private logger: Logger) {}
+
+  getMyPosts() {
+    const me = this.auth.getCurrentUser();
+
+    logger.debug(`Asking for my posts`);
+
+    return /* ... */;
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+In the scenario above, we've got two modules: Posts and Users.
+Both modules defines their own `Logger`.
+Users module defines `Auth` service as globally available.
+Posts module defines `Posts` service.
+
+When `Posts.getMyPosts()` is called, it fetches a current user from `Auth` service.
+The `Auth.getCurrentUser()` calls a logger (provided by `Users` module).
+In `Posts.getMyPosts()` a different logger is invoked (provided by `Posts` module).
+
+What all of that mean? Because global providers are accessible in all modules, they still use the injector they were created by.
+Global providers are still isolated but their API is public to other modules.
+
 ## Lazy with forwardRef
 
 The `forwardRef` function allows to refer to references which are not yet defined. Useful when circular dependency of modules is an issue.

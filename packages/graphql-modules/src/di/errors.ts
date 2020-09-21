@@ -103,9 +103,12 @@ function injectionError(
     : Error()) as InjectionError;
   error.addKey = addKey;
   error.keys = [key];
-  error.constructResolvingMessage = constructResolvingMessage;
-  error.message =
-    error.constructResolvingMessage() + ` - in ${injector.displayName}`;
+  error.constructResolvingMessage = function wrappedConstructResolvingMessage() {
+    return (
+      constructResolvingMessage.call(this) + ` - in ${injector.displayName}`
+    );
+  };
+  error.message = error.constructResolvingMessage();
   (error as any)[ERROR_ORIGINAL_ERROR] = originalError;
   return error;
 }

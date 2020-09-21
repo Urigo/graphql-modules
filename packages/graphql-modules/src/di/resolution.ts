@@ -11,6 +11,7 @@ import { invalidProviderError, noAnnotationError } from './errors';
 import { Key } from './registry';
 import { resolveForwardRef } from './forward-ref';
 import { readInjectableMetadata, InjectableParamMetadata } from './metadata';
+import { ReflectiveInjector } from './injector';
 
 export type NormalizedProvider<T = any> =
   | ValueProvider<T>
@@ -18,6 +19,11 @@ export type NormalizedProvider<T = any> =
   | FactoryProvider<T>;
 
 const _EMPTY_LIST: any[] = [];
+
+export type GlobalProviderMap = {
+  has(key: Key['id']): boolean;
+  get(key: Key['id']): ReflectiveInjector;
+};
 
 export class ResolvedProvider {
   constructor(public key: Key, public factory: ResolvedFactory) {}
@@ -40,7 +46,11 @@ export class ResolvedFactory {
     /**
      * Has onDestroy hook
      */
-    public hasOnDestroyHook: boolean
+    public hasOnDestroyHook: boolean,
+    /**
+     * Is Global
+     */
+    public isGlobal: boolean
   ) {}
 }
 
@@ -107,6 +117,7 @@ function resolveFactory(provider: NormalizedProvider): ResolvedFactory {
   let resolvedDeps: Dependency[] = _EMPTY_LIST;
   let executionContextIn: Array<string | symbol> = _EMPTY_LIST;
   let hasOnDestroyHook = false;
+  let isGlobal: boolean | undefined;
 
   if (isClassProvider(provider)) {
     const useClass = resolveForwardRef(provider.useClass);
@@ -114,6 +125,7 @@ function resolveFactory(provider: NormalizedProvider): ResolvedFactory {
     factoryFn = makeFactory(useClass);
     resolvedDeps = dependenciesFor(useClass);
     executionContextIn = executionContextInFor(useClass);
+    isGlobal = globalFor(useClass);
     hasOnDestroyHook = typeof useClass.prototype.onDestroy === 'function';
   } else if (isFactoryProvider(provider)) {
     factoryFn = provider.useFactory;
@@ -121,6 +133,7 @@ function resolveFactory(provider: NormalizedProvider): ResolvedFactory {
       provider.useFactory,
       provider.deps || []
     );
+    isGlobal = provider.global;
 
     if (provider.executionContextIn) {
       executionContextIn = provider.executionContextIn;
@@ -128,13 +141,15 @@ function resolveFactory(provider: NormalizedProvider): ResolvedFactory {
   } else {
     factoryFn = () => provider.useValue;
     resolvedDeps = _EMPTY_LIST;
+    isGlobal = provider.global;
   }
 
   return new ResolvedFactory(
     factoryFn,
     resolvedDeps,
     executionContextIn,
-    hasOnDestroyHook
+    hasOnDestroyHook,
+    isGlobal ?? false
   );
 }
 
@@ -163,6 +178,12 @@ function executionContextInFor(type: any): Array<string | symbol> {
   }
 
   return [];
+}
+
+function globalFor(type: any): boolean {
+  const { options } = readInjectableMetadata(type);
+
+  return options?.global ?? false;
 }
 
 function constructDependencies(

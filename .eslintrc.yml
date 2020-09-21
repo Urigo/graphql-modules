@@ -1,0 +1,17 @@
+env:
+  browser: true
+  es2021: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaVersion: 12
+  sourceType: module
+plugins:
+  - '@typescript-eslint'
+rules: 
+  no-debugger: error
+  no-console: error
+  no-await-in-loop: error
+  getter-return: error
+  no-func-assign: error
+  no-unsafe-negation: error
+  no-unreachable: error
