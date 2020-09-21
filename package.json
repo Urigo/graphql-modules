@@ -3,12 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "examples/*"
-    ]
-  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
   "scripts": {
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
