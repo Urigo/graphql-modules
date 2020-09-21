@@ -19,12 +19,21 @@ const Test = new InjectionToken<string>('test');
 const posts = ['Foo', 'Bar'];
 const comments = ['Comment #1', 'Comment #2'];
 
-test.only('should not thrown when isTypeOf is used', async () => {
+test('should not thrown when isTypeOf is used', async () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(
-      `type Query { entity: Node } interface Node { id: ID! } type Entity implements Node { id: ID! f: String }`
-    ),
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        entity: Node
+      }
+      interface Node {
+        id: ID!
+      }
+      type Entity implements Node {
+        id: ID!
+        f: String
+      }
+    `),
     resolvers: {
       Query: {
         entity: () => ({
@@ -48,19 +57,41 @@ test.only('should not thrown when isTypeOf is used', async () => {
 
   const result = await executeFn({
     schema: app.schema,
-    document: parse(`query test { entity { ... on Entity { f } } }`),
+    document: parse(/* GraphQL */ `
+      query test {
+        entity {
+          ... on Entity {
+            f
+          }
+        }
+      }
+    `),
     variableValues: {},
   });
 
-  expect(result.errors?.length).toBe(0);
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    entity: {
+      f: 'test',
+    },
+  });
 });
 
 test('should allow to add __isTypeOf to type resolvers', () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(
-      `type Query { entity: Node } interface Node { id: ID! } type Entity implements Node { id: ID f: String }`
-    ),
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        entity: Node
+      }
+      interface Node {
+        id: ID!
+      }
+      type Entity implements Node {
+        id: ID
+        f: String
+      }
+    `),
     resolvers: {
       Query: {
         entity: () => ({
