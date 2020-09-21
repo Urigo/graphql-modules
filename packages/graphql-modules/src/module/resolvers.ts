@@ -249,7 +249,9 @@ function addInterfaceOrUnion({
   }
 
   writeResolverMetadata(fields.__resolveType, config);
-  container[typeName].__resolveType = fields.__resolveType;
+  container[typeName] = {
+    __resolveType: fields.__resolveType,
+  };
 }
 
 function addObject({
