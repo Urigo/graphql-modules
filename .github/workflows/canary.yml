@@ -41,7 +41,7 @@ jobs:
       - name: Release Canary
         id: canary
         uses: 'kamilkisiela/release-canary@master'
-        if: github.repository == 'urigo/graphql-mesh'
+        if: github.repository == 'urigo/graphql-modules'
         with:
           npm-token: ${{ secrets.NODE_AUTH_TOKEN }}
           npm-script: 'yarn release:canary'
