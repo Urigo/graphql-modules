@@ -12,11 +12,15 @@
   "scripts": {
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
+    "prerelease": "yarn build",
+    "release": "changeset publish",
+    "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
   "devDependencies": {
+    "@changesets/cli": "2.10.2",
     "@types/benchmark": "1.0.33",
     "@types/express": "4.17.8",
     "@types/jest": "26.0.14",
