@@ -73,6 +73,7 @@ export function createResolvers(
                 resolver: obj[fieldName],
                 middlewareMap,
                 path,
+                isTypeResolver: fieldName === '__isTypeOf',
               });
               resolvers[typeName][fieldName] = resolver;
             } else if (isResolveOptions(obj[fieldName])) {
@@ -248,7 +249,9 @@ function addInterfaceOrUnion({
   }
 
   writeResolverMetadata(fields.__resolveType, config);
-  container[typeName].__resolveType = fields.__resolveType;
+  container[typeName] = {
+    __resolveType: fields.__resolveType,
+  };
 }
 
 function addObject({
