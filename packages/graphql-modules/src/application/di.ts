@@ -1,37 +1,42 @@
 import { ResolvedModule } from '../module/factory';
-import { ReflectiveInjector } from '../di';
+import { ReflectiveInjector, Scope } from '../di';
 import { ResolvedProvider } from '../di/resolution';
 
 export function createGlobalProvidersMap({
   modules,
+  scope,
 }: {
   modules: ResolvedModule[];
+  scope: Scope;
 }) {
-  const singletonGlobalProvidersMap: {
+  const globalProvidersMap: {
     /**
      * Provider key -> Module ID
      */
     [key: string]: string;
   } = {};
 
+  const propType: keyof ResolvedModule =
+    scope === Scope.Singleton ? 'singletonProviders' : 'operationProviders';
+
   modules.forEach((mod) => {
-    mod.singletonProviders.forEach((provider) => {
+    mod[propType].forEach((provider) => {
       if (provider.factory.isGlobal) {
         const key = provider.key.id;
 
-        if (singletonGlobalProvidersMap[key]) {
+        if (globalProvidersMap[key]) {
           throw duplicatedGlobalTokenError(provider, [
             mod.id,
-            singletonGlobalProvidersMap[key],
+            globalProvidersMap[key],
           ]);
         }
 
-        singletonGlobalProvidersMap[key] = mod.id;
+        globalProvidersMap[key] = mod.id;
       }
     });
   });
 
-  return singletonGlobalProvidersMap;
+  return globalProvidersMap;
 }
 
 export function attachGlobalProvidersMap({

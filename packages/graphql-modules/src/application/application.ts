@@ -3,6 +3,7 @@ import {
   ReflectiveInjector,
   onlySingletonProviders,
   onlyOperationProviders,
+  Scope,
 } from '../di';
 import { ResolvedModule } from '../module/factory';
 import { ID } from '../shared/types';
@@ -76,7 +77,14 @@ export function createApplication(config: ApplicationConfig): Application {
     })
   );
   const moduleMap = createModuleMap(modules);
-  const singletonGlobalProvidersMap = createGlobalProvidersMap({ modules });
+  const singletonGlobalProvidersMap = createGlobalProvidersMap({
+    modules,
+    scope: Scope.Singleton,
+  });
+  const operationGlobalProvidersMap = createGlobalProvidersMap({
+    modules,
+    scope: Scope.Operation,
+  });
 
   attachGlobalProvidersMap({
     injector: appInjector,
@@ -97,6 +105,7 @@ export function createApplication(config: ApplicationConfig): Application {
     appLevelOperationProviders: appOperationProviders,
     moduleMap,
     singletonGlobalProvidersMap,
+    operationGlobalProvidersMap,
   });
 
   const createSubscription = subscriptionCreator({ contextBuilder });

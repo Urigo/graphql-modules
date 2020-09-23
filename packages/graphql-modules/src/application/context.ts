@@ -22,10 +22,14 @@ export function createContextBuilder({
   moduleMap,
   appLevelOperationProviders,
   singletonGlobalProvidersMap,
+  operationGlobalProvidersMap,
 }: {
   appInjector: ReflectiveInjector;
   appLevelOperationProviders: ResolvedProvider[];
   singletonGlobalProvidersMap: {
+    [key: string]: string;
+  };
+  operationGlobalProvidersMap: {
     [key: string]: string;
   };
   moduleMap: ModulesMap;
@@ -111,6 +115,69 @@ export function createContextBuilder({
     // Track Providers with OnDestroy hooks
     registerProvidersToDestroy(operationAppInjector);
 
+    function getModuleContext(
+      moduleId: string,
+      ctx: GraphQLModules.GlobalContext
+    ): GraphQLModules.ModuleContext {
+      // Reuse a context or create if not available
+      if (!contextCache[moduleId]) {
+        // We're interested in operation-scoped providers only
+        const providers = moduleMap.get(moduleId)?.operationProviders!;
+
+        // Create module-level Operation-scoped Injector
+        const operationModuleInjector = ReflectiveInjector.createFromResolved({
+          name: `Module "${moduleId}" (Operation Scope)`,
+          providers: providers.concat(
+            ReflectiveInjector.resolve([
+              {
+                provide: CONTEXT,
+                useFactory() {
+                  return contextCache[moduleId];
+                },
+              },
+            ])
+          ),
+          // This injector has a priority
+          parent: proxyModuleMap.get(moduleId),
+          // over this one
+          fallbackParent: operationAppInjector,
+        });
+
+        // Same as on application level, we need to collect providers with OnDestroy hooks
+        registerProvidersToDestroy(operationModuleInjector);
+
+        contextCache[moduleId] = {
+          ...ctx,
+          injector: operationModuleInjector,
+          moduleId,
+        };
+      }
+
+      // HEY HEY HEY: changing `parent` of singleton injector may be incorret
+      // what if we get two operations and we're in the middle of two async actions?
+      // I think it's okay becasue providers are resolved synchronously
+      (moduleMap.get(moduleId)!
+        .injector as any)._parent = singletonAppProxyInjector;
+
+      return contextCache[moduleId];
+    }
+
+    const sharedContext = {
+      // We want to pass the received context
+      ...(context || {}),
+      // Here's something very crutial
+      // It's a function that is used in module's context creation
+      ɵgetModuleContext: getModuleContext,
+    };
+
+    attachGlobalProvidersMap({
+      injector: operationAppInjector,
+      globalProvidersMap: operationGlobalProvidersMap,
+      moduleInjectorGetter(moduleId) {
+        return getModuleContext(moduleId, sharedContext).injector as any;
+      },
+    });
+
     return {
       onDestroy: once(() => {
         providersToDestroy.forEach(([injector, keyId]) => {
@@ -122,57 +189,7 @@ export function createContextBuilder({
         });
         contextCache = {};
       }),
-      context: {
-        // We want to pass the received context
-        ...(context || {}),
-        // Here's something very crutial
-        // It's a function that is used in module's context creation
-        ɵgetModuleContext(moduleId, ctx) {
-          // Reuse a context or create if not available
-          if (!contextCache[moduleId]) {
-            // We're interested in operation-scoped providers only
-            const providers = moduleMap.get(moduleId)?.operationProviders!;
-
-            // Create module-level Operation-scoped Injector
-            const operationModuleInjector = ReflectiveInjector.createFromResolved(
-              {
-                name: `Module "${moduleId}" (Operation Scope)`,
-                providers: providers.concat(
-                  ReflectiveInjector.resolve([
-                    {
-                      provide: CONTEXT,
-                      useFactory() {
-                        return contextCache[moduleId]
-                      }
-                    },
-                  ])
-                ),
-                // This injector has a priority
-                parent: proxyModuleMap.get(moduleId),
-                // over this one
-                fallbackParent: operationAppInjector,
-              }
-            );
-
-            // Same as on application level, we need to collect providers with OnDestroy hooks
-            registerProvidersToDestroy(operationModuleInjector);
-
-            contextCache[moduleId] = {
-              ...ctx,
-              injector: operationModuleInjector,
-              moduleId,
-            };
-          }
-
-          // HEY HEY HEY: changing `parent` of singleton injector may be incorret
-          // what if we get two operations and we're in the middle of two async actions?
-          // I think it's okay becasue providers are resolved synchronously
-          (moduleMap.get(moduleId)!
-            .injector as any)._parent = singletonAppProxyInjector;
-
-          return contextCache[moduleId];
-        },
-      },
+      context: sharedContext,
     };
   };
 
