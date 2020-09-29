@@ -316,8 +316,6 @@ class Posts {
 
 Module is able to share tokens and providers with other modules, even application. When enabling a global flag, the provider still depends on an original Injector.
 
-> Global flag is not available in Operation scope.
-
 <Tabs
 defaultValue="definition"
 values={[
