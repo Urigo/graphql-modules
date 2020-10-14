@@ -11,8 +11,8 @@
     "@docusaurus/plugin-ideal-image": "2.0.0-alpha.64",
     "@phenomnomnominal/tsquery": "4.1.1",
     "globby": "11.0.1",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
     "remark-import-partial": "0.0.2",
     "typescript": "4.0.3"
   },
