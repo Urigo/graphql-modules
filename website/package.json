@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.64",
-    "@docusaurus/preset-classic": "2.0.0-alpha.64",
+    "@docusaurus/preset-classic": "2.0.0-alpha.66",
     "@docusaurus/plugin-ideal-image": "2.0.0-alpha.64",
     "@phenomnomnominal/tsquery": "4.1.1",
     "globby": "11.0.1",
