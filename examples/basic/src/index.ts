@@ -9,7 +9,7 @@ declare global {
 import 'reflect-metadata';
 import { createApplication } from 'graphql-modules';
 import express from 'express';
-import graphQLHTTP from 'express-graphql';
+import { graphqlHTTP } from 'express-graphql';
 import { UserModule } from './app/user/user.module';
 import { AuthModule } from './app/auth/auth.module';
 import { SocialNetworkModule } from './app/social-network/social-network.module';
@@ -22,7 +22,7 @@ const execute = app.createExecution();
 
 server.use(
   '/graphql',
-  graphQLHTTP((request: any) => ({
+  graphqlHTTP((request: any) => ({
     schema: app.schema,
     graphiql: true,
     customExecuteFn: execute as any,

@@ -3,7 +3,7 @@ import { createApplication } from 'graphql-modules';
 import { BlogModule } from './modules/blog';
 import { UserModule } from './modules/user';
 import express from 'express';
-import graphQLHTTP from 'express-graphql';
+import { graphqlHTTP } from 'express-graphql';
 
 const app = createApplication({
   modules: [BlogModule, UserModule],
@@ -15,7 +15,7 @@ const execute = app.createExecution();
 
 server.use(
   '/graphql',
-  graphQLHTTP({
+  graphqlHTTP({
     schema: app.schema,
     customExecuteFn: execute as any,
     graphiql: true,
