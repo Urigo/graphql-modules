@@ -65,6 +65,10 @@ jobs:
         with:
           message: |
             The latest changes of this PR are not available as alpha, since there are no linked `changesets` for this PR.
+
+                $ yarn pr
+
+            Describe changes introduced in this Pull Request by running the above command.
           bot-token: ${{ secrets.GH_API_TOKEN }}
           bot: 'theguild-bot'
           github-token: ${{ secrets.GITHUB_TOKEN }}

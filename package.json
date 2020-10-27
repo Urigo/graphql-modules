@@ -8,12 +8,14 @@
     "examples/*"
   ],
   "scripts": {
+    "postinstall": "patch-package",
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
     "prerelease": "yarn build",
     "release": "changeset publish",
     "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
+    "pr": "changeset",
     "lint": "eslint \"packages/**\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
@@ -41,6 +43,7 @@
     "husky": "4.3.0",
     "jest": "26.6.1",
     "lint-staged": "10.5.0",
+    "patch-package": "6.2.2",
     "prettier": "2.1.2",
     "reflect-metadata": "0.1.13",
     "subscriptions-transport-ws": "0.9.18",

@@ -14,7 +14,7 @@ module.exports = (dir) => {
     rootDir: dir,
     globals: {
       'ts-jest': {
-        tsConfig: TSCONFIG_TEST_PATH,
+        tsconfig: TSCONFIG_TEST_PATH,
       },
     },
     reporters: ['default'],
