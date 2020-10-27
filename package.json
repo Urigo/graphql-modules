@@ -14,6 +14,7 @@
     "release": "changeset publish",
     "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
+    "pr": "changeset",
     "lint": "eslint \"packages/**\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
