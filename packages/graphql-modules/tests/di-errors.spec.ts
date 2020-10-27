@@ -1,5 +1,15 @@
 import 'reflect-metadata';
-import { ReflectiveInjector, InjectionToken, Injectable } from '../src/di';
+import {
+  ReflectiveInjector,
+  InjectionToken,
+  Injectable,
+  Inject,
+  forwardRef,
+} from '../src/di';
+import { createApplication, createModule, Scope, gql } from '../src';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { parse } from 'graphql';
+import { stringify } from '../src/di/utils';
 
 test('No Injectable error', () => {
   class NoAnnotations {
@@ -55,6 +65,42 @@ test('Circular dependencies error', () => {
   );
 });
 
+test('fail on circular dependencies', async () => {
+  const fooSpy = jest.fn();
+  const barSpy = jest.fn();
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Foo {
+    constructor(@Inject(forwardRef(() => Bar)) bar: any) {
+      fooSpy(bar);
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Bar {
+    constructor(@Inject(forwardRef(() => Foo)) foo: any) {
+      barSpy(foo);
+    }
+  }
+
+  const providers = ReflectiveInjector.resolve([Foo, Bar]);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'main',
+    providers,
+  });
+  expect(() => {
+    injector.get(Foo);
+  }).toThrowError(
+    `Cannot instantiate cyclic dependency! (${stringify(Foo)} -> ${stringify(
+      Bar
+    )} -> ${stringify(Foo)})`
+  );
+});
+
 test('No provider error', () => {
   const Foo = new InjectionToken<string>('Foo');
 
@@ -96,5 +142,280 @@ test('Invalid provider error', () => {
     })
   ).toThrowError(
     'Invalid provider - only instances of Provider and Type are allowed, got: true'
+  );
+});
+
+test('No error in case of module without providers', async () => {
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  const mod = createModule({
+    id: 'lorem',
+    typeDefs: gql`
+      type Query {
+        lorem: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        lorem(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [Data],
+  });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      lorem
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  // Should resolve data correctly
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    lorem: 'ipsum',
+  });
+});
+
+test('Make sure we have readable error', async () => {
+  @Injectable({ scope: Scope.Singleton })
+  class P1 {
+    value() {
+      return 'foo';
+    }
+  }
+
+  @Injectable({ scope: Scope.Singleton })
+  class P2 {
+    constructor(private p1: P1) {}
+
+    value() {
+      return this.p1.value();
+    }
+  }
+
+  const m1 = createModule({
+    id: 'm1',
+    providers: [P1],
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        m1: String
+      }
+    `),
+  });
+  const m2 = createModule({
+    id: 'm2',
+    providers: [P2],
+    typeDefs: parse(/* GraphQL */ `
+      extend type Query {
+        m2: String
+      }
+    `),
+    resolvers: {
+      Query: {
+        m2(_parent: {}, _args: {}, { injector }: GraphQLModules.ModuleContext) {
+          return injector.get(P2).value();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({ modules: [m2, m1] });
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+  const document = parse(/* GraphQL */ `
+    {
+      m2
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue: {},
+    document,
+  });
+  expect(result.errors).toBeDefined();
+  expect(result.errors).toHaveLength(1);
+  expect(result.errors![0].message).toBe(
+    'No provider for P1! (P2 -> P1) - in Module "m2" (Singleton Scope)'
+  );
+});
+
+test('Detect collision of two identical global providers (singleton)', async () => {
+  @Injectable({
+    scope: Scope.Singleton,
+    global: true,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class AppData {
+    constructor(private data: Data) {}
+
+    ispum() {
+      return this.data.lorem();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    providers: [Data],
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  expect(() => {
+    createApplication({
+      modules: [fooModule, barModule],
+      providers: [AppData],
+    });
+  }).toThrowError(
+    `Failed to define 'Data' token as global. Token provided by two modules: 'bar', 'foo'`
+  );
+});
+
+test('Detect collision of two identical global providers (operation)', async () => {
+  @Injectable({
+    scope: Scope.Operation,
+    global: true,
+  })
+  class Data {
+    lorem() {
+      return 'ipsum';
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class AppData {
+    constructor(private data: Data) {}
+
+    ispum() {
+      return this.data.lorem();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    providers: [Data],
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).lorem();
+        },
+      },
+    },
+  });
+
+  expect(() => {
+    createApplication({
+      modules: [fooModule, barModule],
+      providers: [AppData],
+    });
+  }).toThrowError(
+    `Failed to define 'Data' token as global. Token provided by two modules: 'bar', 'foo'`
   );
 });
