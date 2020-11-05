@@ -1,0 +1,173 @@
+import 'reflect-metadata';
+import {
+  createApplication,
+  createModule,
+  Injectable,
+  Scope,
+  gql,
+} from '../src';
+import { PubSub } from 'graphql-subscriptions';
+import { ExecutionResult, parse } from 'graphql';
+
+test('Operation-Scope provider instantiated on every subscription', async () => {
+  const spies = {
+    posts: jest.fn(),
+  };
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Posts {
+    constructor(private pubsub: PubSub) {
+      spies.posts();
+    }
+
+    all() {
+      return [];
+    }
+
+    add(title: string) {
+      setTimeout(() => {
+        this.pubsub.publish('MESSAGE', title);
+      }, 0);
+
+      return title;
+    }
+
+    listen() {
+      return this.pubsub.asyncIterator(['MESSAGE']);
+    }
+  }
+
+  const pubsub = new PubSub();
+  const postsModule = createModule({
+    id: 'posts',
+    providers: [
+      Posts,
+      {
+        provide: PubSub,
+        useValue: pubsub,
+      },
+    ],
+    typeDefs: gql`
+      type Post {
+        title: String!
+      }
+
+      type Query {
+        posts: [Post!]!
+      }
+
+      type Mutation {
+        addPost(title: String!): Post!
+      }
+
+      type Subscription {
+        onPost: Post!
+      }
+    `,
+    resolvers: {
+      Query: {
+        posts() {},
+      },
+      Mutation: {
+        addPost(
+          _parent: {},
+          args: { title: string },
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Posts).add(args.title);
+        },
+      },
+      Subscription: {
+        onPost: {
+          subscribe(
+            _parent: {},
+            _args: {},
+            { injector }: GraphQLModules.ModuleContext
+          ) {
+            return injector.get(Posts).listen();
+          },
+          resolve(title: string) {
+            return title;
+          },
+        },
+      },
+      Post: {
+        title: (title: string) => title,
+      },
+    },
+  });
+
+  const newTitle = 'new-title';
+
+  const app = createApplication({
+    modules: [postsModule],
+  });
+
+  const createContext = () => ({});
+  const mutation = parse(/* GraphQL */ `
+    mutation addPost($title: String!) {
+      addPost(title: $title) {
+        title
+      }
+    }
+  `);
+  const subscription = parse(/* GraphQL */ `
+    subscription onPost {
+      onPost {
+        title
+      }
+    }
+  `);
+
+  const execute = app.createExecution();
+  const subscribe = app.createSubscription();
+
+  const sub = (await subscribe({
+    schema: app.schema,
+    contextValue: createContext(),
+    document: subscription,
+  })) as AsyncIterableIterator<ExecutionResult>;
+
+  await execute({
+    schema: app.schema,
+    contextValue: createContext(),
+    variableValues: {
+      title: newTitle,
+    },
+    document: mutation,
+  });
+
+  await execute({
+    schema: app.schema,
+    contextValue: createContext(),
+    variableValues: {
+      title: newTitle,
+    },
+    document: mutation,
+  });
+
+  let receivedEvents: ExecutionResult[] = [];
+
+  for await (let event of sub) {
+    receivedEvents.push(event);
+    if (receivedEvents.length === 2) {
+      break;
+    }
+  }
+
+  expect(receivedEvents[0].data).toEqual({
+    onPost: {
+      title: newTitle,
+    },
+  });
+
+  expect(receivedEvents[1].data).toEqual({
+    onPost: {
+      title: newTitle,
+    },
+  });
+
+  expect(spies.posts).toBeCalledTimes(3);
+});
