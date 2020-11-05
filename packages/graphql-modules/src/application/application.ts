@@ -10,7 +10,11 @@ import { ID } from '../shared/types';
 import { ModuleDuplicatedError } from '../shared/errors';
 import { flatten, isDefined } from '../shared/utils';
 import { ApplicationConfig, Application } from './types';
-import { createGlobalProvidersMap, attachGlobalProvidersMap } from './di';
+import {
+  createGlobalProvidersMap,
+  attachGlobalProvidersMap,
+  instantiateSingletonProviders,
+} from './di';
 import { createContextBuilder } from './context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
@@ -76,7 +80,7 @@ export function createApplication(config: ApplicationConfig): Application {
       middlewares: middlewareMap,
     })
   );
-  const moduleMap = createModuleMap(modules);
+  const modulesMap = createModulesMap(modules);
   const singletonGlobalProvidersMap = createGlobalProvidersMap({
     modules,
     scope: Scope.Singleton,
@@ -90,7 +94,7 @@ export function createApplication(config: ApplicationConfig): Application {
     injector: appInjector,
     globalProvidersMap: singletonGlobalProvidersMap,
     moduleInjectorGetter(moduleId) {
-      return moduleMap.get(moduleId)!.injector;
+      return modulesMap.get(moduleId)!.injector;
     },
   });
 
@@ -103,7 +107,7 @@ export function createApplication(config: ApplicationConfig): Application {
   const contextBuilder = createContextBuilder({
     appInjector,
     appLevelOperationProviders: appOperationProviders,
-    moduleMap,
+    modulesMap: modulesMap,
     singletonGlobalProvidersMap,
     operationGlobalProvidersMap,
   });
@@ -114,6 +118,11 @@ export function createApplication(config: ApplicationConfig): Application {
     createSubscription,
     contextBuilder,
     schema,
+  });
+
+  instantiateSingletonProviders({
+    appInjector,
+    modulesMap,
   });
 
   return {
@@ -127,13 +136,13 @@ export function createApplication(config: ApplicationConfig): Application {
   };
 }
 
-function createModuleMap(modules: ResolvedModule[]): ModulesMap {
-  const moduleMap = new Map<string, ResolvedModule>();
+function createModulesMap(modules: ResolvedModule[]): ModulesMap {
+  const modulesMap = new Map<string, ResolvedModule>();
 
   for (const module of modules) {
-    if (moduleMap.has(module.id)) {
+    if (modulesMap.has(module.id)) {
       const location = module.metadata.dirname;
-      const existingLocation = moduleMap.get(module.id)?.metadata.dirname;
+      const existingLocation = modulesMap.get(module.id)?.metadata.dirname;
 
       const info = [];
 
@@ -151,8 +160,8 @@ function createModuleMap(modules: ResolvedModule[]): ModulesMap {
       );
     }
 
-    moduleMap.set(module.id, module);
+    modulesMap.set(module.id, module);
   }
 
-  return moduleMap;
+  return modulesMap;
 }

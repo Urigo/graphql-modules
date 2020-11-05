@@ -1171,3 +1171,203 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
   expect(logger).toHaveBeenNthCalledWith(1, 'info');
   expect(logger).toHaveBeenNthCalledWith(2, 'info');
 });
+
+test('instantiate all singleton providers', async () => {
+  const spies = {
+    logger: jest.fn(),
+    data: jest.fn(),
+    appData: jest.fn(),
+  };
+
+  @Injectable()
+  class MyLogger {
+    constructor() {
+      spies.logger();
+    }
+  }
+
+  @Injectable()
+  class Data {
+    constructor(logger: MyLogger) {
+      spies.data(logger);
+    }
+
+    value() {
+      return 'foo';
+    }
+  }
+
+  @Injectable()
+  class AppData {
+    constructor() {
+      spies.appData();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).value();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [fooModule],
+    providers: [AppData, MyLogger],
+  });
+
+  // make sure all providers are instantiated
+  expect(spies.logger).toBeCalledTimes(1);
+  expect(spies.data).toBeCalledTimes(1);
+  expect(spies.appData).toBeCalledTimes(1);
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      foo
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    foo: 'foo',
+  });
+
+  // make sure no providers are instantiated again
+  expect(spies.logger).toBeCalledTimes(1);
+  expect(spies.data).toBeCalledTimes(1);
+  expect(spies.appData).toBeCalledTimes(1);
+});
+
+test('instantiate all singleton and global providers', async () => {
+  const spies = {
+    logger: jest.fn(),
+    data: jest.fn(),
+    appData: jest.fn(),
+  };
+
+  @Injectable()
+  class MyLogger {
+    constructor() {
+      spies.logger();
+    }
+  }
+
+  @Injectable({
+    global: true,
+  })
+  class Data {
+    constructor(logger: MyLogger) {
+      spies.data(logger);
+    }
+
+    value() {
+      return 'foo';
+    }
+  }
+
+  @Injectable()
+  class AppData {
+    constructor() {
+      spies.appData();
+    }
+  }
+
+  const fooModule = createModule({
+    id: 'foo',
+    providers: [Data],
+    typeDefs: gql`
+      type Query {
+        foo: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        foo() {},
+      },
+    },
+  });
+
+  const barModule = createModule({
+    id: 'bar',
+    typeDefs: gql`
+      extend type Query {
+        bar: String!
+      }
+    `,
+    resolvers: {
+      Query: {
+        bar(
+          _parent: {},
+          _args: {},
+          { injector }: GraphQLModules.ModuleContext
+        ) {
+          return injector.get(Data).value();
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [fooModule, barModule],
+    providers: [AppData, MyLogger],
+  });
+
+  // make sure all providers are instantiated
+  expect(spies.logger).toBeCalledTimes(1);
+  expect(spies.data).toBeCalledTimes(1);
+  expect(spies.appData).toBeCalledTimes(1);
+
+  const schema = makeExecutableSchema({
+    typeDefs: app.typeDefs,
+    resolvers: app.resolvers,
+  });
+
+  const contextValue = { request: {}, response: {} };
+  const document = parse(/* GraphQL */ `
+    {
+      bar
+    }
+  `);
+
+  const result = await app.createExecution()({
+    schema,
+    contextValue,
+    document,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    bar: 'foo',
+  });
+
+  // make sure no providers are instantiated again
+  expect(spies.logger).toBeCalledTimes(1);
+  expect(spies.data).toBeCalledTimes(1);
+  expect(spies.appData).toBeCalledTimes(1);
+});

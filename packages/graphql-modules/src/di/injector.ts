@@ -250,6 +250,12 @@ export class ReflectiveInjector implements Injector {
     }
   }
 
+  instantiateAll() {
+    this._providers.forEach((provider) => {
+      this._getByKey(provider.key, _THROW_IF_NOT_FOUND);
+    });
+  }
+
   private _instantiateProvider(provider: ResolvedProvider): any {
     const factory = provider.factory.factory;
 

@@ -1,6 +1,20 @@
+import { ModulesMap } from './application';
 import { ResolvedModule } from '../module/factory';
 import { ReflectiveInjector, Scope } from '../di';
 import { ResolvedProvider } from '../di/resolution';
+
+export function instantiateSingletonProviders({
+  appInjector,
+  modulesMap,
+}: {
+  appInjector: ReflectiveInjector;
+  modulesMap: ModulesMap;
+}) {
+  appInjector.instantiateAll();
+  modulesMap.forEach((mod) => {
+    mod.injector.instantiateAll();
+  });
+}
 
 export function createGlobalProvidersMap({
   modules,
