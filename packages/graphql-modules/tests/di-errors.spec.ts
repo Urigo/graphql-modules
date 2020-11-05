@@ -248,26 +248,7 @@ test('Make sure we have readable error', async () => {
     },
   });
 
-  const app = createApplication({ modules: [m2, m1] });
-
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-  const document = parse(/* GraphQL */ `
-    {
-      m2
-    }
-  `);
-
-  const result = await app.createExecution()({
-    schema,
-    contextValue: {},
-    document,
-  });
-  expect(result.errors).toBeDefined();
-  expect(result.errors).toHaveLength(1);
-  expect(result.errors![0].message).toBe(
+  expect(() => createApplication({ modules: [m2, m1] })).toThrowError(
     'No provider for P1! (P2 -> P1) - in Module "m2" (Singleton Scope)'
   );
 });

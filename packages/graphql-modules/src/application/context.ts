@@ -19,7 +19,7 @@ export type ExecutionContextBuilder<
 
 export function createContextBuilder({
   appInjector,
-  moduleMap,
+  modulesMap,
   appLevelOperationProviders,
   singletonGlobalProvidersMap,
   operationGlobalProvidersMap,
@@ -32,7 +32,7 @@ export function createContextBuilder({
   operationGlobalProvidersMap: {
     [key: string]: string;
   };
-  moduleMap: ModulesMap;
+  modulesMap: ModulesMap;
 }) {
   // This is very critical. It creates an execution context.
   // It has to run on every operation.
@@ -71,22 +71,22 @@ export function createContextBuilder({
     // It's very important to recreate a Singleton Injector
     // and add an execution context getter function
     // We do this so Singleton provider can access the ExecutionContext via Proxy
-    const proxyModuleMap = new Map<string, ReflectiveInjector>();
+    const proxyModulesMap = new Map<string, ReflectiveInjector>();
 
-    moduleMap.forEach((mod, moduleId) => {
+    modulesMap.forEach((mod, moduleId) => {
       const singletonModuleInjector = mod.injector;
       const singletonModuleProxyInjector = ReflectiveInjector.createWithExecutionContext(
         singletonModuleInjector,
         () => contextCache[moduleId]
       );
-      proxyModuleMap.set(moduleId, singletonModuleProxyInjector);
+      proxyModulesMap.set(moduleId, singletonModuleProxyInjector);
     });
 
     attachGlobalProvidersMap({
       injector: singletonAppProxyInjector,
       globalProvidersMap: singletonGlobalProvidersMap,
       moduleInjectorGetter(moduleId) {
-        return proxyModuleMap.get(moduleId)!;
+        return proxyModulesMap.get(moduleId)!;
       },
     });
 
@@ -122,7 +122,7 @@ export function createContextBuilder({
       // Reuse a context or create if not available
       if (!contextCache[moduleId]) {
         // We're interested in operation-scoped providers only
-        const providers = moduleMap.get(moduleId)?.operationProviders!;
+        const providers = modulesMap.get(moduleId)?.operationProviders!;
 
         // Create module-level Operation-scoped Injector
         const operationModuleInjector = ReflectiveInjector.createFromResolved({
@@ -138,7 +138,7 @@ export function createContextBuilder({
             ])
           ),
           // This injector has a priority
-          parent: proxyModuleMap.get(moduleId),
+          parent: proxyModulesMap.get(moduleId),
           // over this one
           fallbackParent: operationAppInjector,
         });
@@ -156,7 +156,7 @@ export function createContextBuilder({
       // HEY HEY HEY: changing `parent` of singleton injector may be incorret
       // what if we get two operations and we're in the middle of two async actions?
       // I think it's okay becasue providers are resolved synchronously
-      (moduleMap.get(moduleId)!
+      (modulesMap.get(moduleId)!
         .injector as any)._parent = singletonAppProxyInjector;
 
       return contextCache[moduleId];
