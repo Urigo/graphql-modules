@@ -63,6 +63,34 @@ test('middleware should intercept the resolve result', async () => {
   expect(result).toEqual('intercepted');
 });
 
+test('middleware should intercept the arguments', async () => {
+  const middleware = createMiddleware(['Query', 'foo'], {
+    '*': {
+      '*': [
+        async ({ args }, next) => {
+          args.foo = 'intercepted';
+          return next();
+        },
+        async ({ args }) => args.foo,
+      ],
+    },
+  });
+
+  const result = await middleware(
+    {
+      root: {},
+      args: {
+        foo: 'foo',
+      },
+      context: {} as any,
+      info: {} as any,
+    },
+    async () => 'not intercepted'
+  );
+
+  expect(result).toEqual('intercepted');
+});
+
 test('middleware should intercept the resolve result even when there are more middlewares to run', async () => {
   const normalized = {
     '*': {
