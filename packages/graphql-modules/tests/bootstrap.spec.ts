@@ -183,3 +183,65 @@ test('should support __resolveType', async () => {
     },
   });
 });
+
+test('do not support inheritance of field resolvers of an interface', async () => {
+  const mod = createModule({
+    id: 'test',
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        entity: Node
+        item: Item
+      }
+
+      interface Node {
+        id: ID!
+        d: String
+      }
+
+      union Item = Entity | Post
+
+      type Entity implements Node {
+        id: ID!
+        f: String
+        d: String
+      }
+
+      type Post implements Node {
+        id: ID!
+        e: String
+        d: String
+      }
+    `),
+    resolvers: {
+      Query: {
+        entity: () => ({
+          type: 'Entity',
+        }),
+        item: () => ({
+          type: 'Post',
+        }),
+      },
+      Entity: {
+        id: () => 1,
+        f: () => 'test',
+      },
+      Post: {
+        id: () => 2,
+        e: () => 'post',
+      },
+      Node: {
+        __resolveType: (obj: any) => obj.type,
+        d: () => 'should not work, because graphql-js does not support it',
+      },
+      Item: {
+        __resolveType: (obj: any) => obj.type,
+      },
+    },
+  });
+
+  expect(() => {
+    createApplication({
+      modules: [mod],
+    });
+  }).toThrow('Only __resolveType is allowed');
+});
