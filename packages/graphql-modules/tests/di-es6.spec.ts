@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { ReflectiveInjector, forwardRef } from '../src/di';
+import {
+  ReflectiveInjector,
+  forwardRef,
+  Scope,
+  ExecutionContext,
+} from '../src/di';
+import { OnDestroy } from '../src/shared/di';
 
 test('take params from a static parameters getter', () => {
   const spies = {
@@ -65,4 +71,62 @@ test('support forwardRef in static parameters getter', () => {
   expect(injector.get(Service)).toBeInstanceOf(Service);
   expect(spies.http).toHaveBeenCalledTimes(1);
   expect(spies.service).toHaveBeenCalledTimes(1);
+});
+
+test('support options getter', () => {
+  const spies = {
+    service: jest.fn(),
+  };
+
+  class Service {
+    context!: ExecutionContext;
+
+    static get options() {
+      return {
+        scope: Scope.Operation,
+        executionContextIn: ['context'],
+        global: true,
+      };
+    }
+
+    constructor() {
+      spies.service();
+    }
+  }
+
+  const providers = ReflectiveInjector.resolve([Service]);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'root',
+    providers,
+  });
+
+  expect(injector.get(Service)).toBeInstanceOf(Service);
+  expect(spies.service).toHaveBeenCalledTimes(1);
+
+  expect(providers[0].factory.isGlobal).toBe(true);
+  expect(providers[0].factory.executionContextIn).toContainEqual('context');
+});
+
+test('support destroy hook', () => {
+  const spies = {
+    service: jest.fn(),
+  };
+
+  class Service implements OnDestroy {
+    constructor() {
+      spies.service();
+    }
+
+    onDestroy() {}
+  }
+
+  const providers = ReflectiveInjector.resolve([Service]);
+  const injector = ReflectiveInjector.createFromResolved({
+    name: 'root',
+    providers,
+  });
+
+  expect(injector.get(Service)).toBeInstanceOf(Service);
+
+  expect(providers[0].factory.hasOnDestroyHook).toBe(true);
 });

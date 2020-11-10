@@ -19,7 +19,7 @@ export function Injectable(options?: ProviderOptions): ClassDecorator {
 
     const params: Type<any>[] = (
       Reflect.getMetadata('design:paramtypes', target) ||
-      (target as any).parameters ||
+      (target as any).parameters || // ES6
       []
     ).map((param: any) => (isType(param) ? param : null));
 
@@ -38,6 +38,7 @@ export function Injectable(options?: ProviderOptions): ClassDecorator {
       }),
       options: {
         ...(existingMeta?.options || {}),
+        ...((target as any).options || {}), // ES6
         ...(options || {}),
       },
     };
