@@ -4,7 +4,7 @@ import {
   createModule,
   InjectionToken,
 } from 'graphql-modules';
-import { parse, execute, GraphQLSchema } from 'graphql';
+import { parse, execute, GraphQLSchema, ExecutionArgs } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { deepEqual } from 'assert';
 
@@ -90,6 +90,32 @@ const pureSchema = makeExecutableSchema({
 
 let showedError = false;
 
+const executeAppWithDI = appWithDI.createExecution();
+const executeApp = app.createExecution();
+const apolloWithDIExecutor = appWithDI.createApolloExecutor();
+const executeApolloWithDI = (args: ExecutionArgs) => {
+  return apolloWithDIExecutor({
+    document: args.document,
+    operationName: args.operationName,
+    context: args.contextValue,
+    request: {
+      variables: args.variableValues,
+    },
+  });
+};
+
+const apolloExecutor = app.createApolloExecutor();
+const executeApollo = (args: ExecutionArgs) => {
+  return apolloExecutor({
+    document: args.document,
+    operationName: args.operationName,
+    context: args.contextValue,
+    request: {
+      variables: args.variableValues,
+    },
+  });
+};
+
 async function graphql(schema: GraphQLSchema, executeFn: typeof execute) {
   const { data, errors } = await executeFn({
     schema,
@@ -125,20 +151,20 @@ async function graphql(schema: GraphQLSchema, executeFn: typeof execute) {
 suite
   // Regular
   .add('GraphQL Modules w DI', async () => {
-    await graphql(appWithDI.schema, appWithDI.createExecution());
+    await graphql(appWithDI.schema, executeAppWithDI);
   })
   .add('GraphQL-JS', async () => {
     await graphql(pureSchema, execute);
   })
   .add('GraphQL Modules w/o DI', async () => {
-    await graphql(app.schema, app.createExecution());
+    await graphql(app.schema, executeApp);
   })
   // Apollo Server
   .add('ApolloServer - GraphQL Modules w DI', async () => {
-    await graphql(appWithDI.createSchemaForApollo(), execute);
+    await graphql(appWithDI.schema, executeApolloWithDI as any);
   })
   .add('ApolloServer - GraphQL Modules w/o DI', async () => {
-    await graphql(app.createSchemaForApollo(), execute);
+    await graphql(app.schema, executeApollo as any);
   })
   // ...
   .on('cycle', (event: any) => {

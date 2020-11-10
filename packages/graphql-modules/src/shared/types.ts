@@ -6,6 +6,7 @@ export type Nil = undefined | null;
 export type Maybe<T> = T | Nil;
 export type Plural<T> = T | T[];
 export type Single<T> = T extends Array<infer R> ? R : T;
+export type ValueOrPromise<T> = T | Promise<T>;
 export type ResolveFn<TContext = GraphQLModules.Context> = GraphQLFieldResolver<
   any,
   TContext,
