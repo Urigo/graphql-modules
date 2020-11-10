@@ -245,15 +245,26 @@ async function main() {
   }
 
   const averageRecords: Record<string, string> = {};
+  let belowThreshold: number = 0;
+  const threshold = 80;
 
   Object.keys(results)
     .map(compare)
     .sort((a, b) => b[1] - a[1])
     .forEach(([key, value]) => {
+      if (value <= threshold) {
+        belowThreshold = value;
+      }
       averageRecords[key] = `${value}%`;
     });
 
   console.table(averageRecords);
+
+  if (belowThreshold) {
+    throw new Error(
+      `Below threshold: ${belowThreshold} (threshold: ${threshold})`
+    );
+  }
 }
 
 main().catch((e) => {
