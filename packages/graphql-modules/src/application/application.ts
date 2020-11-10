@@ -18,7 +18,7 @@ import {
 import { createContextBuilder } from './context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
-import { apolloSchemaCreator } from './apollo';
+import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
 
@@ -119,6 +119,11 @@ export function createApplication(config: ApplicationConfig): Application {
     contextBuilder,
     schema,
   });
+  const createApolloExecutor = apolloExecutorCreator({
+    createExecution,
+    contextBuilder,
+    schema,
+  });
 
   instantiateSingletonProviders({
     appInjector,
@@ -133,6 +138,7 @@ export function createApplication(config: ApplicationConfig): Application {
     createSubscription,
     createExecution,
     createSchemaForApollo,
+    createApolloExecutor,
   };
 }
 

@@ -1,11 +1,43 @@
 import { wrapSchema } from '@graphql-tools/wrap';
-import { execute, GraphQLSchema } from 'graphql';
+import { DocumentNode, execute, GraphQLSchema } from 'graphql';
 import { uniqueId } from '../shared/utils';
 import { InternalAppContext } from './application';
 import { ExecutionContextBuilder } from './context';
-import { Application } from './types';
+import { ApolloExecutor, Application } from './types';
 
 const CONTEXT_ID = Symbol.for('context-id');
+
+export interface ApolloRequestContext {
+  document: DocumentNode;
+  operationName?: string | null;
+  context?: any;
+  request: {
+    variables?: { [name: string]: any } | null;
+  };
+}
+
+export function apolloExecutorCreator({
+  createExecution,
+  contextBuilder,
+  schema,
+}: {
+  createExecution: Application['createExecution'];
+  contextBuilder: ExecutionContextBuilder;
+  schema: GraphQLSchema;
+}): () => ApolloExecutor {
+  return function createApolloExecutor() {
+    const executor = createExecution();
+    return function executorAdapter(requestContext: ApolloRequestContext) {
+      return executor({
+        schema,
+        document: requestContext.document,
+        operationName: requestContext.operationName,
+        variableValues: requestContext.request.variables,
+        contextValue: contextBuilder(requestContext.context),
+      });
+    };
+  };
+}
 
 export function apolloSchemaCreator({
   createSubscription,

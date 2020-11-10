@@ -1,11 +1,21 @@
-import { execute, subscribe, DocumentNode, GraphQLSchema } from 'graphql';
+import {
+  execute,
+  subscribe,
+  DocumentNode,
+  GraphQLSchema,
+  ExecutionResult,
+} from 'graphql';
 import { Provider, Injector } from '../di';
 import { Resolvers, Module } from '../module/types';
-import { Single } from '../shared/types';
+import { Single, ValueOrPromise } from '../shared/types';
 import { MiddlewareMap } from '../shared/middleware';
+import { ApolloRequestContext } from './apollo';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
+export type ApolloExecutor = (
+  requestContext: ApolloRequestContext
+) => ValueOrPromise<ExecutionResult>;
 
 /**
  * @api
@@ -42,6 +52,10 @@ export type Application = {
    * Experimental
    */
   createSchemaForApollo(): GraphQLSchema;
+  /**
+   * Experimental
+   */
+  createApolloExecutor(): ApolloExecutor;
 };
 
 /**
