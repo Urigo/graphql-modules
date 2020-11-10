@@ -244,13 +244,13 @@ async function main() {
     return [current[0].name, Math.round((average / baseAverage) * 100)];
   }
 
-  const averageRecords: Record<string, number> = {};
+  const averageRecords: Record<string, string> = {};
 
   Object.keys(results)
     .map(compare)
     .sort((a, b) => b[1] - a[1])
     .forEach(([key, value]) => {
-      averageRecords[key] = value;
+      averageRecords[key] = `${value}%`;
     });
 
   console.table(averageRecords);
