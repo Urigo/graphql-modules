@@ -6,9 +6,13 @@ import {
 } from 'graphql-modules';
 import { parse, execute, GraphQLSchema, ExecutionArgs } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { deepEqual } from 'assert';
+import { strictEqual } from 'assert';
 
-const suite = new Benchmark.Suite();
+interface TestResult {
+  id: string;
+  name: string;
+  hz: number;
+}
 
 const typeDefs = parse(/* GraphQL */ `
   type Post {
@@ -116,61 +120,143 @@ const executeApollo = (args: ExecutionArgs) => {
   });
 };
 
+const query = parse(/* GraphQL */ `
+  query getPosts {
+    posts {
+      title
+    }
+  }
+`);
+
 async function graphql(schema: GraphQLSchema, executeFn: typeof execute) {
-  const { data, errors } = await executeFn({
+  const result = await executeFn({
     schema,
-    document: parse(/* GraphQL */ `
-      query getPosts {
-        posts {
-          title
-        }
-      }
-    `),
-    contextValue: { request: {}, response: {} },
+    document: query,
+    contextValue: {},
   });
 
-  if (errors && !showedError) {
-    console.log(errors);
+  if (result.errors && !showedError) {
+    console.log(result.errors);
     showedError = true;
   }
 
-  deepEqual(errors, undefined);
-  deepEqual(data, {
-    posts: [
-      {
-        title: 'Foo',
-      },
-      {
-        title: 'Bar',
-      },
-    ],
+  strictEqual(result.errors, undefined);
+  strictEqual(result.data?.posts[0].title, 'Foo');
+  strictEqual(result.data?.posts[1].title, 'Bar');
+}
+
+const suites: Record<string, { name: string; runner: Function }> = {
+  'graphql-js': {
+    name: 'GraphQL-JS',
+    runner: () => graphql(pureSchema, execute),
+  },
+  'with-di': {
+    name: 'Modules (DI)',
+    runner: () => graphql(appWithDI.schema, executeAppWithDI),
+  },
+  'without-di': {
+    name: 'Modules',
+    runner: () => graphql(app.schema, executeApp),
+  },
+  'apollo-with-id': {
+    name: 'ApolloServer (DI)',
+    runner: () => graphql(appWithDI.schema, executeApolloWithDI as any),
+  },
+  apollo: {
+    name: 'ApolloServer',
+    runner: () => graphql(app.schema, executeApollo as any),
+  },
+};
+
+function shuffle(list: string[]) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+}
+
+function sum(testResults: TestResult[]): number {
+  return testResults.reduce((total, val) => val.hz + total, 0);
+}
+
+let runId = 1;
+
+async function run(onResult: (testResult: TestResult) => void) {
+  console.log(`Running benchmarks (${runId++})`);
+  return new Promise<void>((resolve, reject) => {
+    // add tests
+    const suite = new Benchmark.Suite();
+
+    const ids = Object.keys(suites);
+    shuffle(ids);
+
+    ids.forEach((id) => {
+      suite.add(suites[id].name, suites[id].runner, {
+        id,
+      });
+    });
+
+    suite
+      .on('cycle', (event: any) => {
+        console.log(String(event.target));
+        onResult({
+          id: event.target.id,
+          name: event.target.name,
+          hz: event.target.hz,
+        });
+      })
+      .on('error', (error: any) => {
+        reject(error);
+      })
+      .on('complete', () => {
+        resolve();
+      })
+      .run({ async: true, delay: 15, queued: true });
   });
 }
 
-// add tests
-suite
-  // Regular
-  .add('GraphQL Modules w DI', async () => {
-    await graphql(appWithDI.schema, executeAppWithDI);
-  })
-  .add('GraphQL-JS', async () => {
-    await graphql(pureSchema, execute);
-  })
-  .add('GraphQL Modules w/o DI', async () => {
-    await graphql(app.schema, executeApp);
-  })
-  // Apollo Server
-  .add('ApolloServer - GraphQL Modules w DI', async () => {
-    await graphql(appWithDI.schema, executeApolloWithDI as any);
-  })
-  .add('ApolloServer - GraphQL Modules w/o DI', async () => {
-    await graphql(app.schema, executeApollo as any);
-  })
-  // ...
-  .on('cycle', (event: any) => {
-    console.log(String(event.target));
-  })
-  .on('error', (error: any) => {
-    console.log(error);
-  })
-  .run({ async: true });
+async function main() {
+  const results: Record<string, TestResult[]> = {};
+
+  function onResult(testResult: TestResult) {
+    if (!results[testResult.id]) {
+      results[testResult.id] = [];
+    }
+
+    results[testResult.id].push(testResult);
+  }
+
+  await run(onResult);
+  await run(onResult);
+  await run(onResult);
+
+  const baseId = 'graphql-js';
+  const base = results[baseId];
+  const baseTotal = sum(base);
+  const baseAverage = baseTotal / base.length;
+
+  function compare(id: string): [string, number] {
+    const current = results[id];
+
+    const total = sum(current);
+    const average = total / current.length;
+
+    return [current[0].name, Math.round((average / baseAverage) * 100)];
+  }
+
+  const averageRecords: Record<string, number> = {};
+
+  Object.keys(results)
+    .map(compare)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([key, value]) => {
+      averageRecords[key] = value;
+    });
+
+  console.table(averageRecords);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

@@ -18,11 +18,9 @@ export interface ApolloRequestContext {
 
 export function apolloExecutorCreator({
   createExecution,
-  contextBuilder,
   schema,
 }: {
   createExecution: Application['createExecution'];
-  contextBuilder: ExecutionContextBuilder;
   schema: GraphQLSchema;
 }): () => ApolloExecutor {
   return function createApolloExecutor() {
@@ -33,7 +31,7 @@ export function apolloExecutorCreator({
         document: requestContext.document,
         operationName: requestContext.operationName,
         variableValues: requestContext.request.variables,
-        contextValue: contextBuilder(requestContext.context),
+        contextValue: requestContext.context,
       });
     };
   };

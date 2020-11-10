@@ -121,7 +121,6 @@ export function createApplication(config: ApplicationConfig): Application {
   });
   const createApolloExecutor = apolloExecutorCreator({
     createExecution,
-    contextBuilder,
     schema,
   });
 
