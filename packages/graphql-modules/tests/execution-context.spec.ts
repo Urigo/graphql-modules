@@ -6,6 +6,7 @@ import {
   Scope,
   ExecutionContext,
   gql,
+  InjectionToken,
 } from '../src';
 import { parse } from 'graphql';
 
@@ -409,4 +410,96 @@ test('ExecutionContext on application level global provider', async () => {
   expect(spies.executionContext).toHaveBeenCalledWith(
     expect.objectContaining(contextValue)
   );
+});
+
+test('accessing a singleton provider with execution context in another singleton provider', async () => {
+  const spies = {
+    foo: jest.fn(),
+    bar: jest.fn(),
+  };
+
+  const Name = new InjectionToken<string>('name');
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Foo {
+    @ExecutionContext()
+    public context!: ExecutionContext;
+
+    constructor() {
+      spies.foo();
+    }
+
+    getName() {
+      return this.context.injector.get(Name);
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Bar {
+    constructor(private foo: Foo) {
+      spies.bar(foo);
+    }
+
+    getName() {
+      return this.foo.getName();
+    }
+  }
+
+  const mod = createModule({
+    id: 'mod',
+    providers: [Foo, Bar],
+    typeDefs: gql`
+      type Query {
+        getName: String
+        getDependencyName: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        getName: (_a: {}, _b: {}, { injector }: GraphQLModules.Context) =>
+          injector.get(Foo).getName(),
+        getDependencyName: (
+          _a: {},
+          _b: {},
+          { injector }: GraphQLModules.Context
+        ) => injector.get(Bar).getName(),
+      },
+    },
+  });
+
+  const expectedName = 'works';
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [
+      {
+        provide: Name,
+        useValue: expectedName,
+      },
+    ],
+  });
+
+  const result = await app.createExecution()({
+    schema: app.schema,
+    contextValue: {},
+    document: parse(/* GraphQL */ `
+      {
+        getName
+        getDependencyName
+      }
+    `),
+  });
+
+  expect(spies.bar).toHaveBeenCalledTimes(1);
+  expect(spies.foo).toHaveBeenCalledTimes(1);
+
+  expect(result.errors).not.toBeDefined();
+  expect(result.data).toEqual({
+    getName: expectedName,
+    getDependencyName: expectedName,
+  });
 });
