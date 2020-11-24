@@ -31,11 +31,10 @@ module.exports = {
         {
           type: 'docsVersionDropdown',
           position: 'left',
-          nextVersionLabel: '1.0.0-next',
         },
         {
-          to: '/docs',
-          activeBasePath: '/docs',
+          to: 'docs/next/index',
+          activeBasePath: 'docs',
           label: 'Documentation',
           position: 'right',
         },
@@ -59,23 +58,23 @@ module.exports = {
           items: [
             {
               label: 'Getting Started',
-              to: 'docs',
+              to: 'docs/next/get-started',
             },
             {
               label: `Essentials`,
-              to: 'docs/essentials/type-definitions',
+              to: 'docs/next/essentials/type-definitions',
             },
             {
               label: 'Dependency Injection',
-              to: 'docs/di/introduction',
+              to: 'docs/next/di/introduction',
             },
             {
               label: 'Advanced',
-              to: 'docs/advanced/subscriptions',
+              to: 'docs/next/advanced/subscriptions',
             },
             {
               label: 'Recipes',
-              to: 'docs/recipes/dataloader',
+              to: 'docs/next/recipes/dataloader',
             },
           ],
         },
@@ -160,7 +159,6 @@ module.exports = {
       {
         docs: {
           path: 'docs',
-          homePageId: 'index',
           include: ['**/*.md', '**/*.mdx'],
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:

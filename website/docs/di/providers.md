@@ -6,12 +6,10 @@ title: Providers and Tokens
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The building blocks of DI are **Providers** and **Tokens**.
+The building blocks of DI are **Provider**(s) and **InjectionToken**(s).
 
-- Token - symbol or class representing an object or any value in Dependency Injection space.
-- Provider - provides a value to a token
-
-{@import ./reflect-note.md}
+- `InjectionToken` - a `symbol` or `class` representing an object or any value in Dependency Injection space.
+- `Provider` - provides a value to a specific token.
 
 ## Defining Tokens
 
@@ -25,7 +23,7 @@ There are three kinds of providers:
 
 ### Class
 
-Using a class provider in GraphQL Modules is the easiest approach to DI. The class is instantiated automatically and in case of Operation Scope it's created only on demand.
+Using a `class` provider in GraphQL Modules is the easiest approach to DI. The class is instantiated automatically and in case of Operation Scope it's created only on demand.
 
 Every Service should be decorated with `@Injectable` as follows:
 
@@ -403,5 +401,5 @@ class Posts {
 
 GraphQL Modules have a set of built-in and ready to use Tokens. They may be handy in some situations.
 
-- [`CONTEXT`](../api.md#context) - represents a provided GraphQL Context (`GraphQLModules.GlobalContext`)
-- [`MODULE_ID`](../api.md#module_id) - represents an id of a module
+- [`CONTEXT`](../api.md#context) - represents a provided GraphQL Context (`GraphQLModules.GlobalContext`).
+- [`MODULE_ID`](../api.md#module_id) - represents an id of the current module.

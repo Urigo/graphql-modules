@@ -3,8 +3,6 @@ id: api
 title: API Reference
 ---
 
-Most of the types and
-
 ## CONTEXT
 
 [_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/application/tokens.ts)
@@ -46,11 +44,13 @@ A return type of `createApplication` function.
 - `typeDefs` - A list of type definitions defined by modules.
 - `resolvers` - An object with resolve functions defined by modules.
 - `schema` - Ready to use GraphQLSchema object combined from modules.
+- `injector` - The application (Singleton) injector.
 - `createSubscription` - Creates a `subscribe` function that runs the subscription phase of GraphQL.
   Important when using GraphQL Subscriptions.
 - `createExecution` - Creates a `execute` function that runs the execution phase of GraphQL.
   Important when using GraphQL Queries and Mutations.
 - `createSchemaForApollo` - Experimental
+- `createApolloExecutor` - Experimental
 
 ## ApplicationConfig
 

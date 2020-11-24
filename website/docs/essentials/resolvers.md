@@ -3,11 +3,13 @@ id: resolvers
 title: Resolvers
 ---
 
-Let's focus on resolve functions usually called just resolvers.
+Let's focus on `resolve` functions usually called just **resolvers**.
 
-You implement resolve functions in a standard way, just like in any other GraphQL library.
+With GraphQL-Modules, you implement your resolvers in the same way you do that in any other GraphQL implementation.
 
-GraphQL Modules are smart enough to detect incorrect resolvers (that don't match type definitions or extensions for example). It also prevents duplicates.
+Modules created by GraphQL-Modules are smart enough to detect incorrect resolvers (that don't match type definitions or extensions for example). It helps you to detect duplicate and incorrect resolvers, or old resolvers that shouldn't be there.
+
+## Resolvers Example
 
 Let's take for an example the following schema for `User` and `Query`.
 
@@ -45,5 +47,28 @@ export const myModule = createModule({
       },
     },
   },
+});
+```
+
+## Dynamically Load resolvers files
+
+If you have many resolvers files in your module, and you wish to load it dynamically, you can use loaders from `@graphql-tools/load-files`!
+
+Start by installing this package:
+
+    yarn add @graphql-tools/load-files
+
+Next, use it to load your files dynamically:
+
+```ts
+import MyQueryType from './query.type.graphql';
+import { createModule } from 'graphql-modules';
+import { loadFilesSync } from '@graphql-tools/load-files';
+
+export const myModule = createModule({
+  id: 'my-module',
+  dirname: __dirname,
+  typeDefs: loadFilesSync(join(__dirname, './typeDefs/*.graphql')),
+  resolvers: loadFilesSync(join(__dirname, './resolvers/*.ts')),
 });
 ```

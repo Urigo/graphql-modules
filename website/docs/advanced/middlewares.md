@@ -44,7 +44,7 @@ function middleware({ root, args, context, info }, next) {
 }
 ```
 
-It's important to undertand that every middleware should do one of three things:
+It's important to understand that every middleware should do one of three things:
 
 - throw an exception
 - return the result of `next()`

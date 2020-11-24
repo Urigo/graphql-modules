@@ -4,24 +4,24 @@ title: Introduction
 sidebar_label: Introduction
 ---
 
-**GraphQL Modules** let you separate your GraphQL API implementation into small, reusable, easy-to-implement and easy-to-test pieces,
+**GraphQL Modules** is a utility library, allowing you separate your GraphQL schema implementation into small, reusable, easy-to-implement and easy-to-test pieces.
 
-In GraphQL Modules, each module has its own GraphQL type definitions and resolver implementations.
+In GraphQL Modules, each module has its own GraphQL type definitions and resolvers implementations.
 
 The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
+
+During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while in runtime, you'll be able to serve a unified schema.
 
 ## Structure
 
 Each GraphQL `module` is built using the basics of GraphQL:
 
 - Type definitions
-- Resolve functions
+- Resolver functions
 
-As your application grows, modules can use [Dependency Injection](./di/introduction).
+As your application grows, modules can use [Dependency Injection](./di/introduction), if you wish to separate your resolvers and your business-logic.
 
-The structure of GraphQL API with GraphQL Modules is flat. Modules are on the same level and there's Application on top of them.
-
-`Application` is built out of `modules` and is able to also use Dependency Injection.
+The structure of GraphQL API with GraphQL Modules is flat. `Module`s are on the same level and there's `Application` on top of them.
 
 ## Example
 
@@ -32,7 +32,11 @@ To get a better understanding of the structure and extensibility of modules, let
 - Profile (define a user's profile)
 - Gallery (define a user's photo gallery)
 
+![example](/img/example.png)
+
 Let's understand how to define each module's schema and how to separate it into smaller pieces.
+
+Each one of our modules, contributes small part of the schema, and the GraphQL `Application` merged it into a complete schema.
 
 ### User Module
 

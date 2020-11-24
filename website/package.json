@@ -6,9 +6,9 @@
     "api": "node ./scripts/api-doc.js"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.64",
-    "@docusaurus/preset-classic": "2.0.0-alpha.64",
-    "@docusaurus/plugin-ideal-image": "2.0.0-alpha.64",
+    "@docusaurus/core": "2.0.0-alpha.69",
+    "@docusaurus/plugin-ideal-image": "2.0.0-alpha.69",
+    "@docusaurus/preset-classic": "2.0.0-alpha.69",
     "@phenomnomnominal/tsquery": "4.1.1",
     "globby": "11.0.1",
     "react": "17.0.1",

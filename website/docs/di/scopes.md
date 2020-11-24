@@ -6,13 +6,11 @@ title: Scopes
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Scope defines a life cycle of Services and Tokens. There are two kinds of scopes, **Singleton** and **Operation**, former is used by default.
-
-{@import ./reflect-note.md}
+Scope defines a life cycle of `Providers` and `InjectionToken`. There are two kinds of scopes, **Singleton** and **Operation**, former is used by default.
 
 ## Singleton
 
-As mentioned before, Singleton scope is the default choice in GraphQL Modules. Every Service and Token is created even before the first incoming GraphQL operation and never gets distroyed (only when Node process is terminated).
+As mentioned before, `Singleton` scope is the default choice in GraphQL Modules. Every Service and Token is created even before the first incoming GraphQL operation and never gets destroyed (only when Node process is terminated).
 
 > We decided to make it the default choice, because of performance related reasons. In most cases, there's no need to instantiate classes on every new request and dispose them later on.
 

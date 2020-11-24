@@ -17,7 +17,7 @@ import { Injectable, Scope, OnDestroy } from 'graphql-modules';
 })
 export class Data implements OnDestroy {
   constructor() {
-    // incoming operation
+    // incoming operation, here you can do your setup and preparation
   }
 
   onDestroy() {

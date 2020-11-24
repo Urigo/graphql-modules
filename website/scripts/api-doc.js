@@ -8,7 +8,7 @@ const fs = require('fs').promises;
 
 const ID = 'api';
 const TITLE = 'API Reference';
-const DESCRIPTION = 'Most of the types and';
+const DESCRIPTION = '';
 
 async function main() {
   const files = await getFilesWithAPI();

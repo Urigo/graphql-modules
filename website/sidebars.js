@@ -1,10 +1,11 @@
 module.exports = {
   docs: {
-    'GraphQL Modules': ['index', 'get-started', 'api'],
+    'GraphQL Modules': ['index', 'get-started'],
     Essentials: [
       'essentials/type-definitions',
       'essentials/resolvers',
       'essentials/context',
+      'essentials/type-safety',
     ],
     'Dependency Injection': ['di/introduction', 'di/providers', 'di/scopes'],
     Advanced: [
@@ -14,5 +15,6 @@ module.exports = {
       'advanced/lifecycle-hooks',
     ],
     Recipes: ['recipes/dataloader', 'recipes/migration'],
+    API: ['api'],
   },
 };
