@@ -10,7 +10,7 @@ import {
   Scope,
   gql,
 } from '../src';
-import { ExecutionContext, ReflectiveInjector } from '../src/di';
+import { ExecutionContext } from '../src/di';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { parse, execute } from 'graphql';
 
@@ -648,37 +648,6 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);
-});
-
-test('Redirect to original Injector in proxied injector', async () => {
-  const constructorSpy = jest.fn();
-
-  @Injectable()
-  class Data {
-    constructor() {
-      constructorSpy();
-    }
-
-    lorem() {
-      return 'ipsum';
-    }
-  }
-
-  const providers = ReflectiveInjector.resolve([Data]);
-  const injector = ReflectiveInjector.createFromResolved({
-    name: 'main',
-    providers,
-  });
-  const proxyInjector = ReflectiveInjector.createWithExecutionContext(
-    injector,
-    () => {}
-  );
-
-  injector.get(Data);
-  expect(constructorSpy).toHaveBeenCalledTimes(1);
-
-  proxyInjector.get(Data);
-  expect(constructorSpy).toHaveBeenCalledTimes(1);
 });
 
 test('Singleton scoped provider should be created once', async () => {
