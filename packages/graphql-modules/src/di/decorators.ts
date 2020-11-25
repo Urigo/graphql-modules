@@ -6,6 +6,7 @@ import {
   ensureInjectableMetadata,
 } from './metadata';
 import { Injector } from './injector';
+import { enableExecutionContext } from '../application/execution-context';
 
 function ensureReflect() {
   if (!(Reflect && Reflect.getOwnMetadata)) {
@@ -16,6 +17,7 @@ function ensureReflect() {
 export function Injectable(options?: ProviderOptions): ClassDecorator {
   return (target) => {
     ensureReflect();
+    enableExecutionContext();
 
     const params: Type<any>[] = (
       Reflect.getMetadata('design:paramtypes', target) || []

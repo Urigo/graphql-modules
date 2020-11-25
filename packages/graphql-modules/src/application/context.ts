@@ -1,4 +1,3 @@
-import { createHook, executionAsyncId } from 'async_hooks';
 import { ReflectiveInjector } from '../di';
 import { ResolvedProvider } from '../di/resolution';
 import { ID } from '../shared/types';
@@ -6,6 +5,7 @@ import { once } from '../shared/utils';
 import type { InternalAppContext, ModulesMap } from './application';
 import { attachGlobalProvidersMap } from './di';
 import { CONTEXT } from './tokens';
+import { executionContext, ExecutionContextPicker } from './execution-context';
 
 export type ExecutionContextBuilder<
   TContext extends {
@@ -194,47 +194,3 @@ export function createContextBuilder({
 
   return contextBuilder;
 }
-
-interface ExecutionContextPicker {
-  getModuleContext(moduleId: string): GraphQLModules.ModuleContext;
-  getApplicationContext(): GraphQLModules.AppContext;
-}
-
-const executionContextStore = new Map<number, ExecutionContextPicker>();
-
-const executionContextHook = createHook({
-  init(asyncId, _, triggerAsyncId) {
-    // Store same context data for child async resources
-    if (executionContextStore.has(triggerAsyncId)) {
-      executionContextStore.set(
-        asyncId,
-        executionContextStore.get(triggerAsyncId)!
-      );
-    }
-  },
-  destroy(asyncId) {
-    if (executionContextStore.has(asyncId)) {
-      executionContextStore.delete(asyncId);
-    }
-  },
-});
-
-const executionContext: {
-  create(picker: ExecutionContextPicker): void;
-  getModuleContext: ExecutionContextPicker['getModuleContext'];
-  getApplicationContext: ExecutionContextPicker['getApplicationContext'];
-} = {
-  create(picker) {
-    executionContextStore.set(executionAsyncId(), picker);
-  },
-  getModuleContext(moduleId) {
-    const picker = executionContextStore.get(executionAsyncId())!;
-    return picker.getModuleContext(moduleId);
-  },
-  getApplicationContext() {
-    const picker = executionContextStore.get(executionAsyncId())!;
-    return picker.getApplicationContext();
-  },
-};
-
-executionContextHook.enable();
