@@ -8,6 +8,37 @@ import TabItem from '@theme/TabItem';
 
 > Note: this page is still in progress!
 
+## Package name
+
+We decided to merge two existing packages `@graphql-modules/core` and `@graphql-modules/di` into a single package `graphql-modules`.
+There's no regression in terms of bundle size, because `core` was importing `di` anyway.
+
+Making GraphQL Modules a single package should improve the developer experience.
+
+<Tabs
+defaultValue="1"
+values={[
+{label: 'V1', value: '1'},
+{label: 'V0', value: '0'},
+]}>
+<TabItem value="1">
+
+```typescript
+import { gql, createModule, Injectable } from 'graphql-modules';
+```
+
+</TabItem>
+<TabItem value="0">
+
+```typescript
+import { GraphQLModule } from '@graphql-modules/core`;
+import { Injectable } from '@graphql-modules/di`;
+import gql from 'graphql-tag';
+```
+
+</TabItem>
+</Tabs>
+
 ## `DocumentNode` for `typeDefs`
 
 v0 accepted `string` as `typeDefs`, while v1 doesn't.
@@ -183,7 +214,7 @@ const rootModule = new GraphQLModule({
 
 ## Shared Injectables
 
-In V0, you needed to create an `Injectable`, add to to a module, and then in order to consume it in another module, you needed to make sure you have a dependency (with `imports`) between your modules. This was very strict and made development harder.
+In V0, you needed to create an `Injectable`, add it to a module, and then in order to consume it in another module, you needed to make sure you have a dependency (with `imports`) between your modules. This was very strict and made development harder.
 
 Since we moved to a flatten structure of `Application`, all you need to do in order to share an `Injectable`, is just to add `global: true`:
 
@@ -348,7 +379,7 @@ export class MyProvider {
 
 In v0, we had a concept of Session to manage the execution of each operation. In v1, we dropped it, in favor of a simpler solution.
 
-Internally, we are using JavaScript `Proxy` to manage flows of execution, which allow us to share Injectables between Singleton and Operation scopes.
+Internally, we are using Node's `async_hooks` to manage a context of an execution, which allow us to share Injectables between Singleton and Operation scope.
 
 ## Context
 
@@ -387,4 +418,25 @@ const MyModule = new GraphQLModule({
 
 ## Dependency Injection Scopes
 
-WIP!
+We decided to reduce the number of Scopes (from 3 to only 2) and change the names. The `Session` and `Request` scopes are a bit misleading and hard to understand at first glimpse. 
+
+In v1 it's much simpler, there are two Scopes:
+
+  - `Singleton` - Injectable is instantiated once, at bootstrap phase (`createApplication`)
+  - `Operation` - Injectable is instantiated once per GraphQL Operation.
+
+In our opinion, it's much easier to reason about.
+
+The `ProviderScope` was renamed to just `Scope`.
+
+## Dependency Injection Hierarchy
+
+With v1, the structure of your application is now flat, meaning there's an application level on top of a module level (many).
+
+```
+Application -> (Module, Module, Module)
+``
+
+This change enables an abstraction that was not possible in v0. Your modules can depend on Injectables or InjectionTokens provided by Application.
+
+We recommend to read ["Hierarchical Injectors"](../di/introduction/#hierarchical-injectors) chapter.
