@@ -105,6 +105,7 @@ test('ExecutionContext on module level provider', async () => {
     document,
   });
 
+  expect(result1.errors).toBeUndefined();
   expect(result1.data).toEqual(data);
 
   const result2 = await app.createExecution()({
@@ -113,6 +114,7 @@ test('ExecutionContext on module level provider', async () => {
     document,
   });
 
+  expect(result2.errors).toBeUndefined();
   expect(result2.data).toEqual(data);
 
   expect(spies.posts).toBeCalledTimes(1);
