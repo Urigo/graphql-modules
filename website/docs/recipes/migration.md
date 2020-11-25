@@ -432,10 +432,8 @@ The `ProviderScope` was renamed to just `Scope`.
 ## Dependency Injection Hierarchy
 
 With v1, the structure of your application is now flat, meaning there's an application level on top of a module level (many).
-
-```
-Application -> (Module, Module, Module)
-``
+    
+    Application -> [ Module, Module, Module ]
 
 This change enables an abstraction that was not possible in v0. Your modules can depend on Injectables or InjectionTokens provided by Application.
 
