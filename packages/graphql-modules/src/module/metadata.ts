@@ -65,7 +65,9 @@ export function metadataFactory(
       | InputObjectTypeExtensionNode
   ) {
     if (node.fields) {
-      extended[node.name.value] = [];
+      if (!extended[node.name.value]) {
+        extended[node.name.value] = [];
+      }
 
       (node.fields as Array<
         InputValueDefinitionNode | FieldDefinitionNode
@@ -93,9 +95,13 @@ export function metadataFactory(
       },
       // Union
       UnionTypeDefinition(node) {
+        if (!implemented[node.name.value]) {
+          implemented[node.name.value] = [];
+        }
+
         if (node.types) {
-          implemented[node.name.value] = node.types.map(
-            (type) => type.name.value
+          implemented[node.name.value].push(
+            ...node.types.map((type) => type.name.value)
           );
         }
 
@@ -122,15 +128,23 @@ export function metadataFactory(
       // Enum
       EnumTypeDefinition(node) {
         if (node.values) {
-          implemented[node.name.value] = node.values.map(
-            (value) => value.name.value
+          if (!implemented[node.name.value]) {
+            implemented[node.name.value] = [];
+          }
+
+          implemented[node.name.value].push(
+            ...node.values.map((value) => value.name.value)
           );
         }
       },
       EnumTypeExtension(node) {
         if (node.values) {
-          extended[node.name.value] = node.values.map(
-            (value) => value.name.value
+          if (!extended[node.name.value]) {
+            extended[node.name.value] = [];
+          }
+
+          extended[node.name.value].push(
+            ...node.values.map((value) => value.name.value)
           );
         }
       },

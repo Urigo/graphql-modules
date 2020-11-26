@@ -2,6 +2,42 @@ import 'reflect-metadata';
 import { createApplication, createModule } from '../src';
 import { parse } from 'graphql';
 
+test('should allow multiple type extensions in the same module', async () => {
+  const m1 = createModule({
+    id: 'test',
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        dummy: String!
+      }
+      type Mutation {
+        foo: String!
+      }
+      extend type Mutation {
+        bar: String!
+      }
+      extend type Mutation {
+        test: String!
+      }
+    `),
+    resolvers: {
+      Mutation: {
+        foo: () => '1',
+        bar: () => '1',
+        test: () => '1',
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [m1],
+  });
+
+  const schema = app.schema;
+  expect(Object.keys(schema.getMutationType()?.getFields() || {}).length).toBe(
+    3
+  );
+});
+
 test('should not thrown when isTypeOf is used', async () => {
   const m1 = createModule({
     id: 'test',
