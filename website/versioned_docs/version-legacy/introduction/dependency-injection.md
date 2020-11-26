@@ -185,7 +185,7 @@ export const MyModule = new GraphQLModule({
 
 ### Factory
 
-Factories provide another way to pass an instance of `provider`. The return value of the fuctory function is used as the value of the provider.
+Factories provide another way to pass an instance of `provider`. The return value of the factory function is used as the value of the provider.
 
 ```typescript
 const MY_VALUE = 'myUsefulVal8e';

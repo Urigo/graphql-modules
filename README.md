@@ -71,7 +71,3 @@ Inside the `examples` directory you can find the following examples:
 
 - [Simple GraphQL-Modules example](./examples/basic)
 - [Using dependency injection in GraphQL Modules](./examples/basic-with-dependency-injection)
-
-## GraphQL Code Generator integration
-
-GraphQL Modules easily integrates with [GraphQL Code Generator](https://github.com/dotansimha/graphql-code-generator).

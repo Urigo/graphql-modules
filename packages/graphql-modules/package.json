@@ -27,7 +27,8 @@
   },
   "buildOptions": {
     "copy": [
-      "LICENSE.md"
+      "LICENSE.md",
+      "README.md"
     ]
   }
 }
