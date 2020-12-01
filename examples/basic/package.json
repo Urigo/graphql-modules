@@ -9,6 +9,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "graphql-modules": "0.7.17"
+    "graphql-modules": "1.0.0"
   }
 }
