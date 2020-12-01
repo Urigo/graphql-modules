@@ -7,8 +7,5 @@
   "scripts": {
     "start": "ts-node --project ../../tsconfig.app.json ./src/index.ts",
     "test": "jest"
-  },
-  "dependencies": {
-    "graphql-modules": "1.0.0"
   }
 }
