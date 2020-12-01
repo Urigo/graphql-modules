@@ -10,7 +10,6 @@
     "apollo-subscriptions",
     "examples-basic",
     "examples-di",
-    "examples-di-js",
     "examples-subscriptions"
   ]
 }
