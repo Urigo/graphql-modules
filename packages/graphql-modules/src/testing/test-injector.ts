@@ -1,6 +1,7 @@
 import { Injector, ReflectiveInjector } from '../di/injector';
-import { Provider } from '../di/providers';
+import { Provider, TypeProvider } from '../di/providers';
 import { CONTEXT } from '../application/tokens';
+import { readInjectableMetadata } from '../di/metadata';
 
 export function testInjector(providers: Provider[]): Injector {
   const resolvedProviders = ReflectiveInjector.resolve([
@@ -16,4 +17,8 @@ export function testInjector(providers: Provider[]): Injector {
   injector.instantiateAll();
 
   return injector;
+}
+
+export function readProviderOptions<T>(provider: TypeProvider<T>) {
+  return readInjectableMetadata(provider, true).options;
 }

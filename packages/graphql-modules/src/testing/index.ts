@@ -1,2 +1,2 @@
 export { testModule } from './test-module';
-export { testInjector } from './test-injector';
+export { testInjector, readProviderOptions } from './test-injector';
