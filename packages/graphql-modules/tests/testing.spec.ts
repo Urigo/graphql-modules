@@ -2,9 +2,7 @@ import 'reflect-metadata';
 import { concatAST } from 'graphql';
 import {
   createModule,
-  testModule,
-  testInjector,
-  readProviderOptions,
+  testkit,
   gql,
   Injectable,
   Inject,
@@ -28,7 +26,7 @@ describe('testModule', () => {
       `,
     });
     expect(() =>
-      testModule(initialModule, {
+      testkit.testModule(initialModule, {
         replaceExtensions: true,
       })
     ).not.toThrow();
@@ -45,7 +43,7 @@ describe('testModule', () => {
     });
 
     expect(() =>
-      testModule(initialModule, {
+      testkit.testModule(initialModule, {
         typeDefs: gql`
           type Foo {
             id: ID
@@ -78,7 +76,7 @@ describe('testModule', () => {
       },
     });
 
-    const app = testModule(initialModule, {
+    const app = testkit.testModule(initialModule, {
       resolvers: {
         Foo: {
           id() {
@@ -88,10 +86,7 @@ describe('testModule', () => {
       },
     });
 
-    const execute = app.createExecution();
-
-    const result = await execute({
-      schema: app.schema,
+    const result = await testkit.execute(app, {
       document: gql`
         {
           foo {
@@ -144,7 +139,7 @@ describe('testModule', () => {
       },
     });
 
-    const app = testModule(initialModule, {
+    const app = testkit.testModule(initialModule, {
       providers: [
         {
           provide: Data,
@@ -159,10 +154,7 @@ describe('testModule', () => {
       ],
     });
 
-    const execute = app.createExecution();
-
-    const result = await execute({
-      schema: app.schema,
+    const result = await testkit.execute(app, {
       document: gql`
         {
           foo(id: "not-mocked") {
@@ -201,7 +193,7 @@ describe('testModule', () => {
     });
 
     expect(() =>
-      testModule(initialModule, {
+      testkit.testModule(initialModule, {
         typeDefs: gql`
           type Foo {
             id: ID
@@ -240,7 +232,7 @@ describe('testModule', () => {
       `,
     });
 
-    const app = testModule(initialModule, {
+    const app = testkit.testModule(initialModule, {
       typeDefs: gql`
         type Foo {
           id: ID
@@ -272,7 +264,7 @@ describe('testInjector', () => {
       }
     }
 
-    const injector = testInjector([Data]);
+    const injector = testkit.testInjector([Data]);
     const data = injector.get(Data).getById('mocked');
 
     expect(data.id).toEqual('mocked');
@@ -295,7 +287,7 @@ describe('testInjector', () => {
       }
     }
 
-    expect(() => testInjector([Data])).toThrowError(/UNKNOWN-TOKEN/);
+    expect(() => testkit.testInjector([Data])).toThrowError(/UNKNOWN-TOKEN/);
   });
 });
 
@@ -312,7 +304,7 @@ describe('readProviderOptions', () => {
       }
     }
 
-    const options = readProviderOptions(Data);
+    const options = testkit.readProviderOptions(Data);
 
     expect(options?.scope).toBe(Scope.Singleton);
     expect(options?.global).not.toBe(true);
