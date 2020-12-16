@@ -1,8 +1,10 @@
 import 'reflect-metadata';
+import { concatAST } from 'graphql';
 import {
   createModule,
   testModule,
   testInjector,
+  readProviderOptions,
   gql,
   Injectable,
   Inject,
@@ -177,6 +179,82 @@ describe('testModule', () => {
       },
     });
   });
+
+  test('should inherit typeDefs from other modules', () => {
+    const initialModule = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo: Foo!
+          bar: Bar!
+        }
+      `,
+    });
+
+    const externalModule = createModule({
+      id: 'external',
+      typeDefs: gql`
+        type Bar {
+          id: ID!
+        }
+      `,
+    });
+
+    expect(() =>
+      testModule(initialModule, {
+        typeDefs: gql`
+          type Foo {
+            id: ID
+          }
+        `,
+        inheritTypeDefs: [externalModule],
+      })
+    ).not.toThrow();
+  });
+
+  test('should inherit typeDefs from other modules and do tree-shaking of types', () => {
+    const initialModule = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo: Foo!
+          bar: Bar!
+        }
+      `,
+    });
+
+    const externalModule = createModule({
+      id: 'external',
+      typeDefs: gql`
+        type Bar {
+          id: ID!
+        }
+
+        extend type Query {
+          unused: Unused
+        }
+
+        type Unused {
+          id: ID!
+        }
+      `,
+    });
+
+    const app = testModule(initialModule, {
+      typeDefs: gql`
+        type Foo {
+          id: ID
+        }
+      `,
+      inheritTypeDefs: [externalModule],
+    });
+
+    const typeDefs = concatAST(app.typeDefs);
+
+    expect(
+      typeDefs.definitions.find((def: any) => def?.name.value === 'Unused')
+    ).toBeUndefined();
+  });
 });
 
 describe('testInjector', () => {
@@ -218,5 +296,26 @@ describe('testInjector', () => {
     }
 
     expect(() => testInjector([Data])).toThrowError(/UNKNOWN-TOKEN/);
+  });
+});
+
+describe('readProviderOptions', () => {
+  test('should instantiate all providers', () => {
+    @Injectable({
+      scope: Scope.Singleton,
+    })
+    class Data {
+      getById(id: string) {
+        return {
+          id,
+        };
+      }
+    }
+
+    const options = readProviderOptions(Data);
+
+    expect(options?.scope).toBe(Scope.Singleton);
+    expect(options?.global).not.toBe(true);
+    expect(options?.executionContextIn).not.toBeDefined();
   });
 });
