@@ -53,20 +53,6 @@ function transformModule(mod: Module, config?: TestModuleConfig) {
     );
   }
 
-  if (config?.providers) {
-    transforms.push((m) => {
-      const providers = m.providers ?? [];
-      const extraProviders = config.providers!;
-
-      return moduleFactory({
-        ...m.config,
-        providers: providers.concat(
-          Array.isArray(extraProviders) ? extraProviders : extraProviders()
-        ),
-      });
-    });
-  }
-
   if (config?.typeDefs) {
     transforms.push((m) =>
       moduleFactory({

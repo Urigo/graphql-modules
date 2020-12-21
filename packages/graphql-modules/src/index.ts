@@ -17,6 +17,7 @@ export {
   Optional,
   ExecutionContext,
   Provider,
+  ProviderOptions,
   FactoryProvider,
   ClassProvider,
   ValueProvider,

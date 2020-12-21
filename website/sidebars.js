@@ -6,6 +6,7 @@ module.exports = {
       'essentials/resolvers',
       'essentials/context',
       'essentials/type-safety',
+      'essentials/testing',
     ],
     'Dependency Injection': ['di/introduction', 'di/providers', 'di/scopes'],
     Advanced: [
