@@ -18,7 +18,7 @@ export function Intro(props) {
           your GraphQL server.
         </div>
         <Hyperlink></Hyperlink>
-        <Hyperlink href="/docs/next/index">
+        <Hyperlink href="/docs/index">
           <Button className="_start-button">Get started</Button>
         </Hyperlink>
       </div>
