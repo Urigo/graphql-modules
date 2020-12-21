@@ -9,6 +9,6 @@
 ## 1.0.0
 
 Complete rewrite of GraphQL Modules based on lessons learned from using and maintaining v0 releases.
-The ["Introduction to GraphQL Modules"](https://graphql-modules.com/docs/next/index) page will help you understand the new version.
+The ["Introduction to GraphQL Modules"](https://graphql-modules.com/docs/index) page will help you understand the new version.
 
-For migration guide, please check ["Migration from v0.X"](https://graphql-modules.com/docs/next/recipes/migration) chapter in docs.
+For migration guide, please check ["Migration from v0.X"](https://graphql-modules.com/docs/recipes/migration) chapter in docs.
