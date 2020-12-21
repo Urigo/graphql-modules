@@ -48,4 +48,5 @@ export interface Module {
   factory: ModuleFactory;
   operationProviders: ResolvedProvider[];
   singletonProviders: ResolvedProvider[];
+  config: ModuleConfig;
 }

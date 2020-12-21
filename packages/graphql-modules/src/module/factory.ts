@@ -44,6 +44,7 @@ export function moduleFactory(config: ModuleConfig): Module {
 
   const mod: Module = {
     id: config.id,
+    config,
     metadata,
     typeDefs,
     providers,

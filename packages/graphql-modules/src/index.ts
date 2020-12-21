@@ -17,6 +17,7 @@ export {
   Optional,
   ExecutionContext,
   Provider,
+  ProviderOptions,
   FactoryProvider,
   ClassProvider,
   ValueProvider,
@@ -33,4 +34,4 @@ export { gql } from './shared/gql';
 export * from './shared/di';
 
 // testing
-export * from './testing/test-module';
+export * from './testing';
