@@ -33,7 +33,7 @@ module.exports = {
           position: 'left',
         },
         {
-          to: 'docs/next/index',
+          to: 'docs/index',
           activeBasePath: 'docs',
           label: 'Documentation',
           position: 'right',
@@ -58,23 +58,23 @@ module.exports = {
           items: [
             {
               label: 'Getting Started',
-              to: 'docs/next/get-started',
+              to: 'docs/get-started',
             },
             {
               label: `Essentials`,
-              to: 'docs/next/essentials/type-definitions',
+              to: 'docs/essentials/type-definitions',
             },
             {
               label: 'Dependency Injection',
-              to: 'docs/next/di/introduction',
+              to: 'docs/di/introduction',
             },
             {
               label: 'Advanced',
-              to: 'docs/next/advanced/subscriptions',
+              to: 'docs//advanced/subscriptions',
             },
             {
               label: 'Recipes',
-              to: 'docs/next/recipes/dataloader',
+              to: 'docs/recipes/dataloader',
             },
           ],
         },
@@ -164,6 +164,17 @@ module.exports = {
           editUrl:
             'https://github.com/Urigo/graphql-modules/edit/master/website/',
           remarkPlugins: [require('remark-import-partial')],
+          lastVersion: 'current',
+          versions: {
+            current: {
+              label: 'Current',
+              path: '',
+            },
+            legacy: {
+              label: 'Legacy',
+              path: 'legacy',
+            },
+          },
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
