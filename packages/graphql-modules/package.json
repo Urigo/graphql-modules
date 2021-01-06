@@ -1,6 +1,13 @@
 {
   "name": "graphql-modules",
   "description": "Create reusable, maintainable, testable and extendable GraphQL modules",
+  "keywords": [
+    "graphql",
+    "graphql-modules",
+    "server",
+    "typescript",
+    "the-guild"
+  ],
   "version": "1.1.0",
   "author": "Kamil Kisiela",
   "license": "MIT",
