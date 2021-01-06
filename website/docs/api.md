@@ -61,6 +61,7 @@ Application's configuration object. Represents the first argument of `createAppl
 - `modules` - A list of GraphQL Modules
 - `providers` - A list of Providers - read the ["Providers and Tokens"](./di/providers) chapter.
 - `middlewares` - A map of middlewares - read the ["Middlewares"](./advanced/middlewares) chapter.
+- `schemaBuilder` - Creates a GraphQLSchema object out of typeDefs and resolvers
 
 ## createApplication
 
