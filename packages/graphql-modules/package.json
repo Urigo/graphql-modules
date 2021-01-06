@@ -1,5 +1,6 @@
 {
   "name": "graphql-modules",
+  "description": "Create reusable, maintainable, testable and extendable GraphQL modules",
   "version": "1.1.0",
   "author": "Kamil Kisiela",
   "license": "MIT",
