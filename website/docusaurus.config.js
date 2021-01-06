@@ -210,10 +210,12 @@ function createRedirects() {
   const sidebars = require('./sidebars').docs;
   const legacySidebars = require('./versioned_sidebars/version-legacy-sidebars.json');
 
+  // take latest routes (current version)
   const latestRoutes = Object.values(sidebars).reduce(
     (acc, links) => acc.concat(links),
     []
   );
+  // collect legacy routes
   const legacyRoutes = legacySidebars['version-legacy/docs'].reduce(
     (acc, category) => {
       return acc.concat(
@@ -223,6 +225,7 @@ function createRedirects() {
     []
   );
 
+  // Create a redirect to legacy route only if it doesn't collide with any of the latest routes
   const routesToRedirect = legacyRoutes.filter(
     (route) => !latestRoutes.includes(route)
   );
