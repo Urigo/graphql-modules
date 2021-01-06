@@ -28,7 +28,12 @@ import { createModule } from '../module/module';
 type TestModuleConfig = {
   replaceExtensions?: boolean;
   inheritTypeDefs?: Module[];
-} & Partial<Pick<ApplicationConfig, 'providers' | 'modules' | 'middlewares'>> &
+} & Partial<
+  Pick<
+    ApplicationConfig,
+    'providers' | 'modules' | 'middlewares' | 'schemaBuilder'
+  >
+> &
   Partial<Pick<ModuleConfig, 'typeDefs' | 'resolvers'>>;
 
 type MockModuleConfig = Partial<Pick<ModuleConfig, 'providers'>>;

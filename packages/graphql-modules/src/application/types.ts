@@ -88,4 +88,23 @@ export interface ApplicationConfig {
    * A map of middlewares - read the ["Middlewares"](./advanced/middlewares) chapter.
    */
   middlewares?: MiddlewareMap;
+  /**
+   * Creates a GraphQLSchema object out of typeDefs and resolvers
+   *
+   * @example
+   *
+   * ```typescript
+   * import { createApplication } from 'graphql-modules';
+   * import { makeExecutableSchema } from '@graphql-tools/schema';
+   *
+   * const app = createApplication({
+   *   modules: [],
+   *   schemaBuilder: makeExecutableSchema
+   * })
+   * ```
+   */
+  schemaBuilder?(input: {
+    typeDefs: DocumentNode[];
+    resolvers: Record<string, any>[];
+  }): GraphQLSchema;
 }

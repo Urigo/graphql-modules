@@ -106,7 +106,10 @@ export function createApplication(
     // is not expensive since it happens only once
     const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
     const resolvers = modules.map((mod) => mod.resolvers).filter(isDefined);
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
+    const schema = (applicationConfig.schemaBuilder || makeExecutableSchema)({
+      typeDefs,
+      resolvers,
+    });
 
     const contextBuilder = createContextBuilder({
       appInjector,
