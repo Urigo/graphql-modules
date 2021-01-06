@@ -22,7 +22,7 @@ import {
 import { moduleFactory } from '../module/factory';
 import { createApplication } from '../application/application';
 import { ApplicationConfig } from '../application/types';
-import { Module, ModuleConfig } from '../module/types';
+import { MockedModule, Module, ModuleConfig } from '../module/types';
 import { createModule } from '../module/module';
 
 type TestModuleConfig = {
@@ -36,7 +36,7 @@ type MockModuleConfig = Partial<Pick<ModuleConfig, 'providers'>>;
 export function mockModule(
   testedModule: Module,
   overrideConfig: MockModuleConfig
-) {
+): MockedModule {
   const sourceProviders =
     typeof testedModule.config.providers === 'function'
       ? testedModule.config.providers()
@@ -46,10 +46,14 @@ export function mockModule(
       ? overrideConfig.providers()
       : overrideConfig.providers;
 
-  return createModule({
+  const newModule = createModule({
     ...testedModule.config,
     providers: [...(sourceProviders || []), ...(overrideProviders || [])],
-  });
+  }) as MockedModule;
+
+  newModule['ɵoriginalModule'] = testedModule;
+
+  return newModule as MockedModule;
 }
 
 export function testModule(testedModule: Module, config?: TestModuleConfig) {

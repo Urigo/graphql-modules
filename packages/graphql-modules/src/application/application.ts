@@ -53,92 +53,101 @@ export interface InternalAppContext {
  * })
  * ```
  */
-export function createApplication(config: ApplicationConfig): Application {
-  const providers =
-    config.providers && typeof config.providers === 'function'
-      ? config.providers()
-      : config.providers;
-  // Creates an Injector with singleton classes at application level
-  const appSingletonProviders = ReflectiveInjector.resolve(
-    onlySingletonProviders(providers)
-  );
-  const appInjector = ReflectiveInjector.createFromResolved({
-    name: 'App (Singleton Scope)',
-    providers: appSingletonProviders,
-  });
-  // Filter Operation-scoped providers, and keep it here
-  // so we don't do it over and over again
-  const appOperationProviders = ReflectiveInjector.resolve(
-    onlyOperationProviders(providers)
-  );
-  const middlewareMap = config.middlewares || {};
+export function createApplication(
+  applicationConfig: ApplicationConfig
+): Application {
+  function applicationFactory(cfg?: ApplicationConfig): Application {
+    const config = cfg || applicationConfig;
+    const providers =
+      config.providers && typeof config.providers === 'function'
+        ? config.providers()
+        : config.providers;
+    // Creates an Injector with singleton classes at application level
+    const appSingletonProviders = ReflectiveInjector.resolve(
+      onlySingletonProviders(providers)
+    );
+    const appInjector = ReflectiveInjector.createFromResolved({
+      name: 'App (Singleton Scope)',
+      providers: appSingletonProviders,
+    });
+    // Filter Operation-scoped providers, and keep it here
+    // so we don't do it over and over again
+    const appOperationProviders = ReflectiveInjector.resolve(
+      onlyOperationProviders(providers)
+    );
+    const middlewareMap = config.middlewares || {};
 
-  // Create all modules
-  const modules = config.modules.map((mod) =>
-    mod.factory({
+    // Create all modules
+    const modules = config.modules.map((mod) =>
+      mod.factory({
+        injector: appInjector,
+        middlewares: middlewareMap,
+      })
+    );
+    const modulesMap = createModulesMap(modules);
+    const singletonGlobalProvidersMap = createGlobalProvidersMap({
+      modules,
+      scope: Scope.Singleton,
+    });
+    const operationGlobalProvidersMap = createGlobalProvidersMap({
+      modules,
+      scope: Scope.Operation,
+    });
+
+    attachGlobalProvidersMap({
       injector: appInjector,
-      middlewares: middlewareMap,
-    })
-  );
-  const modulesMap = createModulesMap(modules);
-  const singletonGlobalProvidersMap = createGlobalProvidersMap({
-    modules,
-    scope: Scope.Singleton,
-  });
-  const operationGlobalProvidersMap = createGlobalProvidersMap({
-    modules,
-    scope: Scope.Operation,
-  });
+      globalProvidersMap: singletonGlobalProvidersMap,
+      moduleInjectorGetter(moduleId) {
+        return modulesMap.get(moduleId)!.injector;
+      },
+    });
 
-  attachGlobalProvidersMap({
-    injector: appInjector,
-    globalProvidersMap: singletonGlobalProvidersMap,
-    moduleInjectorGetter(moduleId) {
-      return modulesMap.get(moduleId)!.injector;
-    },
-  });
+    // Creating a schema, flattening the typedefs and resolvers
+    // is not expensive since it happens only once
+    const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
+    const resolvers = modules.map((mod) => mod.resolvers).filter(isDefined);
+    const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-  // Creating a schema, flattening the typedefs and resolvers
-  // is not expensive since it happens only once
-  const typeDefs = flatten(modules.map((mod) => mod.typeDefs));
-  const resolvers = modules.map((mod) => mod.resolvers).filter(isDefined);
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+    const contextBuilder = createContextBuilder({
+      appInjector,
+      appLevelOperationProviders: appOperationProviders,
+      modulesMap: modulesMap,
+      singletonGlobalProvidersMap,
+      operationGlobalProvidersMap,
+    });
 
-  const contextBuilder = createContextBuilder({
-    appInjector,
-    appLevelOperationProviders: appOperationProviders,
-    modulesMap: modulesMap,
-    singletonGlobalProvidersMap,
-    operationGlobalProvidersMap,
-  });
+    const createSubscription = subscriptionCreator({ contextBuilder });
+    const createExecution = executionCreator({ contextBuilder });
+    const createSchemaForApollo = apolloSchemaCreator({
+      createSubscription,
+      contextBuilder,
+      schema,
+    });
+    const createApolloExecutor = apolloExecutorCreator({
+      createExecution,
+      schema,
+    });
 
-  const createSubscription = subscriptionCreator({ contextBuilder });
-  const createExecution = executionCreator({ contextBuilder });
-  const createSchemaForApollo = apolloSchemaCreator({
-    createSubscription,
-    contextBuilder,
-    schema,
-  });
-  const createApolloExecutor = apolloExecutorCreator({
-    createExecution,
-    schema,
-  });
+    instantiateSingletonProviders({
+      appInjector,
+      modulesMap,
+    });
 
-  instantiateSingletonProviders({
-    appInjector,
-    modulesMap,
-  });
+    return {
+      typeDefs,
+      resolvers,
+      schema,
+      injector: appInjector,
+      createSubscription,
+      createExecution,
+      createSchemaForApollo,
+      createApolloExecutor,
+      ɵfactory: applicationFactory,
+      ɵconfig: config,
+    };
+  }
 
-  return {
-    typeDefs,
-    resolvers,
-    schema,
-    injector: appInjector,
-    createSubscription,
-    createExecution,
-    createSchemaForApollo,
-    createApolloExecutor,
-  };
+  return applicationFactory();
 }
 
 function createModulesMap(modules: ResolvedModule[]): ModulesMap {

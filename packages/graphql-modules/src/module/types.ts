@@ -50,3 +50,10 @@ export interface Module {
   singletonProviders: ResolvedProvider[];
   config: ModuleConfig;
 }
+
+export interface MockedModule extends Module {
+  /**
+   * @internal
+   */
+  ɵoriginalModule: Module;
+}
