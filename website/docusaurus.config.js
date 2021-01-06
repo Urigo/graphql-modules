@@ -197,5 +197,40 @@ module.exports = {
         quality: 100,
       },
     ],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: createRedirects(),
+      },
+    ],
   ],
 };
+
+function createRedirects() {
+  const sidebars = require('./sidebars').docs;
+  const legacySidebars = require('./versioned_sidebars/version-legacy-sidebars.json');
+
+  const latestRoutes = Object.values(sidebars).reduce(
+    (acc, links) => acc.concat(links),
+    []
+  );
+  const legacyRoutes = legacySidebars['version-legacy/docs'].reduce(
+    (acc, category) => {
+      return acc.concat(
+        category.items.map((i) => i.id.replace('version-legacy/', ''))
+      );
+    },
+    []
+  );
+
+  const routesToRedirect = legacyRoutes.filter(
+    (route) => !latestRoutes.includes(route)
+  );
+
+  const redirects = routesToRedirect.map((route) => ({
+    to: `/docs/legacy/${route}`,
+    from: `/docs/${route}`,
+  }));
+
+  return redirects;
+}

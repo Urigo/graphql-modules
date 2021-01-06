@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.69",
+    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.69",
     "@docusaurus/plugin-ideal-image": "2.0.0-alpha.69",
     "@docusaurus/preset-classic": "2.0.0-alpha.69",
     "@phenomnomnominal/tsquery": "4.1.1",
