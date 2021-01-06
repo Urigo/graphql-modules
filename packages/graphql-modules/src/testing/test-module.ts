@@ -23,11 +23,34 @@ import { moduleFactory } from '../module/factory';
 import { createApplication } from '../application/application';
 import { ApplicationConfig } from '../application/types';
 import { Module, ModuleConfig } from '../module/types';
+import { createModule } from '../module/module';
+
 type TestModuleConfig = {
   replaceExtensions?: boolean;
   inheritTypeDefs?: Module[];
 } & Partial<Pick<ApplicationConfig, 'providers' | 'modules' | 'middlewares'>> &
   Partial<Pick<ModuleConfig, 'typeDefs' | 'resolvers'>>;
+
+type MockModuleConfig = Partial<Pick<ModuleConfig, 'providers'>>;
+
+export function mockModule(
+  testedModule: Module,
+  overrideConfig: MockModuleConfig
+) {
+  const sourceProviders =
+    typeof testedModule.config.providers === 'function'
+      ? testedModule.config.providers()
+      : testedModule.config.providers;
+  const overrideProviders =
+    typeof overrideConfig.providers === 'function'
+      ? overrideConfig.providers()
+      : overrideConfig.providers;
+
+  return createModule({
+    ...testedModule.config,
+    providers: [...(sourceProviders || []), ...(overrideProviders || [])],
+  });
+}
 
 export function testModule(testedModule: Module, config?: TestModuleConfig) {
   const mod = transformModule(testedModule, config);
