@@ -7,7 +7,10 @@ import {
 } from '../di';
 import { ResolvedModule } from '../module/factory';
 import { ID } from '../shared/types';
-import { ModuleDuplicatedError } from '../shared/errors';
+import {
+  ModuleDuplicatedError,
+  ModuleNonUniqueIdError,
+} from '../shared/errors';
 import { flatten, isDefined } from '../shared/utils';
 import { ApplicationConfig, Application } from './types';
 import {
@@ -19,6 +22,7 @@ import { createContextBuilder } from './context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
 import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
+import { Module } from '../module/types';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
 
@@ -76,6 +80,9 @@ export function createApplication(
       onlyOperationProviders(providers)
     );
     const middlewareMap = config.middlewares || {};
+
+    // Validations
+    ensureModuleUniqueIds(config.modules);
 
     // Create all modules
     const modules = config.modules.map((mod) =>
@@ -181,4 +188,17 @@ function createModulesMap(modules: ResolvedModule[]): ModulesMap {
   }
 
   return modulesMap;
+}
+
+function ensureModuleUniqueIds(modules: Module[]) {
+  const collisions = modules
+    .filter((mod, i, all) => i !== all.findIndex((m) => m.id === mod.id))
+    .map((m) => m.id);
+
+  if (collisions.length) {
+    throw new ModuleNonUniqueIdError(
+      `Modules with non-unique ids: ${collisions.join(', ')}`,
+      `All modules should have unique ids, please locate and fix them.`
+    );
+  }
 }
