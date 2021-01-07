@@ -480,4 +480,81 @@ describe('mockApplication', () => {
       env: 'mocked',
     });
   });
+
+  test('should replace operation-scoped provider in a module', async () => {
+    @Injectable({
+      scope: Scope.Operation,
+    })
+    class Config {
+      getEnv() {
+        return 'production';
+      }
+    }
+
+    const envModule = createModule({
+      id: 'env',
+      typeDefs: gql`
+        type Query {
+          env: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          env(_source: {}, _args: {}, context: GraphQLModules.ModuleContext) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+      providers: [Config],
+    });
+
+    const NOOP = new InjectionToken('noop');
+
+    const originalApp = createApplication({
+      providers: [
+        {
+          provide: NOOP,
+          useValue: 'initial',
+        },
+      ],
+      modules: [envModule],
+    });
+
+    const app = testkit
+      .mockApplication(originalApp)
+      .replaceModule(
+        testkit.mockModule(envModule, {
+          providers: [
+            {
+              provide: Config,
+              useValue: {
+                getEnv() {
+                  return 'mocked';
+                },
+              },
+              scope: Scope.Operation,
+            },
+          ],
+        })
+      )
+      .addProviders([
+        {
+          provide: NOOP,
+          useValue: 'mocked',
+        },
+      ]);
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          env
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      env: 'mocked',
+    });
+  });
 });
