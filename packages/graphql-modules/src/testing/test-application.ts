@@ -48,7 +48,7 @@ export function mockApplication(app: Application): MockedApplication {
         return mockedFactory({
           ...config,
           modules: config.modules.map((mod) =>
-            mod === newModule.ɵoriginalModule ? newModule : mod
+            mod.id === newModule.ɵoriginalModule.id ? newModule : mod
           ),
         });
       },
