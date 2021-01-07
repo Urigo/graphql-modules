@@ -1,5 +1,13 @@
 # graphql-modules
 
+## 1.2.0
+
+### Minor Changes
+
+- f38ff90: Introduce testkit.mockApplication
+- f38ff90: Custom GraphQLSchema builder
+- f38ff90: Introduce testkit.mockModule
+
 ## 1.1.0
 
 ### Minor Changes
