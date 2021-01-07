@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { concatAST } from 'graphql';
 import {
   createApplication,
@@ -247,6 +248,54 @@ describe('testModule', () => {
     expect(
       typeDefs.definitions.find((def: any) => def?.name.value === 'Unused')
     ).toBeUndefined();
+  });
+});
+
+describe('execute', () => {
+  test('should work with TypedDocumentNode', async () => {
+    const mod = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo(id: ID!): Foo!
+        }
+
+        type Foo {
+          id: ID
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo(_: {}, { id }: { id: string }) {
+            return {
+              id,
+            };
+          },
+        },
+      },
+    });
+
+    const app = createApplication({ modules: [mod] });
+    const query: TypedDocumentNode<
+      { foo: { id: string } },
+      { id: string }
+    > = gql`
+      query getFoo($id: String!) {
+        foo(id: $id) {
+          id
+        }
+      }
+    `;
+
+    const result = await testkit.execute(app, {
+      document: query,
+      variableValues: {
+        id: 'foo',
+      },
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data?.foo.id).toEqual('foo');
   });
 });
 
