@@ -484,6 +484,7 @@ describe('mockApplication', () => {
   test('should replace operation-scoped provider in a module', async () => {
     @Injectable({
       scope: Scope.Operation,
+      global: true,
     })
     class Config {
       getEnv() {
@@ -508,6 +509,26 @@ describe('mockApplication', () => {
       providers: [Config],
     });
 
+    const extraModule = createModule({
+      id: 'extra',
+      typeDefs: gql`
+        extend type Query {
+          extraEnv: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          extraEnv(
+            _source: {},
+            _args: {},
+            context: GraphQLModules.ModuleContext
+          ) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+    });
+
     const NOOP = new InjectionToken('noop');
 
     const originalApp = createApplication({
@@ -517,7 +538,7 @@ describe('mockApplication', () => {
           useValue: 'initial',
         },
       ],
-      modules: [envModule],
+      modules: [envModule, extraModule],
     });
 
     const app = testkit
@@ -533,6 +554,7 @@ describe('mockApplication', () => {
                 },
               },
               scope: Scope.Operation,
+              global: true,
             },
           ],
         })
@@ -548,6 +570,7 @@ describe('mockApplication', () => {
       document: gql`
         {
           env
+          extraEnv
         }
       `,
     });
@@ -555,6 +578,7 @@ describe('mockApplication', () => {
     expect(result.errors).not.toBeDefined();
     expect(result.data).toEqual({
       env: 'mocked',
+      extraEnv: 'mocked',
     });
   });
 });
