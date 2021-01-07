@@ -1,6 +1,8 @@
 import 'reflect-metadata';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { concatAST } from 'graphql';
 import {
+  createApplication,
   createModule,
   testkit,
   gql,
@@ -249,6 +251,54 @@ describe('testModule', () => {
   });
 });
 
+describe('execute', () => {
+  test('should work with TypedDocumentNode', async () => {
+    const mod = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo(id: ID!): Foo!
+        }
+
+        type Foo {
+          id: ID
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo(_: {}, { id }: { id: string }) {
+            return {
+              id,
+            };
+          },
+        },
+      },
+    });
+
+    const app = createApplication({ modules: [mod] });
+    const query: TypedDocumentNode<
+      { foo: { id: string } },
+      { id: string }
+    > = gql`
+      query getFoo($id: String!) {
+        foo(id: $id) {
+          id
+        }
+      }
+    `;
+
+    const result = await testkit.execute(app, {
+      document: query,
+      variableValues: {
+        id: 'foo',
+      },
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data?.foo.id).toEqual('foo');
+  });
+});
+
 describe('testInjector', () => {
   test('should provide an empty context', () => {
     @Injectable({
@@ -309,5 +359,226 @@ describe('readProviderOptions', () => {
     expect(options?.scope).toBe(Scope.Singleton);
     expect(options?.global).not.toBe(true);
     expect(options?.executionContextIn).not.toBeDefined();
+  });
+});
+
+describe('mockApplication', () => {
+  test('should be able to add providers to Application', async () => {
+    const ENV = new InjectionToken<string>('environment');
+
+    @Injectable()
+    class Config {
+      constructor(@Inject(ENV) private env: string) {}
+
+      getEnv() {
+        return this.env;
+      }
+    }
+
+    const envModule = createModule({
+      id: 'env',
+      typeDefs: gql`
+        type Query {
+          env: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          env(_source: {}, _args: {}, context: GraphQLModules.ModuleContext) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+    });
+
+    const originalApp = createApplication({
+      providers: [
+        Config,
+        {
+          provide: ENV,
+          useValue: 'production',
+        },
+      ],
+      modules: [envModule],
+    });
+
+    const app = testkit.mockApplication(originalApp).addProviders([
+      {
+        provide: ENV,
+        useValue: 'testing',
+      },
+    ]);
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          env
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      env: 'testing',
+    });
+  });
+
+  test('should be able to replace a module', async () => {
+    @Injectable()
+    class Config {
+      getEnv() {
+        return 'production';
+      }
+    }
+
+    const envModule = createModule({
+      id: 'env',
+      typeDefs: gql`
+        type Query {
+          env: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          env(_source: {}, _args: {}, context: GraphQLModules.ModuleContext) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+    });
+
+    const originalApp = createApplication({
+      providers: [Config],
+      modules: [envModule],
+    });
+
+    const app = testkit.mockApplication(originalApp).replaceModule(
+      testkit.mockModule(envModule, {
+        providers: [
+          {
+            provide: Config,
+            useValue: {
+              getEnv() {
+                return 'mocked';
+              },
+            },
+          },
+        ],
+      })
+    );
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          env
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      env: 'mocked',
+    });
+  });
+
+  test('should replace operation-scoped provider in a module', async () => {
+    @Injectable({
+      scope: Scope.Operation,
+      global: true,
+    })
+    class Config {
+      getEnv() {
+        return 'production';
+      }
+    }
+
+    const envModule = createModule({
+      id: 'env',
+      typeDefs: gql`
+        type Query {
+          env: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          env(_source: {}, _args: {}, context: GraphQLModules.ModuleContext) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+      providers: [Config],
+    });
+
+    const extraModule = createModule({
+      id: 'extra',
+      typeDefs: gql`
+        extend type Query {
+          extraEnv: String!
+        }
+      `,
+      resolvers: {
+        Query: {
+          extraEnv(
+            _source: {},
+            _args: {},
+            context: GraphQLModules.ModuleContext
+          ) {
+            return context.injector.get(Config).getEnv();
+          },
+        },
+      },
+    });
+
+    const NOOP = new InjectionToken('noop');
+
+    const originalApp = createApplication({
+      providers: [
+        {
+          provide: NOOP,
+          useValue: 'initial',
+        },
+      ],
+      modules: [envModule, extraModule],
+    });
+
+    const app = testkit
+      .mockApplication(originalApp)
+      .replaceModule(
+        testkit.mockModule(envModule, {
+          providers: [
+            {
+              provide: Config,
+              useValue: {
+                getEnv() {
+                  return 'mocked';
+                },
+              },
+              scope: Scope.Operation,
+              global: true,
+            },
+          ],
+        })
+      )
+      .addProviders([
+        {
+          provide: NOOP,
+          useValue: 'mocked',
+        },
+      ]);
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          env
+          extraEnv
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      env: 'mocked',
+      extraEnv: 'mocked',
+    });
   });
 });

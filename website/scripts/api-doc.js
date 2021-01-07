@@ -85,7 +85,7 @@ async function markdownAPI(file) {
            */
           const jsDoc = member.jsDoc;
 
-          if (jsDoc && jsDoc[0]) {
+          if (jsDoc && jsDoc[0] && !isInternal(jsDoc[0])) {
             markdown.child(
               ts.getNameOfDeclaration(member).getText(),
               jsDoc[0].comment
@@ -102,7 +102,7 @@ async function markdownAPI(file) {
            */
           const jsDoc = member.jsDoc;
 
-          if (jsDoc && jsDoc[0]) {
+          if (jsDoc && jsDoc[0] && !isInternal(jsDoc[0])) {
             markdown.child(
               ts.getNameOfDeclaration(member).getText(),
               jsDoc[0].comment
@@ -233,6 +233,13 @@ function compare(a, b) {
   }
 
   return alpha;
+}
+
+/**
+ * @param {ts.JSDoc} doc
+ */
+function isInternal(doc) {
+  return doc.tags && doc.tags.some((tag) => tag.tagName.text === 'internal');
 }
 
 main().catch((error) => {

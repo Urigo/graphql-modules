@@ -2,6 +2,32 @@ import 'reflect-metadata';
 import { createApplication, createModule } from '../src';
 import { parse } from 'graphql';
 
+test('fail when modules have non-unique ids', async () => {
+  const modFoo = createModule({
+    id: 'foo',
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        foo: String
+      }
+    `),
+  });
+
+  const modBar = createModule({
+    id: 'foo',
+    typeDefs: parse(/* GraphQL */ `
+      type Query {
+        bar: String
+      }
+    `),
+  });
+
+  expect(() => {
+    createApplication({
+      modules: [modFoo, modBar],
+    });
+  }).toThrow(`Modules with non-unique ids: foo`);
+});
+
 test('should allow multiple type extensions in the same module', async () => {
   const m1 = createModule({
     id: 'test',

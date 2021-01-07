@@ -21,6 +21,66 @@ The `testkit` object and its API will grow over time, we expect to implement mor
 
 > The [Jest framework](https://jestjs.io/) is used in all example but its API is very similar to other testing frameworks.
 
+## Testing application
+
+When it comes to integration testing of an Application, the best practice is to avoid any significant modifications. That's why in our Test Kit you will find `mockApplication(app)` function that accepts the original Application and lets you modify the Modules and application-level providers.
+
+The `testkit.mockApplication()` resolves a `MockedApplication` object that extends your original `Application` with few useful methods.
+
+### Replacing a module
+
+One of those methods is `replaceModule()`. In combination with `testkit.mockModule()`, it allows you to modify a module and overwrite its providers.
+
+```typescript
+import 'reflect-metadata';
+import { testkit } from 'graphql-modules';
+import { application } from './application';
+import { myModule, ENVIRONMENT } from './my-module';
+
+test('ing', () => {
+  const app = testkit.mockApplication(application).replaceModule(
+    testkit.mockModule(myModule, {
+      providers: [
+        {
+          provide: ENVIRONMENT,
+          useValue: 'testing',
+        },
+      ],
+    })
+  );
+
+  expect(app.schema.getQueryType()).toBeDefined();
+});
+```
+
+In the example above we modified the original application by setting testing `ENVIRONMENT` in `myModule`. We used `testkit.mockApplication`, `replaceModule` and `testkit.mockModule` together.
+
+### Overwriting application providers
+
+Now let's talk about `addProviders()` function. It allows you to overwrite application-level providers.
+
+> In GraphQL Modules, always the last provider wins. What does it mean? When you pass a list of providers and two of them try to provide the same token, only the last one counts.
+> With this on mind, it's easy to overwrite providers, just put it at the end of the list. This is exactly how `addProviders()` works.
+
+```typescript
+import 'reflect-metadata';
+import { testkit } from 'graphql-modules';
+import { application, ENVIRONMENT } from './application';
+
+test('ing', () => {
+  const app = testkit.mockApplication(application).addProviders([
+    {
+      provide: ENVIRONMENT,
+      useValue: 'testing',
+    },
+  ]);
+
+  expect(app.schema.getQueryType()).toBeDefined();
+});
+```
+
+In the example above we modified the original application by setting the `ENVIRONMENT` to `testing`. We used `testkit.mockApplication` and `addProviders`.
+
 ## Testing modules
 
 In general, the idea behind testing a module is to create an application out of it. Instead of using `createApplication()`, our Test Kit provides a `testModule()` function. It calls `createApplication` under the hood but comes with a set of helpful options.

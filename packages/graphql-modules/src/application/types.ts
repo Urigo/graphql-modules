@@ -6,7 +6,7 @@ import {
   ExecutionResult,
 } from 'graphql';
 import { Provider, Injector } from '../di';
-import { Resolvers, Module } from '../module/types';
+import { Resolvers, Module, MockedModule } from '../module/types';
 import { Single, ValueOrPromise } from '../shared/types';
 import { MiddlewareMap } from '../shared/middleware';
 import { ApolloRequestContext } from './apollo';
@@ -17,11 +17,16 @@ export type ApolloExecutor = (
   requestContext: ApolloRequestContext
 ) => ValueOrPromise<ExecutionResult>;
 
+export interface MockedApplication extends Application {
+  replaceModule(mockedModule: MockedModule): MockedApplication;
+  addProviders(providers: ApplicationConfig['providers']): MockedApplication;
+}
+
 /**
  * @api
  * A return type of `createApplication` function.
  */
-export type Application = {
+export interface Application {
   /**
    * A list of type definitions defined by modules.
    */
@@ -56,7 +61,15 @@ export type Application = {
    * Experimental
    */
   createApolloExecutor(): ApolloExecutor;
-};
+  /**
+   * @internal
+   */
+  ɵfactory(config?: ApplicationConfig | undefined): Application;
+  /**
+   * @internal
+   */
+  ɵconfig: ApplicationConfig;
+}
 
 /**
  * @api
@@ -75,4 +88,23 @@ export interface ApplicationConfig {
    * A map of middlewares - read the ["Middlewares"](./advanced/middlewares) chapter.
    */
   middlewares?: MiddlewareMap;
+  /**
+   * Creates a GraphQLSchema object out of typeDefs and resolvers
+   *
+   * @example
+   *
+   * ```typescript
+   * import { createApplication } from 'graphql-modules';
+   * import { makeExecutableSchema } from '@graphql-tools/schema';
+   *
+   * const app = createApplication({
+   *   modules: [],
+   *   schemaBuilder: makeExecutableSchema
+   * })
+   * ```
+   */
+  schemaBuilder?(input: {
+    typeDefs: DocumentNode[];
+    resolvers: Record<string, any>[];
+  }): GraphQLSchema;
 }

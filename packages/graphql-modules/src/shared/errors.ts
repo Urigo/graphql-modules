@@ -1,5 +1,13 @@
 import { ID } from './types';
 
+export class ModuleNonUniqueIdError extends ExtendableBuiltin(Error) {
+  constructor(message: string, ...rest: string[]) {
+    super(composeMessage(message, ...rest));
+    this.name = this.constructor.name;
+    this.message = composeMessage(message, ...rest);
+  }
+}
+
 export class ModuleDuplicatedError extends ExtendableBuiltin(Error) {
   constructor(message: string, ...rest: string[]) {
     super(composeMessage(message, ...rest));

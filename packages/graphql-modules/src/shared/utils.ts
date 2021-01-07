@@ -84,6 +84,18 @@ export function once(cb: () => void) {
   };
 }
 
+export function share<T, A>(factory: (arg?: A) => T): (arg?: A) => T {
+  let cached: T | null = null;
+
+  return (arg?: A) => {
+    if (!cached) {
+      cached = factory(arg);
+    }
+
+    return cached;
+  };
+}
+
 export function uniqueId(isNotUsed: (id: string) => boolean) {
   let id: string;
 
