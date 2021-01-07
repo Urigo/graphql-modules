@@ -1,4 +1,6 @@
 {
+  "name": "website",
+  "private": true,
   "scripts": {
     "postinstall": "patch-package",
     "start": "yarn api && docusaurus start",
