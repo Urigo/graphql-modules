@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 1.2.1
+
+### Patch Changes
+
+- 9a59787: Allow inheritance of resolvers defined in interfaces
+
 ## 1.2.0
 
 ### Minor Changes
