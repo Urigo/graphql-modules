@@ -6,8 +6,8 @@ import {
   Scope,
   ExecutionContext,
   gql,
+  testkit,
 } from '../src';
-import { parse } from 'graphql';
 
 const posts = ['Foo', 'Bar'];
 
@@ -82,20 +82,19 @@ test('OnDestroy hook', async () => {
   });
 
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const data = {
     posts: posts.map((title) => ({ title })),
   };
 
-  const result1 = await app.createExecution()({
-    schema: app.schema,
+  const result1 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -103,8 +102,7 @@ test('OnDestroy hook', async () => {
   expect(result1.data).toEqual(data);
   expect(spies.onDestroy).toBeCalledTimes(1);
 
-  const result2 = await app.createExecution()({
-    schema: app.schema,
+  const result2 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });

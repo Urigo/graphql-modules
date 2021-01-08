@@ -1,6 +1,4 @@
 import 'reflect-metadata';
-import { parse, ExecutionResult } from 'graphql';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import {
   createApplication,
   createModule,
@@ -9,6 +7,7 @@ import {
   CONTEXT,
   Scope,
   gql,
+  testkit,
 } from '../src';
 
 test('Global context and module context should be reachable', async () => {
@@ -85,23 +84,16 @@ test('Global context and module context should be reachable', async () => {
     token: 'foo',
   });
 
-  const document = parse(/* GraphQL */ `
-    {
-      post(id: 1) {
-        id
-        title
+  const result = await testkit.execute(app, {
+    document: gql`
+      {
+        post(id: 1) {
+          id
+          title
+        }
       }
-    }
-  `);
-
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-  const result: ExecutionResult<any> = await app.createExecution()({
-    schema,
+    `,
     contextValue: contextValue(),
-    document,
   });
 
   expect(result.errors).toBeUndefined();

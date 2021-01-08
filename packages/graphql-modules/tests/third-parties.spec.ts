@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { createApplication, createModule } from '../src';
-import { GraphQLField, parse } from 'graphql';
+import { createApplication, createModule, gql, testkit } from '../src';
+import { GraphQLField } from 'graphql';
 import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
 
 describe('schema directives', () => {
@@ -11,17 +11,17 @@ describe('schema directives', () => {
       // We may want to allow for directive and root type definitions on Application level
       // createApplication({ typeDefs: /* ... */ })
       // WDYT?
-      typeDefs: parse(/* GraphQL */ `
+      typeDefs: gql`
         directive @isAuthenticated on FIELD_DEFINITION
-      `),
+      `,
     });
     const mod = createModule({
       id: 'test',
-      typeDefs: parse(/* GraphQL */ `
+      typeDefs: gql`
         type Query {
           idOfCurrentlyLoggedInUser: String @isAuthenticated
         }
-      `),
+      `,
       resolvers: {
         Query: {
           idOfCurrentlyLoggedInUser: () => {
@@ -58,15 +58,12 @@ describe('schema directives', () => {
       },
     });
 
-    const executeFn = app.createExecution();
-
-    const authResult = await executeFn({
-      schema: app.schema,
-      document: parse(/* GraphQL */ `
+    const authResult = await testkit.execute(app, {
+      document: gql`
         query test {
           idOfCurrentlyLoggedInUser
         }
-      `),
+      `,
       variableValues: {},
       contextValue: {
         loggedIn: true,
@@ -78,13 +75,12 @@ describe('schema directives', () => {
       idOfCurrentlyLoggedInUser: id,
     });
 
-    const noAuthResult = await executeFn({
-      schema: app.schema,
-      document: parse(/* GraphQL */ `
+    const noAuthResult = await testkit.execute(app, {
+      document: gql`
         query test {
           idOfCurrentlyLoggedInUser
         }
-      `),
+      `,
       contextValue: {
         loggedIn: false,
       },
@@ -104,17 +100,17 @@ describe('schema directives', () => {
       // We may want to allow for directive and root type definitions on Application level
       // createApplication({ typeDefs: /* ... */ })
       // WDYT?
-      typeDefs: parse(/* GraphQL */ `
+      typeDefs: gql`
         directive @isAuthenticated on FIELD_DEFINITION
-      `),
+      `,
     });
     const mod = createModule({
       id: 'test',
-      typeDefs: parse(/* GraphQL */ `
+      typeDefs: gql`
         type Query {
           idOfCurrentlyLoggedInUser: String @isAuthenticated
         }
-      `),
+      `,
       resolvers: {
         Query: {
           idOfCurrentlyLoggedInUser: () => {
@@ -156,11 +152,11 @@ describe('schema directives', () => {
 
     const authResult = await executeFn({
       schema,
-      document: parse(/* GraphQL */ `
+      document: gql`
         query test {
           idOfCurrentlyLoggedInUser
         }
-      `),
+      `,
       variableValues: {},
       contextValue: {
         loggedIn: true,
@@ -174,11 +170,11 @@ describe('schema directives', () => {
 
     const noAuthResult = await executeFn({
       schema,
-      document: parse(/* GraphQL */ `
+      document: gql`
         query test {
           idOfCurrentlyLoggedInUser
         }
-      `),
+      `,
       contextValue: {
         loggedIn: false,
       },

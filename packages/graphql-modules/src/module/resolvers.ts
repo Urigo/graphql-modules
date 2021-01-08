@@ -1,5 +1,4 @@
 import {
-  GraphQLResolveInfo,
   GraphQLScalarType,
   concatAST,
   Kind,
@@ -60,7 +59,7 @@ export function createResolvers(
         continue;
       } else if (isEnumResolver(obj)) {
         continue;
-      } else if (isObjectResolver(obj)) {
+      } else if (obj && typeof obj === 'object') {
         for (const fieldName in obj) {
           if (obj.hasOwnProperty(fieldName)) {
             ensure.type(typeName, fieldName);
@@ -73,7 +72,8 @@ export function createResolvers(
                 resolver: obj[fieldName],
                 middlewareMap,
                 path,
-                isTypeResolver: fieldName === '__isTypeOf',
+                isTypeResolver:
+                  fieldName === '__isTypeOf' || fieldName === '__resolveType',
               });
               resolvers[typeName][fieldName] = resolver;
             } else if (isResolveOptions(obj[fieldName])) {
@@ -101,15 +101,6 @@ export function createResolvers(
             }
           }
         }
-      } else if (isInterfaceOrUnionResolver(obj)) {
-        const resolver = wrapResolver({
-          config,
-          resolver: obj.__resolveType,
-          middlewareMap,
-          path: [typeName, '__resolveType'],
-          isTypeResolver: true,
-        });
-        resolvers[typeName].__resolveType = resolver;
       }
     }
   }
@@ -205,9 +196,7 @@ function mergeResolvers(config: ModuleConfig): Single<Resolvers> {
           addScalar({ typeName, resolver: value, container, config });
         } else if (isEnumResolver(value)) {
           addEnum({ typeName, resolver: value, container, config });
-        } else if (isInterfaceOrUnionResolver(value)) {
-          addInterfaceOrUnion({ typeName, fields: value, container, config });
-        } else if (isObjectResolver(value)) {
+        } else if (value && typeof value === 'object') {
           addObject({ typeName, fields: value, container, config });
         } else {
           throw new ResolverInvalidError(
@@ -220,38 +209,6 @@ function mergeResolvers(config: ModuleConfig): Single<Resolvers> {
   }
 
   return container;
-}
-
-function addInterfaceOrUnion({
-  typeName,
-  fields,
-  container,
-  config,
-}: {
-  typeName: string;
-  fields: InterfaceOrUnionResolver;
-  container: Single<Resolvers>;
-  config: ModuleConfig;
-}): void {
-  if (container[typeName]) {
-    throw new ResolverDuplicatedError(
-      `Duplicated resolver of "${typeName}" union or interface`,
-      useLocation({ dirname: config.dirname, id: config.id })
-    );
-  }
-
-  if (Object.keys(fields).length > 1) {
-    throw new ResolverInvalidError(
-      `Invalid resolver of "${typeName}" union or interface`,
-      `Only __resolveType is allowed`,
-      useLocation({ dirname: config.dirname, id: config.id })
-    );
-  }
-
-  writeResolverMetadata(fields.__resolveType, config);
-  container[typeName] = {
-    __resolveType: fields.__resolveType,
-  };
 }
 
 function addObject({
@@ -508,22 +465,6 @@ function addDefaultResolvers(
 //
 // Resolver helpers
 //
-
-interface InterfaceOrUnionResolver {
-  __resolveType(parent: any, ctx: any, info: GraphQLResolveInfo): string | void;
-}
-
-function isInterfaceOrUnionResolver(obj: any): obj is InterfaceOrUnionResolver {
-  return isDefined(obj.__resolveType);
-}
-
-interface ObjectResolver {
-  [key: string]: ResolveFn;
-}
-
-function isObjectResolver(obj: any): obj is ObjectResolver {
-  return !isDefined(obj.__resolveType);
-}
 
 function isResolveFn(value: any): value is ResolveFn {
   return typeof value === 'function';

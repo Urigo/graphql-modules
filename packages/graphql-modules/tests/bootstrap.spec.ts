@@ -1,24 +1,24 @@
 import 'reflect-metadata';
-import { createApplication, createModule } from '../src';
-import { parse } from 'graphql';
+import { createApplication, createModule, testkit, gql } from '../src';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 
 test('fail when modules have non-unique ids', async () => {
   const modFoo = createModule({
     id: 'foo',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         foo: String
       }
-    `),
+    `,
   });
 
   const modBar = createModule({
     id: 'foo',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         bar: String
       }
-    `),
+    `,
   });
 
   expect(() => {
@@ -31,7 +31,7 @@ test('fail when modules have non-unique ids', async () => {
 test('should allow multiple type extensions in the same module', async () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         dummy: String!
       }
@@ -44,7 +44,7 @@ test('should allow multiple type extensions in the same module', async () => {
       extend type Mutation {
         test: String!
       }
-    `),
+    `,
     resolvers: {
       Mutation: {
         foo: () => '1',
@@ -67,7 +67,7 @@ test('should allow multiple type extensions in the same module', async () => {
 test('should not thrown when isTypeOf is used', async () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         entity: Node
       }
@@ -78,7 +78,7 @@ test('should not thrown when isTypeOf is used', async () => {
         id: ID!
         f: String
       }
-    `),
+    `,
     resolvers: {
       Query: {
         entity: () => ({
@@ -98,11 +98,8 @@ test('should not thrown when isTypeOf is used', async () => {
     modules: [m1],
   });
 
-  const executeFn = app.createExecution();
-
-  const result = await executeFn({
-    schema: app.schema,
-    document: parse(/* GraphQL */ `
+  const result = await testkit.execute(app, {
+    document: gql`
       query test {
         entity {
           ... on Entity {
@@ -110,8 +107,7 @@ test('should not thrown when isTypeOf is used', async () => {
           }
         }
       }
-    `),
-    variableValues: {},
+    `,
   });
 
   expect(result.errors).toBeUndefined();
@@ -125,7 +121,7 @@ test('should not thrown when isTypeOf is used', async () => {
 test('should allow to add __isTypeOf to type resolvers', () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         entity: Node
       }
@@ -136,7 +132,7 @@ test('should allow to add __isTypeOf to type resolvers', () => {
         id: ID
         f: String
       }
-    `),
+    `,
     resolvers: {
       Query: {
         entity: () => ({
@@ -162,7 +158,7 @@ test('should allow to add __isTypeOf to type resolvers', () => {
 test('should support __resolveType', async () => {
   const m1 = createModule({
     id: 'test',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         entity: Node
         item: Item
@@ -183,7 +179,7 @@ test('should support __resolveType', async () => {
         id: ID!
         e: String
       }
-    `),
+    `,
     resolvers: {
       Query: {
         entity: () => ({
@@ -214,11 +210,8 @@ test('should support __resolveType', async () => {
     modules: [m1],
   });
 
-  const executeFn = app.createExecution();
-
-  const result = await executeFn({
-    schema: app.schema,
-    document: parse(/* GraphQL */ `
+  const result = await testkit.execute(app, {
+    document: gql`
       query test {
         entity {
           ... on Entity {
@@ -231,8 +224,7 @@ test('should support __resolveType', async () => {
           }
         }
       }
-    `),
-    variableValues: {},
+    `,
   });
 
   expect(result.errors).toBeUndefined();
@@ -246,10 +238,10 @@ test('should support __resolveType', async () => {
   });
 });
 
-test('do not support inheritance of field resolvers of an interface', async () => {
+test('allow field resolvers in an interface without objects inheriting them', async () => {
   const mod = createModule({
     id: 'test',
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         entity: Node
         item: Item
@@ -273,7 +265,7 @@ test('do not support inheritance of field resolvers of an interface', async () =
         e: String
         d: String
       }
-    `),
+    `,
     resolvers: {
       Query: {
         entity: () => ({
@@ -293,7 +285,7 @@ test('do not support inheritance of field resolvers of an interface', async () =
       },
       Node: {
         __resolveType: (obj: any) => obj.type,
-        d: () => 'should not work, because graphql-js does not support it',
+        d: () => `should work only when there's a custom schema builder`,
       },
       Item: {
         __resolveType: (obj: any) => obj.type,
@@ -301,9 +293,92 @@ test('do not support inheritance of field resolvers of an interface', async () =
     },
   });
 
-  expect(() => {
-    createApplication({
-      modules: [mod],
-    });
-  }).toThrow('Only __resolveType is allowed');
+  const app = createApplication({
+    modules: [mod],
+  });
+
+  const result = await testkit.execute(app, {
+    document: gql`
+      query test {
+        entity {
+          ... on Entity {
+            d
+          }
+        }
+      }
+    `,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    entity: {
+      d: null,
+    },
+  });
+});
+
+test('pass field resolvers of an interface to schemaBuilder', async () => {
+  const mod = createModule({
+    id: 'test',
+    typeDefs: gql`
+      type Query {
+        entity: Node
+      }
+
+      interface Node {
+        id: ID!
+        d: String
+      }
+
+      type Entity implements Node {
+        id: ID!
+        f: String
+        d: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        entity: () => ({
+          type: 'Entity',
+        }),
+      },
+      Entity: {
+        id: () => 1,
+        f: () => 'test',
+      },
+      Node: {
+        __resolveType: (obj: any) => obj.type,
+        d: () => `works`,
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    schemaBuilder(input) {
+      return makeExecutableSchema({
+        ...input,
+        inheritResolversFromInterfaces: true,
+      });
+    },
+  });
+
+  const result = await testkit.execute(app, {
+    document: gql`
+      query test {
+        entity {
+          ... on Entity {
+            d
+          }
+        }
+      }
+    `,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    entity: {
+      d: 'works',
+    },
+  });
 });

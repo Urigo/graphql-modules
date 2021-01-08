@@ -7,8 +7,8 @@ import {
   ExecutionContext,
   gql,
   InjectionToken,
+  testkit,
 } from '../src';
-import { parse } from 'graphql';
 
 const posts = ['Foo', 'Bar'];
 
@@ -87,20 +87,19 @@ test('ExecutionContext on module level provider', async () => {
   });
 
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const data = {
     posts: posts.map((title) => ({ title })),
   };
 
-  const result1 = await app.createExecution()({
-    schema: app.schema,
+  const result1 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -108,8 +107,7 @@ test('ExecutionContext on module level provider', async () => {
   expect(result1.errors).toBeUndefined();
   expect(result1.data).toEqual(data);
 
-  const result2 = await app.createExecution()({
-    schema: app.schema,
+  const result2 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -203,28 +201,26 @@ test('ExecutionContext on application level provider', async () => {
   });
 
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const data = {
     posts: posts.map((title) => ({ title })),
   };
 
-  const result1 = await app.createExecution()({
-    schema: app.schema,
+  const result1 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
 
   expect(result1.data).toEqual(data);
 
-  const result2 = await app.createExecution()({
-    schema: app.schema,
+  const result2 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -300,13 +296,13 @@ test('ExecutionContext on module level global provider', async () => {
   });
 
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const expectedData = {
     posts: [],
@@ -314,8 +310,7 @@ test('ExecutionContext on module level global provider', async () => {
 
   const contextValue = createContext();
 
-  const result = await app.createExecution()({
-    schema: app.schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -386,13 +381,13 @@ test('ExecutionContext on application level global provider', async () => {
   });
 
   const createContext = () => ({ noop() {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const expectedData = {
     posts: [],
@@ -400,8 +395,7 @@ test('ExecutionContext on application level global provider', async () => {
 
   const contextValue = createContext();
 
-  const result = await app.createExecution()({
-    schema: app.schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -485,15 +479,14 @@ test('accessing a singleton provider with execution context in another singleton
     ],
   });
 
-  const result = await app.createExecution()({
-    schema: app.schema,
+  const result = await testkit.execute(app, {
     contextValue: {},
-    document: parse(/* GraphQL */ `
+    document: gql`
       {
         getName
         getDependencyName
       }
-    `),
+    `,
   });
 
   expect(spies.bar).toHaveBeenCalledTimes(1);
