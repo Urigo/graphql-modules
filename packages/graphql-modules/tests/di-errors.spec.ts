@@ -6,9 +6,7 @@ import {
   Inject,
   forwardRef,
 } from '../src/di';
-import { createApplication, createModule, Scope, gql } from '../src';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { parse } from 'graphql';
+import { createApplication, createModule, Scope, gql, testkit } from '../src';
 import { stringify } from '../src/di/utils';
 
 test('No Injectable error', () => {
@@ -180,22 +178,14 @@ test('No error in case of module without providers', async () => {
     providers: [Data],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
-    {
-      lorem
-    }
-  `);
-
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
-    document,
+    document: gql`
+      {
+        lorem
+      }
+    `,
   });
 
   // Should resolve data correctly
@@ -225,20 +215,20 @@ test('Make sure we have readable error', async () => {
   const m1 = createModule({
     id: 'm1',
     providers: [P1],
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       type Query {
         m1: String
       }
-    `),
+    `,
   });
   const m2 = createModule({
     id: 'm2',
     providers: [P2],
-    typeDefs: parse(/* GraphQL */ `
+    typeDefs: gql`
       extend type Query {
         m2: String
       }
-    `),
+    `,
     resolvers: {
       Query: {
         m2(_parent: {}, _args: {}, { injector }: GraphQLModules.ModuleContext) {

@@ -9,10 +9,10 @@ import {
   MODULE_ID,
   Scope,
   gql,
+  testkit,
 } from '../src';
+import { execute } from 'graphql';
 import { ExecutionContext } from '../src/di';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { parse, execute } from 'graphql';
 
 const Test = new InjectionToken<string>('test');
 
@@ -175,14 +175,9 @@ test('general test', async () => {
     ],
   });
 
-  // create schema
-  const schema = makeExecutableSchema({
-    typeDefs: appModule.typeDefs,
-    resolvers: appModule.resolvers,
-  });
-
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+
+  const document = gql`
     {
       comments {
         text
@@ -191,10 +186,9 @@ test('general test', async () => {
         title
       }
     }
-  `);
+  `;
 
-  const result = await appModule.createExecution()({
-    schema,
+  const result = await testkit.execute(appModule, {
     contextValue: createContext(),
     document,
   });
@@ -214,8 +208,7 @@ test('general test', async () => {
   expect(spies.posts.moduleId).toHaveBeenCalledWith('posts');
   expect(spies.comments.moduleId).toHaveBeenCalledWith('comments');
 
-  await appModule.createExecution()({
-    schema,
+  await testkit.execute(appModule, {
     contextValue: createContext(),
     document,
   });
@@ -307,20 +300,19 @@ test('useFactory with dependecies', async () => {
   });
 
   const createContext = () => ({ request: {}, response: {} });
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       posts {
         title
       }
     }
-  `);
+  `;
 
   const data = {
     posts: posts.map((title) => ({ title })),
   };
 
-  const result1 = await app.createExecution()({
-    schema: app.schema,
+  const result1 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -328,8 +320,7 @@ test('useFactory with dependecies', async () => {
   expect(result1.data).toEqual(data);
   expect(logSpy).toHaveBeenCalledTimes(1);
 
-  const result2 = await app.createExecution()({
-    schema: app.schema,
+  const result2 = await testkit.execute(app, {
     contextValue: createContext(),
     document,
   });
@@ -372,14 +363,13 @@ test('Use @Inject decorator in constructor', async () => {
 
   const app = createApplication({ modules: [mod] });
 
-  const result = await app.createExecution()({
-    schema: app.schema,
+  const result = await testkit.execute(app, {
     contextValue: { request },
-    document: parse(/* GraphQL */ `
+    document: gql`
       {
         ping
       }
-    `),
+    `,
   });
 
   expect(result.errors).not.toBeDefined();
@@ -432,14 +422,13 @@ test('Use useFactory with deps', async () => {
 
   const app = createApplication({ modules: [mod] });
 
-  const result = await app.createExecution()({
-    schema: app.schema,
+  const result = await testkit.execute(app, {
     contextValue: { request },
-    document: parse(/* GraphQL */ `
+    document: gql`
       {
         ping
       }
-    `),
+    `,
   });
 
   expect(result.errors).not.toBeDefined();
@@ -508,13 +497,8 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
     modules: [postsModule],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo: post(id: 1) {
         id
@@ -525,10 +509,9 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
         title
       }
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -609,7 +592,7 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
   const schema = app.createSchemaForApollo();
 
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo: post(id: 1) {
         id
@@ -620,7 +603,7 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
         title
       }
     }
-  `);
+  `;
 
   const result = await execute({
     schema,
@@ -692,22 +675,17 @@ test('Singleton scoped provider should be created once', async () => {
     providers: [Data],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       lorem
     }
-  `);
+  `;
 
   const execution = app.createExecution();
 
   const result1 = await execution({
-    schema,
+    schema: app.schema,
     contextValue,
     document,
   });
@@ -719,7 +697,7 @@ test('Singleton scoped provider should be created once', async () => {
   expect(constructorSpy).toHaveBeenCalledTimes(1);
 
   const result2 = await execution({
-    schema,
+    schema: app.schema,
     contextValue,
     document,
   });
@@ -787,21 +765,15 @@ test('Global Token provided by one module should be accessible by other modules 
     modules: [fooModule, barModule],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo
       bar
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -901,21 +873,15 @@ test('Global Token (module) should use other local tokens (operation)', async ()
     ],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo
       bar
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -999,21 +965,15 @@ test('Global Token provided by one module should be accessible by other modules 
     providers: [AppData],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo
       bar
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -1111,21 +1071,15 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
     ],
   });
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo
       bar
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -1204,20 +1158,14 @@ test('instantiate all singleton providers', async () => {
   expect(spies.data).toBeCalledTimes(1);
   expect(spies.appData).toBeCalledTimes(1);
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       foo
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });
@@ -1312,20 +1260,14 @@ test('instantiate all singleton and global providers', async () => {
   expect(spies.data).toBeCalledTimes(1);
   expect(spies.appData).toBeCalledTimes(1);
 
-  const schema = makeExecutableSchema({
-    typeDefs: app.typeDefs,
-    resolvers: app.resolvers,
-  });
-
   const contextValue = { request: {}, response: {} };
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       bar
     }
-  `);
+  `;
 
-  const result = await app.createExecution()({
-    schema,
+  const result = await testkit.execute(app, {
     contextValue,
     document,
   });

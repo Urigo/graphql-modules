@@ -7,7 +7,7 @@ import {
   gql,
 } from '../src';
 import { PubSub } from 'graphql-subscriptions';
-import { ExecutionResult, parse } from 'graphql';
+import { ExecutionResult } from 'graphql';
 
 test('Operation-Scope provider instantiated on every subscription', async () => {
   const spies = {
@@ -106,20 +106,20 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
   });
 
   const createContext = () => ({});
-  const mutation = parse(/* GraphQL */ `
+  const mutation = gql`
     mutation addPost($title: String!) {
       addPost(title: $title) {
         title
       }
     }
-  `);
-  const subscription = parse(/* GraphQL */ `
+  `;
+  const subscription = gql`
     subscription onPost {
       onPost {
         title
       }
     }
-  `);
+  `;
 
   const execute = app.createExecution();
   const subscribe = app.createSubscription();

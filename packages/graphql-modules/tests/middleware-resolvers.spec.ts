@@ -1,10 +1,9 @@
-import { parse } from 'graphql';
 import {
   mergeMiddlewareMaps,
   createMiddleware,
   Middleware,
 } from '../src/shared/middleware';
-import { createApplication, createModule, gql } from '../src';
+import { createApplication, createModule, gql, testkit } from '../src';
 
 test('should pick * middlewares before field and before type', async () => {
   const order: string[] = [];
@@ -213,13 +212,13 @@ describe('should use a middleware on a field with no implemented resolver', () =
 
   const middleware = async () => 'Me';
 
-  const document = parse(/* GraphQL */ `
+  const document = gql`
     {
       me {
         name
       }
     }
-  `);
+  `;
 
   const resolvers = {
     Query: {
@@ -245,8 +244,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
       modules: [mod],
     });
 
-    const result = await app.createExecution()({
-      schema: app.schema,
+    const result = await testkit.execute(app, {
       document,
     });
 
@@ -272,8 +270,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
       modules: [mod],
     });
 
-    const result = await app.createExecution()({
-      schema: app.schema,
+    const result = await testkit.execute(app, {
       document,
     });
 
@@ -299,8 +296,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
       modules: [mod],
     });
 
-    const result = await app.createExecution()({
-      schema: app.schema,
+    const result = await testkit.execute(app, {
       document,
     });
 
