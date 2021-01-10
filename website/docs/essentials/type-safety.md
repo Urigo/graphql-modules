@@ -4,7 +4,7 @@ title: Type-Safety
 sidebar_label: Type Safety
 ---
 
-In your are using TypeScript, and you wish to get a better integration for GraphQL and TypeScript while writing your API and resolvers, we have a few tools that might make it simple for you.
+If you are using TypeScript, and you wish to get a better integration for GraphQL and TypeScript while writing your API and resolvers, we have a few tools that might make it simple for you.
 
 ## Using Context type
 
