@@ -53,6 +53,10 @@ export function metadataFactory(
       implemented[node.name.value].push('__isTypeOf');
     }
 
+    if (node.kind === Kind.OBJECT_TYPE_DEFINITION) {
+      implemented[node.name.value].push('__resolveReference');
+    }
+
     if (node.kind === Kind.INTERFACE_TYPE_DEFINITION) {
       implemented[node.name.value].push('__resolveType');
     }
