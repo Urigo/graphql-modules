@@ -36,6 +36,9 @@ export function mockApplication(app: Application): MockedApplication {
       createApolloExecutor() {
         return sharedFactory().createApolloExecutor();
       },
+      contextBuilder(context: GraphQLModules.GlobalContext) {
+        return sharedFactory().contextBuilder(context);
+      },
       get ɵfactory() {
         return sharedFactory().ɵfactory;
       },
@@ -52,6 +55,7 @@ export function mockApplication(app: Application): MockedApplication {
           ),
         });
       },
+
       addProviders(newProviders: Provider[]) {
         const config = sharedFactory().ɵconfig;
         const existingProviders =

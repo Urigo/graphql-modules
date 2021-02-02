@@ -16,6 +16,7 @@ export type ExecutionContextBuilder<
 ) => {
   context: InternalAppContext;
   onDestroy: () => void;
+  injector: ReflectiveInjector;
 };
 
 export function createContextBuilder({
@@ -178,6 +179,7 @@ export function createContextBuilder({
     });
 
     return {
+      injector: operationAppInjector,
       onDestroy: once(() => {
         providersToDestroy.forEach(([injector, keyId]) => {
           // If provider was instantiated

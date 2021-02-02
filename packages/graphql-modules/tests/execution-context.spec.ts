@@ -498,3 +498,27 @@ test('accessing a singleton provider with execution context in another singleton
     getDependencyName: expectedName,
   });
 });
+
+test('accessing a provider manually', async () => {
+  @Injectable({
+    scope: Scope.Operation,
+    global: true,
+  })
+  class Foo {}
+
+  const mod = createModule({
+    id: 'mod',
+    providers: [Foo],
+    typeDefs: [],
+  });
+
+  const app = createApplication({
+    modules: [mod],
+  });
+
+  const { injector } = app.contextBuilder({
+    hello: 'hello',
+  } as any);
+
+  expect(injector.get(Foo)).toBeInstanceOf(Foo);
+});

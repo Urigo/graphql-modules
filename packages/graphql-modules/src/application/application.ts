@@ -152,6 +152,7 @@ export function createApplication(
       createExecution,
       createSchemaForApollo,
       createApolloExecutor,
+      contextBuilder,
       ɵfactory: applicationFactory,
       ɵconfig: config,
     };

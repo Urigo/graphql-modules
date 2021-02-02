@@ -10,6 +10,7 @@ import { Resolvers, Module, MockedModule } from '../module/types';
 import { Single, ValueOrPromise } from '../shared/types';
 import { MiddlewareMap } from '../shared/middleware';
 import { ApolloRequestContext } from './apollo';
+import { ExecutionContextBuilder } from './context';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
@@ -53,6 +54,9 @@ export interface Application {
    * Important when using GraphQL Queries and Mutations.
    */
   createExecution(options?: { execute?: typeof execute }): Execution;
+
+  contextBuilder: ExecutionContextBuilder<GraphQLModules.GlobalContext>;
+
   /**
    * Experimental
    */
