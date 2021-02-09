@@ -163,6 +163,7 @@ If you are using [GraphQL-Helix](https://github.com/contrawork/graphql-helix), h
 
 ```typescript title="/src/server.ts"
 import express from 'express';
+import { getGraphQLParameters, processRequest } from 'graphql-helix';
 import { application } from './application';
 
 const app = express();
