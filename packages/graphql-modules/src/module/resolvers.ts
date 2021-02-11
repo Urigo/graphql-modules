@@ -74,6 +74,7 @@ export function createResolvers(
                 path,
                 isTypeResolver:
                   fieldName === '__isTypeOf' || fieldName === '__resolveType',
+                isReferenceResolver: fieldName === '__resolveReference',
               });
               resolvers[typeName][fieldName] = resolver;
             } else if (isResolveOptions(obj[fieldName])) {
@@ -119,14 +120,16 @@ function wrapResolver({
   path,
   middlewareMap,
   isTypeResolver,
+  isReferenceResolver,
 }: {
   resolver: any;
   middlewareMap: MiddlewareMap;
   config: ModuleConfig;
   path: string[];
   isTypeResolver?: boolean;
+  isReferenceResolver?: boolean;
 }): ResolveFn<InternalAppContext> | ResolveTypeFn<InternalAppContext> {
-  if (isTypeResolver) {
+  if (isTypeResolver || isReferenceResolver) {
     const wrappedResolver: ResolveTypeFn<InternalAppContext> = (
       root,
       context,
