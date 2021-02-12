@@ -1282,3 +1282,35 @@ test('instantiate all singleton and global providers', async () => {
   expect(spies.data).toBeCalledTimes(1);
   expect(spies.appData).toBeCalledTimes(1);
 });
+
+test('Inject should work with Injectable', async () => {
+  const barSpy = jest.fn();
+
+  @Injectable()
+  class Foo {
+    isFoo = true;
+  }
+
+  @Injectable()
+  class Bar {
+    constructor(@Inject(Foo) foo: unknown) {
+      barSpy(foo);
+    }
+  }
+
+  const mod = createModule({
+    id: 'test',
+    typeDefs: gql`
+      type Query {
+        noop: Boolean
+      }
+    `,
+    providers: [Foo, Bar],
+  });
+
+  createApplication({
+    modules: [mod],
+  });
+
+  expect(barSpy).toHaveBeenCalledWith(expect.objectContaining({ isFoo: true }));
+});
