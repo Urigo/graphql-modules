@@ -1,4 +1,4 @@
-import { ReflectiveInjector } from '../di';
+import { Injector, ReflectiveInjector } from '../di';
 import { ResolvedProvider } from '../di/resolution';
 import { ID } from '../shared/types';
 import { once } from '../shared/utils';
@@ -15,7 +15,8 @@ export type ExecutionContextBuilder<
   context: TContext
 ) => {
   context: InternalAppContext;
-  onDestroy: () => void;
+  ɵdestroy(): void;
+  ɵinjector: Injector;
 };
 
 export function createContextBuilder({
@@ -58,7 +59,6 @@ export function createContextBuilder({
       });
     }
 
-    let operationAppInjector: ReflectiveInjector;
     let appContext: GraphQLModules.AppContext;
 
     attachGlobalProvidersMap({
@@ -98,7 +98,7 @@ export function createContextBuilder({
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
     // Operation scoped - means it's created and destroyed on every GraphQL Operation
-    operationAppInjector = ReflectiveInjector.createFromResolved({
+    const operationAppInjector = ReflectiveInjector.createFromResolved({
       name: 'App (Operation Scope)',
       providers: appLevelOperationProviders.concat(
         ReflectiveInjector.resolve([
@@ -178,7 +178,7 @@ export function createContextBuilder({
     });
 
     return {
-      onDestroy: once(() => {
+      ɵdestroy: once(() => {
         providersToDestroy.forEach(([injector, keyId]) => {
           // If provider was instantiated
           if (injector._isObjectDefinedByKeyId(keyId)) {
@@ -188,6 +188,7 @@ export function createContextBuilder({
         });
         contextCache = {};
       }),
+      ɵinjector: operationAppInjector,
       context: sharedContext,
     };
   };
