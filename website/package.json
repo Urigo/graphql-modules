@@ -15,7 +15,7 @@
     "@docusaurus/preset-classic": "2.0.0-alpha.69",
     "@phenomnomnominal/tsquery": "4.1.1",
     "globby": "11.0.2",
-    "patch-package": "6.2.2",
+    "patch-package": "6.4.2",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "remark-import-partial": "0.0.2",
