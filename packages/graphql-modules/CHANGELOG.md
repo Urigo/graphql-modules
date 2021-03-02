@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 1.3.0
+
+### Minor Changes
+
+- f138e08: Support \_\_resolverReference resolver for federation
+
 ## 1.2.1
 
 ### Patch Changes
