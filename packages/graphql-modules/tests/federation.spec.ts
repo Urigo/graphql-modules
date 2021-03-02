@@ -35,3 +35,36 @@ test('allow __resolveReference', async () => {
     })
   ).not.toThrow();
 });
+
+test('allow __resolveObject', async () => {
+  const mod = createModule({
+    id: 'test',
+    typeDefs: gql`
+      type Query {
+        me: User!
+      }
+
+      type User {
+        id: ID!
+        username: String
+      }
+    `,
+    resolvers: {
+      User: {
+        __resolveObject() {},
+      },
+    },
+  });
+
+  expect(() =>
+    createApplication({
+      modules: [mod],
+      schemaBuilder(input) {
+        return buildFederatedSchema({
+          typeDefs: input.typeDefs,
+          resolvers: mergeResolvers(input.resolvers),
+        });
+      },
+    })
+  ).not.toThrow();
+});

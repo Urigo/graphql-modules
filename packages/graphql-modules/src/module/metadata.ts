@@ -55,6 +55,7 @@ export function metadataFactory(
 
     if (node.kind === Kind.OBJECT_TYPE_DEFINITION) {
       implemented[node.name.value].push('__resolveReference');
+      implemented[node.name.value].push('__resolveObject');
     }
 
     if (node.kind === Kind.INTERFACE_TYPE_DEFINITION) {
