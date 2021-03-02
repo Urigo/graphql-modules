@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 1.4.1
+
+### Patch Changes
+
+- fefca5d: Fix race condition between Inject and Injectable
+
 ## 1.4.0
 
 ### Minor Changes
