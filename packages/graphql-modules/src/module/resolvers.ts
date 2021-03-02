@@ -74,7 +74,9 @@ export function createResolvers(
                 path,
                 isTypeResolver:
                   fieldName === '__isTypeOf' || fieldName === '__resolveType',
-                isReferenceResolver: fieldName === '__resolveReference',
+                isReferenceResolver:
+                  fieldName === '__resolveReference' ||
+                  fieldName === '__resolveObject',
               });
               resolvers[typeName][fieldName] = resolver;
             } else if (isResolveOptions(obj[fieldName])) {
