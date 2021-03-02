@@ -26,16 +26,19 @@ export function Injectable(options?: ProviderOptions): ClassDecorator {
     const existingMeta = readInjectableMetadata(target as any);
 
     const meta: InjectableMetadata = {
-      params: params.map((param, i) => {
-        const existingParam = existingMeta?.params?.[i];
-        return {
-          type: existingParam?.type || param,
-          optional:
-            typeof existingParam?.optional === 'boolean'
-              ? existingParam.optional
-              : false,
-        };
-      }),
+      params:
+        existingMeta?.params?.length > 0 && params.length === 0
+          ? existingMeta?.params
+          : params.map((param, i) => {
+              const existingParam = existingMeta?.params?.[i];
+              return {
+                type: existingParam?.type || param,
+                optional:
+                  typeof existingParam?.optional === 'boolean'
+                    ? existingParam.optional
+                    : false,
+              };
+            }),
       options: {
         ...(existingMeta?.options || {}),
         ...(options || {}),
