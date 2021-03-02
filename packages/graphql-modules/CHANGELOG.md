@@ -1,5 +1,12 @@
 # graphql-modules
 
+## 1.4.0
+
+### Minor Changes
+
+- 499c81a: Support \_\_resolveObject
+- 499c81a: Manual control of GraphQL operation
+
 ## 1.3.0
 
 ### Minor Changes
