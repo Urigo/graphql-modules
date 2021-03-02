@@ -34,11 +34,13 @@ export function subscriptionCreator({
       subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>
     ) => {
       // Create an subscription context
-      const { context, onDestroy } = contextBuilder(
-        isNotSchema<SubscriptionArgs>(argsOrSchema)
-          ? argsOrSchema.contextValue
-          : contextValue
-      );
+      const { context, ɵdestroy: destroy } =
+        options?.controller ??
+        contextBuilder(
+          isNotSchema<SubscriptionArgs>(argsOrSchema)
+            ? argsOrSchema.contextValue
+            : contextValue
+        );
 
       const subscriptionArgs: SubscriptionArgs = isNotSchema<SubscriptionArgs>(
         argsOrSchema
@@ -67,13 +69,13 @@ export function subscriptionCreator({
         .then((sub) => {
           if (isAsyncIterable(sub)) {
             isIterable = true;
-            return tapAsyncIterator(sub, onDestroy);
+            return tapAsyncIterator(sub, destroy);
           }
           return sub;
         })
         .finally(() => {
           if (!isIterable) {
-            onDestroy();
+            destroy();
           }
         });
     };

@@ -5,11 +5,12 @@ import {
   GraphQLSchema,
   ExecutionResult,
 } from 'graphql';
-import { Provider, Injector } from '../di';
-import { Resolvers, Module, MockedModule } from '../module/types';
-import { Single, ValueOrPromise } from '../shared/types';
-import { MiddlewareMap } from '../shared/middleware';
-import { ApolloRequestContext } from './apollo';
+import type { Provider, Injector } from '../di';
+import type { Resolvers, Module, MockedModule } from '../module/types';
+import type { MiddlewareMap } from '../shared/middleware';
+import type { ApolloRequestContext } from './apollo';
+import type { Single, ValueOrPromise } from '../shared/types';
+import type { InternalAppContext } from './application';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
@@ -44,15 +45,28 @@ export interface Application {
    */
   readonly injector: Injector;
   /**
+   * Take over control of GraphQL Operation
+   */
+  createOperationController(input: {
+    context: any;
+    autoDestroy?: boolean;
+  }): OperationController;
+  /**
    * Creates a `subscribe` function that runs the subscription phase of GraphQL.
    * Important when using GraphQL Subscriptions.
    */
-  createSubscription(options?: { subscribe?: typeof subscribe }): Subscription;
+  createSubscription(options?: {
+    subscribe?: typeof subscribe;
+    controller?: OperationController;
+  }): Subscription;
   /**
    * Creates a `execute` function that runs the execution phase of GraphQL.
    * Important when using GraphQL Queries and Mutations.
    */
-  createExecution(options?: { execute?: typeof execute }): Execution;
+  createExecution(options?: {
+    execute?: typeof execute;
+    controller?: OperationController;
+  }): Execution;
   /**
    * Experimental
    */
@@ -60,7 +74,9 @@ export interface Application {
   /**
    * Experimental
    */
-  createApolloExecutor(): ApolloExecutor;
+  createApolloExecutor(options?: {
+    controller?: OperationController;
+  }): ApolloExecutor;
   /**
    * @internal
    */
@@ -69,6 +85,22 @@ export interface Application {
    * @internal
    */
   ɵconfig: ApplicationConfig;
+}
+
+export interface OperationController {
+  /**
+   * Destroys
+   */
+  destroy(): void;
+  /**
+   * @internal
+   */
+  ɵdestroy(): void;
+  context: InternalAppContext;
+  /**
+   * Operation Injector (application)
+   */
+  injector: Injector;
 }
 
 /**

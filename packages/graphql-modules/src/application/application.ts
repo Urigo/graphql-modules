@@ -22,6 +22,7 @@ import { createContextBuilder } from './context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
 import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
+import { operationControllerCreator } from './operation-controller';
 import { Module } from '../module/types';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
@@ -126,6 +127,9 @@ export function createApplication(
       operationGlobalProvidersMap,
     });
 
+    const createOperationController = operationControllerCreator({
+      contextBuilder,
+    });
     const createSubscription = subscriptionCreator({ contextBuilder });
     const createExecution = executionCreator({ contextBuilder });
     const createSchemaForApollo = apolloSchemaCreator({
@@ -148,6 +152,7 @@ export function createApplication(
       resolvers,
       schema,
       injector: appInjector,
+      createOperationController,
       createSubscription,
       createExecution,
       createSchemaForApollo,

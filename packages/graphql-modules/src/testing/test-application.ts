@@ -24,6 +24,9 @@ export function mockApplication(app: Application): MockedApplication {
       get injector() {
         return sharedFactory().injector;
       },
+      createOperationController(options) {
+        return sharedFactory().createOperationController(options);
+      },
       createSubscription(options) {
         return sharedFactory().createSubscription(options);
       },

@@ -3,7 +3,7 @@ import { DocumentNode, execute, GraphQLSchema } from 'graphql';
 import { uniqueId } from '../shared/utils';
 import { InternalAppContext } from './application';
 import { ExecutionContextBuilder } from './context';
-import { ApolloExecutor, Application } from './types';
+import { Application } from './types';
 
 const CONTEXT_ID = Symbol.for('context-id');
 
@@ -22,9 +22,9 @@ export function apolloExecutorCreator({
 }: {
   createExecution: Application['createExecution'];
   schema: GraphQLSchema;
-}): () => ApolloExecutor {
-  return function createApolloExecutor() {
-    const executor = createExecution();
+}): Application['createApolloExecutor'] {
+  return function createApolloExecutor(options) {
+    const executor = createExecution(options);
     return function executorAdapter(requestContext: ApolloRequestContext) {
       return executor({
         schema,
@@ -52,7 +52,7 @@ export function apolloSchemaCreator({
       {
         count: number;
         session: {
-          onDestroy(): void;
+          destroy(): void;
           context: InternalAppContext;
         };
       }
@@ -62,15 +62,15 @@ export function apolloSchemaCreator({
     function getSession(ctx: any) {
       if (!ctx[CONTEXT_ID]) {
         ctx[CONTEXT_ID] = uniqueId((id) => !sessions[id]);
-        const { context, onDestroy } = contextBuilder(ctx);
+        const { context, ɵdestroy: destroy } = contextBuilder(ctx);
 
         sessions[ctx[CONTEXT_ID]] = {
           count: 0,
           session: {
             context,
-            onDestroy() {
+            destroy() {
               if (--sessions[ctx[CONTEXT_ID]].count === 0) {
-                onDestroy();
+                destroy();
                 delete sessions[ctx[CONTEXT_ID]];
               }
             },
@@ -87,7 +87,7 @@ export function apolloSchemaCreator({
       schema,
       executor(input) {
         // Create an execution context
-        const { context, onDestroy } = getSession(input.context!);
+        const { context, destroy } = getSession(input.context!);
 
         // It's important to wrap the executeFn within a promise
         // so we can easily control the end of execution (with finally)
@@ -102,7 +102,7 @@ export function apolloSchemaCreator({
                 rootValue: input.info?.rootValue,
               }) as any
           )
-          .finally(onDestroy);
+          .finally(destroy);
       },
       subscriber(input) {
         return subscription({

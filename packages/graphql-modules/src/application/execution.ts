@@ -31,11 +31,13 @@ export function executionCreator({
       typeResolver?: Maybe<GraphQLTypeResolver<any, any>>
     ) => {
       // Create an execution context
-      const { context, onDestroy } = contextBuilder(
-        isNotSchema<ExecutionArgs>(argsOrSchema)
-          ? argsOrSchema.contextValue
-          : contextValue
-      );
+      const { context, ɵdestroy: destroy } =
+        options?.controller ??
+        contextBuilder(
+          isNotSchema<ExecutionArgs>(argsOrSchema)
+            ? argsOrSchema.contextValue
+            : contextValue
+        );
 
       const executionArgs: ExecutionArgs = isNotSchema<ExecutionArgs>(
         argsOrSchema
@@ -59,7 +61,7 @@ export function executionCreator({
       // so we can easily control the end of execution (with finally)
       return Promise.resolve()
         .then(() => executeFn(executionArgs))
-        .finally(onDestroy);
+        .finally(destroy);
     };
   };
 
