@@ -26,7 +26,7 @@
     "@changesets/cli": "2.13.1",
     "@types/benchmark": "2.1.0",
     "@types/express": "4.17.11",
-    "@types/jest": "26.0.20",
+    "@types/jest": "26.0.21",
     "@types/node": "14.14.35",
     "@types/ramda": "0.27.39",
     "@typescript-eslint/eslint-plugin": "4.18.0",
