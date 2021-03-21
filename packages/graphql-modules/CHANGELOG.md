@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 1.4.2
+
+### Patch Changes
+
+- f8e6e15: Fix missing ApolloServer cacheControl in GraphQLResolveInfo
+
 ## 1.4.1
 
 ### Patch Changes
