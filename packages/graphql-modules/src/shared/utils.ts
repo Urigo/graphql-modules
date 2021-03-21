@@ -112,23 +112,24 @@ export function merge<S extends object, T extends object>(
   source: S,
   target: T
 ): S & T {
-  const result = Object.create({});
+  const result: any = {
+    ...source,
+    ...target,
+  };
 
-  function attachFields<O extends T | S>(obj: O): void {
-    const props = (Object.getOwnPropertyNames(obj) as Array<keyof O>).concat(
-      Object.getOwnPropertySymbols(obj) as Array<keyof O>
-    );
+  function attachSymbols<O extends T | S>(obj: O): void {
+    const symbols = Object.getOwnPropertySymbols(obj) as Array<keyof O>;
 
-    for (const prop of props) {
-      result[prop] = obj[prop];
+    for (const symbol of symbols) {
+      result[symbol] = obj[symbol];
     }
   }
 
   if (source) {
-    attachFields(source);
+    attachSymbols(source);
   }
 
-  attachFields(target);
+  attachSymbols(target);
 
   return result;
 }
