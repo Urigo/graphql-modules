@@ -99,6 +99,7 @@ const executeApp = app.createExecution();
 const apolloWithDIExecutor = appWithDI.createApolloExecutor();
 const executeApolloWithDI = (args: ExecutionArgs) => {
   return apolloWithDIExecutor({
+    schema: args.schema,
     document: args.document,
     operationName: args.operationName,
     context: args.contextValue,
@@ -111,6 +112,7 @@ const executeApolloWithDI = (args: ExecutionArgs) => {
 const apolloExecutor = app.createApolloExecutor();
 const executeApollo = (args: ExecutionArgs) => {
   return apolloExecutor({
+    schema: args.schema,
     document: args.document,
     operationName: args.operationName,
     context: args.contextValue,
