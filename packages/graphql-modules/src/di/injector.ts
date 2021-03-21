@@ -39,8 +39,15 @@ export class ReflectiveInjector implements Injector {
   private _executionContextGetter: ExecutionContextGetter = notInExecutionContext;
   private _fallbackParent: Injector | null;
   private _parent: Injector | null;
-  private _keyIds: number[];
-  private _objs: any[];
+  private _size: number;
+  // private _keyIds: number[];
+  // private _objs: any[];
+  private _registry: {
+    [key: number]: any;
+  } = {};
+  private _providersRegistry: {
+    [key: number]: ResolvedProvider;
+  } = {};
 
   constructor({
     name,
@@ -62,14 +69,11 @@ export class ReflectiveInjector implements Injector {
     this._providers = providers;
     this._globalProvidersMap = globalProvidersMap;
 
-    const len = this._providers.length;
+    this._size = this._providers.length;
 
-    this._keyIds = new Array(len);
-    this._objs = new Array(len);
-
-    for (let i = 0; i < len; i++) {
-      this._keyIds[i] = this._providers[i].key.id;
-      this._objs[i] = UNDEFINED;
+    for (let i = 0; i < this._size; i++) {
+      this._registry[this._providers[i].key.id] = UNDEFINED;
+      this._providersRegistry[this._providers[i].key.id] = this._providers[i];
     }
   }
 
@@ -158,10 +162,8 @@ export class ReflectiveInjector implements Injector {
   }
 
   _isObjectDefinedByKeyId(keyId: number): boolean {
-    for (let i = 0; i < this._keyIds.length; i++) {
-      if (this._keyIds[i] === keyId) {
-        return this._objs[i] !== UNDEFINED;
-      }
+    if (this._registry.hasOwnProperty(keyId)) {
+      return this._registry[keyId] !== UNDEFINED;
     }
 
     return false;
@@ -172,13 +174,13 @@ export class ReflectiveInjector implements Injector {
       return this._globalProvidersMap.get(keyId)?._getObjByKeyId(keyId);
     }
 
-    for (let i = 0; i < this._keyIds.length; i++) {
-      if (this._keyIds[i] === keyId) {
-        if (this._objs[i] === UNDEFINED) {
-          this._objs[i] = this._new(this._providers[i]);
-        }
+    if (this._registry.hasOwnProperty(keyId)) {
+      const obj = this._registry[keyId];
 
-        return this._objs[i];
+      if (obj === UNDEFINED) {
+        this._registry[keyId] = this._new(this._providersRegistry[keyId]);
+
+        return this._registry[keyId];
       }
     }
 
@@ -247,7 +249,7 @@ export class ReflectiveInjector implements Injector {
   }
 
   private _getMaxNumberOfObjects(): number {
-    return this._objs.length;
+    return this._size;
   }
 
   toString(): string {
