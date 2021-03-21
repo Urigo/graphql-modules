@@ -40,14 +40,8 @@ export class ReflectiveInjector implements Injector {
   private _fallbackParent: Injector | null;
   private _parent: Injector | null;
   private _size: number;
-  // private _keyIds: number[];
-  // private _objs: any[];
-  private _registry: {
-    [key: number]: any;
-  } = {};
-  private _providersRegistry: {
-    [key: number]: ResolvedProvider;
-  } = {};
+  private _registry = new Map<number, any>();
+  private _providersKeyMap = new Map<number, number>();
 
   constructor({
     name,
@@ -72,8 +66,8 @@ export class ReflectiveInjector implements Injector {
     this._size = this._providers.length;
 
     for (let i = 0; i < this._size; i++) {
-      this._registry[this._providers[i].key.id] = UNDEFINED;
-      this._providersRegistry[this._providers[i].key.id] = this._providers[i];
+      this._registry.set(this._providers[i].key.id, UNDEFINED);
+      this._providersKeyMap.set(this._providers[i].key.id, i);
     }
   }
 
@@ -162,8 +156,8 @@ export class ReflectiveInjector implements Injector {
   }
 
   _isObjectDefinedByKeyId(keyId: number): boolean {
-    if (this._registry.hasOwnProperty(keyId)) {
-      return this._registry[keyId] !== UNDEFINED;
+    if (this._registry.has(keyId)) {
+      return this._registry.get(keyId) !== UNDEFINED;
     }
 
     return false;
@@ -174,14 +168,15 @@ export class ReflectiveInjector implements Injector {
       return this._globalProvidersMap.get(keyId)?._getObjByKeyId(keyId);
     }
 
-    if (this._registry.hasOwnProperty(keyId)) {
-      const obj = this._registry[keyId];
-
-      if (obj === UNDEFINED) {
-        this._registry[keyId] = this._new(this._providersRegistry[keyId]);
-
-        return this._registry[keyId];
+    if (this._registry.has(keyId)) {
+      if (this._registry.get(keyId) === UNDEFINED) {
+        this._registry.set(
+          keyId,
+          this._new(this._providers[this._providersKeyMap.get(keyId)!])
+        );
       }
+
+      return this._registry.get(keyId);
     }
 
     return UNDEFINED;
