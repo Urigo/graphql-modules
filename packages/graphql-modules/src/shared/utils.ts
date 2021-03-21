@@ -107,3 +107,25 @@ export function uniqueId(isNotUsed: (id: string) => boolean) {
 export function isNotSchema<T>(obj: any): obj is T {
   return obj instanceof GraphQLSchema === false;
 }
+
+export function merge<S extends object, T extends object>(
+  source: S,
+  target: T
+): S & T {
+  const result = Object.create({});
+
+  function attachFields<O extends T | S>(obj: O): void {
+    const props = (Object.getOwnPropertyNames(obj) as Array<keyof O>).concat(
+      Object.getOwnPropertySymbols(obj) as Array<keyof O>
+    );
+
+    for (const prop of props) {
+      result[prop] = obj[prop];
+    }
+  }
+
+  attachFields(source);
+  attachFields(target);
+
+  return result;
+}
