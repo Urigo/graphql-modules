@@ -124,7 +124,10 @@ export function merge<S extends object, T extends object>(
     }
   }
 
-  attachFields(source);
+  if (source) {
+    attachFields(source);
+  }
+
   attachFields(target);
 
   return result;
