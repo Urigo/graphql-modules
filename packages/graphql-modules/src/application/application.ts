@@ -24,6 +24,7 @@ import { subscriptionCreator } from './subscription';
 import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
 import { operationControllerCreator } from './operation-controller';
 import { Module } from '../module/types';
+import { emptyTracing } from '../shared/tracing';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
 
@@ -62,6 +63,7 @@ export function createApplication(
   applicationConfig: ApplicationConfig
 ): Application {
   function applicationFactory(cfg?: ApplicationConfig): Application {
+    const tracing = applicationConfig.tracing ?? emptyTracing;
     const config = cfg || applicationConfig;
     const providers =
       config.providers && typeof config.providers === 'function'
@@ -125,6 +127,7 @@ export function createApplication(
       modulesMap: modulesMap,
       singletonGlobalProvidersMap,
       operationGlobalProvidersMap,
+      tracing,
     });
 
     const createOperationController = operationControllerCreator({

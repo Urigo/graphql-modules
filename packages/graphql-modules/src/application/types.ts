@@ -11,6 +11,7 @@ import type { MiddlewareMap } from '../shared/middleware';
 import type { ApolloRequestContext } from './apollo';
 import type { Single, ValueOrPromise } from '../shared/types';
 import type { InternalAppContext } from './application';
+import type { Tracing } from '../shared/tracing';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
@@ -139,4 +140,5 @@ export interface ApplicationConfig {
     typeDefs: DocumentNode[];
     resolvers: Record<string, any>[];
   }): GraphQLSchema;
+  tracing?: Tracing;
 }
