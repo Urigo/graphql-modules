@@ -1,7 +1,7 @@
 import { Injector, ReflectiveInjector } from '../di';
 import { ResolvedProvider } from '../di/resolution';
 import { ID } from '../shared/types';
-import { once } from '../shared/utils';
+import { once, merge } from '../shared/utils';
 import type { InternalAppContext, ModulesMap } from './application';
 import { attachGlobalProvidersMap } from './di';
 import { CONTEXT } from './tokens';
@@ -112,10 +112,9 @@ export function createContextBuilder({
     });
 
     // Create a context for application-level ExecutionContext
-    appContext = {
-      ...context,
+    appContext = merge(context, {
       injector: operationAppInjector,
-    };
+    });
 
     // Track Providers with OnDestroy hooks
     registerProvidersToDestroy(operationAppInjector);
@@ -151,23 +150,24 @@ export function createContextBuilder({
         // Same as on application level, we need to collect providers with OnDestroy hooks
         registerProvidersToDestroy(operationModuleInjector);
 
-        contextCache[moduleId] = {
-          ...ctx,
+        contextCache[moduleId] = merge(ctx, {
           injector: operationModuleInjector,
           moduleId,
-        };
+        });
       }
 
       return contextCache[moduleId];
     }
 
-    const sharedContext = {
+    const sharedContext = merge(
       // We want to pass the received context
-      ...(context || {}),
-      // Here's something very crutial
-      // It's a function that is used in module's context creation
-      ɵgetModuleContext: getModuleContext,
-    };
+      context || {},
+      {
+        // Here's something very crutial
+        // It's a function that is used in module's context creation
+        ɵgetModuleContext: getModuleContext,
+      }
+    );
 
     attachGlobalProvidersMap({
       injector: operationAppInjector,

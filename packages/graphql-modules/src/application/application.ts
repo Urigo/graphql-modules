@@ -139,7 +139,6 @@ export function createApplication(
     });
     const createApolloExecutor = apolloExecutorCreator({
       createExecution,
-      schema,
     });
 
     instantiateSingletonProviders({

@@ -11,6 +11,7 @@ export interface ApolloRequestContext {
   document: DocumentNode;
   operationName?: string | null;
   context?: any;
+  schema: GraphQLSchema;
   request: {
     variables?: { [name: string]: any } | null;
   };
@@ -18,16 +19,14 @@ export interface ApolloRequestContext {
 
 export function apolloExecutorCreator({
   createExecution,
-  schema,
 }: {
   createExecution: Application['createExecution'];
-  schema: GraphQLSchema;
 }): Application['createApolloExecutor'] {
   return function createApolloExecutor(options) {
     const executor = createExecution(options);
     return function executorAdapter(requestContext: ApolloRequestContext) {
       return executor({
-        schema,
+        schema: requestContext.schema,
         document: requestContext.document,
         operationName: requestContext.operationName,
         variableValues: requestContext.request.variables,
