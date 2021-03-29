@@ -13,7 +13,7 @@ module.exports = {
       'advanced/subscriptions',
       'advanced/middlewares',
       'advanced/execution-context',
-      'advanced/lifecycle-hooks',
+      'advanced/lifecycles',
     ],
     Recipes: ['recipes/dataloader', 'recipes/migration'],
     API: ['api'],
