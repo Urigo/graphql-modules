@@ -215,7 +215,11 @@ const execute = application.createExecution();
 const subscribe = application.createSubscription();
 ```
 
-If you are still having issues, you can always [report an issue on a missing integration](https://github.com/Urigo/graphql-modules/issues/new), and we'll look into that ;)
+In case you are still having issues, you can always [report an issue on a missing integration](https://github.com/Urigo/graphql-modules/issues/new), and we'll look into that ;)
 
 </TabItem>
 </Tabs>
+
+## Tutorial
+
+If you're interested in a step by step tutorial, one of our community members [Godwin Ekuma](https://blog.logrocket.com/author/godwinekuma/) wrote an amazing article explaining ["How to modularize GraphQL schema with GraphQL Modules"](https://blog.logrocket.com/graphql-modules-tutorial-how-to-modularize-graphql-schema/).
