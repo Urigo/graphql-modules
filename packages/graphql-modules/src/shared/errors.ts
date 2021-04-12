@@ -48,6 +48,14 @@ export class ResolverInvalidError extends ExtendableBuiltin(Error) {
   }
 }
 
+export class NonDocumentNodeError extends ExtendableBuiltin(Error) {
+  constructor(message: string, ...rest: string[]) {
+    super(composeMessage(message, ...rest));
+    this.name = this.constructor.name;
+    this.message = composeMessage(message, ...rest);
+  }
+}
+
 // helpers
 
 export function useLocation({ dirname, id }: { id: ID; dirname?: string }) {
