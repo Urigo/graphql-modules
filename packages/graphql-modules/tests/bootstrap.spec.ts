@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { createApplication, createModule, testkit, gql } from '../src';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { createApplication, createModule, testkit, gql } from '../src';
+import { NonDocumentNodeError } from '../src/shared/errors';
 
 test('fail when modules have non-unique ids', async () => {
   const modFoo = createModule({
@@ -381,4 +382,17 @@ test('pass field resolvers of an interface to schemaBuilder', async () => {
       d: 'works',
     },
   });
+});
+
+test('fail when modules have non-DocumentNode typeDefs', async () => {
+  expect(() => {
+    createModule({
+      id: 'foo',
+      typeDefs: `
+        type Query {
+          foo: String
+        }
+      ` as any,
+    });
+  }).toThrow(NonDocumentNodeError);
 });
