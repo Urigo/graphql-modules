@@ -38,15 +38,17 @@ values={[
 To create a Module, use `createModule`:
 
 ```typescript
-import { createModule } from 'graphql-modules';
+import { createModule, gql } from 'graphql-modules';
 
 export const myModule = createModule({
   id: 'my-module',
   dirname: __dirname,
   typeDefs: [
-    `type Query {
-      hello: String!
-    }`,
+    gql`
+        type Query {
+            hello: String!
+        }
+    `,
   ],
   resolvers: {
     Query: {
