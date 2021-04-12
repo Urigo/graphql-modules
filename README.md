@@ -44,11 +44,11 @@ Just take a look at the build status on Github Actions and find "Publish Canary"
 More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs/next/index)
 
 ```js
-import { createModule, createApplication } from 'graphql-modules';
+import { createModule, createApplication, gql } from 'graphql-modules';
 
 const module = createModule({
   id: 'my-module',
-  typeDefs: `
+  typeDefs: gql`
     type Post {
       id: ID
       title: String
