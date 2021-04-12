@@ -76,15 +76,6 @@ export function testModule(testedModule: Module, config?: TestModuleConfig) {
 function transformModule(mod: Module, config?: TestModuleConfig) {
   const transforms: ((m: Module) => Module)[] = [];
 
-  if (config?.replaceExtensions) {
-    transforms.push((m) =>
-      moduleFactory({
-        ...m.config,
-        typeDefs: replaceExtensions(m.typeDefs),
-      })
-    );
-  }
-
   if (config?.typeDefs) {
     transforms.push((m) =>
       moduleFactory({
@@ -115,6 +106,15 @@ function transformModule(mod: Module, config?: TestModuleConfig) {
         resolvers: resolvers.concat(config.resolvers!),
       });
     });
+  }
+
+  if (config?.replaceExtensions) {
+    transforms.push((m) =>
+      moduleFactory({
+        ...m.config,
+        typeDefs: replaceExtensions(m.typeDefs),
+      })
+    );
   }
 
   if (transforms) {
