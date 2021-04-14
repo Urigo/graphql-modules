@@ -27,7 +27,7 @@
     "@types/benchmark": "2.1.0",
     "@types/express": "4.17.11",
     "@types/jest": "26.0.22",
-    "@types/node": "14.14.37",
+    "@types/node": "14.14.39",
     "@types/ramda": "0.27.40",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
