@@ -1,0 +1,24 @@
+- color: ea0932
+  description: Something isn't working
+  name: bug
+- color: bfd4f2
+  description: Pull requests that update a dependency file
+  name: dependencies
+- color: 2C3E50
+  description: ""
+  name: docs
+- color: 0e8a16
+  description: Good for newcomers
+  name: good first issue
+- color: ECF0F1
+  description: ""
+  name: legacy
+- color: 1d76db
+  description: ""
+  name: waiting for release
+- color: 006B75
+  description: ""
+  name: work in progress
+- color: fbca04
+  description: ""
+  name: ☂️ umbrella issue
