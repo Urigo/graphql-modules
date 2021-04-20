@@ -1811,10 +1811,10 @@ artillery-plugin-statsd@^2.2.1:
     lodash "^4.17.11"
     lynx "^0.2.0"
 
-artillery@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/artillery/-/artillery-1.7.0.tgz#5183458647f4fa52cdf00b011c6cbfaca679c44f"
-  integrity sha512-u5VWAWOAk9VMyd8aF1PU1sCl7Mrlhx3oUKhGZg8pvtGEJ6UYPzGzwVG82y9PJTyA6YJEl+tw5bLsEt4VPua7/Q==
+artillery@1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/artillery/-/artillery-1.7.1.tgz#21ae9994ed90816f405668be40c43a4f92bb8e8f"
+  integrity sha512-7QBaIbw69osrrnv+RG/vCV3XNJH9FfWn3Wv+Oid859BPlNdIkfu5A5OMhoEynXpy+2lvYccR3MwwFGJn5Wisdg==
   dependencies:
     agentkeepalive "^4.1.4"
     arrivals "^2.1.2"
