@@ -3,6 +3,8 @@ import {
   concatAST,
   Kind,
   defaultFieldResolver,
+  FieldNode,
+  GraphQLResolveInfo,
 } from 'graphql';
 import { Resolvers, ModuleConfig } from './types';
 import { ModuleMetadata } from './metadata';
@@ -74,9 +76,8 @@ export function createResolvers(
                 path,
                 isTypeResolver:
                   fieldName === '__isTypeOf' || fieldName === '__resolveType',
-                isReferenceResolver:
-                  fieldName === '__resolveReference' ||
-                  fieldName === '__resolveObject',
+                isReferenceResolver: fieldName === '__resolveReference',
+                isObjectResolver: fieldName === '__resolveObject',
               });
               resolvers[typeName][fieldName] = resolver;
             } else if (isResolveOptions(obj[fieldName])) {
@@ -123,6 +124,7 @@ function wrapResolver({
   middlewareMap,
   isTypeResolver,
   isReferenceResolver,
+  isObjectResolver,
 }: {
   resolver: any;
   middlewareMap: MiddlewareMap;
@@ -130,6 +132,7 @@ function wrapResolver({
   path: string[];
   isTypeResolver?: boolean;
   isReferenceResolver?: boolean;
+  isObjectResolver?: boolean;
 }): ResolveFn<InternalAppContext> | ResolveTypeFn<InternalAppContext> {
   if (isTypeResolver || isReferenceResolver) {
     const wrappedResolver: ResolveTypeFn<InternalAppContext> = (
@@ -144,6 +147,22 @@ function wrapResolver({
       };
 
       return resolver(ctx.root, ctx.context, ctx.info);
+    };
+
+    writeResolverMetadata(wrappedResolver, config);
+
+    return wrappedResolver;
+  }
+
+  if (isObjectResolver) {
+    const wrappedResolver = (
+      root: any,
+      fields: Record<string, FieldNode>,
+      context: InternalAppContext,
+      info: GraphQLResolveInfo
+    ): ReturnType<ResolveTypeFn<InternalAppContext>> => {
+      const moduleContext = context.ɵgetModuleContext(config.id, context);
+      return resolver(root, fields, moduleContext, info);
     };
 
     writeResolverMetadata(wrappedResolver, config);
