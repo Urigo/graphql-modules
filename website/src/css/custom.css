@@ -20,6 +20,10 @@ input {
   font: inherit;
 }
 
+.DocSearch {
+  display: none !important;
+}
+
 .Button {
   background-color: transparent;
   cursor: pointer;
