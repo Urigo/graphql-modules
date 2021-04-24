@@ -145,13 +145,7 @@ module.exports = {
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
   ],
-  scripts: [
-    {
-      src: 'https://the-guild.dev/static/banner.js',
-      async: true,
-      defer: true,
-    },
-  ],
+  scripts: [],
   presets: [
     [
       require.resolve('@docusaurus/preset-classic'),
