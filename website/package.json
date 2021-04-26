@@ -20,7 +20,7 @@
     "react-dom": "17.0.1",
     "remark-import-partial": "0.0.2",
     "styled-components": "5.1.0",
-    "the-guild-components": "1.0.12",
+    "the-guild-components": "1.0.15",
     "typescript": "4.2.3"
   },
   "browserslist": {
