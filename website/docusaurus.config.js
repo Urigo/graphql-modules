@@ -135,17 +135,10 @@ module.exports = {
     gtag: {
       trackingID: 'UA-128969121-4',
     },
-    algolia: {
-      appId: 'ANRJKXZTRW',
-      apiKey: '811d453fc7f80306044dd5cc4b87e064',
-      indexName: 'theguild',
-      algoliaOptions: {},
-    },
   },
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
   ],
-  scripts: [],
   presets: [
     [
       require.resolve('@docusaurus/preset-classic'),
