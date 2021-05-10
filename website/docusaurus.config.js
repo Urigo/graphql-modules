@@ -136,6 +136,9 @@ module.exports = {
       trackingID: 'UA-128969121-4',
     },
   },
+  scripts: [
+    'https://the-guild.dev/static/crisp.js'
+  ],
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
   ],
