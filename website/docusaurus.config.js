@@ -137,7 +137,8 @@ module.exports = {
     },
   },
   scripts: [
-    'https://the-guild.dev/static/crisp.js'
+    'https://the-guild.dev/static/crisp.js',
+    '/js/force-light.js',
   ],
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
