@@ -8,6 +8,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Head from '@docusaurus/Head';
 import Footer from '@theme/Footer';
 import { Companies } from '../ui/home/companies';
 import { Features } from '../ui/home/features';
@@ -31,7 +32,9 @@ export default function Index() {
         <meta property="og:title" content={`${title} - ${tagline}`} />
         <meta name="description" content={tagline} />
         <meta property="og:description" content={tagline} />
-        <title>{title} - {tagline}</title>
+        <title>
+          {title} - {tagline}
+        </title>
       </Head>
       <div className="backgroundTop"></div>
       <Intro />
