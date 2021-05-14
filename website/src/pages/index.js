@@ -18,12 +18,21 @@ import { Intro } from '../ui/home/intro';
 export default function Index() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
-  const { tagline, url } = siteConfig;
+  const { title, tagline, url } = siteConfig;
 
   const ogImage = `${url}/img/graphql-modules-cover.png`;
 
   return (
     <Layout description={tagline} image={ogImage} permalink={url} noFooter>
+      <Head>
+        <meta property="og:description" content={tagline} />
+        <meta charSet="utf-8" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="og:title" content={`${title} - ${tagline}`} />
+        <meta name="description" content={tagline} />
+        <meta property="og:description" content={tagline} />
+        <title>{title} - {tagline}</title>
+      </Head>
       <div className="backgroundTop"></div>
       <Intro />
       <Companies />
