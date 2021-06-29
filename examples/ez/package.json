@@ -1,0 +1,32 @@
+{
+  "name": "example-graphql-ez",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "dev:cjs": "tsup --watch src --onSuccess \"node dist/index.js\"",
+    "dev:mjs": "tsup --watch src --onSuccess \"node dist/index.mjs\""
+  },
+  "dependencies": {
+    "@envelop/graphql-modules": "0.2.0",
+    "@graphql-ez/fastify": "^0.4.0",
+    "@graphql-ez/plugin-graphiql": "^0.3.0",
+    "fastify": "3.18.0",
+    "graphql-ez": "^0.4.0",
+    "graphql-modules": "*"
+  },
+  "devDependencies": {
+    "@types/node": "15.12.5",
+    "tsup": "4.12.0"
+  },
+  "tsup": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "target": "es2019",
+    "silent": true
+  }
+}
