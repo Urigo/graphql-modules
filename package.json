@@ -33,7 +33,7 @@
     "@typescript-eslint/parser": "4.28.1",
     "apollo-server": "2.25.2",
     "apollo-server-express": "2.25.2",
-    "artillery": "1.7.5",
+    "artillery": "1.7.6",
     "benchmark": "2.1.4",
     "bob-the-bundler": "1.2.1",
     "dataloader": "2.0.0",
