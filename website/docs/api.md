@@ -5,7 +5,7 @@ title: API Reference
 
 ## CONTEXT
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\application\tokens.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/application/tokens.ts)
 
 `CONTEXT` is an InjectionToken representing the provided `GraphQLModules.GlobalContext`
 
@@ -20,7 +20,7 @@ export class Data {
 
 ## MODULE_ID
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\module\tokens.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/module/tokens.ts)
 
 `MODULE_ID` is an InjectionToken representing module's ID
 
@@ -37,7 +37,7 @@ export class Data {
 
 ## Application
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\application\types.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/application/types.ts)
 
 A return type of `createApplication` function.
 
@@ -55,7 +55,7 @@ A return type of `createApplication` function.
 
 ## ApplicationConfig
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\application\types.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/application/types.ts)
 
 Application's configuration object. Represents the first argument of `createApplication` function.
 
@@ -66,7 +66,7 @@ Application's configuration object. Represents the first argument of `createAppl
 
 ## createApplication
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\application\application.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/application/application.ts)
 
 Creates Application out of Modules. Accepts `ApplicationConfig`.
 
@@ -83,7 +83,7 @@ const app = createApplication({
 
 ## createModule
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\module\module.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/module/module.ts)
 
 Creates a Module, an element used by Application. Accepts `ModuleConfig`.
 
@@ -103,7 +103,7 @@ export const usersModule = createModule({
 
 ## ModuleConfig
 
-[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages\graphql-modules\src\module\types.ts)
+[_source file_](https://github.com/Urigo/graphql-modules/blob/master/packages/graphql-modules/src/module/types.ts)
 
 Module's configuration object. Represents the first argument of `createModule` function.
 
