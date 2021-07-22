@@ -71,6 +71,7 @@ export function apolloSchemaCreator({
               if (--sessions[ctx[CONTEXT_ID]].count === 0) {
                 destroy();
                 delete sessions[ctx[CONTEXT_ID]];
+                delete ctx[CONTEXT_ID];
               }
             },
           },
