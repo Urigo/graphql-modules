@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 1.4.4
+
+### Patch Changes
+
+- 9ec7fa0c: Fix the failure of missing session when multi-mutation operation
+
 ## 1.4.3
 
 ### Patch Changes
