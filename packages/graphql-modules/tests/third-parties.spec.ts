@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import { createApplication, createModule, gql, testkit } from '../src';
 import { GraphQLField } from 'graphql';
-import { SchemaDirectiveVisitor } from '@graphql-tools/utils';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 
 describe('schema directives', () => {
   test('schema directives used on top of produced schema', async () => {

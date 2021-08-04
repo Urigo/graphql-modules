@@ -29,7 +29,7 @@ test('allow __resolveReference', async () => {
       schemaBuilder(input) {
         return buildFederatedSchema({
           typeDefs: input.typeDefs,
-          resolvers: mergeResolvers(input.resolvers),
+          resolvers: mergeResolvers(input.resolvers) as any,
         });
       },
     })
@@ -62,7 +62,7 @@ test('allow __resolveObject', async () => {
       schemaBuilder(input) {
         return buildFederatedSchema({
           typeDefs: input.typeDefs,
-          resolvers: mergeResolvers(input.resolvers),
+          resolvers: mergeResolvers(input.resolvers) as any,
         });
       },
     })
