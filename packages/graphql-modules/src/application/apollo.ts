@@ -92,7 +92,7 @@ export function apolloSchemaCreator({
             document: input.document,
             variableValues: input.variables,
             contextValue: input.context,
-            rootValue: input.info?.rootValue,
+            rootValue: input.rootValue,
           });
         }
         // Create an execution context
@@ -108,7 +108,7 @@ export function apolloSchemaCreator({
                 document: input.document,
                 contextValue: context,
                 variableValues: input.variables,
-                rootValue: input.info?.rootValue,
+                rootValue: input.rootValue,
               }) as any
           )
           .finally(destroy);
