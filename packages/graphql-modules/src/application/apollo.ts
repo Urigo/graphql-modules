@@ -86,6 +86,15 @@ export function apolloSchemaCreator({
     return wrapSchema({
       schema,
       executor(input) {
+        if (input.operationType === 'subscription') {
+          return subscription({
+            schema,
+            document: input.document,
+            variableValues: input.variables,
+            contextValue: input.context,
+            rootValue: input.info?.rootValue,
+          });
+        }
         // Create an execution context
         const { context, destroy } = getSession(input.context!);
 
@@ -103,15 +112,6 @@ export function apolloSchemaCreator({
               }) as any
           )
           .finally(destroy);
-      },
-      subscriber(input) {
-        return subscription({
-          schema,
-          document: input.document,
-          variableValues: input.variables,
-          contextValue: input.context,
-          rootValue: input.info?.rootValue,
-        }) as any;
       },
     });
   };
