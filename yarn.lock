@@ -1023,6 +1023,13 @@
   resolved "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
+"@rollup/plugin-json@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-json/-/plugin-json-4.1.0.tgz#54e09867ae6963c593844d8bd7a9c718294496f3"
+  integrity sha512-yfLbTdNS6amI/2OpmbiBoW12vngr5NW2jCJVZSBEz+H5KfUJZ2M7sDjk0U6GOOdCWFVScShte29o9NezJ53TPw==
+  dependencies:
+    "@rollup/pluginutils" "^3.0.8"
+
 "@rollup/plugin-node-resolve@7.1.1":
   version "7.1.1"
   resolved "https://registry.npmjs.org/@rollup/plugin-node-resolve/-/plugin-node-resolve-7.1.1.tgz#8c6e59c4b28baf9d223028d0e450e06a485bb2b7"
@@ -2128,11 +2135,12 @@ blob@0.0.5:
   resolved "https://registry.npmjs.org/blob/-/blob-0.0.5.tgz#d680eeef25f8cd91ad533f5b01eed48e64caf683"
   integrity sha512-gaqbzQPqOoamawKg0LGVd7SzLgXS+JH61oWprSLH+P+abTczqJbhTR8CmJ2u9/bUYNmHTGJx/UEmn6doAvvuig==
 
-bob-the-bundler@1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/bob-the-bundler/-/bob-the-bundler-1.4.1.tgz#794382f60f0d2a68c57d85a41d06caf4a45cb1b4"
-  integrity sha512-Ho7JLV8ePKjWgV1USjoZK7w0rJ64RXv8WTBjP/J+l3wILem+TekcBPjKvpYvAqmWBZIliaKVyZhGHgTOaqjabw==
+bob-the-bundler@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/bob-the-bundler/-/bob-the-bundler-1.5.1.tgz#31468d2194fde09f05ee40d5be8f94aa3e5f3781"
+  integrity sha512-npVm0JSzufI3419f1sFJ7r5A7c8oZ8893jJCaXa9AZNRfVMwKXKH6Z+820JvLbQMahQw3IrRImzEnsRWbd6riw==
   dependencies:
+    "@rollup/plugin-json" "4.1.0"
     "@rollup/plugin-node-resolve" "7.1.1"
     "@vercel/ncc" "0.28.3"
     builtins "4.0.0"
