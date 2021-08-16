@@ -16,7 +16,6 @@ module.exports = {
       defaultMode: 'light',
       disableSwitch: true,
     },
-    sidebarCollapsible: true,
     image: 'img/logo.svg',
     prism: {
       theme: require('prism-react-renderer/themes/nightOwl'),
@@ -45,83 +44,6 @@ module.exports = {
         },
       ],
     },
-    footer: {
-      style: 'dark',
-      copyright: `Copyright © ${new Date().getFullYear()} The Guild`,
-      logo: {
-        alt: 'GraphQL Modules Logo',
-        src: 'img/logo.svg',
-      },
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Getting Started',
-              to: 'docs/get-started',
-            },
-            {
-              label: `Essentials`,
-              to: 'docs/essentials/type-definitions',
-            },
-            {
-              label: 'Dependency Injection',
-              to: 'docs/di/introduction',
-            },
-            {
-              label: 'Advanced',
-              to: 'docs//advanced/subscriptions',
-            },
-            {
-              label: 'Recipes',
-              to: 'docs/recipes/dataloader',
-            },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
-            {
-              label: 'Our website',
-              href: 'https://the-guild.dev',
-            },
-            {
-              label: 'Discord',
-              href: 'https://the-guild.dev/discord',
-            },
-            {
-              label: 'Other projects',
-              href: 'https://the-guild.dev/open-source',
-            },
-            {
-              label: 'Community Meetings',
-              href: 'https://github.com/the-guild-org/community-meetings',
-            },
-          ],
-        },
-        {
-          title: 'Social',
-          items: [
-            {
-              label: 'Blog',
-              href: 'https://the-guild.dev/blog',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/Urigo/graphql-modules',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://the-guild.dev/twitter',
-            },
-            {
-              label: 'LinkedIn',
-              href: 'https://the-guild.dev/linkedin',
-            },
-          ],
-        },
-      ],
-    },
     announcementBar: {
       id: 'legacy-docs',
       content:
@@ -136,10 +58,7 @@ module.exports = {
       trackingID: 'UA-128969121-4',
     },
   },
-  scripts: [
-    'https://the-guild.dev/static/crisp.js',
-    '/js/force-light.js',
-  ],
+  scripts: ['https://the-guild.dev/static/crisp.js', '/js/force-light.js'],
   stylesheets: [
     'https://fonts.googleapis.com/css?family=Lato:300,400,500,600,700,800,900&display=swap',
   ],
