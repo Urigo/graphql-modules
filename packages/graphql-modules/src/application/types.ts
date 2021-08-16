@@ -9,14 +9,14 @@ import type { Provider, Injector } from '../di';
 import type { Resolvers, Module, MockedModule } from '../module/types';
 import type { MiddlewareMap } from '../shared/middleware';
 import type { ApolloRequestContext } from './apollo';
-import type { Single, ValueOrPromise } from '../shared/types';
+import type { Single } from '../shared/types';
 import type { InternalAppContext } from './application';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;
 export type ApolloExecutor = (
   requestContext: ApolloRequestContext
-) => ValueOrPromise<ExecutionResult>;
+) => Promise<ExecutionResult>;
 
 export interface MockedApplication extends Application {
   replaceModule(mockedModule: MockedModule): MockedApplication;
