@@ -48,7 +48,7 @@
     "husky": "7.0.1",
     "jest": "27.0.6",
     "lint-staged": "11.1.2",
-    "patch-package": "6.4.6",
+    "patch-package": "6.4.7",
     "prettier": "2.3.2",
     "reflect-metadata": "0.1.13",
     "subscriptions-transport-ws": "0.9.19",
