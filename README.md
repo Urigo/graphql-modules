@@ -41,7 +41,7 @@ Just take a look at the build status on Github Actions and find "Publish Canary"
 
 ## Usage
 
-More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs/next/index)
+More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs/index)
 
 ```js
 import { createModule, createApplication, gql } from 'graphql-modules';
