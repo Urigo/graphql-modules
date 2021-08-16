@@ -356,26 +356,7 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@changesets/apply-release-plan@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-4.1.0.tgz#ec67c9a0f507c19740d9344766e37dd51fc981ee"
-  integrity sha512-NKMg0In+945eCGxPQJa6haKMDIr6WFngnsqRICaTH28WJy0NZoURoTUcAUSdgvur1J+9rWuVgWAfISyRpLErzg==
-  dependencies:
-    "@babel/runtime" "^7.10.4"
-    "@changesets/config" "^1.2.0"
-    "@changesets/get-version-range-type" "^0.3.2"
-    "@changesets/git" "^1.0.5"
-    "@changesets/types" "^3.1.0"
-    "@manypkg/get-packages" "^1.0.1"
-    detect-indent "^6.0.0"
-    fs-extra "^7.0.1"
-    lodash.startcase "^4.4.0"
-    outdent "^0.5.0"
-    prettier "^1.19.1"
-    resolve-from "^5.0.0"
-    semver "^5.4.1"
-
-"@changesets/apply-release-plan@^5.0.0":
+"@changesets/apply-release-plan@5.0.0", "@changesets/apply-release-plan@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-5.0.0.tgz#11bf168acecbf4cfa2b0e6425160bac5ceeec1c3"
   integrity sha512-SE+5nPNSKUyUociPnAvnjYSVF+diciEhX9ZHSqKWMlydswCDjiaq9gz67qwWCmwgEgEOz0TS7VrQBoOlzbitvA==
@@ -442,7 +423,7 @@
     term-size "^2.1.0"
     tty-table "^2.8.10"
 
-"@changesets/config@^1.2.0", "@changesets/config@^1.6.0":
+"@changesets/config@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@changesets/config/-/config-1.6.0.tgz#2cd9426b9d4212534d2b31c51de43280b76d3df4"
   integrity sha512-vMY/OpMFSDC2crDKb5Nq2kMX9hozcXL4dY5Rr+a1JQ044Rz+jqjJPpdTP2yQ+j7qmeGcUTvwjJoEMeekYwfqhg==
@@ -491,7 +472,7 @@
   resolved "https://registry.npmjs.org/@changesets/get-version-range-type/-/get-version-range-type-0.3.2.tgz#8131a99035edd11aa7a44c341cbb05e668618c67"
   integrity sha512-SVqwYs5pULYjYT4op21F2pVbcrca4qA/bAA3FmFXKMN7Y+HcO8sbZUTx3TAy2VXulP2FACd1aC7f2nTuqSPbqg==
 
-"@changesets/git@^1.0.5", "@changesets/git@^1.1.1":
+"@changesets/git@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@changesets/git/-/git-1.1.1.tgz#f444d3ff3604acb6949560656c9ef330485a5fa3"
   integrity sha512-Z12TcKwgU33YE3r76cyU+X81RchOXljDZ5s3G2u0Zd+ODyrwlDb91IO55+6R0Ha6ouPz8ioont0gA70c1RFngg==
@@ -542,11 +523,6 @@
     chalk "^2.1.0"
     fs-extra "^7.0.1"
     p-filter "^2.1.0"
-
-"@changesets/types@^3.1.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@changesets/types/-/types-3.3.0.tgz#04cd8184b2d2da760667bd89bf9b930938dbd96e"
-  integrity sha512-rJamRo+OD/MQekImfIk07JZwYSB18iU6fYL8xOg0gfAiTh1a1+OlR1fPIxm55I7RsWw812is2YcPPwXdIewrhA==
 
 "@changesets/types@^4.0.0":
   version "4.0.0"
