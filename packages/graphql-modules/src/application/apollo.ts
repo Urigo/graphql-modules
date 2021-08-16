@@ -85,6 +85,7 @@ export function apolloSchemaCreator({
 
     return wrapSchema({
       schema,
+      batch: true,
       executor(input) {
         if (input.operationType === 'subscription') {
           return subscription({
