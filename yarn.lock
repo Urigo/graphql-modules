@@ -356,16 +356,16 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@changesets/apply-release-plan@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-4.1.0.tgz#ec67c9a0f507c19740d9344766e37dd51fc981ee"
-  integrity sha512-NKMg0In+945eCGxPQJa6haKMDIr6WFngnsqRICaTH28WJy0NZoURoTUcAUSdgvur1J+9rWuVgWAfISyRpLErzg==
+"@changesets/apply-release-plan@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-4.2.0.tgz#f1005815f27c3238f66507e90c6ae14d8fc62b41"
+  integrity sha512-/vt6UwgQldhOw93Gb8llI5OuYGlJt2+U45AfcXsoxzl8gZzCmChGm3vUaQJYbmtL8TbL8OOVXHRIKJJidMNPKw==
   dependencies:
     "@babel/runtime" "^7.10.4"
-    "@changesets/config" "^1.2.0"
+    "@changesets/config" "^1.5.0"
     "@changesets/get-version-range-type" "^0.3.2"
     "@changesets/git" "^1.0.5"
-    "@changesets/types" "^3.1.0"
+    "@changesets/types" "^3.3.0"
     "@manypkg/get-packages" "^1.0.1"
     detect-indent "^6.0.0"
     fs-extra "^7.0.1"
@@ -442,7 +442,7 @@
     term-size "^2.1.0"
     tty-table "^2.8.10"
 
-"@changesets/config@^1.2.0", "@changesets/config@^1.6.0":
+"@changesets/config@^1.5.0", "@changesets/config@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@changesets/config/-/config-1.6.0.tgz#2cd9426b9d4212534d2b31c51de43280b76d3df4"
   integrity sha512-vMY/OpMFSDC2crDKb5Nq2kMX9hozcXL4dY5Rr+a1JQ044Rz+jqjJPpdTP2yQ+j7qmeGcUTvwjJoEMeekYwfqhg==
@@ -543,7 +543,7 @@
     fs-extra "^7.0.1"
     p-filter "^2.1.0"
 
-"@changesets/types@^3.1.0":
+"@changesets/types@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@changesets/types/-/types-3.3.0.tgz#04cd8184b2d2da760667bd89bf9b930938dbd96e"
   integrity sha512-rJamRo+OD/MQekImfIk07JZwYSB18iU6fYL8xOg0gfAiTh1a1+OlR1fPIxm55I7RsWw812is2YcPPwXdIewrhA==
