@@ -39,3 +39,6 @@ jobs:
 
       - name: Test
         run: yarn test
+
+      - name: Test ESM
+        run: node scripts/test-esm.mjs
