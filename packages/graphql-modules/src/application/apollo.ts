@@ -85,7 +85,18 @@ export function apolloSchemaCreator({
 
     return wrapSchema({
       schema,
+      batch: true,
       executor(input) {
+        if (input.operationType === 'subscription') {
+          return subscription({
+            schema,
+            document: input.document,
+            variableValues: input.variables,
+            contextValue: input.context,
+            rootValue: input.rootValue,
+            operationName: input.operationName,
+          });
+        }
         // Create an execution context
         const { context, destroy } = getSession(input.context!);
 
@@ -99,19 +110,11 @@ export function apolloSchemaCreator({
                 document: input.document,
                 contextValue: context,
                 variableValues: input.variables,
-                rootValue: input.info?.rootValue,
+                rootValue: input.rootValue,
+                operationName: input.operationName,
               }) as any
           )
           .finally(destroy);
-      },
-      subscriber(input) {
-        return subscription({
-          schema,
-          document: input.document,
-          variableValues: input.variables,
-          contextValue: input.context,
-          rootValue: input.info?.rootValue,
-        }) as any;
       },
     });
   };
