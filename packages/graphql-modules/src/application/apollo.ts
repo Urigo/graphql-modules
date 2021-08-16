@@ -24,7 +24,7 @@ export function apolloExecutorCreator({
 }): Application['createApolloExecutor'] {
   return function createApolloExecutor(options) {
     const executor = createExecution(options);
-    return function executorAdapter(requestContext: ApolloRequestContext) {
+    return async function executorAdapter(requestContext: ApolloRequestContext) {
       return executor({
         schema: requestContext.schema,
         document: requestContext.document,
