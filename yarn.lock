@@ -1783,10 +1783,10 @@ artillery-plugin-statsd@^2.2.1:
     lodash "^4.17.11"
     lynx "^0.2.0"
 
-artillery@1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/artillery/-/artillery-1.7.6.tgz#c6af4d36faec31b9b0e7c137e50511867b4264ef"
-  integrity sha512-qR6JepPNxwUAS/noxiPWISFkdi4+r2KXBMG+7uk7oIg/rFcVjoSRVxVk/UA+CUKM3iv+IFndXYNPysy7IkLroQ==
+artillery@1.7.7:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/artillery/-/artillery-1.7.7.tgz#b5095850a4a2cf5be940513307995401163dd217"
+  integrity sha512-bFiVDAdbp9AcFZmgQ+4veCnhTN3kFKhYPpws4QD2YJyo/W3EdPCKkR1b5SYHM/omMDP7f2SoLZ1+vANmXjwMeA==
   dependencies:
     agentkeepalive "^4.1.4"
     arrivals "^2.1.2"
@@ -1794,6 +1794,7 @@ artillery@1.7.6:
     async "^1.5.2"
     chalk "1.1.3"
     cheerio "^1.0.0-rc.2"
+    ci-info "^2.0.0"
     commander "2.9.0"
     csv-parse "^4.4.6"
     debug "^2.2.0"
@@ -1806,7 +1807,6 @@ artillery@1.7.6:
     form-data "^2.3.3"
     got "^11.8.2"
     hpagent "^0.1.1"
-    is-ci "^2.0.0"
     js-yaml "^3.13.1"
     jsck "^0.3.2"
     jsonpath "^1.0.2"
