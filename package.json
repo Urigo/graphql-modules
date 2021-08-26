@@ -21,7 +21,7 @@
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
   "devDependencies": {
-    "@apollo/federation": "0.29.0",
+    "@apollo/federation": "0.30.0",
     "@changesets/apply-release-plan": "5.0.0",
     "@changesets/cli": "2.16.0",
     "@graphql-tools/merge": "8.0.3",
@@ -32,8 +32,8 @@
     "@types/ramda": "0.27.44",
     "@typescript-eslint/eslint-plugin": "4.29.3",
     "@typescript-eslint/parser": "4.29.3",
-    "apollo-server": "3.2.0",
-    "apollo-server-express": "3.2.0",
+    "apollo-server": "3.3.0",
+    "apollo-server-express": "3.3.0",
     "artillery": "1.7.7",
     "benchmark": "2.1.4",
     "bob-the-bundler": "1.5.1",
