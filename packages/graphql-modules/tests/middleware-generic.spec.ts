@@ -88,7 +88,7 @@ describe('Middleware', () => {
 
     try {
       await (compose as any)();
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -143,7 +143,7 @@ describe('Middleware', () => {
 
     try {
       await (compose as any)(stack)({});
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
@@ -160,7 +160,7 @@ describe('Middleware', () => {
           await next();
         },
       ])({});
-    } catch (e) {
+    } catch (e: any) {
       err = e;
     }
 
