@@ -356,26 +356,7 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@changesets/apply-release-plan@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-5.0.0.tgz#11bf168acecbf4cfa2b0e6425160bac5ceeec1c3"
-  integrity sha512-SE+5nPNSKUyUociPnAvnjYSVF+diciEhX9ZHSqKWMlydswCDjiaq9gz67qwWCmwgEgEOz0TS7VrQBoOlzbitvA==
-  dependencies:
-    "@babel/runtime" "^7.10.4"
-    "@changesets/config" "^1.6.0"
-    "@changesets/get-version-range-type" "^0.3.2"
-    "@changesets/git" "^1.1.1"
-    "@changesets/types" "^4.0.0"
-    "@manypkg/get-packages" "^1.0.1"
-    detect-indent "^6.0.0"
-    fs-extra "^7.0.1"
-    lodash.startcase "^4.4.0"
-    outdent "^0.5.0"
-    prettier "^1.19.1"
-    resolve-from "^5.0.0"
-    semver "^5.4.1"
-
-"@changesets/apply-release-plan@^5.0.1":
+"@changesets/apply-release-plan@5.0.1", "@changesets/apply-release-plan@^5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@changesets/apply-release-plan/-/apply-release-plan-5.0.1.tgz#ed3e30550f787ef1b72f0a51e29a54d244123109"
   integrity sha512-ltYLM/PPoL1Un9hnNCbUac25FWonJvIZ/9C3O4UyZ/k4rir9FGvH6KLtMOiPEAJWnXmaHeRDr06MzohuXOnmvw==
@@ -442,19 +423,6 @@
     term-size "^2.1.0"
     tty-table "^2.8.10"
 
-"@changesets/config@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@changesets/config/-/config-1.6.0.tgz#2cd9426b9d4212534d2b31c51de43280b76d3df4"
-  integrity sha512-vMY/OpMFSDC2crDKb5Nq2kMX9hozcXL4dY5Rr+a1JQ044Rz+jqjJPpdTP2yQ+j7qmeGcUTvwjJoEMeekYwfqhg==
-  dependencies:
-    "@changesets/errors" "^0.1.4"
-    "@changesets/get-dependents-graph" "^1.2.1"
-    "@changesets/logger" "^0.0.5"
-    "@changesets/types" "^4.0.0"
-    "@manypkg/get-packages" "^1.0.1"
-    fs-extra "^7.0.1"
-    micromatch "^4.0.2"
-
 "@changesets/config@^1.6.1":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@changesets/config/-/config-1.6.1.tgz#e9b1636fd56a74411c493c924e6ffa07d7d26091"
@@ -474,17 +442,6 @@
   integrity sha512-HAcqPF7snsUJ/QzkWoKfRfXushHTu+K5KZLJWPb34s4eCZShIf8BFO3fwq6KU8+G7L5KdtN2BzQAXOSXEyiY9Q==
   dependencies:
     extendable-error "^0.1.5"
-
-"@changesets/get-dependents-graph@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@changesets/get-dependents-graph/-/get-dependents-graph-1.2.1.tgz#462908693dc3a354622e43f85a764b74b5bb53af"
-  integrity sha512-vJOibo9SkqhVbgfq5AHIlQ7tzkYQIXh3tPAnlNLy2bPZsU+SByd74GaxHYWt1zOBlncU25WKrIM6J7XBB+GVUg==
-  dependencies:
-    "@changesets/types" "^4.0.0"
-    "@manypkg/get-packages" "^1.0.1"
-    chalk "^2.1.0"
-    fs-extra "^7.0.1"
-    semver "^5.4.1"
 
 "@changesets/get-dependents-graph@^1.2.2":
   version "1.2.2"
@@ -514,18 +471,6 @@
   version "0.3.2"
   resolved "https://registry.npmjs.org/@changesets/get-version-range-type/-/get-version-range-type-0.3.2.tgz#8131a99035edd11aa7a44c341cbb05e668618c67"
   integrity sha512-SVqwYs5pULYjYT4op21F2pVbcrca4qA/bAA3FmFXKMN7Y+HcO8sbZUTx3TAy2VXulP2FACd1aC7f2nTuqSPbqg==
-
-"@changesets/git@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@changesets/git/-/git-1.1.1.tgz#f444d3ff3604acb6949560656c9ef330485a5fa3"
-  integrity sha512-Z12TcKwgU33YE3r76cyU+X81RchOXljDZ5s3G2u0Zd+ODyrwlDb91IO55+6R0Ha6ouPz8ioont0gA70c1RFngg==
-  dependencies:
-    "@babel/runtime" "^7.10.4"
-    "@changesets/errors" "^0.1.4"
-    "@changesets/types" "^4.0.0"
-    "@manypkg/get-packages" "^1.0.1"
-    is-subdir "^1.1.1"
-    spawndamnit "^2.0.0"
 
 "@changesets/git@^1.1.2":
   version "1.1.2"
@@ -578,11 +523,6 @@
     chalk "^2.1.0"
     fs-extra "^7.0.1"
     p-filter "^2.1.0"
-
-"@changesets/types@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@changesets/types/-/types-4.0.0.tgz#635f804546b0a96ecc0ca3f26403a6782a3dc938"
-  integrity sha512-whLmPx2wgJRoOtxVZop+DJ71z1gTSkij7osiHgN+pe//FiE6bb4ffvBBb0rACs2cUPfAkWxgSPzqkECgKS1jvQ==
 
 "@changesets/types@^4.0.1":
   version "4.0.1"
