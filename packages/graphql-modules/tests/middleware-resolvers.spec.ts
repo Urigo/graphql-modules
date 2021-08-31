@@ -138,7 +138,7 @@ test('middleware should intercept the resolve function with an error', async () 
       },
       async () => 'not intercepted'
     );
-  } catch (error) {
+  } catch (error: any) {
     expect(error.message).toEqual('intercepted');
   }
 
