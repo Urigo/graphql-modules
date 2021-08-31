@@ -207,7 +207,7 @@ export class ReflectiveInjector implements Injector {
       deps = provider.factory.dependencies.map((dep) =>
         this._getByDependency(dep)
       );
-    } catch (e) {
+    } catch (e: any) {
       if (e.addKey) {
         e.addKey(provider.key);
       }
@@ -228,7 +228,7 @@ export class ReflectiveInjector implements Injector {
           });
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       throw instantiationError(this, e, provider.key);
     }
 
