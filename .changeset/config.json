@@ -10,6 +10,7 @@
     "apollo-subscriptions",
     "examples-basic",
     "examples-di",
-    "examples-subscriptions"
+    "examples-subscriptions",
+    "example-graphql-ez"
   ]
 }
