@@ -13,7 +13,7 @@
     "@docusaurus/plugin-client-redirects": "2.0.0-beta.6",
     "@docusaurus/plugin-ideal-image": "2.0.0-beta.6",
     "@docusaurus/preset-classic": "2.0.0-beta.6",
-    "@theguild/components": "1.4.8",
+    "@theguild/components": "1.5.0",
     "@phenomnomnominal/tsquery": "4.1.1",
     "globby": "11.0.4",
     "patch-package": "6.4.7",
