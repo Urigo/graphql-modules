@@ -21,7 +21,7 @@
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
   "devDependencies": {
-    "@apollo/federation": "0.33.0",
+    "@apollo/federation": "0.33.1",
     "@changesets/apply-release-plan": "5.0.1",
     "@changesets/cli": "2.17.0",
     "@graphql-tools/merge": "8.1.2",
