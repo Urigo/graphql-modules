@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@apollo/federation@0.33.2":
-  version "0.33.2"
-  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.33.2.tgz#9e83705377e60fe38524327115915b50395b379d"
-  integrity sha512-UwzLHPFXQfFPvHRugPcxVaXeWlFM3MQnkB+KmepT10VzErJPGsfFJ9dAnLSy2xlWysmI0AN95J8oLo+6fmkunA==
+"@apollo/federation@0.33.3":
+  version "0.33.3"
+  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.33.3.tgz#07710308c1a097c3aaee53759860751f6fff82e3"
+  integrity sha512-+BRJW1Kf7im86CWPQEdocXQTyPUH132MMoMCXuRvM4F1idb5EldqRkFNM8y9IAYNnbHsthmIWlrqmkuYg+irGQ==
   dependencies:
-    "@apollo/subgraph" "^0.1.1"
+    "@apollo/subgraph" "^0.1.2"
     apollo-graphql "^0.9.3"
     apollo-server-types "^3.0.2"
     lodash.xorby "^4.7.0"
@@ -31,10 +31,10 @@
     "@types/node" "^10.1.0"
     long "^4.0.0"
 
-"@apollo/subgraph@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.1.1.tgz#77bbbd164914b1db0cdadefb491852e897f346c3"
-  integrity sha512-QVSTy8bX9kiNjRWG0fGrUfJ0ut2I/vvfIMuXBBXMCVcHXYJTMmmLFkb0nOF0HZwwbUSvOogaKFftl7IprvQX3A==
+"@apollo/subgraph@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.1.2.tgz#ea2e9c46a88012c22a2cd696f4e0f4b4c4608eb1"
+  integrity sha512-vrPtpayvJkLdqc/iLjhXi+W9HQ+Avnb2a8ylaZb0lsm9p0y1H5QxNDhC3SHhdYRvBnNeqgxE+OGYG1rHldMQIQ==
   dependencies:
     apollo-graphql "^0.9.3"
 
