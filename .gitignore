@@ -31,3 +31,5 @@ dist
 
 .bob
 tsconfig.tsbuildinfo
+
+.next

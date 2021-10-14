@@ -8,7 +8,7 @@ sidebar_label: Introduction
 
 In GraphQL Modules, each module has its own GraphQL type definitions and resolver implementations.
 
-The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
+The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
 
 During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while at runtime, you'll be able to serve a unified schema.
 
@@ -19,7 +19,7 @@ Each GraphQL `module` is built using the basics of GraphQL:
 - Type definitions
 - Resolver functions
 
-As your application grows, modules can use [Dependency Injection](./di/introduction), if you wish to separate your resolvers and your business-logic.
+As your application grows, modules can use [Dependency Injection](di/introduction), if you wish to separate your resolvers and your business-logic.
 
 The structure of GraphQL API with GraphQL Modules is flat. `Module`s are on the same level and there's `Application` on top of them.
 
@@ -32,7 +32,7 @@ To get a better understanding of the structure and extensibility of modules, let
 - Profile (define a user's profile)
 - Gallery (define a user's photo gallery)
 
-![example](/img/example.png)
+![example](/assets/img/example.png)
 
 Let's understand how to define each module's schema and how to separate it into smaller pieces.
 
