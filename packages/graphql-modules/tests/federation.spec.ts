@@ -1,12 +1,22 @@
 import 'reflect-metadata';
-import { buildFederatedSchema } from '@apollo/federation';
 import { mergeResolvers } from '@graphql-tools/merge';
 import { createApplication, createModule, gql } from '../src';
+import { versionInfo } from 'graphql';
 
-test('allow __resolveReference', async () => {
-  const mod = createModule({
-    id: 'test',
-    typeDefs: gql`
+describe('federation', () => {
+
+  if (versionInfo.major !== 15) {
+    console.warn('Federation is only supported in v15.x.x of graphql-js. Skipping tests...');
+    it('dummy', () => {});
+    return;
+  }
+
+  const { buildFederatedSchema }: typeof import('@apollo/federation') = require('@apollo/federation');
+
+  test('allow __resolveReference', async () => {
+    const mod = createModule({
+      id: 'test',
+      typeDefs: gql`
       type Query {
         me: User!
       }
@@ -16,30 +26,30 @@ test('allow __resolveReference', async () => {
         username: String
       }
     `,
-    resolvers: {
-      User: {
-        __resolveReference() {},
+      resolvers: {
+        User: {
+          __resolveReference() { },
+        },
       },
-    },
+    });
+
+    expect(() =>
+      createApplication({
+        modules: [mod],
+        schemaBuilder(input) {
+          return buildFederatedSchema({
+            typeDefs: input.typeDefs,
+            resolvers: mergeResolvers(input.resolvers) as any,
+          });
+        },
+      })
+    ).not.toThrow();
   });
 
-  expect(() =>
-    createApplication({
-      modules: [mod],
-      schemaBuilder(input) {
-        return buildFederatedSchema({
-          typeDefs: input.typeDefs,
-          resolvers: mergeResolvers(input.resolvers) as any,
-        });
-      },
-    })
-  ).not.toThrow();
-});
-
-test('allow __resolveObject', async () => {
-  const mod = createModule({
-    id: 'test',
-    typeDefs: gql`
+  test('allow __resolveObject', async () => {
+    const mod = createModule({
+      id: 'test',
+      typeDefs: gql`
       type Query {
         me: User!
       }
@@ -49,22 +59,24 @@ test('allow __resolveObject', async () => {
         username: String
       }
     `,
-    resolvers: {
-      User: {
-        __resolveObject() {},
+      resolvers: {
+        User: {
+          __resolveObject() { },
+        },
       },
-    },
+    });
+
+    expect(() =>
+      createApplication({
+        modules: [mod],
+        schemaBuilder(input) {
+          return buildFederatedSchema({
+            typeDefs: input.typeDefs,
+            resolvers: mergeResolvers(input.resolvers) as any,
+          });
+        },
+      })
+    ).not.toThrow();
   });
 
-  expect(() =>
-    createApplication({
-      modules: [mod],
-      schemaBuilder(input) {
-        return buildFederatedSchema({
-          typeDefs: input.typeDefs,
-          resolvers: mergeResolvers(input.resolvers) as any,
-        });
-      },
-    })
-  ).not.toThrow();
-});
+})
