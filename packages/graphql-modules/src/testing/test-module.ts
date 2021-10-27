@@ -18,6 +18,7 @@ import {
   InputObjectTypeExtensionNode,
   ScalarTypeDefinitionNode,
   ScalarTypeExtensionNode,
+  NamedTypeNode,
 } from 'graphql';
 import { moduleFactory } from '../module/factory';
 import { createApplication } from '../application/application';
@@ -316,7 +317,7 @@ function visitTypes(
       }
 
       if (hasInterfaces(type)) {
-        type.interfaces.forEach((i) => {
+        type.interfaces.forEach(i => {
           collectType(resolveType(i));
         });
       }
@@ -359,13 +360,7 @@ type RequiredProp<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 function hasInterfaces(
   def: NamedDefinitionNode
-): def is RequiredProp<
-  | ObjectTypeDefinitionNode
-  | InterfaceTypeDefinitionNode
-  | ObjectTypeExtensionNode
-  | InterfaceTypeExtensionNode,
-  'interfaces'
-> {
+): def is TypeDefinitionNode & { interfaces: NamedTypeNode[] } {
   return (
     hasPropValue(def, 'interfaces') &&
     [

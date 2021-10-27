@@ -24,7 +24,9 @@ export function apolloExecutorCreator({
 }): Application['createApolloExecutor'] {
   return function createApolloExecutor(options) {
     const executor = createExecution(options);
-    return async function executorAdapter(requestContext: ApolloRequestContext) {
+    return async function executorAdapter(
+      requestContext: ApolloRequestContext
+    ) {
       return executor({
         schema: requestContext.schema,
         document: requestContext.document,
@@ -91,7 +93,7 @@ export function apolloSchemaCreator({
           return subscription({
             schema,
             document: input.document,
-            variableValues: input.variables,
+            variableValues: input.variables as any,
             contextValue: input.context,
             rootValue: input.rootValue,
             operationName: input.operationName,
@@ -109,7 +111,7 @@ export function apolloSchemaCreator({
                 schema,
                 document: input.document,
                 contextValue: context,
-                variableValues: input.variables,
+                variableValues: input.variables as any,
                 rootValue: input.rootValue,
                 operationName: input.operationName,
               }) as any

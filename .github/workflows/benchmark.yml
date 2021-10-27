@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node_version: [12, 16]
+        node_version: [12, 17]
     env:
       CI: true
 
@@ -26,13 +26,14 @@ jobs:
         name: Cache node_modules
         with:
           path: '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ matrix.node_version }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ matrix.node_version }}-15-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ matrix.node_version }}
+            ${{ runner.os }}-yarn-${{ matrix.node_version }}-15-
+            ${{ runner.os }}-yarn-${{ matrix.node_version }}-
             ${{ runner.os }}-yarn-
 
       - name: Install
-        run: yarn
+        run: yarn --ignore-engines
 
       - name: Build
         run: yarn build

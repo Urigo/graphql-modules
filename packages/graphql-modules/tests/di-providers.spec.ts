@@ -19,6 +19,10 @@ const Test = new InjectionToken<string>('test');
 const posts = ['Foo', 'Bar'];
 const comments = ['Comment #1', 'Comment #2'];
 
+// Workaround for Babel TypeScript Metadata plugin
+type GraphQLModulesModuleContext = GraphQLModules.ModuleContext;
+type GraphQLModulesGlobalContext = GraphQLModules.GlobalContext;
+
 test('general test', async () => {
   const spies = {
     logger: jest.fn(),
@@ -114,7 +118,7 @@ test('general test', async () => {
         posts(
           _parent: {},
           __args: {},
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           spies.posts.moduleId(injector.get(MODULE_ID));
           spies.posts.test(injector.get(Test));
@@ -148,7 +152,7 @@ test('general test', async () => {
         comments(
           _parent: {},
           __args: {},
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           spies.comments.moduleId(injector.get(MODULE_ID));
           spies.comments.test(injector.get(Test));
@@ -284,7 +288,7 @@ test('useFactory with dependecies', async () => {
         posts(
           _parent: {},
           __args: {},
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           return injector.get(Posts).all();
         },
@@ -354,7 +358,7 @@ test('Use @Inject decorator in constructor', async () => {
     `,
     resolvers: {
       Query: {
-        ping(_: any, __: any, { injector }: GraphQLModules.ModuleContext) {
+        ping(_: any, __: any, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Auth).ping();
         },
       },
@@ -413,7 +417,7 @@ test('Use useFactory with deps', async () => {
     `,
     resolvers: {
       Query: {
-        ping(_: any, __: any, { injector }: GraphQLModules.ModuleContext) {
+        ping(_: any, __: any, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Auth).ping();
         },
       },
@@ -454,7 +458,7 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
     scope: Scope.Operation,
   })
   class Dataloader {
-    constructor(@Inject(CONTEXT) context: GraphQLModules.GlobalContext) {
+    constructor(@Inject(CONTEXT) context: GraphQLModulesGlobalContext) {
       constructorSpy(context);
     }
 
@@ -485,7 +489,7 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
         post(
           _parent: {},
           args: { id: number },
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           return injector.get(Dataloader).load(args.id);
         },
@@ -546,7 +550,7 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
     scope: Scope.Operation,
   })
   class Dataloader {
-    constructor(@Inject(CONTEXT) context: GraphQLModules.GlobalContext) {
+    constructor(@Inject(CONTEXT) context: GraphQLModulesGlobalContext) {
       constructorSpy(context);
     }
 
@@ -577,7 +581,7 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
         post(
           _parent: {},
           args: { id: number },
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           return injector.get(Dataloader).load(args.id);
         },
@@ -662,7 +666,7 @@ test('Singleton scoped provider should be created once', async () => {
         lorem(
           _parent: {},
           _args: {},
-          { injector }: GraphQLModules.ModuleContext
+          { injector }: GraphQLModulesModuleContext
         ) {
           return injector.get(Data).lorem();
         },
@@ -730,11 +734,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -750,11 +750,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -823,11 +819,7 @@ test('Global Token (module) should use other local tokens (operation)', async ()
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -850,11 +842,7 @@ test('Global Token (module) should use other local tokens (operation)', async ()
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -929,11 +917,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -949,11 +933,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1023,11 +1003,7 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1049,11 +1025,7 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1137,11 +1109,7 @@ test('instantiate all singleton providers', async () => {
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).value();
         },
       },
@@ -1239,11 +1207,7 @@ test('instantiate all singleton and global providers', async () => {
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModules.ModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).value();
         },
       },
