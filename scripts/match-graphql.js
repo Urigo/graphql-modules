@@ -8,7 +8,7 @@ const pkg = require(pkgPath);
 
 const version = argv[2];
 
-if (pkg.devDependencies.startsWith(version)) {
+if (pkg.devDependencies.graphql.startsWith(version)) {
   // eslint-disable-next-line no-console
   console.info(`GraphQL v${version} already installed! Skipping.`);
 }
