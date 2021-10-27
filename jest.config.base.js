@@ -9,15 +9,8 @@ const CI = !!process.env.CI;
 
 module.exports = (dir) => {
   return {
-    preset: 'ts-jest',
     testEnvironment: 'node',
     rootDir: dir,
-    globals: {
-      'ts-jest': {
-        diagnostics: false,
-        tsconfig: TSCONFIG_TEST_PATH,
-      },
-    },
     reporters: ['default'],
     modulePathIgnorePatterns: ['dist'],
     moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
