@@ -43,9 +43,9 @@ export function metadataFactory(
 
     if (node.fields && node.fields.length > 0) {
       implemented[node.name.value].push(
-        ...(node.fields as Array<
-          InputValueDefinitionNode | FieldDefinitionNode
-        >).map((field) => field.name.value)
+        ...(
+          node.fields as Array<InputValueDefinitionNode | FieldDefinitionNode>
+        ).map((field) => field.name.value)
       );
     }
 
@@ -74,9 +74,9 @@ export function metadataFactory(
         extended[node.name.value] = [];
       }
 
-      (node.fields as Array<
-        InputValueDefinitionNode | FieldDefinitionNode
-      >).forEach((field) => {
+      (
+        node.fields as Array<InputValueDefinitionNode | FieldDefinitionNode>
+      ).forEach((field) => {
         extended[node.name.value].push(field.name.value);
       });
     }

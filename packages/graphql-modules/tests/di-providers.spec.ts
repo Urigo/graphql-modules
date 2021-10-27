@@ -734,11 +734,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -754,11 +750,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -827,11 +819,7 @@ test('Global Token (module) should use other local tokens (operation)', async ()
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -854,11 +842,7 @@ test('Global Token (module) should use other local tokens (operation)', async ()
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -933,11 +917,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -953,11 +933,7 @@ test('Global Token provided by one module should be accessible by other modules 
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1027,11 +1003,7 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1053,11 +1025,7 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).lorem();
         },
       },
@@ -1141,11 +1109,7 @@ test('instantiate all singleton providers', async () => {
     `,
     resolvers: {
       Query: {
-        foo(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        foo(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).value();
         },
       },
@@ -1243,11 +1207,7 @@ test('instantiate all singleton and global providers', async () => {
     `,
     resolvers: {
       Query: {
-        bar(
-          _parent: {},
-          _args: {},
-          { injector }: GraphQLModulesModuleContext
-        ) {
+        bar(_parent: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
           return injector.get(Data).value();
         },
       },

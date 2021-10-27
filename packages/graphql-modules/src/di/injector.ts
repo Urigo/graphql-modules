@@ -36,7 +36,8 @@ export class ReflectiveInjector implements Injector {
   _providers: ResolvedProvider[];
   _globalProvidersMap: GlobalProviderMap;
 
-  private _executionContextGetter: ExecutionContextGetter = notInExecutionContext;
+  private _executionContextGetter: ExecutionContextGetter =
+    notInExecutionContext;
   private _fallbackParent: Injector | null;
   private _parent: Injector | null;
   private _keyIds: number[];

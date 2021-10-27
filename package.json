@@ -17,7 +17,7 @@
     "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
     "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
     "pr": "changeset",
-    "lint": "eslint \"packages/**\"",
+    "lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
@@ -52,7 +52,7 @@
     "express": "4.17.1",
     "express-graphql": "0.11.0",
     "globby": "11.0.4",
-    "graphql": "15.7.0",
+    "graphql": "15.7.1",
     "graphql-subscriptions": "1.2.1",
     "husky": "7.0.4",
     "jest": "27.3.1",
@@ -78,5 +78,8 @@
   "lint-staged": {
     "*.ts": "eslint",
     "*{js,json,css,md,ts,tsx}": "prettier --write"
+  },
+  "resolutions": {
+    "graphql": "15.7.1"
   }
 }

@@ -12,9 +12,8 @@ export type ResolveFn<TContext = GraphQLModules.Context> = GraphQLFieldResolver<
   TContext,
   Record<string, any>
 >;
-export type ResolveTypeFn<
-  TContext = GraphQLModules.Context
-> = GraphQLTypeResolver<any, TContext>;
+export type ResolveTypeFn<TContext = GraphQLModules.Context> =
+  GraphQLTypeResolver<any, TContext>;
 
 declare global {
   namespace GraphQLModules {
