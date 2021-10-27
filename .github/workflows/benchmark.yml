@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install
-        run: yarn
+        run: yarn --ignore-engines
 
       - name: Build
         run: yarn build
