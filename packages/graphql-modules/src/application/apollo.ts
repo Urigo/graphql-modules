@@ -93,7 +93,7 @@ export function apolloSchemaCreator({
           return subscription({
             schema,
             document: input.document,
-            variableValues: input.variables,
+            variableValues: input.variables as any,
             contextValue: input.context,
             rootValue: input.rootValue,
             operationName: input.operationName,
@@ -111,7 +111,7 @@ export function apolloSchemaCreator({
                 schema,
                 document: input.document,
                 contextValue: context,
-                variableValues: input.variables,
+                variableValues: input.variables as any,
                 rootValue: input.rootValue,
                 operationName: input.operationName,
               }) as any

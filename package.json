@@ -78,8 +78,5 @@
   "lint-staged": {
     "*.ts": "eslint",
     "*{js,json,css,md,ts,tsx}": "prettier --write"
-  },
-  "resolutions": {
-    "graphql": "15.7.1"
   }
 }

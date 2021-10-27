@@ -8,14 +8,12 @@ const pkg = require(pkgPath);
 
 const version = argv[2];
 
-pkg.resolutions = pkg.resolutions || {};
-if (pkg.resolutions.graphql.startsWith(version)) {
+if (pkg.resolutions.devDependencies.startsWith(version)) {
   // eslint-disable-next-line no-console
   console.info(`GraphQL v${version} already installed! Skipping.`);
 }
 
 const npmVersion = version.includes('-') ? version : `^${version}`;
-pkg.resolutions.graphql = npmVersion;
 pkg.devDependencies.graphql = npmVersion;
 
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
