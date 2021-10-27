@@ -199,10 +199,10 @@ test('should support __resolveType', async () => {
         e: () => 'post',
       },
       Node: {
-        __resolveType: (obj: any) => obj.type,
+        __resolveType: (obj: any) => obj.type.name,
       },
       Item: {
-        __resolveType: (obj: any) => obj.type,
+        __resolveType: (obj: any) => obj.type.name,
       },
     },
   });
@@ -285,11 +285,11 @@ test('allow field resolvers in an interface without objects inheriting them', as
         e: () => 'post',
       },
       Node: {
-        __resolveType: (obj: any) => obj.type,
+        __resolveType: (obj: any) => obj.type.name,
         d: () => `should work only when there's a custom schema builder`,
       },
       Item: {
-        __resolveType: (obj: any) => obj.type,
+        __resolveType: (obj: any) => obj.type.name,
       },
     },
   });
@@ -348,7 +348,7 @@ test('pass field resolvers of an interface to schemaBuilder', async () => {
         f: () => 'test',
       },
       Node: {
-        __resolveType: (obj: any) => obj.type,
+        __resolveType: (obj: any) => obj.type.name,
         d: () => `works`,
       },
     },
