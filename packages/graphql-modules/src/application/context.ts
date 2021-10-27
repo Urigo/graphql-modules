@@ -6,6 +6,7 @@ import type { InternalAppContext, ModulesMap } from './application';
 import { attachGlobalProvidersMap } from './di';
 import { CONTEXT } from './tokens';
 import { executionContext, ExecutionContextPicker } from './execution-context';
+import type { Tracing } from '../shared/tracing';
 
 export type ExecutionContextBuilder<
   TContext extends {
@@ -20,6 +21,7 @@ export type ExecutionContextBuilder<
 };
 
 export function createContextBuilder({
+  tracing,
   appInjector,
   modulesMap,
   appLevelOperationProviders,
@@ -35,6 +37,7 @@ export function createContextBuilder({
     [key: string]: string;
   };
   modulesMap: ModulesMap;
+  tracing: Tracing;
 }) {
   // This is very critical. It creates an execution context.
   // It has to run on every operation.
@@ -42,6 +45,10 @@ export function createContextBuilder({
   const contextBuilder: ExecutionContextBuilder<GraphQLModules.GlobalContext> = (
     context
   ) => {
+    const tracer = tracing.create({ session: tracing.session(context) });
+    const tracerContextEnd = tracer.onContext({
+      id: 'application',
+    });
     // Cache for context per module
     let contextCache: Record<ID, GraphQLModules.ModuleContext> = {};
     // A list of providers with OnDestroy hooks
@@ -58,6 +65,11 @@ export function createContextBuilder({
         }
       });
     }
+
+    const operationAppInjectorName = 'App (Operation Scope)';
+    const tracerInjectorEnd = tracer.onInjector({
+      name: operationAppInjectorName,
+    });
 
     let appContext: GraphQLModules.AppContext;
 
@@ -99,7 +111,7 @@ export function createContextBuilder({
     // Application level
     // Operation scoped - means it's created and destroyed on every GraphQL Operation
     const operationAppInjector = ReflectiveInjector.createFromResolved({
-      name: 'App (Operation Scope)',
+      name: operationAppInjectorName,
       providers: appLevelOperationProviders.concat(
         ReflectiveInjector.resolve([
           {
@@ -110,14 +122,13 @@ export function createContextBuilder({
       ),
       parent: appInjector,
     });
+    // Track Providers with OnDestroy hooks
+    registerProvidersToDestroy(operationAppInjector);
 
     // Create a context for application-level ExecutionContext
     appContext = merge(context, {
       injector: operationAppInjector,
     });
-
-    // Track Providers with OnDestroy hooks
-    registerProvidersToDestroy(operationAppInjector);
 
     function getModuleContext(
       moduleId: string,
@@ -125,12 +136,19 @@ export function createContextBuilder({
     ): GraphQLModules.ModuleContext {
       // Reuse a context or create if not available
       if (!contextCache[moduleId]) {
+        const operationModuleInjectorName = `Module "${moduleId}" (Operation Scope)`;
+        const tracerModContextEnd = tracer.onContext({
+          id: moduleId,
+        });
+        const tracerModInjectorEnd = tracer.onInjector({
+          name: operationModuleInjectorName,
+        });
         // We're interested in operation-scoped providers only
         const providers = modulesMap.get(moduleId)?.operationProviders!;
 
         // Create module-level Operation-scoped Injector
         const operationModuleInjector = ReflectiveInjector.createFromResolved({
-          name: `Module "${moduleId}" (Operation Scope)`,
+          name: operationModuleInjectorName,
           providers: providers.concat(
             ReflectiveInjector.resolve([
               {
@@ -149,11 +167,13 @@ export function createContextBuilder({
 
         // Same as on application level, we need to collect providers with OnDestroy hooks
         registerProvidersToDestroy(operationModuleInjector);
+        tracerModInjectorEnd();
 
         contextCache[moduleId] = merge(ctx, {
           injector: operationModuleInjector,
           moduleId,
         });
+        tracerModContextEnd();
       }
 
       return contextCache[moduleId];
@@ -177,8 +197,12 @@ export function createContextBuilder({
       },
     });
 
+    tracerInjectorEnd();
+    tracerContextEnd();
+
     return {
       ɵdestroy: once(() => {
+        const tracerOnDestroyEnd = tracer.onDestroy();
         providersToDestroy.forEach(([injector, keyId]) => {
           // If provider was instantiated
           if (injector._isObjectDefinedByKeyId(keyId)) {
@@ -187,6 +211,7 @@ export function createContextBuilder({
           }
         });
         contextCache = {};
+        tracerOnDestroyEnd();
       }),
       ɵinjector: operationAppInjector,
       context: sharedContext,
