@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "postinstall": "patch-package",
+    "ts:check": "tsc --project tsconfig.json --noEmit",
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
     "prerelease": "yarn build",
