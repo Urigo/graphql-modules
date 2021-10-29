@@ -4,7 +4,7 @@ title: Introduction
 sidebar_label: Introduction
 ---
 
-**GraphQL Modules** is a utility library, allowing you separate your GraphQL schema implementation into small, reusable, easy-to-implement and easy-to-test pieces.
+**GraphQL Modules** is a utility library, allowing you to separate your GraphQL schema implementation into small, reusable, easy-to-implement and easy-to-test pieces.
 
 In GraphQL Modules, each module has its own GraphQL type definitions and resolvers implementations.
 
