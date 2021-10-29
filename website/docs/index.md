@@ -10,7 +10,7 @@ In GraphQL Modules, each module has its own GraphQL type definitions and resolve
 
 The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
 
-During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while in runtime, you'll be able to serve a unified schema.
+During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while at runtime, you'll be able to serve a unified schema.
 
 ## Structure
 
