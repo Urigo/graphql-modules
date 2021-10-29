@@ -36,7 +36,7 @@ To get a better understanding of the structure and extensibility of modules, let
 
 Let's understand how to define each module's schema and how to separate it into smaller pieces.
 
-Each one of our modules, contributes small part of the schema, and the GraphQL `Application` merged it into a complete schema.
+Each one of our modules contributes a small part of the schema, and the GraphQL `Application` merges it into a complete schema.
 
 ### User Module
 
