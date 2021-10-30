@@ -1,5 +1,18 @@
 # graphql-modules
 
+## 2.0.0
+
+### Major Changes
+
+- d0a662d4: Update graphql-tools/schema & graphql-tools/wrap to major v8
+
+  Check [graphql-tools/schema v8.0.0 release](https://github.com/ardatan/graphql-tools/releases/tag/%40graphql-tools%2Fschema%408.0.0) for possible breaking changes
+
+### Minor Changes
+
+- 75552e67: feat: GraphQL v16 support
+- c084f1e4: ESM support
+
 ## 1.4.4
 
 ### Patch Changes
