@@ -4,13 +4,13 @@ title: Introduction
 sidebar_label: Introduction
 ---
 
-**GraphQL Modules** is a utility library, allowing you separate your GraphQL schema implementation into small, reusable, easy-to-implement and easy-to-test pieces.
+**GraphQL Modules** is a utility library, allowing you to separate your GraphQL schema implementation into small, reusable, easy-to-implement and easy-to-test pieces.
 
-In GraphQL Modules, each module has its own GraphQL type definitions and resolvers implementations.
+In GraphQL Modules, each module has its own GraphQL type definitions and resolver implementations.
 
 The idea behind this is to implement the **[Separation of Concerns](https://deviq.com/separation-of-concerns/)** design pattern in GraphQL and to allow you to write simple modules that only do what they need to. This way, they're easier to write, maintain and test.
 
-During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while in runtime, you'll be able to serve a unified schema.
+During development, GraphQL-Modules allow you to separate your GraphQL schema definitions, while at runtime, you'll be able to serve a unified schema.
 
 ## Structure
 
@@ -36,7 +36,7 @@ To get a better understanding of the structure and extensibility of modules, let
 
 Let's understand how to define each module's schema and how to separate it into smaller pieces.
 
-Each one of our modules, contributes small part of the schema, and the GraphQL `Application` merged it into a complete schema.
+Each one of our modules contributes a small part of the schema, and the GraphQL `Application` merges it into a complete schema.
 
 ### User Module
 
