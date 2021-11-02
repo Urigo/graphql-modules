@@ -22,7 +22,7 @@
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
   "devDependencies": {
-    "@apollo/federation": "0.33.3",
+    "@apollo/federation": "0.33.6",
     "@babel/core": "7.16.0",
     "@babel/preset-env": "7.16.0",
     "@babel/preset-typescript": "7.16.0",
