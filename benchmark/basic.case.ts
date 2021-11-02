@@ -131,7 +131,7 @@ const query = parse(/* GraphQL */ `
 `);
 
 async function graphql(schema: GraphQLSchema, executeFn: typeof execute) {
-  const result = await executeFn({
+  const result: any = await executeFn({
     schema,
     document: query,
     contextValue: {},
