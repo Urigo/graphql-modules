@@ -2027,10 +2027,10 @@
   resolved "https://registry.npmjs.org/@types/qs/-/qs-6.9.5.tgz#434711bdd49eb5ee69d90c1d67c354a9a8ecb18b"
   integrity sha512-/JHkVHtx/REVG0VVToGRGH2+23hsYLHdyG+GrvoUGlGAd0ErauXDyvHtRI/7H7mzLm+tBCKA7pfcpkQ1lf58iQ==
 
-"@types/ramda@0.27.50":
-  version "0.27.50"
-  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.27.50.tgz#cc680fa45361918dd6fa942be9884c5892a81f06"
-  integrity sha512-9CIXC4laCxK1UxfYmLZhXj3AEJu8C/cGTKMapykAvP8gIbAJjdVfzMVR9vq9d8Cddt71UlDDwNvGZ5q/DE+83w==
+"@types/ramda@0.27.52":
+  version "0.27.52"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.27.52.tgz#867c41c24563e610f6ee27e7ae278772729bb88e"
+  integrity sha512-7wB3lv+fk4acUc8o2518OgzngeKDC+QQk7hdBoQF8sKoieorG8LxNaDMmr/hT7SALSYRXr/nHkrGu+rBACvGUA==
   dependencies:
     ts-toolbelt "^6.15.1"
 
