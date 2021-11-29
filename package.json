@@ -8,6 +8,7 @@
     "examples/*"
   ],
   "scripts": {
+    "prepare": "husky install",
     "postinstall": "patch-package",
     "ts:check": "tsc --project tsconfig.json --noEmit",
     "build": "tsc --project tsconfig.json && bob build",
@@ -69,11 +70,6 @@
     "trailingComma": "es5",
     "semi": true,
     "singleQuote": true
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "*.ts": "eslint",
