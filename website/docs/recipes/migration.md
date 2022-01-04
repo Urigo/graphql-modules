@@ -132,7 +132,7 @@ To use:
 ```typescript
 const myModule = createModule({
   // ...
-  middlwares: {
+  middlewares: {
     Query: {
       me: [yourMiddleware],
     },
