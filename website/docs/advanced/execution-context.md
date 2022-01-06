@@ -5,7 +5,7 @@ title: Execution Context
 
 Execution Context means the context of execution of GraphQL Operation. It's related to Dependency Injection, especially Singletons and represents the context object created by your GraphQL server.
 
-Why "especially useful in `Singletone`s"?
+Why "especially useful in `Singleton`s"?
 
 As you know from ["Introduction to Dependency Injection"](../di/introduction.md) chapter, `Singleton`s can't directly access Operation scoped services, meaning they probably can't also directly access the context object created per each operation. Directly.
 

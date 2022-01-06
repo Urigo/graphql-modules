@@ -63,12 +63,12 @@ const app = createApplication({
   providers: [Data],
 });
 
-server.use('/graphq', (req, res) => {
+server.use('/graphql', (req, res) => {
   const controller = app.createOperationController({
     /*
       It's important to pass a correct context value here.
       This value represents a context object available in Dependency Injection.
-      Keep on mind, it doesn't have to be the same context object as your resolvers get.
+      Keep in mind, it doesn't have to be the same context object as your resolvers get.
     */
     context: {},
   });
