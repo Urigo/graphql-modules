@@ -35,7 +35,7 @@
     "@types/express": "4.17.13",
     "@types/jest": "27.4.0",
     "@types/node": "16.11.19",
-    "@types/ramda": "0.27.62",
+    "@types/ramda": "0.27.63",
     "@typescript-eslint/eslint-plugin": "5.9.1",
     "@typescript-eslint/parser": "5.9.1",
     "apollo-server": "3.6.1",
