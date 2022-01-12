@@ -28,7 +28,7 @@
     "@babel/preset-typescript": "7.16.7",
     "@babel/plugin-proposal-decorators": "7.16.7",
     "@babel/plugin-proposal-class-properties": "7.16.7",
-    "@changesets/apply-release-plan": "5.0.1",
+    "@changesets/apply-release-plan": "5.0.3",
     "@changesets/cli": "2.19.0",
     "@graphql-tools/merge": "8.2.1",
     "@types/benchmark": "2.1.1",
