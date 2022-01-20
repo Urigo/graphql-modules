@@ -11,8 +11,7 @@ export function ContactUs() {
       <h2 className="_kicker">Need Help?</h2>
       <h1 className="_title">We've Got You Covered!</h1>
       <div className="_subtitle">
-        Check out our <Link href="/docs/index">docs</Link>, open an issue
-        on our{' '}
+        Check out our <Link href="/docs">docs</Link>, open an issue on our{' '}
         <a href="https://github.com/Urigo/graphql-modules">GitHub repo</a> or
         simply contact us directly! We would love to help you with Apollo,
         GraphQL and GraphQL Modules and anything in between! We can help you get

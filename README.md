@@ -8,7 +8,7 @@
 **GraphQL Modules** is a toolset of libraries and guidelines dedicated to **create reusable, maintainable, testable and extendable modules** out of your GraphQL server.
 
 - [Website](https://graphql-modules.com)
-- [Documentation](https://graphql-modules.com/docs/index)
+- [Documentation](https://graphql-modules.com/docs)
 
 ## Highlights
 
@@ -19,7 +19,7 @@
 
 ## Documentation
 
-Documentation is available at [graphql-modules.com](https://graphql-modules.com/docs/index).
+Documentation is available at [graphql-modules.com](https://graphql-modules.com/docs).
 
 ## Installation
 
@@ -41,7 +41,7 @@ Just take a look at the build status on Github Actions and find "Publish Canary"
 
 ## Usage
 
-More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs/index)
+More advanced usage at [graphql-modules.com](https://graphql-modules.com/docs)
 
 ```js
 import { createModule, createApplication, gql } from 'graphql-modules';
