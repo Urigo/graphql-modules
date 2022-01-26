@@ -21,6 +21,8 @@ import 'reflect-metadata';
 If you are using Babel, please be aware that the preset **@babel/preset-typescript** strips out all the metadata and breaks DI. To overcome this, please use the following plugin: https://www.npmjs.com/package/babel-plugin-transform-typescript-metadata  
 ```
 
+:::
+
 ## Introduction
 
 We won't explain what Dependency Injection is, only how to use it withing the context of GraphQL-Modules. [You can find a quick tutorial about DI here](https://www.freecodecamp.org/news/a-quick-intro-to-dependency-injection-what-it-is-and-when-to-use-it-7578c84fa88f/).
