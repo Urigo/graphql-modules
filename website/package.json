@@ -9,10 +9,10 @@
     "api": "node ./scripts/api-doc.js"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-beta.14",
-    "@docusaurus/plugin-client-redirects": "2.0.0-beta.14",
-    "@docusaurus/plugin-ideal-image": "2.0.0-beta.14",
-    "@docusaurus/preset-classic": "2.0.0-beta.14",
+    "@docusaurus/core": "2.0.0-beta.15",
+    "@docusaurus/plugin-client-redirects": "2.0.0-beta.15",
+    "@docusaurus/plugin-ideal-image": "2.0.0-beta.15",
+    "@docusaurus/preset-classic": "2.0.0-beta.15",
     "@theguild/components": "1.8.7",
     "@phenomnomnominal/tsquery": "4.2.0",
     "globby": "11.1.0",
