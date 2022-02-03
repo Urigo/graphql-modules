@@ -15,6 +15,7 @@ import {
 import { FooterExtended, Header, Subheader } from '@theguild/components';
 
 import type { AppProps } from 'next/app';
+import Script from 'next/script';
 
 ExtendComponents({
   HelloWorld() {
@@ -69,6 +70,7 @@ function AppContent(appProps: AppProps) {
 
   return (
     <>
+      <Script async src="https://the-guild.dev/static/crisp.js" />
       <Header accentColor={accentColor} activeLink="/open-source" themeSwitch />
       <Subheader
         activeLink={router.asPath}
