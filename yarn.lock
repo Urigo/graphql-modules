@@ -120,13 +120,12 @@
     "@jridgewell/trace-mapping" "^0.2.2"
     sourcemap-codec "1.4.8"
 
-"@apollo/federation@0.33.9":
-  version "0.33.9"
-  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.33.9.tgz#875e5518329f9e9f5c0855d130d761e26111588c"
-  integrity sha512-Sbau1gvWN6/pJdw13xZCoQ75IQu6F6D9XkZ9FapMVX04bE1j1XXbYtSK+ZVZuOOCfMLnYV/iLEEPxedVb7+0yA==
+"@apollo/federation@0.34.0":
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.34.0.tgz#dd191b288fb6af73642c4ff7d770eccc7075272c"
+  integrity sha512-bExLLQz7VDb2Vi2V3ycpYpOb1rFuocy2lz9Y3ss5zaSUA5AcTC0ZcToJPGPOXuxOeJXGOJ2f08jQAz2v5KpLig==
   dependencies:
-    "@apollo/subgraph" "^0.1.5"
-    apollo-graphql "^0.9.5"
+    "@apollo/subgraph" "^0.2.0"
     apollo-server-types "^3.0.2"
     lodash.xorby "^4.7.0"
 
@@ -149,12 +148,10 @@
     "@types/node" "^10.1.0"
     long "^4.0.0"
 
-"@apollo/subgraph@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.1.5.tgz#ae5a1c686c97b7a2c3f7575d570f5c004578e2fd"
-  integrity sha512-i1uU9llldGMV7GcBOUQRqnbGfgOpc6nrOVw93oKlugZq5R00q8y/RX8KgvMfdXZyr4MJ2/gO6Kw7LzbjCKU+Kw==
-  dependencies:
-    apollo-graphql "^0.9.5"
+"@apollo/subgraph@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.2.0.tgz#3542201b6dd50bcc0f472ba30d0b59cebaabdd06"
+  integrity sha512-nt6A+hFnvxTUm1Y4TpTD7qPHTHfBEY0XOV6D9yTo4qmxkbjMcqj71zYGtY9m7GjPTeOCv1/5JPMhtneUrg6IzQ==
 
 "@apollographql/apollo-tools@^0.5.1":
   version "0.5.1"
@@ -4030,15 +4027,6 @@ apollo-datasource@^3.3.1:
     apollo-server-caching "^3.3.0"
     apollo-server-env "^4.2.1"
 
-apollo-graphql@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/apollo-graphql/-/apollo-graphql-0.9.5.tgz#9113483ca7f7fa49ee9e9a299c45d30b1cf3bf61"
-  integrity sha512-RGt5k2JeBqrmnwRM0VOgWFiGKlGJMfmiif/4JvdaEqhMJ+xqe/9cfDYzXfn33ke2eWixsAbjEbRfy8XbaN9nTw==
-  dependencies:
-    core-js-pure "^3.10.2"
-    lodash.sortby "^4.7.0"
-    sha.js "^2.4.11"
-
 apollo-reporting-protobuf@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/apollo-reporting-protobuf/-/apollo-reporting-protobuf-3.1.0.tgz#6f5501c58270b157834f2083668bc74f0e4d6104"
@@ -5349,11 +5337,6 @@ core-js-compat@^3.20.0, core-js-compat@^3.20.2:
   dependencies:
     browserslist "^4.19.1"
     semver "7.0.0"
-
-core-js-pure@^3.10.2:
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.11.0.tgz#e07f25a8f616d178ec16b0354b008ad28b20b2f0"
-  integrity sha512-PxEiQGjzC+5qbvE7ZIs5Zn6BynNeZO9zHhrrWmkRff2SZLq0CE/H5LuZOJHhmOQ8L38+eMzEHAmPYWrUtDfuDQ==
 
 core-js-pure@^3.20.2:
   version "3.20.3"
