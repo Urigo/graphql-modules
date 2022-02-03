@@ -24,10 +24,10 @@
   },
   "devDependencies": {
     "@apollo/federation": "0.33.9",
-    "@babel/core": "7.16.12",
+    "@babel/core": "7.17.0",
     "@babel/preset-env": "7.16.11",
     "@babel/preset-typescript": "7.16.7",
-    "@babel/plugin-proposal-decorators": "7.16.7",
+    "@babel/plugin-proposal-decorators": "7.17.0",
     "@babel/plugin-proposal-class-properties": "7.16.7",
     "@changesets/apply-release-plan": "5.0.1",
     "@changesets/cli": "2.20.0",
