@@ -5,7 +5,8 @@
   "license": "MIT",
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "website"
   ],
   "scripts": {
     "prepare": "husky install",
@@ -16,7 +17,7 @@
     "prerelease": "yarn build",
     "release": "changeset publish",
     "release:canary": "(node scripts/canary-release.js && yarn build && yarn changeset publish --tag alpha) || echo Skipping Canary...",
-    "format": "prettier --write \"packages/**/*.{js,json,css,md,ts,tsx}\"",
+    "format": "prettier --ignore-path .gitignore --write \"packages/**/*.{js,jsx,json,css,md,mdx,ts,tsx}\"",
     "pr": "changeset",
     "lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
@@ -69,7 +70,17 @@
   "prettier": {
     "trailingComma": "es5",
     "semi": true,
-    "singleQuote": true
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.{md,mdx}",
+        "options": {
+          "semi": false,
+          "trailingComma": "none",
+          "arrowParens": "avoid"
+        }
+      }
+    ]
   },
   "lint-staged": {
     "*.ts": "eslint",

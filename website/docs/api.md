@@ -9,8 +9,8 @@ title: API Reference
 
 `CONTEXT` is an InjectionToken representing the provided `GraphQLModules.GlobalContext`
 
-```typescript
-import { CONTEXT, Inject, Injectable } from 'graphql-modules';
+```ts
+import { CONTEXT, Inject, Injectable } from 'graphql-modules'
 
 @Injectable()
 export class Data {
@@ -24,13 +24,13 @@ export class Data {
 
 `MODULE_ID` is an InjectionToken representing module's ID
 
-```typescript
-import { MODULE_ID, Inject, Injectable } from 'graphql-modules';
+```ts
+import { MODULE_ID, Inject, Injectable } from 'graphql-modules'
 
 @Injectable()
 export class Data {
   constructor(@Inject(MODULE_ID) moduleId: string) {
-    console.log(`Data used in ${moduleId} module`);
+    console.log(`Data used in ${moduleId} module`)
   }
 }
 ```
@@ -60,8 +60,8 @@ A return type of `createApplication` function.
 Application's configuration object. Represents the first argument of `createApplication` function.
 
 - `modules` - A list of GraphQL Modules
-- `providers` - A list of Providers - read the ["Providers and Tokens"](./di/providers) chapter.
-- `middlewares` - A map of middlewares - read the ["Middlewares"](./advanced/middlewares) chapter.
+- `providers` - A list of Providers - read the ["Providers and Tokens"](di/providers) chapter.
+- `middlewares` - A map of middlewares - read the ["Middlewares"](advanced/middlewares) chapter.
 - `schemaBuilder` - Creates a GraphQLSchema object out of typeDefs and resolvers
 
 ## createApplication
@@ -70,15 +70,15 @@ Application's configuration object. Represents the first argument of `createAppl
 
 Creates Application out of Modules. Accepts `ApplicationConfig`.
 
-```typescript
-import { createApplication } from 'graphql-modules';
-import { usersModule } from './users';
-import { postsModule } from './posts';
-import { commentsModule } from './comments';
+```ts
+import { createApplication } from 'graphql-modules'
+import { usersModule } from './users'
+import { postsModule } from './posts'
+import { commentsModule } from './comments'
 
 const app = createApplication({
-  modules: [usersModule, postsModule, commentsModule],
-});
+  modules: [usersModule, postsModule, commentsModule]
+})
 ```
 
 ## createModule
@@ -87,8 +87,8 @@ const app = createApplication({
 
 Creates a Module, an element used by Application. Accepts `ModuleConfig`.
 
-```typescript
-import { createModule, gql } from 'graphql-modules';
+```ts
+import { createModule, gql } from 'graphql-modules'
 
 export const usersModule = createModule({
   id: 'users',
@@ -97,8 +97,8 @@ export const usersModule = createModule({
   `,
   resolvers: {
     // ...
-  },
-});
+  }
+})
 ```
 
 ## ModuleConfig
@@ -111,5 +111,5 @@ Module's configuration object. Represents the first argument of `createModule` f
 - `dirname` - Pass `__dirname` variable as a value to get better error messages.
 - `typeDefs` - An object or a list of GraphQL type definitions (SDL).
 - `resolvers` - An object or a list of GraphQL resolve functions.
-- `middlewares` - A map of middlewares - read the ["Middlewares"](./advanced/middlewares) chapter.
-- `providers` - A list of Providers - read the ["Providers and Tokens"](./di/providers) chapter.
+- `middlewares` - A map of middlewares - read the ["Middlewares"](advanced/middlewares) chapter.
+- `providers` - A list of Providers - read the ["Providers and Tokens"](di/providers) chapter.

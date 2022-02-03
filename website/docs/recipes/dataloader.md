@@ -12,17 +12,17 @@ DataLoader can be used in GraphQL Modules with an easy setup. You can use them a
 ## DataLoader as a Service
 
 ```typescript
-import { createModule, Scope, InjectionToken } from 'graphql-modules';
-import DataLoader from 'dataloader';
+import { createModule, Scope, InjectionToken } from 'graphql-modules'
+import DataLoader from 'dataloader'
 
-export const USER_DATA_LOADER = new InjectionToken('USER_DATA_LOADER');
+export const USER_DATA_LOADER = new InjectionToken('USER_DATA_LOADER')
 
 export const myModule = createModule({
   providers: [
     {
       provide: USER_DATA_LOADER,
       scope: Scope.Operation,
-      useFactory: () => new DataLoader(keys => myBatchGetUsers(keys));
+      useFactory: () => new DataLoader(keys => myBatchGetUsers(keys))
     }
   ],
   resolvers: {
@@ -32,7 +32,7 @@ export const myModule = createModule({
       }
     }
   }
-});
+})
 ```
 
 You don't need to create
@@ -40,22 +40,22 @@ You don't need to create
 ## DataLoader in a Service
 
 ```typescript
-import { Injectable, Scope } from 'graphql-modules';
-import DataLoader from 'dataloader';
-import { MyExternalDataProvider } from './my-external-data-provider';
+import { Injectable, Scope } from 'graphql-modules'
+import DataLoader from 'dataloader'
+import { MyExternalDataProvider } from './my-external-data-provider'
 
 @Injectable({
-  scope: Scope.Operation,
+  scope: Scope.Operation
 })
 export class UserProvider {
-  private dataLoader = new DataLoader((keys) =>
+  private dataLoader = new DataLoader(keys =>
     this.myDataProvider.findUsers(keys)
-  );
+  )
 
   constructor(private myDataProvider: MyExternalDataProvider) {}
 
   getUserById(userId: string) {
-    return this.dataLoader.load(userId);
+    return this.dataLoader.load(userId)
   }
 }
 ```
