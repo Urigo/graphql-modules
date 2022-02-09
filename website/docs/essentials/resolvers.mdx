@@ -64,6 +64,7 @@ Next, use it to load your files dynamically:
 import MyQueryType from './query.type.graphql'
 import { createModule } from 'graphql-modules'
 import { loadFilesSync } from '@graphql-tools/load-files'
+import { join } from 'path'
 
 export const myModule = createModule({
   id: 'my-module',
