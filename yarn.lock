@@ -3553,10 +3553,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.6.tgz#6bef7a2a0ad684cf6e90fcfe31cecabd9ce0a3ae"
   integrity sha512-ua7PgUoeQFjmWPcoo9khiPum3Pd60k4/2ZGXt18sm2Slk0W0xZTqt5Y0Ny1NyBiN1EVQ/+FaF9NcY4Qe6rwk5w==
 
-"@types/node@16.11.23":
-  version "16.11.23"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.23.tgz#47677957c66c95f0d85787f4989ee89c58312480"
-  integrity sha512-Br/QS/NWL1/WJhCgRh7L4dJb7RAf0SHygJ+jCNdXCUSA+85v5tRz8PCdiJ9I6mP9jTZ7a1gWDeMBCUKlUZQh6g==
+"@types/node@16.11.24":
+  version "16.11.24"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.24.tgz#9624338b685fea65fb1aba6c7b7eb45ca2df7188"
+  integrity sha512-Ezv33Rl4mIi6YdSHfIRNBd4Q9kUe5okiaw/ikvJiJDmuQZNW5kfdg7+oQPF8NO6sTcr3woIpj3jANzTXdvEZXA==
 
 "@types/node@16.7.10":
   version "16.7.10"
