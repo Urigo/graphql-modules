@@ -1,13 +1,9 @@
 {
-  "extends": ["config:base"],
-  "automerge": true,
-  "major": {
-    "automerge": false
-  },
+  "extends": ["github>the-guild-org/shared-config:renovate"],
   "pathRules": [
     {
       "paths": ["website/package.json"],
-      "extends": ["config:base"]
+      "extends": ["github>the-guild-org/shared-config:renovate"]
     }
   ]
 }
