@@ -24,6 +24,7 @@ export {
   TypeProvider,
   forwardRef,
   InjectionToken,
+  InjectionTokenTargetType,
   Scope,
 } from './di';
 
