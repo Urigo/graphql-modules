@@ -11,6 +11,10 @@ export class InjectionToken<T> {
   }
 }
 
+export type InjectionTokenTargetType<T> = T extends InjectionToken<infer U>
+  ? U
+  : never;
+
 export function isToken(v: any): v is InjectionToken<any> {
   return v && v instanceof InjectionToken;
 }

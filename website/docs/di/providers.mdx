@@ -307,6 +307,18 @@ class Posts {
 
 > `@Inject` decorator is needed because of limitation of type system.
 
+In order to avoid repeating the target type of an injection token when a injecting dependency through the constructor, the utility type `InjectionTokenTargetType` can be used. The previous code sample can be rewritten in the following manner:
+
+```typescript
+import { Injectable, Inject, InjectionTokenTargetType } from 'graphql-modules'
+import { ApiKey } from './keys'
+
+@Injectable()
+class Posts {
+  constructor(@Inject(ApiKey) private key: InjectionTokenTargetType<typeof ApiKey>) {}
+}
+```
+
 </TabItem>
 </Tabs>
 

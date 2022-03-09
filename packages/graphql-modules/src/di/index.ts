@@ -2,6 +2,7 @@ export { Injectable, Optional, Inject, ExecutionContext } from './decorators';
 export { forwardRef } from './forward-ref';
 export {
   InjectionToken,
+  InjectionTokenTargetType,
   Type,
   Provider,
   AbstractType,
