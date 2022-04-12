@@ -4,7 +4,7 @@ title: Subscriptions
 ---
 
 import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import TabItem from '@theme/Tab'
 
 Subscription is a third kind of GraphQL operation, next to Query and Mutation. Think of it as an event emitter where events are emitted by your backend and consumed by a GraphQL client - frontend in most scenarios.
 
@@ -133,14 +133,8 @@ export const myModule = createModule({
 
 Here are reference implementations of using GraphQL Subscriptions with WebSockets in both, Apollo Server and Express GraphQL.
 
-<Tabs
-defaultValue="apollo"
-values={[
-{label: 'Apollo Server', value: 'apollo'},
-{label: 'Express GraphQL', value: 'express'},
-]
-}>
-<TabItem value="apollo">
+<MDXTabs namespace={`advanced/subscriptions`}>
+<MDXTab label="Apollo Server">
 
 ```typescript title="server.ts"
 import 'reflect-metadata'
@@ -158,8 +152,8 @@ server.listen().then(({ url }) => {
 })
 ```
 
-</TabItem>
-<TabItem value="express">
+</MDXTab>
+<MDXTab label="Express GraphQL">
 
 ```typescript title="server.ts"
 import 'reflect-metadata'
@@ -203,5 +197,5 @@ webServer.listen(4000, () => {
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>

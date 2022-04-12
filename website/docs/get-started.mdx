@@ -4,9 +4,6 @@ title: Get Started
 sidebar_label: Get Started
 ---
 
-import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
-
 To start using GraphQL Modules, all you need is to install it's package and `graphql`.
 
 > We highly recommend to use TypeScript for writing your backend, since it provides support for Reflection (if you plan to use dependency injection) and makes it easier to develop API services.
@@ -83,16 +80,8 @@ _But we got you covered, and provided solution for all popular GraphQL server im
 
 Your GraphQL `Application` exposes `createExecution` and `createSubscription` methods, which are just plug-and-play replacements for the default functions from `graphql-js`.
 
-<Tabs
-defaultValue="apollo"
-values={[
-{label: 'Apollo Server', value: 'apollo'},
-{label: 'Express GraphQL', value: 'express'},
-{label: 'GraphQL-Helix', value: 'helix'},
-{label: 'Other servers?', value: 'other'},
-]
-}>
-<TabItem value="apollo">
+<MDXTabs namespace={`get-started-libraries`}>
+<MDXTab label="Apollo Server">
 
 If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createSchemaForApollo` to get a schema that is adapted for this server, and integrates with it perfectly.
 
@@ -111,8 +100,8 @@ server.listen().then(({ url }) => {
 })
 ```
 
-</TabItem>
-<TabItem value="express">
+</MDXTab>
+<MDXTab label="Express GraphQL">
 
 If you are using [Express-GraphQL](https://github.com/graphql/express-graphql), here's how you do it:
 
@@ -140,8 +129,8 @@ server.listen(4000, () => {
 })
 ```
 
-</TabItem>
-<TabItem value="helix">
+</MDXTab>
+<MDXTab label="GraphQL Helix">
 
 If you are using [GraphQL-Helix](https://github.com/contrawork/graphql-helix), here's how you do it:
 
@@ -182,8 +171,8 @@ app.listen(port, () => {
 })
 ```
 
-</TabItem>
-<TabItem value="other">
+</MDXTab>
+<MDXTab label="Other servers?">
 
 If you are using a different server or setup, you can get the custom `execute` and `subscribe` functions from your `Application`, and provide it to your server:
 
@@ -201,8 +190,8 @@ const subscribe = application.createSubscription()
 
 In case you are still having issues, you can always [report an issue on a missing integration](https://github.com/Urigo/graphql-modules/issues/new), and we'll look into that ;)
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Tutorial
 

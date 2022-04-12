@@ -4,7 +4,7 @@ title: Scopes
 ---
 
 import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import TabItem from '@theme/Tab'
 
 Scope defines a life cycle of `Providers` and `InjectionToken`. There are two kinds of scopes, **Singleton** and **Operation**, former is used by default.
 
@@ -14,13 +14,8 @@ As mentioned before, `Singleton` scope is the default choice in GraphQL Modules.
 
 > We decided to make it the default choice, because of performance related reasons. In most cases, there's no need to instantiate classes on every new request and dispose them later on.
 
-<Tabs
-defaultValue="service"
-values={[
-{label: 'Service', value: 'service'},
-{label: 'Factory Provider', value: 'factory'},
-]}>
-<TabItem value="service">
+<MDXTabs namespace={`di/scopes/singleton`}>
+<MDXTab label="Service">
 
 ```ts
 import { Injectable, createModule } from 'graphql-modules'
@@ -35,8 +30,8 @@ export const myModule = createModule({
 })
 ```
 
-</TabItem>
-<TabItem value="factory">
+</MDXTab>
+<MDXTab label="Factory Provider">
 
 ```ts
 import { Injectable, InjectionToken, createModule } from 'graphql-modules'
@@ -59,8 +54,8 @@ export const myModule = createModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Operation
 
@@ -74,13 +69,8 @@ To improve the performance a bit, GraphQL Modules instantiate services on demand
 
 All services and tokens are destroyed right after GraphQL execution phase.
 
-<Tabs
-defaultValue="service"
-values={[
-{label: 'Service', value: 'service'},
-{label: 'Factory Provider', value: 'factory'},
-]}>
-<TabItem value="service">
+<MDXTabs namespace={`di/scopes/operation`}>
+<MDXTab label="Service">
 
 ```typescript
 import { Injectable, Scope, createModule } from 'graphql-modules'
@@ -97,8 +87,8 @@ export const myModule = createModule({
 })
 ```
 
-</TabItem>
-<TabItem value="factory">
+</MDXTab>
+<MDXTab label="Factory Provider">
 
 ```typescript
 import {
@@ -127,8 +117,8 @@ export const myModule = createModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Using both
 

@@ -1,4 +1,3 @@
-import 'remark-admonitions/styles/infima.css';
 import '../../public/style.css';
 
 import { appWithTranslation } from 'next-i18next';
@@ -11,16 +10,26 @@ import {
   DocsPage,
   ExtendComponents,
   handlePushRoute,
+  useGoogleAnalytics,
 } from '@guild-docs/client';
 import { FooterExtended, Header, Subheader } from '@theguild/components';
+import { Provider as MDXTabsCurrentTabContextProvider } from '../ui/mdx/MDXTabsCurrentTabContext';
+import { MDXWarning } from '../ui/mdx/MDXWarning';
 
 import type { AppProps } from 'next/app';
 import Script from 'next/script';
+import dynamic from 'next/dynamic';
+
+const MDXTabs = dynamic(() => import('../ui/mdx/MDXTabs'));
+const MDXTab = dynamic(() => import('../ui/mdx/MDXTab'));
 
 ExtendComponents({
   HelloWorld() {
     return <p>Hello World!</p>;
   },
+  MDXTabs,
+  MDXTab,
+  MDXWarning,
 });
 
 const styles: typeof chakraTheme['styles'] = {
@@ -67,10 +76,13 @@ const mdxRoutes = { data: serializedMdx && JSON.parse(serializedMdx) };
 function AppContent(appProps: AppProps) {
   const { Component, pageProps, router } = appProps;
   const isDocs = router.asPath.startsWith('/docs');
+  const analytics = useGoogleAnalytics({ router, trackingId: 'G-H0WWMB68JM' });
 
   return (
     <>
       <Script async src="https://the-guild.dev/static/crisp.js" />
+      <Script {...analytics.loadScriptProps} />
+      <Script {...analytics.configScriptProps} />
       <Header accentColor={accentColor} activeLink="/open-source" themeSwitch />
       <Subheader
         activeLink={router.asPath}
@@ -111,11 +123,13 @@ function AppContent(appProps: AppProps) {
         }}
       />
       {isDocs ? (
-        <DocsPage
-          appProps={appProps}
-          accentColor={accentColor}
-          mdxRoutes={mdxRoutes}
-        />
+        <MDXTabsCurrentTabContextProvider>
+          <DocsPage
+            appProps={appProps}
+            accentColor={accentColor}
+            mdxRoutes={mdxRoutes}
+          />
+        </MDXTabsCurrentTabContextProvider>
       ) : (
         <Component {...pageProps} />
       )}

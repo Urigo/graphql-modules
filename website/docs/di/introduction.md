@@ -10,8 +10,7 @@ We learned not to force Dependency Injection too early in the process, because d
 
 GraphQL Modules lets you choose whether to use dependency injection or not.
 
-:::caution Usage Requirements
-
+<MDXWarning title="Usage Requirements">
 GraphQL Modules depend on **Reflect API** and specifically **design:paramtypes** for reflection and for defining dependencies between DI parts, please install and import `reflect-metadata` before every other module.
 
 ```typescript
@@ -19,9 +18,8 @@ import 'reflect-metadata'
 /* code */
 ```
 
-If you are using Babel, please be aware that the preset **@babel/preset-typescript** strips out all the metadata and breaks DI. To overcome this, please use the following plugin: <https://npmjs.com/package/babel-plugin-transform-typescript-metadata>
-
-:::
+If you are using Babel, please be aware that the preset **@babel/preset-typescript** strips out all the metadata and breaks DI. To overcome this, please use the following plugin: [babel-plugin-transform-typescript-metadata](https://npmjs.com/package/babel-plugin-transform-typescript-metadata)
+</MDXWarning>
 
 ## Introduction
 
