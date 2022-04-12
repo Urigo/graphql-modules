@@ -4,7 +4,7 @@ title: Middlewares
 ---
 
 import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import TabItem from '@theme/Tab'
 
 Middleware is a way to intercept individual resolve functions or a group of them and return a different result or throw an exception based on a condition. Each middleware can access everything that resolve function receives. The ability to access context and the [`Injector`](../di/introduction) makes it even more powerful.
 
@@ -140,14 +140,8 @@ To intercept all fields of all possible types, use `*` mask twice:
 
 Now let's understand how to register middlewares in a Module and an Application. Take a look at following example.
 
-<Tabs
-defaultValue="module"
-values={[
-{label: 'Module', value: 'module'},
-{label: 'Application', value: 'application'},
-]
-}>
-<TabItem value="module">
+<MDXTabs namespace={`advanced/middlewares`}>
+<MDXTab label="Module">
 
 ```typescript
 import { createModule } from 'graphql-modules';
@@ -162,8 +156,8 @@ const myModule = createModule({
 })
 ```
 
-</TabItem>
-<TabItem value="application">
+</MDXTab>
+<MDXTab label="Application">
 
 ```typescript
 import { createApplication } from 'graphql-modules';
@@ -178,8 +172,8 @@ const application = createApplication({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Execution order
 

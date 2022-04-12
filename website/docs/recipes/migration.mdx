@@ -4,7 +4,7 @@ title: Migration from v0.X
 ---
 
 import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
+import TabItem from '@theme/Tab'
 
 > Note: this page is still in progress!
 
@@ -15,20 +15,15 @@ There's no regression in terms of bundle size, because `core` was importing `di`
 
 Making GraphQL Modules a single package should improve the developer experience.
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/package-name`}>
+<MDXTab label="V1">
 
 ```ts
 import { gql, createModule, Injectable } from 'graphql-modules'
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```ts
 import { GraphQLModule } from '@graphql-modules/core'
@@ -36,20 +31,15 @@ import { Injectable } from '@graphql-modules/di'
 import gql from 'graphql-tag'
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## `DocumentNode` for `typeDefs`
 
 v0 accepted `string` as `typeDefs`, while v1 doesn't.
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/document-node`}>
+<MDXTab label="V1">
 
 ```typescript
 import { gql, createModule } from 'graphql-modules'
@@ -64,8 +54,8 @@ const myModule = createModule({
 })
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 const myModule = GraphQLModule({
@@ -74,34 +64,29 @@ const myModule = GraphQLModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Classes to Utility Functions
 
 You no longer need to create `new GraphQLModule()`, you can use `createModule` instead:
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/classes`}>
+<MDXTab label="V1">
 
 ```typescript
 const myModule = createModule({ ... })
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 const myModule = new GraphQLModule({ ... })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Resolvers Composition => Middleware
 
@@ -109,13 +94,8 @@ With version `0.x` we had resolvers-composition, which was our way to define wra
 
 In v1, we changed the name to Middlewares, and changed the API a bit, to make it more flexible and more compatible with similar middlewares implementations:
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/resolvers-composition`}>
+<MDXTab label="V1">
 
 To define:
 
@@ -140,8 +120,8 @@ const myModule = createModule({
 })
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 To define:
 
@@ -165,8 +145,8 @@ const myModule = new GraphQLModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Module/Application Structure
 
@@ -176,13 +156,8 @@ In v1, we changed behavior modules to be flat, and added `Application` to define
 
 You no longer need to define `imports` and define strict dependencies between modules, since they are all flatten and merged together by the `Application`.
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/structure`}>
+<MDXTab label="V1">
 
 ```typescript
 const moduleOne = createModule({ ... })
@@ -193,8 +168,8 @@ const application = createApplication({
 })
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 const moduleOne = new GraphQLModule({ ... })
@@ -205,8 +180,8 @@ const rootModule = new GraphQLModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Shared Injectables
 
@@ -214,13 +189,8 @@ In V0, you needed to create an `Injectable`, add it to a module, and then in ord
 
 Since we moved to a flatten structure of `Application`, all you need to do in order to share an `Injectable`, is just to add `global: true`:
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/shared-injectables`}>
+<MDXTab label="V1">
 
 ```typescript
 // Module 1
@@ -245,8 +215,8 @@ class MyOtherProvider {
 const moduleTwo = createModule({ ... })
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 // Module 1
@@ -272,8 +242,8 @@ const rootModule = new GraphQLModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Module Config
 
@@ -281,13 +251,8 @@ In V0, we had the concept of `ModuleConfig` which was a very specific way to ins
 
 In V1, it's no longer exists, and we believe there are simpler way to do that, with custom tokens.
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/module-config`}>
+<MDXTab label="V1">
 
 ```typescript
 import { createModule, InjectionToken } from '@graphql-modules/core'
@@ -333,8 +298,8 @@ export class MyProvider {
 }
 ```
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core'
@@ -368,8 +333,8 @@ export class MyProvider {
 }
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Session
 
@@ -381,20 +346,15 @@ Internally, we are using Node's `async_hooks` to manage a context of an executio
 
 In v0, you could create a `context` per each module. In v1, `context` is external for GraphQL-Modules and it's not directly in use. You can do whatever you want with that, and just access it in GraphQL-Modules if you need, but we no longer require you to do specific things with your `context`.
 
-<Tabs
-defaultValue="1"
-values={[
-{label: 'V1', value: '1'},
-{label: 'V0', value: '0'},
-]}>
-<TabItem value="1">
+<MDXTabs namespace={`recipes/migration/context`}>
+<MDXTab label="V1">
 
 With v1, you can manage your own `context` without anything special that needs to be done in order to GraphQL-Modules to work.
 
 You can inject `CONTEXT` in order to get access to the global execution context, and Modules you create doesn't take part in building that object.
 
-</TabItem>
-<TabItem value="0">
+</MDXTab>
+<MDXTab label="V0">
 
 ```typescript
 const MyModule = new GraphQLModule({
@@ -409,8 +369,8 @@ const MyModule = new GraphQLModule({
 })
 ```
 
-</TabItem>
-</Tabs>
+</MDXTab>
+</MDXTabs>
 
 ## Dependency Injection Scopes
 
