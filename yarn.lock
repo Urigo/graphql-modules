@@ -118,12 +118,12 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@apollo/federation@0.36.0":
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.36.0.tgz#60a1a3347007fa35445a4cb12b141a80346c7d35"
-  integrity sha512-ajQ+xvDAHBqe8+g3rbUxv+VhL3g6J06ac0JzE7zfUuWbAAxJdYDMXAhJ3owYTM8dgy0mj2Z7mohsGNeYiQieXg==
+"@apollo/federation@0.36.1":
+  version "0.36.1"
+  resolved "https://registry.yarnpkg.com/@apollo/federation/-/federation-0.36.1.tgz#25afa0598c701763928de13f6fbbe49dfabdb24e"
+  integrity sha512-SAvW7ZRUEtmAdK+UWRXZxo/wRNVbDDyYbeYJooKAtvc8B4Mly+2PusqBQ+4RuHhg5dSqrv5d6RXJeY9MBiraVA==
   dependencies:
-    "@apollo/subgraph" "^0.4.0"
+    "@apollo/subgraph" "^0.4.1"
     apollo-server-types "^3.0.2"
     lodash.xorby "^4.7.0"
 
@@ -146,10 +146,10 @@
     "@types/node" "^10.1.0"
     long "^4.0.0"
 
-"@apollo/subgraph@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.4.0.tgz#4c6fc2bcc03b1715e7bcb7071f79512f3c5cee1e"
-  integrity sha512-Fg9XGaXpFP+X2J5HswIin/0ksmZShdukBtmtbMgvxJs7wfStlr+7m8gice4YSXYm/nu4td+UxUAfaqUjLYiFbQ==
+"@apollo/subgraph@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@apollo/subgraph/-/subgraph-0.4.1.tgz#7bc4f0a133a8558607b99f83138cbb313fe39b42"
+  integrity sha512-4tm9sY/aYGwB20xccVRJiLupEpEhXBbhbJNlpqigtXnE6A5uQvvKn7qgDdZn5fZr6rw4kX5N9lLSliU03QwTfA==
 
 "@apollographql/apollo-tools@^0.5.3":
   version "0.5.3"
@@ -2159,12 +2159,12 @@
     tslib "~2.3.0"
     value-or-promise "1.0.11"
 
-"@graphql-tools/merge@8.2.7", "@graphql-tools/merge@^8.2.1":
-  version "8.2.7"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.2.7.tgz#add05bcc47df6b7390f31acbcadd986e160d58f9"
-  integrity sha512-rKxjNogqu1UYAG/y5FOb6lJsmSQbWA+jq4inWjNEVX54VGGE7/WGnmPaqcsyomNOfS3vIRS6NnG+DxiQSqetjg==
+"@graphql-tools/merge@8.2.8", "@graphql-tools/merge@^8.2.1":
+  version "8.2.8"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.2.8.tgz#6ed65c29b963b4d76b59a9d329fdf20ecef19a42"
+  integrity sha512-e4kpzgEIlA0sC0NjJlMwUL73Iz/HoP2OgAUReDDsupvWCqW3PMxjNoviS8xmcklVnv1w8Vmr8U2tao+x40ypLA==
   dependencies:
-    "@graphql-tools/utils" "8.6.6"
+    "@graphql-tools/utils" "8.6.7"
     tslib "~2.3.0"
 
 "@graphql-tools/mock@^8.1.2":
@@ -2194,10 +2194,10 @@
   dependencies:
     tslib "~2.3.0"
 
-"@graphql-tools/utils@8.6.6", "@graphql-tools/utils@^8.5.1":
-  version "8.6.6"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-8.6.6.tgz#f7c88d32818b748f3e3867ed87a562769b544417"
-  integrity sha512-wjY2ljKLCnnbRrDNPPgPNqCujou0LFSOWcxAjV6DYUlfFWTsAEvlYmsmY4T+K12wI/fnqoJ2bUwIlap1plFDMg==
+"@graphql-tools/utils@8.6.7", "@graphql-tools/utils@^8.5.1":
+  version "8.6.7"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-8.6.7.tgz#0e21101233743eb67a5782a5a40919d85ddb1021"
+  integrity sha512-Qi3EN95Rt3hb8CyDKpPKFWOPrnc00P18cpVTXEgtKxetSP39beJBeEEtLB0R53eP/6IolsyTZOTgkET1EaERaw==
   dependencies:
     tslib "~2.3.0"
 
@@ -3356,10 +3356,10 @@
   resolved "https://registry.npmjs.org/@types/qs/-/qs-6.9.5.tgz#434711bdd49eb5ee69d90c1d67c354a9a8ecb18b"
   integrity sha512-/JHkVHtx/REVG0VVToGRGH2+23hsYLHdyG+GrvoUGlGAd0ErauXDyvHtRI/7H7mzLm+tBCKA7pfcpkQ1lf58iQ==
 
-"@types/ramda@0.28.8":
-  version "0.28.8"
-  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.28.8.tgz#aeccfd290772a7b2ad5dbdc618538f06eae07beb"
-  integrity sha512-ppkK4e2oV9aVoMJzw//4VrMUE9kjBC/LVS50oheq3JnVpesM/Np2mAGb+5zoe2MUjv8ps+5zf09Xy3FQTWzVEg==
+"@types/ramda@0.28.9":
+  version "0.28.9"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.28.9.tgz#a844c2703732de5465de7eb0a46c9a49dfc463f9"
+  integrity sha512-AP+3FY9EFb4tNrZvey20bxKdVKCIyBpDJu4vr69tW2BUI1/B1OGWxx/8c0YYxEaXNUYJDWOi/MtjsbMX51hEAg==
   dependencies:
     ts-toolbelt "^6.15.1"
 
@@ -3384,10 +3384,10 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/react@18.0.3":
-  version "18.0.3"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.3.tgz#baefa397561372015b9f8ba5bc83bc3f84ae8fcb"
-  integrity sha512-P8QUaMW4k+kH9aKNPl9b3XWcKMSSALYprLL8xpAMJOLUn3Pl6B+6nKC4F7dsk9oJPwkiRx+qlwhG/Zc1LxFVuQ==
+"@types/react@18.0.4":
+  version "18.0.4"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.4.tgz#88e9eddd8788fdf60dcf260b1cff2fb7487e4373"
+  integrity sha512-Zm4ryWh9xQbMX6ge7Ej/nS6VBoT+9wzvwd/hZ+9EONGjBkejyyvEKndZt/DZHHj1lSU/YeTPyJAn22S3GnYchQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
