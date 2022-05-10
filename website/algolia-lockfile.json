@@ -1,0 +1,708 @@
+[
+  {
+    "objectID": "modules-advanced-execution-context",
+    "headings": [],
+    "toc": [],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/advanced/execution-context",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Advanced", "Execution Context"],
+    "source": "Modules",
+    "title": "Execution Context",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-advanced-lifecycles",
+    "headings": ["Lifecycle hooks", "Manual control of operation cycle"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Lifecycle hooks",
+        "anchor": "lifecycle-hooks"
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "title": "autoDestroy",
+            "anchor": "autodestroy"
+          }
+        ],
+        "title": "Manual control of operation cycle",
+        "anchor": "manual-control-of-operation-cycle"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/advanced/lifecycles",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Advanced", "Lifecycles"],
+    "source": "Modules",
+    "title": "Lifecycles",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-advanced-middlewares",
+    "headings": [
+      "Middleware function",
+      "Intercepting results",
+      "Exceptions",
+      "Registering middlewares",
+      "Execution order"
+    ],
+    "toc": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "How to use `next` function?",
+                "anchor": "how-to-use-next-function"
+              }
+            ],
+            "title": "What is the `event` object?",
+            "anchor": "what-is-the-event-object"
+          }
+        ],
+        "title": "Middleware function",
+        "anchor": "middleware-function"
+      },
+      {
+        "children": [],
+        "title": "Intercepting results",
+        "anchor": "intercepting-results"
+      },
+      {
+        "children": [],
+        "title": "Exceptions",
+        "anchor": "exceptions"
+      },
+      {
+        "children": [],
+        "title": "Registering middlewares",
+        "anchor": "registering-middlewares"
+      },
+      {
+        "children": [],
+        "title": "Execution order",
+        "anchor": "execution-order"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/advanced/middlewares",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Advanced", "Middlewares"],
+    "source": "Modules",
+    "title": "Middlewares",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-advanced-subscriptions",
+    "headings": ["Setup", "Example"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Setup",
+        "anchor": "setup"
+      },
+      {
+        "children": [],
+        "title": "Example",
+        "anchor": "example"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/advanced/subscriptions",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Advanced", "Subscriptions"],
+    "source": "Modules",
+    "title": "Subscriptions",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-api",
+    "headings": [
+      "CONTEXT",
+      "MODULE_ID",
+      "Application",
+      "ApplicationConfig",
+      "createApplication",
+      "createModule",
+      "ModuleConfig"
+    ],
+    "toc": [
+      {
+        "children": [],
+        "title": "CONTEXT",
+        "anchor": "context"
+      },
+      {
+        "children": [],
+        "title": "MODULE_ID",
+        "anchor": "module_id"
+      },
+      {
+        "children": [],
+        "title": "Application",
+        "anchor": "application"
+      },
+      {
+        "children": [],
+        "title": "ApplicationConfig",
+        "anchor": "applicationconfig"
+      },
+      {
+        "children": [],
+        "title": "createApplication",
+        "anchor": "createapplication"
+      },
+      {
+        "children": [],
+        "title": "createModule",
+        "anchor": "createmodule"
+      },
+      {
+        "children": [],
+        "title": "ModuleConfig",
+        "anchor": "moduleconfig"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/api",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "API Reference"],
+    "source": "Modules",
+    "title": "API Reference",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-di-introduction",
+    "headings": [
+      "Introduction",
+      "Hierarchical Injectors",
+      "Providers and Tokens",
+      "Scopes"
+    ],
+    "toc": [
+      {
+        "children": [],
+        "title": "Introduction",
+        "anchor": "introduction"
+      },
+      {
+        "children": [],
+        "title": "Hierarchical Injectors",
+        "anchor": "hierarchical-injectors"
+      },
+      {
+        "children": [],
+        "title": "Providers and Tokens",
+        "anchor": "providers-and-tokens"
+      },
+      {
+        "children": [],
+        "title": "Scopes",
+        "anchor": "scopes"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/di/introduction",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": [
+      "Modules",
+      "Docs",
+      "Dependency Injection",
+      "Dependency Injection"
+    ],
+    "source": "Modules",
+    "title": "Dependency Injection",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-di-providers",
+    "headings": [
+      "Defining Tokens",
+      "Using Services and Tokens",
+      "Global Providers and Token",
+      "Lazy with forwardRef",
+      "Available Tokens"
+    ],
+    "toc": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Value",
+                "anchor": "value"
+              },
+              {
+                "children": [],
+                "title": "Factory",
+                "anchor": "factory"
+              }
+            ],
+            "title": "Class",
+            "anchor": "class"
+          }
+        ],
+        "title": "Defining Tokens",
+        "anchor": "defining-tokens"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "InjectionToken",
+                "anchor": "injectiontoken"
+              }
+            ],
+            "title": "Service",
+            "anchor": "service"
+          }
+        ],
+        "title": "Using Services and Tokens",
+        "anchor": "using-services-and-tokens"
+      },
+      {
+        "children": [],
+        "title": "Global Providers and Token",
+        "anchor": "global-providers-and-token"
+      },
+      {
+        "children": [],
+        "title": "Lazy with forwardRef",
+        "anchor": "lazy-with-forwardref"
+      },
+      {
+        "children": [],
+        "title": "Available Tokens",
+        "anchor": "available-tokens"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/di/providers",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": [
+      "Modules",
+      "Docs",
+      "Dependency Injection",
+      "Providers and Tokens"
+    ],
+    "source": "Modules",
+    "title": "Providers and Tokens",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-di-scopes",
+    "headings": ["Singleton", "Operation", "Using both"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Singleton",
+        "anchor": "singleton"
+      },
+      {
+        "children": [],
+        "title": "Operation",
+        "anchor": "operation"
+      },
+      {
+        "children": [],
+        "title": "Using both",
+        "anchor": "using-both"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/di/scopes",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Dependency Injection", "Scopes"],
+    "source": "Modules",
+    "title": "Scopes",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-essentials-context",
+    "headings": ["Context in Dependency Injection"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Context in Dependency Injection",
+        "anchor": "context-in-dependency-injection"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/essentials/context",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Essentials", "Context"],
+    "source": "Modules",
+    "title": "Context",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-essentials-resolvers",
+    "headings": ["Resolvers Example", "Dynamically Load resolvers files"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Resolvers Example",
+        "anchor": "resolvers-example"
+      },
+      {
+        "children": [],
+        "title": "Dynamically Load resolvers files",
+        "anchor": "dynamically-load-resolvers-files"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/essentials/resolvers",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Essentials", "Resolvers"],
+    "source": "Modules",
+    "title": "Resolvers",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-essentials-testing",
+    "headings": [
+      "Testing application",
+      "Testing modules",
+      "Testing providers",
+      "Testing middlewares"
+    ],
+    "toc": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Overwriting application providers",
+                "anchor": "overwriting-application-providers"
+              }
+            ],
+            "title": "Replacing a module",
+            "anchor": "replacing-a-module"
+          }
+        ],
+        "title": "Testing application",
+        "anchor": "testing-application"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Extending module's schema",
+                "anchor": "extending-modules-schema"
+              },
+              {
+                "children": [],
+                "title": "Inherit typeDefs from other modules",
+                "anchor": "inherit-typedefs-from-other-modules"
+              },
+              {
+                "children": [],
+                "title": "Importing other modules",
+                "anchor": "importing-other-modules"
+              },
+              {
+                "children": [],
+                "title": "Providers and Middlewares",
+                "anchor": "providers-and-middlewares"
+              },
+              {
+                "children": [],
+                "title": "Executing operations",
+                "anchor": "executing-operations"
+              }
+            ],
+            "title": "Turning type extensions into definitions",
+            "anchor": "turning-type-extensions-into-definitions"
+          }
+        ],
+        "title": "Testing modules",
+        "anchor": "testing-modules"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "readProviderOptions",
+                "anchor": "readprovideroptions"
+              }
+            ],
+            "title": "testInjector",
+            "anchor": "testinjector"
+          }
+        ],
+        "title": "Testing providers",
+        "anchor": "testing-providers"
+      },
+      {
+        "children": [],
+        "title": "Testing middlewares",
+        "anchor": "testing-middlewares"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/essentials/testing",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Essentials", "Testing"],
+    "source": "Modules",
+    "title": "Testing",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-essentials-type-definitions",
+    "headings": [
+      "Storing SDL in `.graphql` files",
+      "Dynamically Load SDL files"
+    ],
+    "toc": [
+      {
+        "children": [],
+        "title": "Storing SDL in `.graphql` files",
+        "anchor": "storing-sdl-in-graphql-files"
+      },
+      {
+        "children": [],
+        "title": "Dynamically Load SDL files",
+        "anchor": "dynamically-load-sdl-files"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/essentials/type-definitions",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Essentials", "Type Definitions"],
+    "source": "Modules",
+    "title": "Type Definitions",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-essentials-type-safety",
+    "headings": [
+      "Shaping Context type",
+      "Using Context type",
+      "Strict Resolvers Types"
+    ],
+    "toc": [
+      {
+        "children": [],
+        "title": "Shaping Context type",
+        "anchor": "shaping-context-type"
+      },
+      {
+        "children": [],
+        "title": "Using Context type",
+        "anchor": "using-context-type"
+      },
+      {
+        "children": [],
+        "title": "Strict Resolvers Types",
+        "anchor": "strict-resolvers-types"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/essentials/type-safety",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Essentials", "Type-Safety"],
+    "source": "Modules",
+    "title": "Type-Safety",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-get-started",
+    "headings": ["Installation", "Tutorial"],
+    "toc": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Use your Module",
+                "anchor": "use-your-module"
+              },
+              {
+                "children": [],
+                "title": "Use your Application",
+                "anchor": "use-your-application"
+              }
+            ],
+            "title": "Your first GraphQL module",
+            "anchor": "your-first-graphql-module"
+          }
+        ],
+        "title": "Installation",
+        "anchor": "installation"
+      },
+      {
+        "children": [],
+        "title": "Tutorial",
+        "anchor": "tutorial"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/get-started",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Get Started"],
+    "source": "Modules",
+    "title": "Get Started",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-index",
+    "headings": ["Structure", "Example"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Structure",
+        "anchor": "structure"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Authentication Module",
+                "anchor": "authentication-module"
+              },
+              {
+                "children": [],
+                "title": "Profile Module",
+                "anchor": "profile-module"
+              },
+              {
+                "children": [],
+                "title": "Gallery Module",
+                "anchor": "gallery-module"
+              }
+            ],
+            "title": "User Module",
+            "anchor": "user-module"
+          }
+        ],
+        "title": "Example",
+        "anchor": "example"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/index",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Introduction"],
+    "source": "Modules",
+    "title": "Introduction",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-recipes-dataloader",
+    "headings": ["DataLoader as a Service", "DataLoader in a Service"],
+    "toc": [
+      {
+        "children": [],
+        "title": "DataLoader as a Service",
+        "anchor": "dataloader-as-a-service"
+      },
+      {
+        "children": [],
+        "title": "DataLoader in a Service",
+        "anchor": "dataloader-in-a-service"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/recipes/dataloader",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Recipes", "Solve N+1 Using DataLoader"],
+    "source": "Modules",
+    "title": "Solve N+1 Using DataLoader",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-recipes-migration",
+    "headings": [
+      "Package name",
+      "`DocumentNode` for `typeDefs`",
+      "Classes to Utility Functions",
+      "Resolvers Composition => Middleware",
+      "Module/Application Structure",
+      "Shared Injectables",
+      "Module Config",
+      "Session",
+      "Context",
+      "Dependency Injection Scopes",
+      "Dependency Injection Hierarchy"
+    ],
+    "toc": [
+      {
+        "children": [],
+        "title": "Package name",
+        "anchor": "package-name"
+      },
+      {
+        "children": [],
+        "title": "`DocumentNode` for `typeDefs`",
+        "anchor": "documentnode-for-typedefs"
+      },
+      {
+        "children": [],
+        "title": "Classes to Utility Functions",
+        "anchor": "classes-to-utility-functions"
+      },
+      {
+        "children": [],
+        "title": "Resolvers Composition => Middleware",
+        "anchor": "resolvers-composition--middleware"
+      },
+      {
+        "children": [],
+        "title": "Module/Application Structure",
+        "anchor": "moduleapplication-structure"
+      },
+      {
+        "children": [],
+        "title": "Shared Injectables",
+        "anchor": "shared-injectables"
+      },
+      {
+        "children": [],
+        "title": "Module Config",
+        "anchor": "module-config"
+      },
+      {
+        "children": [],
+        "title": "Session",
+        "anchor": "session"
+      },
+      {
+        "children": [],
+        "title": "Context",
+        "anchor": "context"
+      },
+      {
+        "children": [],
+        "title": "Dependency Injection Scopes",
+        "anchor": "dependency-injection-scopes"
+      },
+      {
+        "children": [],
+        "title": "Dependency Injection Hierarchy",
+        "anchor": "dependency-injection-hierarchy"
+      }
+    ],
+    "content": "-",
+    "url": "https://www.graphql-modules.com/docs/recipes/migration",
+    "domain": "https://www.graphql-modules.com/",
+    "hierarchy": ["Modules", "Docs", "Recipes", "Migration from v0.X"],
+    "source": "Modules",
+    "title": "Migration from v0.X",
+    "type": "Documentation"
+  }
+]
