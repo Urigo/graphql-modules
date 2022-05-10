@@ -28,8 +28,8 @@ jobs:
           ALGOLIA_DRY_RUN: true
           SITE_URL: https://www.graphql-modules.com/
 
-      - name: Prettier
-        run: yarn prettier
+      - name: Format
+        run: yarn format
 
       - name: Diff
         run: git diff --exit-code -- website/algolia-lockfile.json

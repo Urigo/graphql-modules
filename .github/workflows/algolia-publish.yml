@@ -25,9 +25,6 @@ jobs:
       - name: Build Packages
         run: yarn build
 
-      - name: Build API docs JSON
-        run: yarn build:api-docs
-
       - name: Algolia push
         run: yarn workspace website algolia-sync
         env:
@@ -36,8 +33,8 @@ jobs:
           ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
           SITE_URL: https://www.graphql-modules.com/
 
-      - name: Prettier
-        run: yarn prettier
+      - name: Format
+        run: yarn format
 
       - name: Compare
         run: git diff website/algolia-lockfile.json
