@@ -27,9 +27,6 @@ const MDXTabs = dynamic(() => import('../ui/mdx/MDXTabs'));
 const MDXTab = dynamic(() => import('../ui/mdx/MDXTab'));
 
 ExtendComponents({
-  HelloWorld() {
-    return <p>Hello World!</p>;
-  },
   MDXTabs,
   MDXTab,
   MDXWarning,
@@ -119,7 +116,7 @@ function AppContent(appProps: AppProps) {
           {
             children: 'GitHub',
             href: 'https://github.com/Urigo/graphql-modules',
-            rel: 'noopener noreferrer',
+            rel: 'noreferrer',
             target: '_blank',
             title: 'Explore in GitHub',
           },
@@ -139,6 +136,7 @@ function AppContent(appProps: AppProps) {
           />
         </MDXTabsCurrentTabContextProvider>
       ) : (
+        // @ts-ignore -- Don't how fix Type error: 'Component' cannot be used as a JSX component.
         <Component {...pageProps} />
       )}
       <FooterExtended />
