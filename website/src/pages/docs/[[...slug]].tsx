@@ -1,6 +1,11 @@
 import type { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
-import { DocsContent, DocsTOC, MDXPage } from '@guild-docs/client';
+import {
+  DocsContent,
+  DocsTOC,
+  MDXPage,
+  EditOnGitHubButton,
+} from '@guild-docs/client';
 import { MDXPaths, MDXProps } from '@guild-docs/server';
 import { getRoutes } from '../../../routes';
 
@@ -8,7 +13,7 @@ export default MDXPage(function PostPage({
   content,
   TOC,
   MetaHead,
-  BottomNavigation,
+  sourceFilePath,
 }) {
   return (
     <>
@@ -16,7 +21,12 @@ export default MDXPage(function PostPage({
       <DocsContent>{content}</DocsContent>
       <DocsTOC>
         <TOC />
-        <BottomNavigation />
+        <EditOnGitHubButton
+          repo="urigo/graphql-modules"
+          branch="master"
+          baseDir="website"
+          sourceFilePath={sourceFilePath}
+        />
       </DocsTOC>
     </>
   );

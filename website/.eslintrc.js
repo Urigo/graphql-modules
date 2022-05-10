@@ -24,7 +24,7 @@ module.exports = {
         missingExports: true,
         ignoreExports: [
           '.eslintrc.js',
-          'next.config.js',
+          'next.config.mjs',
           'next-env.d.ts',
           'next-i18next.config.js',
           'src/pages/_document.tsx',

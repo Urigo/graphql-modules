@@ -20,13 +20,13 @@ import type { AppProps } from 'next/app';
 import Script from 'next/script';
 import dynamic from 'next/dynamic';
 
+import '@algolia/autocomplete-theme-classic';
+import '@theguild/components/dist/static/css/SearchBarV2.css';
+
 const MDXTabs = dynamic(() => import('../ui/mdx/MDXTabs'));
 const MDXTab = dynamic(() => import('../ui/mdx/MDXTab'));
 
 ExtendComponents({
-  HelloWorld() {
-    return <p>Hello World!</p>;
-  },
   MDXTabs,
   MDXTab,
   MDXWarning,
@@ -83,7 +83,12 @@ function AppContent(appProps: AppProps) {
       <Script async src="https://the-guild.dev/static/crisp.js" />
       <Script {...analytics.loadScriptProps} />
       <Script {...analytics.configScriptProps} />
-      <Header accentColor={accentColor} activeLink="/open-source" themeSwitch />
+      <Header
+        accentColor={accentColor}
+        activeLink="/open-source"
+        themeSwitch
+        searchBarProps={{ version: 'v2' }}
+      />
       <Subheader
         activeLink={router.asPath}
         product={{
@@ -111,7 +116,7 @@ function AppContent(appProps: AppProps) {
           {
             children: 'GitHub',
             href: 'https://github.com/Urigo/graphql-modules',
-            rel: 'noopener noreferrer',
+            rel: 'noreferrer',
             target: '_blank',
             title: 'Explore in GitHub',
           },
@@ -131,6 +136,7 @@ function AppContent(appProps: AppProps) {
           />
         </MDXTabsCurrentTabContextProvider>
       ) : (
+        // @ts-ignore -- Don't how fix Type error: 'Component' cannot be used as a JSX component.
         <Component {...pageProps} />
       )}
       <FooterExtended />
