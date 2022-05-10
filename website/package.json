@@ -1,8 +1,9 @@
 {
-  "name": "@graphql-modules/website",
+  "name": "website",
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "algolia-sync": "node scripts/algolia-ci.mjs",
     "api": "node ./scripts/api-doc.js",
     "dev": "concurrently -r \"next-remote-watch ./docs ./src/pages/_app.tsx ./src/pages/_document.tsx\" \"wait-on -s 1 http://localhost:3000 && open-cli http://localhost:3000\"",
     "next": "next",
@@ -23,8 +24,8 @@
     "next": "12.1.6",
     "next-i18next": "11.0.0",
     "next-seo": "5.4.0",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
     "react-icons": "4.3.1",
     "react-use": "17.3.2",
     "shiki": "0.10.1"
@@ -42,10 +43,11 @@
     ]
   },
   "devDependencies": {
+    "@guild-docs/algolia": "0.0.4",
     "@next/bundle-analyzer": "12.1.6",
     "@types/node": "16.11.33",
-    "@types/react": "18.0.9",
-    "@types/react-dom": "18.0.3",
+    "@types/react": "17.0.9",
+    "@types/react-dom": "17.0.3",
     "concurrently": "7.1.0",
     "cross-env": "7.0.3",
     "esbuild": "0.14.38",

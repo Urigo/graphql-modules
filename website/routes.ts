@@ -8,10 +8,10 @@ export function getRoutes(): IRoutes {
         $routes: [
           'index',
           'get-started',
-          'essentials',
-          'di',
-          'advanced',
-          'recipes',
+          '$essentials',
+          '$di',
+          '$advanced',
+          '$recipes',
           'api',
         ],
         _: {
@@ -53,5 +53,5 @@ export function getRoutes(): IRoutes {
     basePath: 'docs',
   });
 
-  return Routes
+  return Routes;
 }
