@@ -13,9 +13,9 @@
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
-    "@chakra-ui/icons": "2.0.0",
-    "@chakra-ui/react": "2.1.0",
-    "@chakra-ui/theme-tools": "2.0.0",
+    "@chakra-ui/icons": "2.0.1",
+    "@chakra-ui/react": "2.1.2",
+    "@chakra-ui/theme-tools": "2.0.1",
     "@guild-docs/client": "3.1.0",
     "@guild-docs/server": "4.0.0",
     "@mdx-js/react": "2.1.1",
@@ -55,7 +55,7 @@
     "eslint-config-prettier": "8.5.0",
     "next-remote-watch": "1.0.0",
     "open-cli": "7.0.1",
-    "typescript": "4.6.4",
+    "typescript": "4.7.2",
     "wait-on": "6.0.1"
   }
 }
