@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { concatAST } from 'graphql';
+import { concatAST, printSchema } from 'graphql';
 import {
   createApplication,
   createModule,
@@ -12,6 +12,10 @@ import {
   CONTEXT,
   Scope,
 } from '../src';
+
+function normalizeSDL(sdl: string): string {
+  return sdl.replace(/\s+/g, ' ').trim();
+}
 
 describe('testModule', () => {
   test('should replace extensions with definitions on demand', () => {
@@ -580,5 +584,62 @@ describe('mockApplication', () => {
       env: 'mocked',
       extraEnv: 'mocked',
     });
+  });
+
+  test('replaceExtensions should work with inheritTypeDefs', () => {
+    const listModule = createModule({
+      id: 'list',
+      typeDefs: gql`
+        extend type Query {
+          list: List!
+        }
+
+        type List {
+          id: ID!
+          title: String!
+        }
+      `,
+    });
+
+    const productModule = createModule({
+      id: 'product',
+      typeDefs: gql`
+        extend type Query {
+          product: Product!
+        }
+
+        type Product {
+          id: ID!
+        }
+
+        extend type List {
+          product: Product!
+        }
+      `,
+    });
+
+    const app = testkit.testModule(productModule, {
+      replaceExtensions: true,
+      inheritTypeDefs: [listModule],
+    });
+
+    expect(() => app.schema).not.toThrow();
+    expect(normalizeSDL(printSchema(app.schema))).toMatch(
+      normalizeSDL(`
+        type Query {
+          product: Product!
+        }
+        
+        type Product {
+          id: ID!
+        }
+        
+        type List {
+          id: ID!
+          title: String!
+          product: Product!
+        }
+    `)
+    );
   });
 });
