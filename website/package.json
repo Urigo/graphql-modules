@@ -50,7 +50,7 @@
     "concurrently": "7.2.1",
     "cross-env": "7.0.3",
     "esbuild": "0.14.42",
-    "esbuild-register": "3.3.2",
+    "esbuild-register": "3.3.3",
     "eslint-config-next": "12.1.6",
     "eslint-config-prettier": "8.5.0",
     "next-remote-watch": "1.0.0",
