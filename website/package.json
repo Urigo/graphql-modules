@@ -13,9 +13,9 @@
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
-    "@chakra-ui/icons": "2.0.1",
-    "@chakra-ui/react": "2.1.2",
-    "@chakra-ui/theme-tools": "2.0.1",
+    "@chakra-ui/icons": "2.0.2",
+    "@chakra-ui/react": "2.2.0",
+    "@chakra-ui/theme-tools": "2.0.2",
     "@guild-docs/client": "3.1.0",
     "@guild-docs/server": "4.0.0",
     "@mdx-js/react": "2.1.1",
