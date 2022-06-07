@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@chakra-ui/icons": "2.0.2",
-    "@chakra-ui/react": "2.2.0",
+    "@chakra-ui/react": "2.2.1",
     "@chakra-ui/theme-tools": "2.0.2",
     "@guild-docs/client": "3.1.0",
     "@guild-docs/server": "4.0.0",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "@guild-docs/algolia": "0.0.6",
     "@next/bundle-analyzer": "12.1.6",
-    "@types/node": "16.11.38",
+    "@types/node": "16.11.39",
     "@types/react": "17.0.45",
     "concurrently": "7.2.1",
     "cross-env": "7.0.3",
