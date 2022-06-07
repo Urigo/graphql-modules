@@ -1562,15 +1562,15 @@
     "@chakra-ui/theme-tools" "2.0.2"
     "@chakra-ui/utils" "2.0.2"
 
-"@chakra-ui/provider@2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/provider/-/provider-2.0.5.tgz#5dc417ca2bc68cf45fd66ae76583c23bb569c85d"
-  integrity sha512-y3yzgVtVRCKx0t1r2WTomTGTtO+hLYTRNwBsxDj58Agk1rUnuwt/b1ygeeoJpIU5++fRFxMW+AbabztRdA76IA==
+"@chakra-ui/provider@2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/provider/-/provider-2.0.6.tgz#cf018e2c45797e68a1d262f5ff70c7bef5f103d7"
+  integrity sha512-EwwFF8ib9L5OYTRJq450Uvk7DqQJA/W6TyBo2f7mUE0j56GmV8ZRdsaXGqqag/aopCS/1n+ZfpQvQr/qNhAQBQ==
   dependencies:
     "@chakra-ui/css-reset" "2.0.1"
     "@chakra-ui/portal" "2.0.2"
     "@chakra-ui/react-env" "2.0.2"
-    "@chakra-ui/system" "2.1.2"
+    "@chakra-ui/system" "2.1.3"
     "@chakra-ui/utils" "2.0.2"
 
 "@chakra-ui/radio@2.0.2":
@@ -1598,10 +1598,10 @@
   dependencies:
     "@chakra-ui/utils" "^2.0.2"
 
-"@chakra-ui/react@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/react/-/react-2.2.0.tgz#094b4836c3bdaa90f1d441b6b9ead96e70536337"
-  integrity sha512-PXujdyCFQse44TRyOEezGN2hq+RyR1K7/2x/RLauxXL0ODcw71Va2H3i0mSB+Qmkmpe6YTLrykHqirkvO+4wbg==
+"@chakra-ui/react@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/react/-/react-2.2.1.tgz#606a112350145e1bbd722db970dac7114a973d88"
+  integrity sha512-m2vFICTUO3GivTkJROnTTJT+w8otcYMraKqOSdrAGmsjqtZAp8/FaGS+1bxzeZnZTszMn65LoLvlgBUDrTHhQA==
   dependencies:
     "@chakra-ui/accordion" "2.0.3"
     "@chakra-ui/alert" "2.0.2"
@@ -1630,22 +1630,22 @@
     "@chakra-ui/popper" "3.0.2"
     "@chakra-ui/portal" "2.0.2"
     "@chakra-ui/progress" "2.0.2"
-    "@chakra-ui/provider" "2.0.5"
+    "@chakra-ui/provider" "2.0.6"
     "@chakra-ui/radio" "2.0.2"
     "@chakra-ui/react-env" "2.0.2"
     "@chakra-ui/select" "2.0.2"
-    "@chakra-ui/skeleton" "2.0.5"
+    "@chakra-ui/skeleton" "2.0.6"
     "@chakra-ui/slider" "2.0.2"
     "@chakra-ui/spinner" "2.0.2"
     "@chakra-ui/stat" "2.0.2"
     "@chakra-ui/switch" "2.0.3"
-    "@chakra-ui/system" "2.1.2"
+    "@chakra-ui/system" "2.1.3"
     "@chakra-ui/table" "2.0.2"
     "@chakra-ui/tabs" "2.0.3"
     "@chakra-ui/tag" "2.0.2"
     "@chakra-ui/textarea" "2.0.3"
     "@chakra-ui/theme" "2.1.0"
-    "@chakra-ui/toast" "2.0.6"
+    "@chakra-ui/toast" "2.1.0"
     "@chakra-ui/tooltip" "2.0.2"
     "@chakra-ui/transition" "2.0.2"
     "@chakra-ui/utils" "2.0.2"
@@ -1659,14 +1659,14 @@
     "@chakra-ui/form-control" "2.0.2"
     "@chakra-ui/utils" "2.0.2"
 
-"@chakra-ui/skeleton@2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/skeleton/-/skeleton-2.0.5.tgz#4a553c4edabea50b812e9a47360e7d9e3fbd95a2"
-  integrity sha512-vEIjBWV8HAd4kSkWBi59yP5UfckktjQSBNXmb8Yany397WcWKLxyyTQWBqT4oLokcihF2rT3oMzOBkeJVj5D2g==
+"@chakra-ui/skeleton@2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/skeleton/-/skeleton-2.0.6.tgz#0700f118d31782b2a0f8764b3a22ed3d722f33c8"
+  integrity sha512-nbZEfA7vSxJ8qXM0sb+e/Dh8t2ZcAkjWUzScMvO8FWfblk3wkoeUT0ocTwJ4eDyTzEVBu+ym7Uc+ACZmBheabQ==
   dependencies:
     "@chakra-ui/hooks" "2.0.2"
     "@chakra-ui/media-query" "3.1.0"
-    "@chakra-ui/system" "2.1.2"
+    "@chakra-ui/system" "2.1.3"
     "@chakra-ui/utils" "2.0.2"
 
 "@chakra-ui/slider@2.0.2":
@@ -1711,10 +1711,10 @@
     "@chakra-ui/checkbox" "2.1.0"
     "@chakra-ui/utils" "2.0.2"
 
-"@chakra-ui/system@2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/system/-/system-2.1.2.tgz#0b18e44ceb8d344d844f7ea577e86dc80084d01a"
-  integrity sha512-N5URKaQWpKuxq2wFYAFTFgiTEpAHU++QOFhGxmV7BY/F6olzK9eHE5742WyRkbGaS7vOgKFHFrBxgL7+sGtP1Q==
+"@chakra-ui/system@2.1.3":
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/system/-/system-2.1.3.tgz#a140335f56087f761d0a8cef6e4c77f971f054da"
+  integrity sha512-f9GfJr7HGxxhyAbXmka/k/mPsLl8wl+5fZUWglfRg4iddmsuYQcJEYg8+ewCyr7MA1Ddw9bPVgsC5uf/KYlo3w==
   dependencies:
     "@chakra-ui/color-mode" "2.0.4"
     "@chakra-ui/react-utils" "2.0.1"
@@ -1773,17 +1773,17 @@
     "@chakra-ui/theme-tools" "2.0.2"
     "@chakra-ui/utils" "2.0.2"
 
-"@chakra-ui/toast@2.0.6":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/toast/-/toast-2.0.6.tgz#c832bcfee5d7bfb7c50bfe574c3da3c55596b222"
-  integrity sha512-NKB4AMWe46OrLXErYtqT5/3nF8ATwtZTxZYqTYNzkqeXtjzSIhisu2Nv6NFseiHW3NKmHwbEaAc1w8HUW2mrew==
+"@chakra-ui/toast@2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/toast/-/toast-2.1.0.tgz#8e0c8ea20493f17b541bf964b2c64e114acce4ec"
+  integrity sha512-xXgwzff/gtNrq2HGGG3fuqcfRQEIObluHzHhqgS3gesf8KYut/5ZJoLdgV4RKE+NYgJIi77BFUcQDiLJttxxPA==
   dependencies:
     "@chakra-ui/alert" "2.0.2"
     "@chakra-ui/close-button" "2.0.2"
     "@chakra-ui/hooks" "2.0.2"
     "@chakra-ui/portal" "2.0.2"
     "@chakra-ui/react-utils" "2.0.1"
-    "@chakra-ui/system" "2.1.2"
+    "@chakra-ui/system" "2.1.3"
     "@chakra-ui/theme" "2.1.0"
     "@chakra-ui/transition" "2.0.2"
     "@chakra-ui/utils" "2.0.2"
@@ -2261,13 +2261,13 @@
     tslib "~2.3.0"
     value-or-promise "1.0.11"
 
-"@graphql-tools/merge@8.2.13", "@graphql-tools/merge@^8.2.1":
-  version "8.2.13"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.2.13.tgz#d4f254dcea301ce3d9c23b03eb68a7ae9baf6981"
-  integrity sha512-lhzjCa6wCthOYl7B6UzER3SGjU2WjSGnW0WGr8giMYsrtf6G3vIRotMcSVMlhDzyyMIOn7uPULOUt3/kaJ/rIA==
+"@graphql-tools/merge@8.2.14", "@graphql-tools/merge@^8.2.1":
+  version "8.2.14"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/merge/-/merge-8.2.14.tgz#44811e5453f5515d9537bd1b64f0f0cfe6313a45"
+  integrity sha512-od6lTF732nwPX91G79eiJf+dyRBHxCaKe7QL4IYeH4d1k+NYqx/ihYpFJNjDaqxmpHH92Hr+TxsP9SYRK3/QKg==
   dependencies:
-    "@graphql-tools/utils" "8.6.12"
-    tslib "~2.4.0"
+    "@graphql-tools/utils" "8.6.13"
+    tslib "^2.4.0"
 
 "@graphql-tools/mock@^8.1.2":
   version "8.2.1"
@@ -2296,12 +2296,12 @@
   dependencies:
     tslib "~2.3.0"
 
-"@graphql-tools/utils@8.6.12", "@graphql-tools/utils@^8.5.1":
-  version "8.6.12"
-  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-8.6.12.tgz#0a550dc0331fd9b097fe7223d65cbbee720556e4"
-  integrity sha512-WQ91O40RC+UJgZ9K+IzevSf8oolR1QE+WQ21Oyc2fgDYYiqT0eSf+HVyhZr/8x9rVjn3N9HeqCsywbdmbljg0w==
+"@graphql-tools/utils@8.6.13", "@graphql-tools/utils@^8.5.1":
+  version "8.6.13"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/utils/-/utils-8.6.13.tgz#2b4fb7f9f8a29b25eecd44551fb95974de32f969"
+  integrity sha512-FiVqrQzj4cgz0HcZ3CxUs8NtBGPZFpmsVyIgwmL6YCwIhjJQnT72h8G3/vk5zVfjfesht85YGp0inWWuoCKWzg==
   dependencies:
-    tslib "~2.4.0"
+    tslib "^2.4.0"
 
 "@graphql-tools/wrap@^8.3.1":
   version "8.3.1"
@@ -3576,10 +3576,10 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
-"@types/node@*", "@types/node@16.11.38":
-  version "16.11.38"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.38.tgz#be0edd097b23eace6c471c525a74b3f98803017f"
-  integrity sha512-hjO/0K140An3GWDw2HJfq7gko3wWeznbjXgg+rzPdVzhe198hp4x2i1dgveAOEiFKd8sOilAxzoSJiVv5P/CUg==
+"@types/node@*", "@types/node@16.11.39":
+  version "16.11.39"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.39.tgz#07223cd2bc332ad9d92135e3a522eebdee3b060e"
+  integrity sha512-K0MsdV42vPwm9L6UwhIxMAOmcvH/1OoVkZyCgEtVu4Wx7sElGloy/W7kMBNe/oJ7V/jW9BVt1F6RahH6e7tPXw==
 
 "@types/node@16.7.10":
   version "16.7.10"
@@ -13501,7 +13501,7 @@ tslib@1.11.1, tslib@^1.0.0, tslib@^1.11.1, tslib@^1.8.1, tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.11.1.tgz#eb15d128827fbee2841549e171f45ed338ac7e35"
   integrity sha512-aZW88SY8kQbU7gpV19lN24LtXh/yD4ZZg6qieAJDDg+YBsJcSmLGK9QpnUjAKVG/xefmvJGd1WUmfpT/g6AJGA==
 
-tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@~2.4.0:
+tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
