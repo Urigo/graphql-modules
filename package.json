@@ -31,7 +31,7 @@
     "@babel/plugin-proposal-decorators": "7.18.2",
     "@babel/plugin-proposal-class-properties": "7.17.12",
     "@changesets/apply-release-plan": "5.0.1",
-    "@changesets/cli": "2.22.0",
+    "@changesets/cli": "2.23.0",
     "@graphql-tools/merge": "8.2.14",
     "@types/benchmark": "2.1.1",
     "@types/express": "4.17.13",
