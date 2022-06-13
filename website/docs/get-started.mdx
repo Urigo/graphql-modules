@@ -83,16 +83,18 @@ Your GraphQL `Application` exposes `createExecution` and `createSubscription` me
 <MDXTabs namespace={`get-started-libraries`}>
 <MDXTab label="Apollo Server">
 
-If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createSchemaForApollo` to get a schema that is adapted for this server, and integrates with it perfectly.
+If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloExecutor` to get an executor that is adapted for this server, and integrates with it perfectly.
 
 ```typescript title="/src/server.ts"
 import { ApolloServer } from 'apollo-server'
 import { application } from './application'
 
-const schema = application.createSchemaForApollo()
+const executor = application.createApolloExecutor()
+const schema = application.schema
 
 const server = new ApolloServer({
-  schema
+  schema,
+  executor
 })
 
 server.listen().then(({ url }) => {
