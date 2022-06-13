@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@apollo/federation": "0.36.1",
-    "@babel/core": "7.18.2",
+    "@babel/core": "7.18.5",
     "@babel/preset-env": "7.18.2",
     "@babel/preset-typescript": "7.17.12",
     "@babel/plugin-proposal-decorators": "7.18.2",
@@ -38,8 +38,8 @@
     "@types/jest": "27.5.2",
     "@types/node": "16.11.39",
     "@types/ramda": "0.28.14",
-    "@typescript-eslint/eslint-plugin": "5.27.1",
-    "@typescript-eslint/parser": "5.27.1",
+    "@typescript-eslint/eslint-plugin": "5.28.0",
+    "@typescript-eslint/parser": "5.28.0",
     "apollo-server": "3.8.2",
     "apollo-server-express": "3.8.2",
     "artillery": "1.7.9",
@@ -56,7 +56,7 @@
     "globby": "11.1.0",
     "graphql": "16.5.0",
     "graphql-subscriptions": "2.0.0",
-    "graphql-ws": "5.8.2",
+    "graphql-ws": "5.9.0",
     "husky": "7.0.4",
     "jest": "27.5.1",
     "lint-staged": "13.0.1",
@@ -66,7 +66,7 @@
     "ts-jest": "27.1.5",
     "ts-node": "10.8.1",
     "typescript": "4.7.3",
-    "ws": "8.7.0"
+    "ws": "8.8.0"
   },
   "prettier": {
     "trailingComma": "es5",
