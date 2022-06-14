@@ -45,9 +45,9 @@
   "devDependencies": {
     "@guild-docs/algolia": "0.0.6",
     "@next/bundle-analyzer": "12.1.6",
-    "@types/node": "16.11.39",
+    "@types/node": "16.11.40",
     "@types/react": "17.0.45",
-    "concurrently": "7.2.1",
+    "concurrently": "7.2.2",
     "cross-env": "7.0.3",
     "esbuild": "0.14.43",
     "esbuild-register": "3.3.3",
