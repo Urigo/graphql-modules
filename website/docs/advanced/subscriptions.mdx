@@ -151,6 +151,8 @@ server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
 })
 ```
+  
+> Using `createSchemaForApollo` means that you end up re-creating operation-scoped providers for every root-level field.
 
 </MDXTab>
 <MDXTab label="Express GraphQL">
