@@ -81,6 +81,27 @@ _But we got you covered, and provided solution for all popular GraphQL server im
 Your GraphQL `Application` exposes `createExecution` and `createSubscription` methods, which are just plug-and-play replacements for the default functions from `graphql-js`.
 
 <MDXTabs namespace={`get-started-libraries`}>
+<MDXTab label="GraphQL Yoga">
+
+If you are using [GraphQL Yoga](graphql-yoga.com), you can use [`useGraphQLModules`](https://www.envelop.dev/plugins/use-graphql-modules) plugin from Envelop.
+
+```typescript title="/src/server.ts"
+import { createServer } from '@graphql-yoga/node'
+import { useGraphQLModules } from '@envelop/graphql-modules'
+import { application } from './application'
+
+const server = createServer({
+  plugins: [
+    useGraphQLModules(application)
+  ]
+})
+
+server.start().then(() => {
+  console.log(`🚀 Server ready`)
+})
+```
+
+</MDXTab>
 <MDXTab label="Apollo Server">
 
 If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloExecutor` to get an executor that is adapted for this server, and integrates with it perfectly.
