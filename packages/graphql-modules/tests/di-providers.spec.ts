@@ -1246,3 +1246,105 @@ test('instantiate all singleton and global providers', async () => {
   expect(spies.data).toBeCalledTimes(1);
   expect(spies.appData).toBeCalledTimes(1);
 });
+
+test('instantiate operation-scoped provider once per many fields', async () => {
+  const constructor = jest.fn();
+  const log = jest.fn();
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Logger {
+    constructor() {
+      constructor();
+    }
+
+    log() {
+      log();
+    }
+  }
+
+  const mod = createModule({
+    id: 'foo',
+    typeDefs: gql`
+      type Query {
+        q1: String
+        q2: String
+      }
+
+      type Mutation {
+        m1: String
+        m2: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        q1(_root: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
+          injector.get(Logger).log();
+
+          return 'q1';
+        },
+        q2(_root: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
+          injector.get(Logger).log();
+          return 'q2';
+        },
+      },
+      Mutation: {
+        m1(_root: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
+          injector.get(Logger).log();
+          return 'm1';
+        },
+        m2(_root: {}, _args: {}, { injector }: GraphQLModulesModuleContext) {
+          injector.get(Logger).log();
+          return 'm2';
+        },
+      },
+    },
+    providers: [Logger],
+  });
+
+  const app = createApplication({
+    modules: [mod],
+  });
+
+  let result = await testkit.execute(app, {
+    contextValue: {},
+    document: gql`
+      {
+        q1
+        q2
+      }
+    `,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    q1: 'q1',
+    q2: 'q2',
+  });
+
+  expect(constructor).toBeCalledTimes(1);
+  expect(log).toBeCalledTimes(2);
+
+  constructor.mockClear();
+  log.mockClear();
+
+  result = await testkit.execute(app, {
+    contextValue: {},
+    document: gql`
+      mutation m {
+        m1
+        m2
+      }
+    `,
+  });
+
+  expect(result.errors).toBeUndefined();
+  expect(result.data).toEqual({
+    m1: 'm1',
+    m2: 'm2',
+  });
+
+  expect(constructor).toBeCalledTimes(1);
+  expect(log).toBeCalledTimes(2);
+});
