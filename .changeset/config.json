@@ -11,6 +11,6 @@
     "examples-basic",
     "examples-di",
     "examples-subscriptions",
-    "example-graphql-ez"
+    "graphql-yoga"
   ]
 }
