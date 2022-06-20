@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { concatAST } from 'graphql';
+import { RESTDataSource } from 'apollo-datasource-rest';
 import {
   createApplication,
   createModule,
@@ -105,7 +106,7 @@ describe('testModule', () => {
     });
   });
 
-  test('should overwrite providers in a module on demand', async () => {
+  test('should overwrite singleton providers in a module on demand', async () => {
     @Injectable({
       scope: Scope.Singleton,
     })
@@ -139,12 +140,159 @@ describe('testModule', () => {
           },
         },
       },
+      providers: [Data],
     });
 
     const app = testkit.testModule(initialModule, {
       providers: [
         {
           provide: Data,
+          useValue: {
+            getById() {
+              return {
+                id: 'mocked',
+              };
+            },
+          },
+        },
+      ],
+    });
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          foo(id: "not-mocked") {
+            id
+          }
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      foo: {
+        id: 'mocked',
+      },
+    });
+  });
+
+  test('should overwrite operation providers in a module on demand', async () => {
+    @Injectable({
+      scope: Scope.Operation,
+    })
+    class Data {
+      getById(id: string) {
+        return {
+          id,
+        };
+      }
+    }
+
+    const initialModule = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo(id: ID!): Foo!
+        }
+
+        type Foo {
+          id: ID
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo(
+            _: {},
+            { id }: { id: string },
+            { injector }: GraphQLModules.ModuleContext
+          ) {
+            return injector.get(Data).getById(id);
+          },
+        },
+      },
+      providers: [Data],
+    });
+
+    const app = testkit.testModule(initialModule, {
+      providers: [
+        {
+          provide: Data,
+          scope: Scope.Operation,
+          useValue: {
+            getById() {
+              return {
+                id: 'mocked',
+              };
+            },
+          },
+        },
+      ],
+    });
+
+    const result = await testkit.execute(app, {
+      document: gql`
+        {
+          foo(id: "not-mocked") {
+            id
+          }
+        }
+      `,
+    });
+
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      foo: {
+        id: 'mocked',
+      },
+    });
+  });
+
+  test('should overwrite operation-scoped classes in a module on demand', async () => {
+    @Injectable({
+      scope: Scope.Operation,
+    })
+    class Data extends RESTDataSource {
+      constructor() {
+        super();
+      }
+
+      getById(id: string) {
+        return {
+          id,
+        };
+      }
+    }
+
+    const initialModule = createModule({
+      id: 'tested',
+      typeDefs: gql`
+        type Query {
+          foo(id: ID!): Foo!
+        }
+
+        type Foo {
+          id: ID
+        }
+      `,
+      resolvers: {
+        Query: {
+          foo(
+            _: {},
+            { id }: { id: string },
+            { injector }: GraphQLModules.ModuleContext
+          ) {
+            return injector.get(Data).getById(id);
+          },
+        },
+      },
+      providers: [Data],
+    });
+
+    const app = testkit.testModule(initialModule, {
+      providers: [
+        {
+          provide: Data,
+          scope: Scope.Operation,
           useValue: {
             getById() {
               return {

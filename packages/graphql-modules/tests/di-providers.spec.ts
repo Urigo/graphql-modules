@@ -1348,3 +1348,53 @@ test('instantiate operation-scoped provider once per many fields', async () => {
   expect(constructor).toBeCalledTimes(1);
   expect(log).toBeCalledTimes(2);
 });
+
+test('Last operation-scoped provider in the list wins', async () => {
+  const token = new InjectionToken<string>('token');
+
+  const app = createApplication({
+    modules: [
+      createModule({
+        id: 'mod',
+        typeDefs: gql`
+          type Query {
+            token: String
+          }
+        `,
+        resolvers: {
+          Query: {
+            token(_: {}, __: {}, { injector }: GraphQLModules.ModuleContext) {
+              return injector.get(token);
+            },
+          },
+        },
+      }),
+    ],
+    providers: [
+      {
+        provide: token,
+        useValue: 'first',
+      },
+      {
+        provide: token,
+        useValue: 'second',
+      },
+      {
+        provide: token,
+        useValue: 'last',
+      },
+    ],
+  });
+
+  const result = await testkit.execute(app, {
+    contextValue: {},
+    document: gql`
+      {
+        token
+      }
+    `,
+  });
+
+  expect(result.errors).not.toBeDefined();
+  expect(result.data?.token).toEqual('last');
+});
