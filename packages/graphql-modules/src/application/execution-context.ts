@@ -25,12 +25,18 @@ const executionContextHook = createHook({
 });
 
 export const executionContext: {
-  create(picker: ExecutionContextPicker): void;
+  create(picker: ExecutionContextPicker): () => void;
   getModuleContext: ExecutionContextPicker['getModuleContext'];
   getApplicationContext: ExecutionContextPicker['getApplicationContext'];
 } = {
   create(picker) {
-    executionContextStore.set(executionAsyncId(), picker);
+    const id = executionAsyncId();
+    executionContextStore.set(id, picker);
+    return function destroyContext() {
+      if (executionContextStore.has(id)) {
+        executionContextStore.delete(id);
+      }
+    };
   },
   getModuleContext(moduleId) {
     const picker = executionContextStore.get(executionAsyncId())!;

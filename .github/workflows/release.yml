@@ -26,7 +26,7 @@ jobs:
       - name: Use Node
         uses: actions/setup-node@v2
         with:
-          node-version: 17
+          node-version: 18
       - name: Setup NPM credentials
         run: echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" >> ~/.npmrc
         env:
@@ -35,10 +35,10 @@ jobs:
         name: Cache node_modules
         with:
           path: '**/node_modules'
-          key: ${{ runner.os }}-yarn-17-15-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-18-16-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-17-15-
-            ${{ runner.os }}-yarn-17-
+            ${{ runner.os }}-yarn-18-16-
+            ${{ runner.os }}-yarn-18-
             ${{ runner.os }}-yarn-
       - name: Install Dependencies using Yarn
         run: yarn install --ignore-engines && git checkout yarn.lock
