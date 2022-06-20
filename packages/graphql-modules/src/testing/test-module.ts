@@ -118,6 +118,23 @@ function transformModule(mod: Module, config?: TestModuleConfig) {
     });
   }
 
+  if (config?.providers) {
+    transforms.push((m) => {
+      const sourceProviders =
+        typeof m.config.providers === 'function'
+          ? m.config.providers()
+          : m.config.providers;
+      const overrideProviders =
+        typeof config.providers === 'function'
+          ? config.providers()
+          : config.providers;
+      return moduleFactory({
+        ...m.config,
+        providers: [...(sourceProviders || []), ...(overrideProviders || [])],
+      });
+    });
+  }
+
   if (transforms) {
     return transforms.reduce((m, transform) => transform(m), mod);
   }
