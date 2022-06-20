@@ -1,0 +1,11 @@
+{
+  "name": "graphql-yoga",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node --project ../../tsconfig.app.json ./src/index.ts",
+    "build": "tsc"
+  }
+}

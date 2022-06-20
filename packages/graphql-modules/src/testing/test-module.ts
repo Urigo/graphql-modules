@@ -317,7 +317,7 @@ function visitTypes(
       }
 
       if (hasInterfaces(type)) {
-        type.interfaces.forEach(i => {
+        type.interfaces.forEach((i) => {
           collectType(resolveType(i));
         });
       }

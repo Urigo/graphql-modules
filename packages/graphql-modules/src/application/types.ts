@@ -68,7 +68,7 @@ export interface Application {
     controller?: OperationController;
   }): Execution;
   /**
-   * Experimental
+   * @deprecated Use `createApolloExecutor`, `createExecution` and `createSubscription` methods instead.
    */
   createSchemaForApollo(): GraphQLSchema;
   /**

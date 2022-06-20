@@ -8,7 +8,7 @@ import TabItem from '@theme/Tab'
 
 Subscription is a third kind of GraphQL operation, next to Query and Mutation. Think of it as an event emitter where events are emitted by your backend and consumed by a GraphQL client - frontend in most scenarios.
 
-GraphQL is just a specification and Express GraphQL or Apollo Server are Node implementations of the server-side part of GraphQL. Natural fit for Subscriptions is WebSocket protocol but it could be anything. We're going to focus only on WS and use [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws) package as our transport layer.
+GraphQL is just a specification and GraphQL Yoga or Apollo Server are Node implementations of the server-side part of GraphQL. Natural fit for Subscriptions is WebSocket protocol but it could be anything. We're going to focus only on WS and use [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws) package as our transport layer.
 
 ## Setup
 
@@ -134,25 +134,80 @@ export const myModule = createModule({
 Here are reference implementations of using GraphQL Subscriptions with WebSockets in both, Apollo Server and Express GraphQL.
 
 <MDXTabs namespace={`advanced/subscriptions`}>
+<MDXTab label="GraphQL Yoga">
+
+```typescript title="server.ts"
+import 'reflect-metadata'
+import { createServer } from '@graphql-yoga/node'
+import { useGraphQLModules } from '@envelop/graphql-modules'
+import { application } from './application'
+
+const server = createServer({
+  plugins: [useGraphQLModules(application)]
+})
+
+server.start().then(() => {
+  console.log(`🚀 Server ready`)
+})
+```
+
+> GraphQL Yoga uses [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events) by default, if you want to use WebSockets instead, follow [these instructions](https://www.graphql-yoga.com/docs/features/subscriptions).
+
+</MDXTab>
 <MDXTab label="Apollo Server">
 
 ```typescript title="server.ts"
 import 'reflect-metadata'
-import { ApolloServer } from 'apollo-server'
+import express from "express";
+import { createServer } from 'http';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { ApolloServer } from "apollo-server-express";
 import { application } from './application'
 
 const schema = application.createSchemaForApollo()
 
-const server = new ApolloServer({
-  schema
-})
+const { schema, createExecution, createSubscription, createApolloExecutor } = application;
+const execute = createExecution();
+const subscribe = createSubscription();
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
-})
-```
+(async function () {
+  const app = express();
+
+  const httpServer = createServer(app);
+
+  let subscriptionServer;
+  const server = new ApolloServer({
+    schema,
+    executor: createApolloExecutor(),
+    plugins: [{
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            subscriptionServer.close();
+          }
+        };
+      }
+    }],
+  });
   
-> Using `createSchemaForApollo` means that you end up re-creating operation-scoped providers for every root-level field.
+  subscriptionServer = SubscriptionServer.create({
+    schema,
+    execute,
+    subscribe,
+  }, {
+    server: httpServer,
+    path: server.graphqlPath,
+  });
+  
+  await server.start();
+  server.applyMiddleware({ app });
+
+  const PORT = 4000;
+  httpServer.listen(PORT, () =>
+    console.log(`Server is now running on http://localhost:${PORT}/graphql`)
+  );
+})();
+```
 
 </MDXTab>
 <MDXTab label="Express GraphQL">
