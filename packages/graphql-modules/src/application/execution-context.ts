@@ -73,3 +73,11 @@ export function enableExecutionContext() {
     executionContextHook.enable();
   }
 }
+
+export function getExecutionContextStore() {
+  return executionContextStore;
+}
+
+export function getExecutionContextDependencyStore() {
+  return executionContextDependencyStore;
+}
