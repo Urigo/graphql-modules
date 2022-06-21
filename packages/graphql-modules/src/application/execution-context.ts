@@ -6,15 +6,20 @@ export interface ExecutionContextPicker {
 }
 
 const executionContextStore = new Map<number, ExecutionContextPicker>();
+const executionContextDependencyStore = new Map<number, Set<number>>();
 
 const executionContextHook = createHook({
   init(asyncId, _, triggerAsyncId) {
     // Store same context data for child async resources
-    if (executionContextStore.has(triggerAsyncId)) {
-      executionContextStore.set(
-        asyncId,
-        executionContextStore.get(triggerAsyncId)!
-      );
+    const ctx = executionContextStore.get(triggerAsyncId);
+    if (ctx) {
+      const dependencies =
+        executionContextDependencyStore.get(triggerAsyncId) ??
+        executionContextDependencyStore
+          .set(triggerAsyncId, new Set())
+          .get(triggerAsyncId)!;
+      dependencies.add(asyncId);
+      executionContextStore.set(asyncId, ctx);
     }
   },
   destroy(asyncId) {
@@ -35,6 +40,16 @@ export const executionContext: {
     return function destroyContext() {
       if (executionContextStore.has(id)) {
         executionContextStore.delete(id);
+      }
+
+      const deps = executionContextDependencyStore.get(id);
+
+      if (deps) {
+        for (const dep of deps) {
+          if (executionContextStore.has(dep)) {
+            executionContextStore.delete(dep);
+          }
+        }
       }
     };
   },
