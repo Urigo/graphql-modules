@@ -226,7 +226,7 @@ test('general test', async () => {
   expect(spies.logger).toHaveBeenCalledTimes(2);
 });
 
-test('useFactory with dependecies', async () => {
+test('useFactory with dependencies', async () => {
   const logSpy = jest.fn();
 
   @Injectable({

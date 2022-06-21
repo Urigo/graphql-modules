@@ -6,15 +6,20 @@ export interface ExecutionContextPicker {
 }
 
 const executionContextStore = new Map<number, ExecutionContextPicker>();
+const executionContextDependencyStore = new Map<number, Set<number>>();
 
 const executionContextHook = createHook({
   init(asyncId, _, triggerAsyncId) {
     // Store same context data for child async resources
-    if (executionContextStore.has(triggerAsyncId)) {
-      executionContextStore.set(
-        asyncId,
-        executionContextStore.get(triggerAsyncId)!
-      );
+    const ctx = executionContextStore.get(triggerAsyncId);
+    if (ctx) {
+      const dependencies =
+        executionContextDependencyStore.get(triggerAsyncId) ??
+        executionContextDependencyStore
+          .set(triggerAsyncId, new Set())
+          .get(triggerAsyncId)!;
+      dependencies.add(asyncId);
+      executionContextStore.set(asyncId, ctx);
     }
   },
   destroy(asyncId) {
@@ -24,13 +29,32 @@ const executionContextHook = createHook({
   },
 });
 
+function destroyContextAndItsChildren(id: number) {
+  if (executionContextStore.has(id)) {
+    executionContextStore.delete(id);
+  }
+
+  const deps = executionContextDependencyStore.get(id);
+
+  if (deps) {
+    for (const dep of deps) {
+      destroyContextAndItsChildren(dep);
+    }
+    executionContextDependencyStore.delete(id);
+  }
+}
+
 export const executionContext: {
-  create(picker: ExecutionContextPicker): void;
+  create(picker: ExecutionContextPicker): () => void;
   getModuleContext: ExecutionContextPicker['getModuleContext'];
   getApplicationContext: ExecutionContextPicker['getApplicationContext'];
 } = {
   create(picker) {
-    executionContextStore.set(executionAsyncId(), picker);
+    const id = executionAsyncId();
+    executionContextStore.set(id, picker);
+    return function destroyContext() {
+      destroyContextAndItsChildren(id);
+    };
   },
   getModuleContext(moduleId) {
     const picker = executionContextStore.get(executionAsyncId())!;
@@ -48,4 +72,12 @@ export function enableExecutionContext() {
   if (!executionContextEnabled) {
     executionContextHook.enable();
   }
+}
+
+export function getExecutionContextStore() {
+  return executionContextStore;
+}
+
+export function getExecutionContextDependencyStore() {
+  return executionContextDependencyStore;
 }

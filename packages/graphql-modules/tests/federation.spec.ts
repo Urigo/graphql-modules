@@ -13,7 +13,7 @@ describe('federation', () => {
   }
 
   const {
-    buildFederatedSchema,
+    buildSubgraphSchema,
   }: typeof import('@apollo/federation') = require('@apollo/federation');
 
   test('allow __resolveReference', async () => {
@@ -40,7 +40,7 @@ describe('federation', () => {
       createApplication({
         modules: [mod],
         schemaBuilder(input) {
-          return buildFederatedSchema({
+          return buildSubgraphSchema({
             typeDefs: input.typeDefs,
             resolvers: mergeResolvers(input.resolvers) as any,
           });
@@ -73,7 +73,7 @@ describe('federation', () => {
       createApplication({
         modules: [mod],
         schemaBuilder(input) {
-          return buildFederatedSchema({
+          return buildSubgraphSchema({
             typeDefs: input.typeDefs,
             resolvers: mergeResolvers(input.resolvers) as any,
           });

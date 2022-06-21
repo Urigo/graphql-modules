@@ -9,8 +9,19 @@ import {
   InjectionToken,
   testkit,
 } from '../src';
+import {
+  getExecutionContextDependencyStore,
+  getExecutionContextStore,
+} from '../src/application/execution-context';
 
 const posts = ['Foo', 'Bar'];
+
+afterEach(() => {
+  // There should be no execution context left after each test
+  expect(
+    getExecutionContextDependencyStore().size + getExecutionContextStore().size
+  ).toBe(0);
+});
 
 test('ExecutionContext on module level provider', async () => {
   const spies = {

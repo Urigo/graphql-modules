@@ -91,7 +91,9 @@ export function createContextBuilder({
         return getModuleContext(moduleId, context);
       },
     };
-    executionContext.create(executionContextPicker);
+    const destroyExecutionContext = executionContext.create(
+      executionContextPicker
+    );
 
     // As the name of the Injector says, it's an Operation scoped Injector
     // Application level
@@ -184,6 +186,7 @@ export function createContextBuilder({
             injector._getObjByKeyId(keyId).onDestroy();
           }
         });
+        destroyExecutionContext();
         contextCache = {};
       }),
       ɵinjector: operationAppInjector,
