@@ -1,5 +1,16 @@
 # graphql-modules
 
+## 2.1.0
+
+### Minor Changes
+
+- c0a3d556: Allow to overwrite providers when using testkit.testModule
+
+### Patch Changes
+
+- 9e5ec3ae: Add a deprecation note for createSchemaForApollo method
+- 285987c6: Fix a memory leak related to ExecutionContext and Promises
+
 ## 2.0.0
 
 ### Major Changes
