@@ -29,6 +29,21 @@ const executionContextHook = createHook({
   },
 });
 
+function destroyContextAndItsChildren(id: number) {
+  if (executionContextStore.has(id)) {
+    executionContextStore.delete(id);
+  }
+
+  const deps = executionContextDependencyStore.get(id);
+
+  if (deps) {
+    for (const dep of deps) {
+      destroyContextAndItsChildren(dep);
+    }
+    executionContextDependencyStore.delete(id);
+  }
+}
+
 export const executionContext: {
   create(picker: ExecutionContextPicker): () => void;
   getModuleContext: ExecutionContextPicker['getModuleContext'];
@@ -38,19 +53,7 @@ export const executionContext: {
     const id = executionAsyncId();
     executionContextStore.set(id, picker);
     return function destroyContext() {
-      if (executionContextStore.has(id)) {
-        executionContextStore.delete(id);
-      }
-
-      const deps = executionContextDependencyStore.get(id);
-
-      if (deps) {
-        for (const dep of deps) {
-          if (executionContextStore.has(dep)) {
-            executionContextStore.delete(dep);
-          }
-        }
-      }
+      destroyContextAndItsChildren(id);
     };
   },
   getModuleContext(moduleId) {
