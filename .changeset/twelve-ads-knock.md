@@ -1,5 +1,0 @@
----
-'graphql-modules': patch
----
-
-temp
