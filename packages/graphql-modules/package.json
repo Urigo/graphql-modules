@@ -35,8 +35,8 @@
     "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^8.3.1",
-    "@graphql-tools/wrap": "^8.3.1",
+    "@graphql-tools/schema": "^9.0.0",
+    "@graphql-tools/wrap": "^9.0.0",
     "@graphql-typed-document-node/core": "^3.1.0",
     "ramda": "^0.28.0"
   },
