@@ -12,6 +12,7 @@
     "prepare": "husky install",
     "postinstall": "patch-package",
     "ts:check": "tsc --project tsconfig.json --noEmit",
+    "ci:lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\" --output-file eslint_report.json --format json",
     "build": "tsc --project tsconfig.json && bob build",
     "test": "jest",
     "prerelease": "yarn build",
