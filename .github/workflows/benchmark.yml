@@ -5,38 +5,7 @@ on: [push]
 jobs:
   Benchmark:
     name: Benchmark on node ${{ matrix.node_version }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node_version: [16, 18]
-    env:
-      CI: true
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@master
-        with:
-          node-version: ${{ matrix.node_version }}
-      
-      - uses: actions/cache@v2
-        name: Cache node_modules
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ matrix.node_version }}-16-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-${{ matrix.node_version }}-16-
-            ${{ runner.os }}-yarn-${{ matrix.node_version }}-
-            ${{ runner.os }}-yarn-
-
-      - name: Install
-        run: yarn --ignore-engines
-
-      - name: Build
-        run: yarn build
-
-      - name: Benchmark
-        run: 'yarn benchmark:basic'
+    uses: the-guild-org/shared-config/.github/workflows/ci-node-matrix.yml@main
+    with:
+      script: 'yarn build && yarn benchmark:basic'
+      nodeVersions: '[16,18]'
