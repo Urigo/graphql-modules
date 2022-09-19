@@ -2,6 +2,7 @@
   "name": "website",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "algolia-sync": "node scripts/algolia-ci.mjs",
     "dev": "next",
