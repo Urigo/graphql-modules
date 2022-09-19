@@ -1,22 +1,14 @@
-import { createRequire } from 'node:module';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { indexToAlgolia } from '@guild-docs/algolia';
-import { register } from 'esbuild-register/dist/node.js';
 
-register({ extensions: ['.ts', '.tsx'] });
-
-const require = createRequire(import.meta.url);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const { getRoutes } = require('../routes.ts');
-
-const routes = [{ ...getRoutes() }];
+const CWD = process.cwd();
 
 indexToAlgolia({
-  routes,
+  nextra: {
+    docsBaseDir: resolve(CWD, 'src', 'pages'),
+  },
   source: 'Modules',
   dryMode: process.env.ALGOLIA_DRY_RUN === 'true',
   domain: process.env.SITE_URL,
-  lockfilePath: resolve(__dirname, '../algolia-lockfile.json'),
+  lockfilePath: resolve(CWD, 'algolia-lockfile.json'),
 });
