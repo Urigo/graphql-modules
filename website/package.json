@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "patch-package",
     "algolia-sync": "node scripts/algolia-ci.mjs",
     "dev": "next",
     "build": "next build",
