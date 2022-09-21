@@ -87,7 +87,7 @@ export const IndexPage = (): ReactElement => {
         }}
       />
 
-      <div className="flex justify-center">
+      <div className="flex justify-center p-6 md:p-0">
         {[
           { src: airFrance, alt: 'AirFrance' },
           { src: klm, alt: 'KLM' },
