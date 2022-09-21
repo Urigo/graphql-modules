@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "patch-package",
     "algolia-sync": "node scripts/algolia-ci.mjs",
     "dev": "next",
     "build": "next build",
@@ -12,9 +11,9 @@
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
-    "@theguild/components": "4.0.1",
+    "@theguild/components": "4.0.2",
     "critters": "0.0.16",
-    "next": "12.3.0",
+    "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
