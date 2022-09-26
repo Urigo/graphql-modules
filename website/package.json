@@ -5,16 +5,19 @@
   "type": "module",
   "scripts": {
     "algolia-sync": "node scripts/algolia-ci.mjs",
-    "dev": "next",
-    "build": "next build",
+    "build": "next build && next-sitemap --config next-sitemap.config.cjs ",
+    "dev": "next dev",
+    "next": "next",
     "start": "next start",
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
     "@theguild/components": "4.0.3",
     "next": "12.3.1",
+    "next-sitemap": "3.1.22",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "wrangler": "2.1.5"
   },
   "browserslist": {
     "production": [

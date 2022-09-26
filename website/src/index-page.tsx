@@ -4,7 +4,6 @@ import {
   HeroGradient,
   HeroIllustration,
   NPMBadge,
-  Image,
   IFeatureListProps,
 } from '@theguild/components';
 
@@ -13,12 +12,7 @@ import reuse from '../public/assets/img/home/reuse-feat.svg';
 import extend from '../public/assets/img/home/extend-feat.svg';
 import easy from '../public/assets/img/home/easy-feat.svg';
 import rocket from '../public/assets/img/home/rocket.svg';
-import apollo from '../public/assets/img/home/companies/apollo-logo.png';
 import workers from '../public/assets/img/home/workers-full.svg';
-import airFrance from '../public/assets/img/home/companies/airfrance-logo.svg';
-import klm from '../public/assets/img/home/companies/klm-logo.svg';
-import msj from '../public/assets/img/home/companies/msj-logo.svg';
-import schneider from '../public/assets/img/home/companies/schneider-logo.svg';
 
 const FEATURE_LIST: IFeatureListProps['items'] = [
   {
@@ -87,35 +81,12 @@ export const IndexPage = (): ReactElement => {
         }}
       />
 
-      <div className="flex justify-center p-6 md:p-0">
-        {[
-          { src: airFrance, alt: 'AirFrance' },
-          { src: klm, alt: 'KLM' },
-          { src: msj, alt: 'Mount St. Joseph University' },
-          { src: schneider, alt: 'Schneider' },
-        ].map(({ src, alt }) => (
-          <Image
-            key={alt}
-            src={src}
-            alt={alt}
-            loading="eager"
-            placeholder="empty"
-          />
-        ))}
-      </div>
-
       <FeatureList items={FEATURE_LIST} className="[&_h3]:mt-4" />
 
       <HeroIllustration
         flipped
-        title={
-          <>
-            Integrates with Your
-            <Image src={apollo} alt="Apollo" className="inline h-9 w-auto" />
-            Server
-          </>
-        }
-        description="GraphQL Modules is a set of extra tools, structures and guidelines around the amazing Apollo Server 2.0. You’ll see how effective those tools are once you’ll start growing and scaling your GraphQL server."
+        title={<>Integrates with any GraphQL Server</>}
+        description="GraphQL Modules is a set of extra tools, structures and guidelines around your GraphQL schema. You’ll see how effective those tools are once you’ll start growing and scaling your GraphQL server."
         image={{
           src: workers,
           loading: 'eager',
