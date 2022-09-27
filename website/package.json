@@ -14,10 +14,10 @@
   "dependencies": {
     "@theguild/components": "4.0.3",
     "next": "12.3.1",
-    "next-sitemap": "3.1.22",
+    "next-sitemap": "3.1.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "wrangler": "2.1.7"
+    "wrangler": "2.1.8"
   },
   "browserslist": {
     "production": [
