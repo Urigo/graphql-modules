@@ -8,6 +8,7 @@ import {
 import type { Provider, Injector } from '../di';
 import type { Resolvers, Module, MockedModule } from '../module/types';
 import type { MiddlewareMap } from '../shared/middleware';
+import type { ExecutionContextConfig } from './execution-context';
 import type { ApolloRequestContext } from './apollo';
 import type { Single } from '../shared/types';
 import type { InternalAppContext } from './application';
@@ -139,4 +140,20 @@ export interface ApplicationConfig {
     typeDefs: DocumentNode[];
     resolvers: Record<string, any>[];
   }): GraphQLSchema;
+
+  /**
+   * Enables ExecutionContext
+   *
+   * @example
+   *
+   * ```typescript
+   * import { createHook, executionAsyncId } from 'async_hooks';
+   *
+   * const app = createApplication({
+   *  modules: [],
+   *  executionContext: { createHook, executionAsyncId }
+   * });
+   * ```
+   */
+  executionContext?: ExecutionContextConfig;
 }

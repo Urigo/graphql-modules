@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHook, executionAsyncId } from 'async_hooks';
 import {
   createApplication,
   createModule,
@@ -95,6 +96,7 @@ test('ExecutionContext on module level provider', async () => {
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const createContext = () => ({ request: {}, response: {} });
@@ -209,6 +211,7 @@ test('ExecutionContext on application level provider', async () => {
   const app = createApplication({
     modules: [postsModule],
     providers: [Posts, PostsConnection],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const createContext = () => ({ request: {}, response: {} });
@@ -304,6 +307,7 @@ test('ExecutionContext on module level global provider', async () => {
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const createContext = () => ({ request: {}, response: {} });
@@ -389,6 +393,7 @@ test('ExecutionContext on application level global provider', async () => {
   const app = createApplication({
     modules: [postsModule],
     providers: [Posts],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const createContext = () => ({ noop() {} });
@@ -488,6 +493,7 @@ test('accessing a singleton provider with execution context in another singleton
         useValue: expectedName,
       },
     ],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const result = await testkit.execute(app, {
