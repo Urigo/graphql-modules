@@ -6,7 +6,6 @@ import {
   ensureInjectableMetadata,
 } from './metadata';
 import { Injector } from './injector';
-import { assertExecutionContext } from '../application/execution-context';
 
 function ensureReflect() {
   if (!(Reflect && Reflect.getOwnMetadata)) {

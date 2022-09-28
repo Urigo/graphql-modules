@@ -14,7 +14,6 @@ export interface ExecutionContextPicker {
 const executionContextStore = new Map<number, ExecutionContextPicker>();
 const executionContextDependencyStore = new Map<number, Set<number>>();
 
-let executionContextHook = null;
 let executionAsyncId: () => number = () => 0;
 
 function destroyContextAndItsChildren(id: number) {
@@ -68,7 +67,7 @@ export const executionContext: {
 
 export function enableExecutionContext(config: ExecutionContextConfig) {
   if (!executionContextEnabled) {
-    executionContextHook = config.createHook({
+    config.createHook({
       init(asyncId, _, triggerAsyncId) {
         // Store same context data for child async resources
         const ctx = executionContextStore.get(triggerAsyncId);
