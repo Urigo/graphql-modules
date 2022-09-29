@@ -71,6 +71,7 @@ export function testModule(testedModule: Module, config?: TestModuleConfig) {
     modules,
     providers: config?.providers,
     middlewares: config?.middlewares,
+    executionContext: false,
   });
 }
 
