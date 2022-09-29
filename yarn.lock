@@ -2646,10 +2646,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@theguild/algolia@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@theguild/algolia/-/algolia-0.0.2.tgz#fcd4c1fc3692b7c120b8362da8859d96dd8a1d01"
-  integrity sha512-cQ7abeP7x4dWz33/uSExLdXHBiCmXUjRd90lLKwCq/TvVwI9mVKMTk4qV/te40gee+yT5M4I3M9dyFShPzNQpw==
+"@theguild/algolia@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@theguild/algolia/-/algolia-0.1.0.tgz#3937ad35df42cde7972137369b2f23f2118eb1f3"
+  integrity sha512-bIC4qBUj1U/EOkNx7ncFP9uX3cc8u+rRx3duNQv3eA3NUIAn4VmQsAwPx8kKJwSsUSQ0H2vJAh3RtaG5kSVvHA==
   dependencies:
     algoliasearch "^4.13.1"
     github-slugger "^1.4.0"
@@ -2658,10 +2658,10 @@
     lodash "^4.17.21"
     remove-markdown "0.5.0"
 
-"@theguild/components@4.0.3":
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/@theguild/components/-/components-4.0.3.tgz#4a841ce92dd3d88179f14bed99133cc93c3f5c2b"
-  integrity sha512-4b+sS95yCi4MmLAkVc3MQVGohdhmvSzug84w4OGZuFTWM4Fu7KX6IZuBxrzEX4Gw1Jb5YPsF+TsAbOe7W6KdNg==
+"@theguild/components@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@theguild/components/-/components-4.1.0.tgz#0b6390b6776f0e532a21731c9d45afc7bdad5560"
+  integrity sha512-rpUuMZznBOJCA5+Cg+sGb8Js82gVDHiTJmf1OdIERUT8jFX+yUe3BhjiNe/tmxRh8/rMxCLxInSQCAJqrOfu9A==
   dependencies:
     "@algolia/autocomplete-js" "1.7.1"
     "@algolia/autocomplete-plugin-algolia-insights" "1.7.1"
@@ -2679,7 +2679,7 @@
     nextra-theme-docs "2.0.0-beta.29"
     react-instantsearch-dom "6.32.1"
     react-paginate "8.1.3"
-    react-player "2.10.1"
+    react-player "2.11.0"
     remark-mdx-disable-explicit-jsx "0.1.0"
     search-insights "2.2.1"
     tiny-lru "9.0.0"
@@ -2687,12 +2687,12 @@
     unist-util-visit "^4.1.1"
     use-debounce "8.0.4"
 
-"@theguild/tailwind-config@0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@theguild/tailwind-config/-/tailwind-config-0.1.0.tgz#77b4d54587e02417d7a78baf2b88da54017e0637"
-  integrity sha512-UbxDQ0ZA423/yt5lByoBwwR5tXRr3S1Mr2ZXKD3592fdR43N7uz3mOIOf2lQV3iMtkD+Q+FnPg9DM0AXn9DdnQ==
+"@theguild/tailwind-config@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@theguild/tailwind-config/-/tailwind-config-0.1.1.tgz#ff77a44d97ca62bfb710a29024daee5f17b27cdc"
+  integrity sha512-eA3bclBuyMycNue9ngBnk92q9BzmZZSipfFXq3/DZrl87K5BDhrOuzQ/mEJ4oh+hDEX0MkbFidL4Cupz229i9w==
   dependencies:
-    autoprefixer "^10.4.8"
+    autoprefixer "^10.4.12"
     cssnano "^5.1.13"
     postcss "^8.4.16"
     postcss-import "^15.0.0"
@@ -3707,13 +3707,13 @@ at-least-node@^1.0.0:
   resolved "https://registry.npmjs.org/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
-autoprefixer@^10.4.8:
-  version "10.4.11"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.4.11.tgz#835136aff1d9cd43640151e0d2dba00f8eac7c1c"
-  integrity sha512-5lHp6DgRodxlBLSkzHOTcufWFflH1ewfy2hvFQyjrblBFlP/0Yh4O/Wrg4ow8WRlN3AAUFFLAQwX8hTptzqVHg==
+autoprefixer@^10.4.12:
+  version "10.4.12"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.4.12.tgz#183f30bf0b0722af54ee5ef257f7d4320bb33129"
+  integrity sha512-WrCGV9/b97Pa+jtwf5UGaRjgQIg7OK3D06GnoYoZNcG1Xb8Gt3EfuKjlhh9i/VtT16g6PYjZ69jdJ2g8FxSC4Q==
   dependencies:
-    browserslist "^4.21.3"
-    caniuse-lite "^1.0.30001399"
+    browserslist "^4.21.4"
+    caniuse-lite "^1.0.30001407"
     fraction.js "^4.2.0"
     normalize-range "^0.1.2"
     picocolors "^1.0.0"
@@ -4131,10 +4131,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001399, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001406:
-  version "1.0.30001409"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001409.tgz#6135da9dcab34cd9761d9cdb12a68e6740c5e96e"
-  integrity sha512-V0mnJ5dwarmhYv8/MzhJ//aW68UpvnQBXv8lJ2QUsvn2pHcmAuNtu8hQEDz37XnA1iE+lRR9CIfGWWpgJ5QedQ==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001407:
+  version "1.0.30001414"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001414.tgz#5f1715e506e71860b4b07c50060ea6462217611e"
+  integrity sha512-t55jfSaWjCdocnFdKQoO+d2ct9C59UZg4dY3OnUlSZ447r8pUtIKdp0hpAzrGFultmTC+Us+KpKi4GZl/LXlFg==
 
 capture-stack-trace@^1.0.0:
   version "1.0.1"
@@ -10389,10 +10389,10 @@ react-paginate@8.1.3:
   dependencies:
     prop-types "^15.6.1"
 
-react-player@2.10.1:
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.10.1.tgz#f2ee3ec31393d7042f727737545414b951ffc7e4"
-  integrity sha512-ova0jY1Y1lqLYxOehkzbNEju4rFXYVkr5rdGD71nsiG4UKPzRXQPTd3xjoDssheoMNjZ51mjT5ysTrdQ2tEvsg==
+react-player@2.11.0:
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.11.0.tgz#9afc75314eb915238e8d6615b2891fbe7170aeaa"
+  integrity sha512-fIrwpuXOBXdEg1FiyV9isKevZOaaIsAAtZy5fcjkQK9Nhmk1I2NXzY/hkPos8V0zb/ZX416LFy8gv7l/1k3a5w==
   dependencies:
     deepmerge "^4.0.0"
     load-script "^1.0.0"
