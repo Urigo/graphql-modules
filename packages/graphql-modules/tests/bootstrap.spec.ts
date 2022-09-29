@@ -25,6 +25,7 @@ test('fail when modules have non-unique ids', async () => {
   expect(() => {
     createApplication({
       modules: [modFoo, modBar],
+      executionContext: false,
     });
   }).toThrow(`Modules with non-unique ids: foo`);
 });
@@ -57,6 +58,7 @@ test('should allow multiple type extensions in the same module', async () => {
 
   const app = createApplication({
     modules: [m1],
+    executionContext: false,
   });
 
   const schema = app.schema;
@@ -97,6 +99,7 @@ test('should not thrown when isTypeOf is used', async () => {
 
   const app = createApplication({
     modules: [m1],
+    executionContext: false,
   });
 
   const result = await testkit.execute(app, {
@@ -152,6 +155,7 @@ test('should allow to add __isTypeOf to type resolvers', () => {
   expect(() => {
     createApplication({
       modules: [m1],
+      executionContext: false,
     });
   }).not.toThrow();
 });
@@ -209,6 +213,7 @@ test('should support __resolveType', async () => {
 
   const app = createApplication({
     modules: [m1],
+    executionContext: false,
   });
 
   const result = await testkit.execute(app, {
@@ -296,6 +301,7 @@ test('allow field resolvers in an interface without objects inheriting them', as
 
   const app = createApplication({
     modules: [mod],
+    executionContext: false,
   });
 
   const result = await testkit.execute(app, {
@@ -362,6 +368,7 @@ test('pass field resolvers of an interface to schemaBuilder', async () => {
         inheritResolversFromInterfaces: true,
       });
     },
+    executionContext: false,
   });
 
   const result = await testkit.execute(app, {

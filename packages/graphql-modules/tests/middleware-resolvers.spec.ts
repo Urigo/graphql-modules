@@ -242,6 +242,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
     });
     const app = createApplication({
       modules: [mod],
+      executionContext: false,
     });
 
     const result = await testkit.execute(app, {
@@ -268,6 +269,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
     });
     const app = createApplication({
       modules: [mod],
+      executionContext: false,
     });
 
     const result = await testkit.execute(app, {
@@ -294,6 +296,7 @@ describe('should use a middleware on a field with no implemented resolver', () =
     });
     const app = createApplication({
       modules: [mod],
+      executionContext: false,
     });
 
     const result = await testkit.execute(app, {

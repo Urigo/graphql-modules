@@ -38,6 +38,7 @@ describe('federation', () => {
 
     expect(() =>
       createApplication({
+        executionContext: false,
         modules: [mod],
         schemaBuilder(input) {
           return buildSubgraphSchema({
@@ -71,6 +72,7 @@ describe('federation', () => {
 
     expect(() =>
       createApplication({
+        executionContext: false,
         modules: [mod],
         schemaBuilder(input) {
           return buildSubgraphSchema({

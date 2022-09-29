@@ -1,5 +1,44 @@
 import { Tabs, Tab, Callout } from '@theguild/components'
 
+# Migration from v2.X
+
+## ExecutionContext is now disabled by default
+
+In v2.X, the `ExecutionContext` was enabled by default, in v3.X, it is not.
+If you want to use it, you need to enable it explicitly.
+
+The Execution Context uses `async_hooks` under the hood, which is only available on Node. 
+To make `graphql-modules` platform agnostic, we decided to make it opt-in.
+
+<Tabs items={['V3', 'V2']}>
+<Tab>
+```ts
+import { createApplication } from 'graphql-modules'
+import { createHook, executionAsyncId } from 'async_hooks'
+
+const app = createApplication({
+  modules: [/* modules */],
+  executionContext: { createHook, executionAsyncId },
+})
+```
+```
+</Tab>
+
+<Tab>
+```ts
+import { createApplication } from 'graphql-modules'
+
+const app = createApplication({
+  modules: [/* modules */],
+})
+```
+</Tab>
+</Tabs>
+
+# Migration from v1.X
+
+Check [graphql-tools/schema v8.0.0 release](https://github.com/ardatan/graphql-tools/releases/tag/%40graphql-tools%2Fschema%408.0.0) for possible breaking changes.
+
 # Migration from v0.X
 
 <Callout>Note: this page is still in progress!</Callout>

@@ -77,6 +77,7 @@ test('Global context and module context should be reachable', async () => {
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: false,
   });
 
   const contextValue = () => ({

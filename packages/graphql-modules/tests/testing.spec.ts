@@ -423,7 +423,7 @@ describe('execute', () => {
       },
     });
 
-    const app = createApplication({ modules: [mod] });
+    const app = createApplication({ modules: [mod], executionContext: false });
     const query: TypedDocumentNode<
       { foo: { id: string } },
       { id: string }
@@ -548,6 +548,7 @@ describe('mockApplication', () => {
         },
       ],
       modules: [envModule],
+      executionContext: false,
     });
 
     const app = testkit.mockApplication(originalApp).addProviders([
@@ -598,6 +599,7 @@ describe('mockApplication', () => {
     const originalApp = createApplication({
       providers: [Config],
       modules: [envModule],
+      executionContext: false,
     });
 
     const app = testkit.mockApplication(originalApp).replaceModule(
@@ -687,6 +689,7 @@ describe('mockApplication', () => {
         },
       ],
       modules: [envModule, extraModule],
+      executionContext: false,
     });
 
     const app = testkit

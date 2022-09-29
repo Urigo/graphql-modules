@@ -176,6 +176,7 @@ test('No error in case of module without providers', async () => {
   const app = createApplication({
     modules: [mod],
     providers: [Data],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -238,7 +239,9 @@ test('Make sure we have readable error', async () => {
     },
   });
 
-  expect(() => createApplication({ modules: [m2, m1] })).toThrowError(
+  expect(() =>
+    createApplication({ modules: [m2, m1], executionContext: false })
+  ).toThrowError(
     'No provider for P1! (P2 -> P1) - in Module "m2" (Singleton Scope)'
   );
 });
@@ -311,6 +314,7 @@ test('Detect collision of two identical global providers (singleton)', async () 
     createApplication({
       modules: [fooModule, barModule],
       providers: [AppData],
+      executionContext: false,
     });
   }).toThrowError(
     `Failed to define 'Data' token as global. Token provided by two modules: 'bar', 'foo'`
@@ -385,6 +389,7 @@ test('Detect collision of two identical global providers (operation)', async () 
     createApplication({
       modules: [fooModule, barModule],
       providers: [AppData],
+      executionContext: false,
     });
   }).toThrowError(
     `Failed to define 'Data' token as global. Token provided by two modules: 'bar', 'foo'`

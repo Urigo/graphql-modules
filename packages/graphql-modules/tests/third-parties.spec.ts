@@ -29,6 +29,7 @@ describe('Apollo Server', () => {
     });
     const app = createApplication({
       modules: [mod],
+      executionContext: false,
     });
     const apollo = new ApolloServer({
       typeDefs: app.typeDefs,
@@ -112,6 +113,7 @@ describe('Apollo Server', () => {
 
     const app = createApplication({
       modules: [mod],
+      executionContext: false,
     });
 
     const apollo = new ApolloServer({

@@ -2,4 +2,4 @@
 'graphql-modules': major
 ---
 
-Make ExecutionContext opt-in and graphql-modules not node specific
+Make ExecutionContext opt-in and graphql-modules platform agnostic

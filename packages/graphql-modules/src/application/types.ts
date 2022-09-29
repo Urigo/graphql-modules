@@ -155,5 +155,5 @@ export interface ApplicationConfig {
    * });
    * ```
    */
-  executionContext?: ExecutionContextConfig;
+  executionContext: ExecutionContextConfig | false;
 }
