@@ -60,7 +60,8 @@ const mod = createModule({
 
 const app = createApplication({
   modules: [mod],
-  providers: [Data]
+  providers: [Data],
+  executionContext: false,
 })
 
 server.use('/graphql', (req, res) => {

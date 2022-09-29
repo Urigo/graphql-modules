@@ -41,6 +41,7 @@ const app = createApplication({
       },
     }),
   ],
+  executionContext: false,
 });
 
 class Posts {
@@ -76,6 +77,7 @@ const appWithDI = createApplication({
       },
     }),
   ],
+  executionContext: false,
 });
 
 const pureSchema = makeExecutableSchema({

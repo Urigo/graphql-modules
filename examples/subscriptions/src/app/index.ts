@@ -5,4 +5,5 @@ import { PostModule } from './post/post.module';
 export const app = createApplication({
   providers: [PubSub],
   modules: [PostModule],
+  executionContext: false,
 });

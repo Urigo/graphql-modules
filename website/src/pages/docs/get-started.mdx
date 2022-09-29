@@ -66,7 +66,8 @@ import { myModule } from './my-module'
 
 // This is your application, it contains your GraphQL schema and the implementation of it.
 const application = createApplication({
-  modules: [myModule]
+  modules: [myModule],
+  executionContext: false,
 })
 
 // This is your actual GraphQL schema
