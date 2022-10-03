@@ -2,11 +2,25 @@ import { withGuildDocs } from '@theguild/components/next.config';
 
 export default withGuildDocs({
   images: {
-    unoptimized: true, // doesn't work with `next export`
-    allowFutureImage: true,
+    unoptimized: true,
   },
   redirects: () =>
-    Object.entries({}).map(([from, to]) => ({
+    Object.entries({
+      '/di/introduction': '/docs/di/introduction',
+      '/docs/di': '/docs/di/introduction',
+      '/docs/legacy/recipes/type-graphql': '/docs/get-started',
+      '/docs/introduction/getting-started': '/docs/get-started',
+      '/docs/guides/development-environment': '/docs/get-started',
+      '/docs/recipes/db-connection-pooling': '/docs/get-started',
+      '/docs/legacy/recipes/development-environment': '/docs/get-started',
+      '/docs/legacy/recipes/file-uploads': '/docs/get-started',
+      '/docs/api.md': '/docs/api',
+      '/docs/api/api.md': '/docs/api',
+      '/docs/essentials': '/docs/essentials/type-definitions',
+      '/docs/introduction/context': '/docs/essentials/context',
+      '/docs/advanced': '/docs/advanced/subscriptions',
+      '/docs/next/recipes/migration': '/docs/recipes/migration',
+    }).map(([from, to]) => ({
       source: from,
       destination: to,
       permanent: true,
