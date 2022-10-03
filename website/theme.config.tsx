@@ -5,7 +5,7 @@ const SITE_NAME = 'GraphQL Modules';
 
 export default defineConfig({
   docsRepositoryBase:
-    'https://github.com/Urigo/graphql-modules/tree/master/website/src/pages',
+    'https://github.com/Urigo/graphql-modules/tree/master/website',
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
