@@ -21,6 +21,7 @@ export default withGuildDocs({
       '/docs/advanced': '/docs/advanced/subscriptions',
       '/docs/next/recipes/migration': '/docs/recipes/migration',
       '/docs/legacy/introduction/context': '/docs/get-started',
+      '/docs/guides/data-sources': '/docs/get-started',
     }).map(([from, to]) => ({
       source: from,
       destination: to,
