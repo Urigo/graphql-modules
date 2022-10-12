@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "algolia-sync": "node scripts/algolia-ci.mjs",
     "api": "node ./scripts/api-doc.js",
     "dev": "concurrently -r \"next-remote-watch ./docs ./src/pages/_app.tsx ./src/pages/_document.tsx\" \"wait-on -s 1 http://localhost:3000 && open-cli http://localhost:3000\"",
     "next": "next",
@@ -43,7 +42,7 @@
     ]
   },
   "devDependencies": {
-    "@guild-docs/algolia": "0.0.6",
+    "@theguild/algolia": "1.0.1",
     "@next/bundle-analyzer": "12.1.6",
     "@types/node": "16.11.41",
     "@types/react": "17.0.47",

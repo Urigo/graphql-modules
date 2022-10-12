@@ -1,0 +1,15 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  algolia:
+    uses: the-guild-org/shared-config/.github/workflows/algolia-integrity.yml@main
+    with:
+      domain: https://www.the-guild.dev/graphql/modules/
+      source: 'Modules'
+    secrets:
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
