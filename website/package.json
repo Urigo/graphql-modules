@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "algolia-sync": "node scripts/algolia-ci.mjs",
     "build": "next build && next-sitemap --config next-sitemap.config.cjs ",
     "dev": "next dev",
     "next": "next",
@@ -32,7 +31,7 @@
     ]
   },
   "devDependencies": {
-    "@theguild/algolia": "0.1.0",
+    "@theguild/algolia": "1.0.1",
     "@theguild/tailwind-config": "0.1.1",
     "@types/node": "18.7.18",
     "@types/react": "18.0.21",
