@@ -1,5 +1,11 @@
 /* eslint sort-keys: error */
-import { ModulesLogo, defineConfig } from '@theguild/components';
+import {
+  defineConfig,
+  Giscus,
+  ModulesLogo,
+  useTheme,
+} from '@theguild/components';
+import { useRouter } from 'next/router';
 
 const SITE_NAME = 'GraphQL Modules';
 
@@ -24,5 +30,27 @@ export default defineConfig({
       </div>
     </>
   ),
+  main: {
+    extraContent() {
+      const { resolvedTheme } = useTheme();
+      const { route } = useRouter();
+
+      if (route === '/') {
+        return null;
+      }
+      return (
+        <Giscus
+          // ensure giscus is reloaded when client side route is changed
+          key={route}
+          repo="Urigo/graphql-modules"
+          repoId="MDEwOlJlcG9zaXRvcnkxMzI5Mjc2NjU="
+          category="Docs Discussions"
+          categoryId="DIC_kwDOB-xQsc4CSDST"
+          mapping="pathname"
+          theme={resolvedTheme}
+        />
+      );
+    },
+  },
   titleSuffix: ` – ${SITE_NAME}`,
 });
