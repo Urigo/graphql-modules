@@ -20,6 +20,8 @@ export default withGuildDocs({
       '/docs/next/recipes/migration': '/docs/recipes/migration',
       '/docs/legacy/introduction/context': '/docs/get-started',
       '/docs/guides/data-sources': '/docs/get-started',
+      '/docs/introduction/dependency-injection': '/docs/di/introduction',
+      '/docs/introduction/resolvers-composition': '/docs/essentials/resolvers',
     }).map(([from, to]) => ({
       source: from,
       destination: to,
