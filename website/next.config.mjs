@@ -22,6 +22,8 @@ export default withGuildDocs({
       '/docs/guides/data-sources': '/docs/get-started',
       '/docs/introduction/dependency-injection': '/docs/di/introduction',
       '/docs/introduction/resolvers-composition': '/docs/essentials/resolvers',
+      '/docs/api/modules/merge#mergetypedefs':
+        '/docs/api/modules/merge_src#mergetypedefs',
     }).map(([from, to]) => ({
       source: from,
       destination: to,
