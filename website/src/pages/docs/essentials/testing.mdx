@@ -12,7 +12,7 @@ import { testkit } from 'graphql-modules'
 
 The `testkit` object and its API will grow over time, we expect to implement more and more useful features in upcoming releases.
 
-<Callout type="warning" emoji='⚠️'>
+<Callout type="warning">
   GraphQL Modules depend on **Reflect API** for reflection and for defining
   dependencies between DI parts, please import `reflect-metadata` in every test
   file or setup your testing framework to import it somewhere globally.
@@ -61,7 +61,7 @@ In the example above we modified the original application by setting testing `EN
 
 Now let's talk about `addProviders()` function. It allows you to overwrite application-level providers.
 
-<Callout type="warning" emoji='⚠️'>
+<Callout type="warning">
   In GraphQL Modules, always the last provider wins. What does it mean? When you
   pass a list of providers and two of them try to provide the same token, only
   the last one counts.
