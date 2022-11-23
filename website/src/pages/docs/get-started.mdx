@@ -4,7 +4,7 @@ import { PackageCmd, Tabs, Tab, Callout } from '@theguild/components'
 
 To start using GraphQL Modules, all you need is to install its package and `graphql`.
 
-<Callout type="warning" emoji='⚠️'>
+<Callout type="warning">
   We highly recommend to use TypeScript for writing your backend, since it
   provides support for Reflection (if you plan to use dependency injection) and
   makes it easier to develop API services.
@@ -73,7 +73,7 @@ const application = createApplication({
 const mySchema = application.schema
 ```
 
-<Callout type="warning" emoji='⚠️'>
+<Callout type="warning">
   Application doesn't allow providing schemas or resolvers, since it's only
   a loader of your various modules.
 </Callout>
