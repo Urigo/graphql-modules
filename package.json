@@ -24,7 +24,7 @@
     "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
   },
   "devDependencies": {
-    "@apollo/federation": "0.37.1",
+    "@apollo/federation": "0.38.1",
     "@babel/core": "7.19.3",
     "@babel/preset-env": "7.19.3",
     "@babel/preset-typescript": "7.18.6",
@@ -42,8 +42,8 @@
     "@types/ramda": "0.28.15",
     "@typescript-eslint/eslint-plugin": "5.38.1",
     "@typescript-eslint/parser": "5.38.1",
-    "apollo-server": "3.10.2",
-    "apollo-server-express": "3.10.2",
+    "apollo-server": "3.11.1",
+    "apollo-server-express": "3.11.1",
     "apollo-datasource-rest": "3.7.0",
     "artillery": "1.7.9",
     "benchmark": "2.1.4",
