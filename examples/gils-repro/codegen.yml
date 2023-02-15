@@ -1,0 +1,21 @@
+overwrite: true
+schema: ./src/modules/*/typeDefs/*.graphql.ts
+config:
+  scalars:
+    TimelessDate: 'TimelessDateString'
+generates:
+  src/modules/:
+    preset: graphql-modules
+    presetConfig:
+      baseTypesPath: ../__generated__/types.ts
+      filename: __generated__/types.ts
+      encapsulateModuleTypes: namespace
+    config:
+      immutableTypes: true
+      contextType: 'GraphQLModules.Context'
+      optionalResolveType: true
+      mappers:
+        Charge: ../modules/charges/__generated__/charges.types.js#IGetChargesByIdsResult
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
