@@ -1,0 +1,45 @@
+{
+  "name": "gils-repro",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "prestart": "yarn generate && yarn build",
+    "start": "node dist/index.js",
+    "generate": "graphql-codegen --config codegen.yml"
+  },
+  "dependencies": {
+    "@accounter-toolkit/green-invoice-graphql": "0.1.1-alpha-20221128094016-ab48d5a",
+    "@accounter-toolkit/pcn874-generator": "0.0.2",
+    "@envelop/graphql-modules": "4.0.4",
+    "@graphql-tools/mock": "8.7.14",
+    "@graphql-tools/schema": "9.0.12",
+    "@graphql-yoga/node": "3.1.1",
+    "@pgtyped/cli": "1.0.2",
+    "@pgtyped/query": "1.0.1",
+    "cloudinary": "1.32.0",
+    "dataloader": "2.1.0",
+    "date-fns": "2.29.3",
+    "dotenv": "16.0.3",
+    "dotenv-cli": "6.0.0",
+    "fastify": "4.10.2",
+    "graphql": "16.6.0",
+    "graphql-modules": "2.1.0",
+    "graphql-yoga": "3.1.1",
+    "pg": "8.9.0",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "2.16.1",
+    "@graphql-codegen/graphql-modules-preset": "3.0.0",
+    "@graphql-codegen/typescript": "2.8.5",
+    "@graphql-codegen/typescript-resolvers": "2.7.10",
+    "@types/pg": "8.6.6",
+    "nodemon": "2.0.20",
+    "pino-pretty": "9.1.1",
+    "tsc-alias": "1.8.2"
+  }
+}
