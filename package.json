@@ -62,7 +62,7 @@
     "graphql-ws": "5.11.3",
     "husky": "7.0.4",
     "jest": "27.5.1",
-    "lint-staged": "13.0.3",
+    "lint-staged": "13.1.2",
     "patch-package": "6.4.7",
     "prettier": "2.8.4",
     "reflect-metadata": "0.1.13",
