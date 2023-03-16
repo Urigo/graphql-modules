@@ -21,7 +21,7 @@ const FEATURE_LIST: IFeatureListProps['items'] = [
       'Modules are defined by their GraphQL schema (Schema first design).',
     image: {
       src: api,
-      alt: '',
+      alt: 'Reusable Modules',
       loading: 'eager',
       placeholder: 'empty',
     },
@@ -32,7 +32,7 @@ const FEATURE_LIST: IFeatureListProps['items'] = [
       'Manage multiple teams and features, multiple micro-services and servers.',
     image: {
       src: reuse,
-      alt: '',
+      alt: 'Scalable Structure',
       loading: 'eager',
       placeholder: 'empty',
     },
@@ -43,7 +43,7 @@ const FEATURE_LIST: IFeatureListProps['items'] = [
       'A clear, gradual path from a very simple and fast, single-file modules, to scalable ones.',
     image: {
       src: extend,
-      alt: '',
+      alt: 'Gradual Growth',
       loading: 'eager',
       placeholder: 'empty',
     },
@@ -53,7 +53,7 @@ const FEATURE_LIST: IFeatureListProps['items'] = [
     description: 'A rich toolset around testing, mocking and separation.',
     image: {
       src: easy,
-      alt: '',
+      alt: 'Testable',
       loading: 'eager',
       placeholder: 'empty',
     },
@@ -91,7 +91,7 @@ export const IndexPage = (): ReactElement => {
           src: workers,
           loading: 'eager',
           placeholder: 'empty',
-          alt: '',
+          alt: 'Integrates with any GraphQL Server',
         }}
       />
     </>
