@@ -1,5 +1,16 @@
 # graphql-modules
 
+## 2.1.1
+
+### Patch Changes
+
+- [#2233](https://github.com/Urigo/graphql-modules/pull/2233) [`1d6b7fb7`](https://github.com/Urigo/graphql-modules/commit/1d6b7fb7a7c9021f4a052825a0951ab948ef684f) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`@graphql-tools/schema@^9.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/schema/v/^9.0.0) (was `^8.3.1`, in `dependencies`)
+  - Updated dependency [`@graphql-tools/wrap@^9.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/wrap/v/^9.0.0) (was `^8.3.1`, in `dependencies`)
+
+- [#2324](https://github.com/Urigo/graphql-modules/pull/2324) [`42599bfe`](https://github.com/Urigo/graphql-modules/commit/42599bfe2d5c19151f840d3fa05ed6fa00a5c487) Thanks [@patrickjm](https://github.com/patrickjm)! - Fix missing attributes in package.json (as preparation for TS 5.0)
+
 ## 2.1.0
 
 ### Minor Changes
