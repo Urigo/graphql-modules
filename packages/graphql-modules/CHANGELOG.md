@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 2.1.2
+
+### Patch Changes
+
+- [#2329](https://github.com/Urigo/graphql-modules/pull/2329) [`df7e2dba`](https://github.com/Urigo/graphql-modules/commit/df7e2dbab4b52ffb24010faa6717f17b24a18cf0) Thanks [@darkbasic](https://github.com/darkbasic)! - TypeScript 5 support for the Inject and Optional decorators
+
 ## 2.1.1
 
 ### Patch Changes
