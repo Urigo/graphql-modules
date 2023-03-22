@@ -51,6 +51,13 @@ export function Injectable(options?: ProviderOptions): ClassDecorator {
   };
 }
 
+// https://github.com/microsoft/TypeScript/issues/52435
+type ParameterDecorator = (
+  target: Object,
+  propertyKey: string | symbol | undefined,
+  parameterIndex: number
+) => void;
+
 export function Optional(): ParameterDecorator {
   return (target, _, index) => {
     ensureReflect();
