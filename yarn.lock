@@ -3036,10 +3036,10 @@
   resolved "https://registry.npmjs.org/@types/qs/-/qs-6.9.5.tgz#434711bdd49eb5ee69d90c1d67c354a9a8ecb18b"
   integrity sha512-/JHkVHtx/REVG0VVToGRGH2+23hsYLHdyG+GrvoUGlGAd0ErauXDyvHtRI/7H7mzLm+tBCKA7pfcpkQ1lf58iQ==
 
-"@types/ramda@0.28.22":
-  version "0.28.22"
-  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.28.22.tgz#170155639e05fae68820003a862bb8cffe38d69f"
-  integrity sha512-DoIfh0sBxrL/aqADk+SGrfjJT9cB8modg+4NRlF7/Tfg4N2+KBEkAgpYYzrjiZxxR5YzWizjfVrTEdVDwYK7xQ==
+"@types/ramda@0.28.23":
+  version "0.28.23"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.28.23.tgz#d04279865a86c330c03c99ac61161d9905f276f5"
+  integrity sha512-9TYWiwkew+mCMsL7jZ+kkzy6QXn8PL5/SKmBPmjgUlTpkokZWTBr+OhiIUDztpAEbslWyt24NNfEmZUBFmnXig==
   dependencies:
     ts-toolbelt "^6.15.1"
 
@@ -10270,10 +10270,10 @@ quick-lru@^5.1.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-5.1.1.tgz#366493e6b3e42a3a6885e2e99d18f80fb7a8c932"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
-ramda@^0.28.0:
-  version "0.28.0"
-  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.28.0.tgz#acd785690100337e8b063cab3470019be427cc97"
-  integrity sha512-9QnLuG/kPVgWvMQ4aODhsBUFKOUmnbUnsSXACv+NCQZcHbeb+v8Lodp8OVxtRULN1/xOyYLLaL6npE6dMq5QTA==
+ramda@^0.29.0:
+  version "0.29.0"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.29.0.tgz#fbbb67a740a754c8a4cbb41e2a6e0eb8507f55fb"
+  integrity sha512-BBea6L67bYLtdbOqfp8f58fPMqEwx0doL+pAi8TZyp2YWz8R9G8z9x75CZI8W+ftqhFHCpEX2cRnUUXK130iKA==
 
 range-parser@~1.2.1:
   version "1.2.1"
