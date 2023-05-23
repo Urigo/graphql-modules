@@ -5,5 +5,9 @@
       "paths": ["website/package.json"],
       "extends": ["github>the-guild-org/shared-config:renovate"]
     }
-  ]
+  ],
+  "automerge": true,
+  "major": {
+    "automerge": false
+  }
 }
