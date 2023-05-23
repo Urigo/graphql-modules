@@ -63,7 +63,7 @@
     "husky": "7.0.4",
     "jest": "27.5.1",
     "lint-staged": "13.1.2",
-    "patch-package": "6.4.7",
+    "patch-package": "6.5.1",
     "prettier": "2.8.8",
     "reflect-metadata": "0.1.13",
     "ts-jest": "27.1.5",
