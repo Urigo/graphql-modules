@@ -1477,12 +1477,12 @@
   dependencies:
     "@envelop/types" "2.3.1"
 
-"@envelop/graphql-modules@3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-3.6.0.tgz#de9dfd5537ffd2da84be95d8c3a5ac02e645ece1"
-  integrity sha512-eLnlYholnvYKjdf4HhBHo6AhaYhONIjE3eSGLoZpkZjTuQBH0xmTrsJR5aNF0rgRD8l0qfWzI8QBmPaZuamCDw==
+"@envelop/graphql-modules@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-5.0.0.tgz#c06574ddd33a5dbc2d496bccc6055386eef1ff19"
+  integrity sha512-wNtiL231xA5B9klEAQscrLhgzR4r/z4SzHQXDWBIBDvCsGEPo6YtMVxtEL8K+CubCLHYL8AfAnWaqL+xzw+iHA==
   dependencies:
-    tslib "^2.4.0"
+    tslib "^2.5.0"
 
 "@envelop/parser-cache@^4.6.0":
   version "4.6.0"
@@ -11760,15 +11760,20 @@ tslib@1.11.1, tslib@^1.11.1, tslib@^1.8.1:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.11.1.tgz#eb15d128827fbee2841549e171f45ed338ac7e35"
   integrity sha512-aZW88SY8kQbU7gpV19lN24LtXh/yD4ZZg6qieAJDDg+YBsJcSmLGK9QpnUjAKVG/xefmvJGd1WUmfpT/g6AJGA==
 
-tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0, tslib@~2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
-  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
+tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0, tslib@^2.5.0:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.5.2.tgz#1b6f07185c881557b0ffa84b111a0106989e8338"
+  integrity sha512-5svOrSA2w3iGFDs1HibEVBGbDrAY82bFQ3HZ3ixB+88nsbsWQoKqDRb5UBYAUPEzbBn6dAp5gRNXglySbx1MlA==
 
 tslib@~2.3.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+
+tslib@~2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
 tsup@^5.11.6:
   version "5.11.13"
