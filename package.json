@@ -60,7 +60,7 @@
     "graphql": "16.6.0",
     "graphql-subscriptions": "2.0.0",
     "graphql-ws": "5.13.1",
-    "husky": "7.0.4",
+    "husky": "8.0.3",
     "jest": "27.5.1",
     "lint-staged": "13.1.2",
     "patch-package": "6.4.7",
