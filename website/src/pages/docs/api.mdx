@@ -73,7 +73,8 @@ import { postsModule } from './posts'
 import { commentsModule } from './comments'
 
 const app = createApplication({
-  modules: [usersModule, postsModule, commentsModule]
+  modules: [usersModule, postsModule, commentsModule],
+  executionContext: false,
 })
 ```
 

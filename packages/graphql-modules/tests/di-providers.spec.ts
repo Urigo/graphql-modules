@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHook, executionAsyncId } from 'async_hooks';
 import {
   createApplication,
   createModule,
@@ -177,6 +178,7 @@ test('general test', async () => {
         useValue: 'app',
       },
     ],
+    executionContext: false,
   });
 
   const createContext = () => ({ request: {}, response: {} });
@@ -301,6 +303,10 @@ test('useFactory with dependencies', async () => {
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: {
+      createHook,
+      executionAsyncId,
+    },
   });
 
   const createContext = () => ({ request: {}, response: {} });
@@ -365,7 +371,7 @@ test('Use @Inject decorator in constructor', async () => {
     },
   });
 
-  const app = createApplication({ modules: [mod] });
+  const app = createApplication({ modules: [mod], executionContext: false });
 
   const result = await testkit.execute(app, {
     contextValue: { request },
@@ -424,7 +430,7 @@ test('Use useFactory with deps', async () => {
     },
   });
 
-  const app = createApplication({ modules: [mod] });
+  const app = createApplication({ modules: [mod], executionContext: false });
 
   const result = await testkit.execute(app, {
     contextValue: { request },
@@ -446,6 +452,7 @@ test('Application allows injector access', () => {
   const { injector } = createApplication({
     modules: [],
     providers: [SomeProvider],
+    executionContext: false,
   });
   expect(injector.get(SomeProvider)).toBeInstanceOf(SomeProvider);
 });
@@ -499,6 +506,7 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -591,6 +599,7 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: false,
   });
 
   const schema = app.createSchemaForApollo();
@@ -677,6 +686,7 @@ test('Singleton scoped provider should be created once', async () => {
   const app = createApplication({
     modules: [mod],
     providers: [Data],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -759,6 +769,7 @@ test('Global Token provided by one module should be accessible by other modules 
 
   const app = createApplication({
     modules: [fooModule, barModule],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -859,6 +870,7 @@ test('Global Token (module) should use other local tokens (operation)', async ()
         scope: Scope.Operation,
       },
     ],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -943,6 +955,7 @@ test('Global Token provided by one module should be accessible by other modules 
   const app = createApplication({
     modules: [fooModule, barModule],
     providers: [AppData],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -1041,6 +1054,7 @@ test('Global Token (module) should use other local tokens (singleton)', async ()
         useValue: 'verbose',
       },
     ],
+    executionContext: false,
   });
 
   const contextValue = { request: {}, response: {} };
@@ -1119,6 +1133,7 @@ test('instantiate all singleton providers', async () => {
   const app = createApplication({
     modules: [fooModule],
     providers: [AppData, MyLogger],
+    executionContext: false,
   });
 
   // make sure all providers are instantiated
@@ -1217,6 +1232,7 @@ test('instantiate all singleton and global providers', async () => {
   const app = createApplication({
     modules: [fooModule, barModule],
     providers: [AppData, MyLogger],
+    executionContext: false,
   });
 
   // make sure all providers are instantiated
@@ -1305,6 +1321,7 @@ test('instantiate operation-scoped provider once per many fields', async () => {
 
   const app = createApplication({
     modules: [mod],
+    executionContext: false,
   });
 
   let result = await testkit.execute(app, {
@@ -1384,6 +1401,7 @@ test('Last operation-scoped provider in the list wins', async () => {
         useValue: 'last',
       },
     ],
+    executionContext: false,
   });
 
   const result = await testkit.execute(app, {

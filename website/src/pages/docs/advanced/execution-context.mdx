@@ -4,13 +4,30 @@ import { Callout } from '@theguild/components'
 
 Execution Context means the context of the execution of GraphQL Operation. It's related to Dependency Injection, especially Singletons and represents the context object created by your GraphQL server.
 
+## Enabling Execution Context
+
+To enable Execution Context, you need to pass `createHook` and `executionAsyncId` functions from the `async_hooks` module in `createApplication`.
+
+```ts
+import { createApplication } from 'graphql-modules';
+import { createHook, executionAsyncId } from 'async_hooks';
+
+const app = createApplication({
+  modules: [/* ... */],
+  executionContext: {
+    createHook,
+    executionAsyncId,
+  }
+});
+```
+
 Why "especially useful in `Singleton`s"?
 
 As you know from ["Introduction to Dependency Injection"](../di/introduction) chapter, `Singleton`s can't directly access Operation scoped services, meaning they probably can't also directly access the context object created per each operation. Directly.
 
 Thanks to `@ExecutionContext` decorator, every `Singleton` provider gets access to the GraphQL Context and the Operation scoped Injector.
 
-Take a look at the example below:
+## Example
 
 ```ts
 import { Injectable, ExecutionContext } from 'graphql-modules'
@@ -43,6 +60,5 @@ It also means you gain a lot in terms of performance because the `Data` class is
   `@ExecutionContext` impacts the performance, depending on your Node version
   (execution context uses `async_hooks` module).
 
-  GraphQL Modules is smart enough to enable `async_hooks` only when
-  `@ExecutionContext` is used.
+  `@ExecutionContext` is available only for Node environments.
 </Callout>

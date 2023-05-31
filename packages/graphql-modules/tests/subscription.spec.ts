@@ -103,6 +103,7 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: false,
   });
 
   const createContext = () => ({});

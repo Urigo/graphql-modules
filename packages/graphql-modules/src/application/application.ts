@@ -19,6 +19,7 @@ import {
   instantiateSingletonProviders,
 } from './di';
 import { createContextBuilder } from './context';
+import { enableExecutionContext } from './execution-context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
 import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
@@ -45,6 +46,7 @@ export interface InternalAppContext {
  *
  * ```typescript
  * import { createApplication } from 'graphql-modules';
+ * import { createHook, executionAsyncId } from 'async_hooks';
  * import { usersModule } from './users';
  * import { postsModule } from './posts';
  * import { commentsModule } from './comments';
@@ -54,7 +56,8 @@ export interface InternalAppContext {
  *     usersModule,
  *     postsModule,
  *     commentsModule
- *   ]
+ *   ],
+ *   executionContext: { createHook, executionAsyncId },
  * })
  * ```
  */
@@ -63,6 +66,11 @@ export function createApplication(
 ): Application {
   function applicationFactory(cfg?: ApplicationConfig): Application {
     const config = cfg || applicationConfig;
+
+    if (config.executionContext) {
+      enableExecutionContext(config.executionContext);
+    }
+
     const providers =
       config.providers && typeof config.providers === 'function'
         ? config.providers()

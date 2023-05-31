@@ -16,7 +16,8 @@ import { createApplication } from 'graphql-modules'
 const application = createApplication({
   modules: [
     // ...
-  ]
+  ],
+  executionContext: false,
 })
 
 const subscribe = application.createSubscription()
@@ -48,7 +49,8 @@ const application = createApplication({
       provide: PubSub,
       useValue: new PubSub()
     }
-  ]
+  ],
+  executionContext: false,
 })
 ```
 

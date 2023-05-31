@@ -1,4 +1,10 @@
-import { createHook, executionAsyncId } from 'async_hooks';
+export interface ExecutionContextConfig {
+  executionAsyncId: () => number;
+  createHook(config: {
+    init(asyncId: number, _: string, triggerAsyncId: number): void;
+    destroy(asyncId: number): void;
+  }): void;
+}
 
 export interface ExecutionContextPicker {
   getModuleContext(moduleId: string): GraphQLModules.ModuleContext;
@@ -8,26 +14,7 @@ export interface ExecutionContextPicker {
 const executionContextStore = new Map<number, ExecutionContextPicker>();
 const executionContextDependencyStore = new Map<number, Set<number>>();
 
-const executionContextHook = createHook({
-  init(asyncId, _, triggerAsyncId) {
-    // Store same context data for child async resources
-    const ctx = executionContextStore.get(triggerAsyncId);
-    if (ctx) {
-      const dependencies =
-        executionContextDependencyStore.get(triggerAsyncId) ??
-        executionContextDependencyStore
-          .set(triggerAsyncId, new Set())
-          .get(triggerAsyncId)!;
-      dependencies.add(asyncId);
-      executionContextStore.set(asyncId, ctx);
-    }
-  },
-  destroy(asyncId) {
-    if (executionContextStore.has(asyncId)) {
-      executionContextStore.delete(asyncId);
-    }
-  },
-});
+let executionAsyncId: () => number = () => 0;
 
 function destroyContextAndItsChildren(id: number) {
   if (executionContextStore.has(id)) {
@@ -44,12 +31,20 @@ function destroyContextAndItsChildren(id: number) {
   }
 }
 
+let executionContextEnabled = false;
+
 export const executionContext: {
   create(picker: ExecutionContextPicker): () => void;
   getModuleContext: ExecutionContextPicker['getModuleContext'];
   getApplicationContext: ExecutionContextPicker['getApplicationContext'];
 } = {
   create(picker) {
+    if (!executionContextEnabled) {
+      return function destroyContextNoop() {
+        // noop
+      };
+    }
+
     const id = executionAsyncId();
     executionContextStore.set(id, picker);
     return function destroyContext() {
@@ -57,20 +52,51 @@ export const executionContext: {
     };
   },
   getModuleContext(moduleId) {
+    assertExecutionContext();
+
     const picker = executionContextStore.get(executionAsyncId())!;
     return picker.getModuleContext(moduleId);
   },
   getApplicationContext() {
+    assertExecutionContext();
+
     const picker = executionContextStore.get(executionAsyncId())!;
     return picker.getApplicationContext();
   },
 };
 
-let executionContextEnabled = false;
-
-export function enableExecutionContext() {
+export function enableExecutionContext(config: ExecutionContextConfig) {
   if (!executionContextEnabled) {
-    executionContextHook.enable();
+    config.createHook({
+      init(asyncId, _, triggerAsyncId) {
+        // Store same context data for child async resources
+        const ctx = executionContextStore.get(triggerAsyncId);
+        if (ctx) {
+          const dependencies =
+            executionContextDependencyStore.get(triggerAsyncId) ??
+            executionContextDependencyStore
+              .set(triggerAsyncId, new Set())
+              .get(triggerAsyncId)!;
+          dependencies.add(asyncId);
+          executionContextStore.set(asyncId, ctx);
+        }
+      },
+      destroy(asyncId) {
+        if (executionContextStore.has(asyncId)) {
+          executionContextStore.delete(asyncId);
+        }
+      },
+    });
+    executionAsyncId = config.executionAsyncId;
+    executionContextEnabled = true;
+  }
+}
+
+export function assertExecutionContext(): void | never {
+  if (!executionContextEnabled) {
+    throw new Error(
+      'Execution Context is not enabled. Please set `executionContext` option in `createApplication`'
+    );
   }
 }
 

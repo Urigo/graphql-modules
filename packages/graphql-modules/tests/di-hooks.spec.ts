@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { createHook, executionAsyncId } from 'async_hooks';
 import {
   createApplication,
   createModule,
@@ -79,6 +80,7 @@ test('OnDestroy hook', async () => {
 
   const app = createApplication({
     modules: [postsModule],
+    executionContext: { createHook, executionAsyncId },
   });
 
   const createContext = () => ({ request: {}, response: {} });

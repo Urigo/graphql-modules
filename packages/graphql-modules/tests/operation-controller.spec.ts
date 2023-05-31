@@ -42,6 +42,7 @@ test('should share context and injection', async () => {
   const app = createApplication({
     modules: [mod],
     providers: [Data],
+    executionContext: false,
   });
 
   const controller = app.createOperationController({
@@ -120,6 +121,7 @@ test('execution should not destroy operation', async () => {
   const app = createApplication({
     modules: [mod],
     providers: [Data],
+    executionContext: false,
   });
 
   const controller = app.createOperationController({
@@ -184,6 +186,7 @@ test('autoDestroy enabled should destroy operation after execution', async () =>
   const app = createApplication({
     modules: [mod],
     providers: [Data],
+    executionContext: false,
   });
 
   const controller = app.createOperationController({

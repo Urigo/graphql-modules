@@ -7,6 +7,7 @@ import { graphqlHTTP } from 'express-graphql';
 
 const app = createApplication({
   modules: [BlogModule, UserModule],
+  executionContext: false,
 });
 
 const server = express();
