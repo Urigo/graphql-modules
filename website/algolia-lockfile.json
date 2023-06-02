@@ -1,12 +1,69 @@
 [
   {
+    "objectID": "modules-",
+    "headings": [],
+    "toc": [],
+    "content": "d41d8cd98f00b204e9800998ecf8427e",
+    "url": "https://www.the-guild.dev/graphql/modules/",
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": [],
+    "source": "Modules",
+    "title": "Home",
+    "type": "Documentation"
+  },
+  {
+    "objectID": "modules-docs-",
+    "headings": ["Structure", "Example"],
+    "toc": [
+      {
+        "children": [],
+        "title": "Structure",
+        "anchor": "structure"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "title": "Authentication Module",
+                "anchor": "authentication-module"
+              },
+              {
+                "children": [],
+                "title": "Profile Module",
+                "anchor": "profile-module"
+              },
+              {
+                "children": [],
+                "title": "Gallery Module",
+                "anchor": "gallery-module"
+              }
+            ],
+            "title": "User Module",
+            "anchor": "user-module"
+          }
+        ],
+        "title": "Example",
+        "anchor": "example"
+      }
+    ],
+    "content": "1866f594b3c2ca7f145d22693ef8c2f5",
+    "url": "https://www.the-guild.dev/graphql/modules/docs/",
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs"],
+    "source": "Modules",
+    "title": "Introduction",
+    "type": "Documentation"
+  },
+  {
     "objectID": "modules-docs-advanced-execution-context",
     "headings": [],
     "toc": [],
-    "content": "99c508ef496289f713012d6337cf3851",
+    "content": "ab3e8d17e725e5b922a64ed72ce68164",
     "url": "https://www.the-guild.dev/graphql/modules/docs/advanced/execution-context",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Advanced"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "advanced"],
     "source": "Modules",
     "title": "Execution Context",
     "type": "Documentation"
@@ -32,10 +89,10 @@
         "anchor": "manual-control-of-operation-cycle"
       }
     ],
-    "content": "1df352248de2a746959cade0ee8f3abc",
+    "content": "7a9bb2d66c596d086aecc50730ac2605",
     "url": "https://www.the-guild.dev/graphql/modules/docs/advanced/lifecycles",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Advanced"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "advanced"],
     "source": "Modules",
     "title": "Lifecycles",
     "type": "Documentation"
@@ -88,10 +145,10 @@
         "anchor": "execution-order"
       }
     ],
-    "content": "6ff5db4b00b1ea9b34221a3e335c38cb",
+    "content": "48034bb39142e17f2286b0e3fd312fda",
     "url": "https://www.the-guild.dev/graphql/modules/docs/advanced/middlewares",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Advanced"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "advanced"],
     "source": "Modules",
     "title": "Middlewares",
     "type": "Documentation"
@@ -111,10 +168,10 @@
         "anchor": "example"
       }
     ],
-    "content": "5bd65ab8200f0fe66e50ba92957a33d2",
+    "content": "70864e2a761720751eb3f1ec59058234",
     "url": "https://www.the-guild.dev/graphql/modules/docs/advanced/subscriptions",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Advanced"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "advanced"],
     "source": "Modules",
     "title": "Subscriptions",
     "type": "Documentation"
@@ -167,16 +224,16 @@
         "anchor": "moduleconfig"
       }
     ],
-    "content": "be9463cc39ca62f6f7f0abc9911be430",
+    "content": "f3f51ccec98335a6165e261708ff5231",
     "url": "https://www.the-guild.dev/graphql/modules/docs/api",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs"],
     "source": "Modules",
     "title": "API Reference",
     "type": "Documentation"
   },
   {
-    "objectID": "modules-docs-dependency-injection-introduction",
+    "objectID": "modules-docs-di-introduction",
     "headings": [
       "Introduction",
       "Hierarchical Injectors",
@@ -205,16 +262,16 @@
         "anchor": "scopes"
       }
     ],
-    "content": "7b03c04f2ba8547ddbf301e19336abf1",
+    "content": "3f637a8b8ccbaf3556f98627c78a5977",
     "url": "https://www.the-guild.dev/graphql/modules/docs/di/introduction",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Dependency Injection"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "di"],
     "source": "Modules",
     "title": "Introduction",
     "type": "Documentation"
   },
   {
-    "objectID": "modules-docs-dependency-injection-providers",
+    "objectID": "modules-docs-di-providers",
     "headings": [
       "Defining Tokens",
       "Using Services and Tokens",
@@ -278,16 +335,16 @@
         "anchor": "available-tokens"
       }
     ],
-    "content": "fe2eb129239a174ebbadec103b39c64c",
+    "content": "0a944cf6d4d2cc02347fba722ef740fa",
     "url": "https://www.the-guild.dev/graphql/modules/docs/di/providers",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Dependency Injection"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "di"],
     "source": "Modules",
     "title": "Providers and Tokens",
     "type": "Documentation"
   },
   {
-    "objectID": "modules-docs-dependency-injection-scopes",
+    "objectID": "modules-docs-di-scopes",
     "headings": ["Singleton", "Operation", "Using Both"],
     "toc": [
       {
@@ -306,10 +363,10 @@
         "anchor": "using-both"
       }
     ],
-    "content": "56f5c8c2201a8f1e58efb21cc2d32377",
+    "content": "85db18189538a366698153003fa2bdec",
     "url": "https://www.the-guild.dev/graphql/modules/docs/di/scopes",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Dependency Injection"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "di"],
     "source": "Modules",
     "title": "Scopes",
     "type": "Documentation"
@@ -324,10 +381,10 @@
         "anchor": "context-in-dependency-injection"
       }
     ],
-    "content": "dc52e50cf86a3d6d0439e13b82b2915f",
+    "content": "2cd9834282247653eb2a8f4662de9767",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/context",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Essentials"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "essentials"],
     "source": "Modules",
     "title": "Context",
     "type": "Documentation"
@@ -347,10 +404,10 @@
         "anchor": "dynamically-load-resolvers-files"
       }
     ],
-    "content": "c273ed043ca198bb14e796d838628818",
+    "content": "4aaedcff02464291046b22057e73a25f",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/resolvers",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Essentials"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "essentials"],
     "source": "Modules",
     "title": "Resolvers",
     "type": "Documentation"
@@ -441,10 +498,10 @@
         "anchor": "testing-middlewares"
       }
     ],
-    "content": "786533f012eb8c1bfe9ee32e6b0cf5b3",
+    "content": "7adb807cb1c2a953c1ea8eae0d5f9ed8",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/testing",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Essentials"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "essentials"],
     "source": "Modules",
     "title": "Testing",
     "type": "Documentation"
@@ -467,10 +524,10 @@
         "anchor": "dynamically-load-sdl-files"
       }
     ],
-    "content": "1993ea4b843bfe340cb1f6b326bdb92c",
+    "content": "ade2170627b460472c37fb50e9a61d72",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/type-definitions",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Essentials"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "essentials"],
     "source": "Modules",
     "title": "Type Definitions (SDL)",
     "type": "Documentation"
@@ -499,10 +556,10 @@
         "anchor": "strict-resolvers-types"
       }
     ],
-    "content": "afaafbd527e32802405d42bac76f6636",
+    "content": "803de7042d549b2d547faee3e9ffb4a3",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/type-safety",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Essentials"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "essentials"],
     "source": "Modules",
     "title": "Type Safety",
     "type": "Documentation"
@@ -539,57 +596,12 @@
         "anchor": "tutorial"
       }
     ],
-    "content": "3063a51debe3b9729f7d87556eb96d77",
+    "content": "7c9020efc31c5b14b4e312fb17ff56fa",
     "url": "https://www.the-guild.dev/graphql/modules/docs/get-started",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs"],
     "source": "Modules",
     "title": "Get Started",
-    "type": "Documentation"
-  },
-  {
-    "objectID": "modules-docs-index",
-    "headings": ["Structure", "Example"],
-    "toc": [
-      {
-        "children": [],
-        "title": "Structure",
-        "anchor": "structure"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "children": [],
-                "title": "Authentication Module",
-                "anchor": "authentication-module"
-              },
-              {
-                "children": [],
-                "title": "Profile Module",
-                "anchor": "profile-module"
-              },
-              {
-                "children": [],
-                "title": "Gallery Module",
-                "anchor": "gallery-module"
-              }
-            ],
-            "title": "User Module",
-            "anchor": "user-module"
-          }
-        ],
-        "title": "Example",
-        "anchor": "example"
-      }
-    ],
-    "content": "b3a7c2bacaddc7fde6142875346e9054",
-    "url": "https://www.the-guild.dev/graphql/modules/docs/index",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs"],
-    "source": "Modules",
-    "title": "Introduction",
     "type": "Documentation"
   },
   {
@@ -607,10 +619,10 @@
         "anchor": "dataloader-in-a-service"
       }
     ],
-    "content": "0b38a4dafbb083ebfd5bbeaece064786",
+    "content": "bba90e4753fd4e15ca07c438d0192c41",
     "url": "https://www.the-guild.dev/graphql/modules/docs/recipes/dataloader",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Recipes"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "recipes"],
     "source": "Modules",
     "title": "Solve N+1 Using DataLoader",
     "type": "Documentation"
@@ -687,24 +699,12 @@
         "anchor": "dependency-injection-hierarchy"
       }
     ],
-    "content": "9c57f62098bbbb3c202e2272e1cc123f",
+    "content": "29c740acd0e57a43c2bee24d4a8844a6",
     "url": "https://www.the-guild.dev/graphql/modules/docs/recipes/migration",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": ["Docs", "Recipes"],
+    "domain": "https://www.the-guild.dev/graphql/modules",
+    "hierarchy": ["docs", "recipes"],
     "source": "Modules",
     "title": "Migration from v0.X",
-    "type": "Documentation"
-  },
-  {
-    "objectID": "modules-index",
-    "headings": [],
-    "toc": [],
-    "content": "d41d8cd98f00b204e9800998ecf8427e",
-    "url": "https://www.the-guild.dev/graphql/modules//index",
-    "domain": "https://www.the-guild.dev/graphql/modules/",
-    "hierarchy": [],
-    "source": "Modules",
-    "title": "Home",
     "type": "Documentation"
   }
 ]
