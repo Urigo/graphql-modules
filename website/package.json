@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@theguild/components": "4.6.3",
-    "next": "13.4.3",
+    "next": "13.4.4",
     "next-sitemap": "4.1.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "wrangler": "2.1.9"
+    "wrangler": "2.20.0"
   },
   "browserslist": {
     "production": [
@@ -33,8 +33,8 @@
   "devDependencies": {
     "@theguild/algolia": "1.1.7",
     "@theguild/tailwind-config": "0.2.1",
-    "@types/node": "18.7.18",
-    "@types/react": "18.2.6",
+    "@types/node": "18.16.16",
+    "@types/react": "18.2.8",
     "cross-env": "7.0.3",
     "typescript": "4.9.5"
   }
