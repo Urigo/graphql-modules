@@ -1,13 +1,20 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>the-guild-org/shared-config:renovate"],
-  "pathRules": [
-    {
-      "paths": ["website/package.json"],
-      "extends": ["github>the-guild-org/shared-config:renovate"]
-    }
-  ],
   "automerge": true,
   "major": {
-    "automerge": false
-  }
+    "automerge": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ]
 }
