@@ -404,7 +404,7 @@
         "anchor": "dynamically-load-resolvers-files"
       }
     ],
-    "content": "4aaedcff02464291046b22057e73a25f",
+    "content": "0030de352ffae22fc320245d062b4fc6",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/resolvers",
     "domain": "https://www.the-guild.dev/graphql/modules",
     "hierarchy": ["docs", "essentials"],
@@ -524,7 +524,7 @@
         "anchor": "dynamically-load-sdl-files"
       }
     ],
-    "content": "ade2170627b460472c37fb50e9a61d72",
+    "content": "56adbe8eb78ede0afb9532eb38b48495",
     "url": "https://www.the-guild.dev/graphql/modules/docs/essentials/type-definitions",
     "domain": "https://www.the-guild.dev/graphql/modules",
     "hierarchy": ["docs", "essentials"],
@@ -596,7 +596,7 @@
         "anchor": "tutorial"
       }
     ],
-    "content": "7c9020efc31c5b14b4e312fb17ff56fa",
+    "content": "e6552b6d40cb7bee9aa2fb831d17d53a",
     "url": "https://www.the-guild.dev/graphql/modules/docs/get-started",
     "domain": "https://www.the-guild.dev/graphql/modules",
     "hierarchy": ["docs"],
