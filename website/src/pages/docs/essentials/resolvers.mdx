@@ -1,5 +1,3 @@
-import { PackageCmd } from '@theguild/components'
-
 # Resolvers
 
 Let's focus on `resolve` functions usually called just **resolvers**.
@@ -55,7 +53,9 @@ If you have many resolvers files in your module, and you wish to load it dynamic
 
 Start by installing this package:
 
-<PackageCmd packages={['@graphql-tools/load-files']} />
+```sh npm2yarn
+npm i @graphql-tools/load-files
+```
 
 Next, use it to load your files dynamically:
 
