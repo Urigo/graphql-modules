@@ -64,7 +64,7 @@
     "jest": "27.5.1",
     "lint-staged": "13.2.3",
     "patch-package": "7.0.0",
-    "prettier": "2.8.8",
+    "prettier": "3.0.0",
     "reflect-metadata": "0.1.13",
     "ts-jest": "27.1.5",
     "ts-node": "10.9.1",
