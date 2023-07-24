@@ -1,9 +1,5 @@
 import { createHook, executionAsyncId } from 'async_hooks';
-
-export interface ExecutionContextPicker {
-  getModuleContext(moduleId: string): GraphQLModules.ModuleContext;
-  getApplicationContext(): GraphQLModules.AppContext;
-}
+import { type ExecutionContextPicker } from './execution-context.interface';
 
 const executionContextStore = new Map<number, ExecutionContextPicker>();
 const executionContextDependencyStore = new Map<number, Set<number>>();
