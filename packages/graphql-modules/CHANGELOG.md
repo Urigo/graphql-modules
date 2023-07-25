@@ -1,5 +1,21 @@
 # graphql-modules
 
+## 2.2.0
+
+### Minor Changes
+
+- [#2395](https://github.com/Urigo/graphql-modules/pull/2395) [`d9e91d0a`](https://github.com/Urigo/graphql-modules/commit/d9e91d0a972bce633e3d7f4fe9234880aefae839) Thanks [@TomKlaverAH](https://github.com/TomKlaverAH)! - Use AsyncLocalStorage for execution context if available
+
+### Patch Changes
+
+- [#2338](https://github.com/Urigo/graphql-modules/pull/2338) [`4d9150f0`](https://github.com/Urigo/graphql-modules/commit/4d9150f0f46db32fe35259c74caabe6b36d8a13b) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`@graphql-tools/schema@^10.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/schema/v/10.0.0) (from `^9.0.0`, in `dependencies`)
+  - Updated dependency [`@graphql-tools/wrap@^10.0.0` ↗︎](https://www.npmjs.com/package/@graphql-tools/wrap/v/10.0.0) (from `^9.0.0`, in `dependencies`)
+
+- [#2354](https://github.com/Urigo/graphql-modules/pull/2354) [`d49191d9`](https://github.com/Urigo/graphql-modules/commit/d49191d9a692023ce35877f2b4ddc9024bfe9da0) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+  - Updated dependency [`ramda@^0.29.0` ↗︎](https://www.npmjs.com/package/ramda/v/0.29.0) (from `^0.28.0`, in `dependencies`)
+
 ## 2.1.2
 
 ### Patch Changes
