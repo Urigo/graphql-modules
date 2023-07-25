@@ -9,10 +9,11 @@ import {
   InjectionToken,
   testkit,
 } from '../src';
+
 import {
   getExecutionContextDependencyStore,
   getExecutionContextStore,
-} from '../src/application/execution-context';
+} from '../src/application/execution-context-hooks';
 
 const posts = ['Foo', 'Bar'];
 
