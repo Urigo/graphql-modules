@@ -1582,10 +1582,10 @@
     "@envelop/types" "3.0.2"
     tslib "^2.5.0"
 
-"@envelop/graphql-modules@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-5.0.0.tgz#c06574ddd33a5dbc2d496bccc6055386eef1ff19"
-  integrity sha512-wNtiL231xA5B9klEAQscrLhgzR4r/z4SzHQXDWBIBDvCsGEPo6YtMVxtEL8K+CubCLHYL8AfAnWaqL+xzw+iHA==
+"@envelop/graphql-modules@5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-5.0.1.tgz#b19832d927f2b8a3392313d98a8c49a3f31de8a5"
+  integrity sha512-sWwxiL+uTb8Z0qeDvWYinyPaB2RYQx+9dd9WTbg4m+dACpY4M8O79wSoYMGN7V3JLOYSbIGpuq44WEK7P80jww==
   dependencies:
     tslib "^2.5.0"
 
@@ -3151,10 +3151,10 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
-"@types/node@*", "@types/node@18.17.12":
-  version "18.17.12"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.12.tgz#c6bd7413a13e6ad9cfb7e97dd5c4e904c1821e50"
-  integrity sha512-d6xjC9fJ/nSnfDeU0AMDsaJyb1iHsqCSOdi84w4u+SlN/UgQdY5tRhpMzaFYsI4mnpvgTivEaQd0yOUhAtOnEQ==
+"@types/node@*", "@types/node@18.17.13":
+  version "18.17.13"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.17.13.tgz#d99cb351ff2e51a192fe8903b658c4f85fbcb58c"
+  integrity sha512-SlLPDDe6YQl1JnQQy4hgsuJeo5q5c1TBU4be4jeBLXsqpjoDbfb0HesSfhMwnaxfSJ4txtfzJzW5/x/43fkkfQ==
 
 "@types/node@^10.1.0":
   version "10.17.60"
