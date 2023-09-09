@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@apollo/federation": "0.38.1",
-    "@babel/core": "7.22.15",
+    "@babel/core": "7.22.17",
     "@babel/preset-env": "7.22.15",
     "@babel/preset-typescript": "7.22.15",
     "@babel/plugin-proposal-decorators": "7.22.15",
@@ -38,7 +38,7 @@
     "@types/benchmark": "2.1.2",
     "@types/express": "4.17.17",
     "@types/jest": "27.5.2",
-    "@types/node": "18.17.14",
+    "@types/node": "18.17.15",
     "@types/ramda": "0.29.3",
     "@typescript-eslint/eslint-plugin": "6.6.0",
     "@typescript-eslint/parser": "6.6.0",
@@ -53,7 +53,7 @@
     "bob-the-bundler": "1.7.3",
     "chalk": "4.1.2",
     "dataloader": "2.2.2",
-    "eslint": "8.48.0",
+    "eslint": "8.49.0",
     "express": "4.18.2",
     "express-graphql": "0.12.0",
     "globby": "11.1.0",
@@ -69,7 +69,7 @@
     "ts-jest": "27.1.5",
     "ts-node": "10.9.1",
     "typescript": "5.2.2",
-    "ws": "8.14.0"
+    "ws": "8.14.1"
   },
   "prettier": {
     "trailingComma": "es5",
