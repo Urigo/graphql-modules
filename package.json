@@ -57,7 +57,7 @@
     "express": "4.18.2",
     "express-graphql": "0.12.0",
     "globby": "11.1.0",
-    "graphql": "16.8.0",
+    "graphql": "16.8.1",
     "graphql-subscriptions": "2.0.0",
     "graphql-ws": "5.14.0",
     "husky": "8.0.3",
