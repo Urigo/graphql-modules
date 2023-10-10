@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Subscriptions
 
@@ -134,7 +134,7 @@ export const myModule = createModule({
 Here are reference implementations of using GraphQL Subscriptions with WebSockets in both, Apollo Server and Express GraphQL.
 
 <Tabs items={['GraphQL Yoga', 'Apollo Server', 'Express GraphQL']}>
-<Tab>
+<Tabs.Tab>
 ```ts filename="server.ts"
 import 'reflect-metadata'
 import { createServer } from '@graphql-yoga/node'
@@ -156,9 +156,9 @@ server.start().then(() => {
   by default, if you want to use WebSockets instead, follow [these
   instructions](https://www.graphql-yoga.com/docs/features/subscriptions).
 </Callout>
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts filename="server.ts"
 import 'reflect-metadata'
 import express from 'express'
@@ -217,9 +217,9 @@ const subscribe = createSubscription()
   )
 })()
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts filename="server.ts"
 import 'reflect-metadata'
 import express from 'express'
@@ -262,5 +262,5 @@ webServer.listen(4000, () => {
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>

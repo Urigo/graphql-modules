@@ -11,12 +11,11 @@
     "analyze": "cross-env ANALYZE=true next build"
   },
   "dependencies": {
-    "@theguild/components": "5.2.6",
+    "@theguild/components": "6.0.0",
     "next": "13.5.4",
     "next-sitemap": "4.2.3",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "wrangler": "3.11.0"
+    "react-dom": "18.2.0"
   },
   "browserslist": {
     "production": [

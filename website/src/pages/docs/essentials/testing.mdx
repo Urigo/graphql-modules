@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Testing
 
@@ -66,8 +66,9 @@ Now let's talk about `addProviders()` function. It allows you to overwrite appli
   pass a list of providers and two of them try to provide the same token, only
   the last one counts.
 
-  With this in mind, it's easy to overwrite providers, just put them at the end
-  of the list. This is exactly how `addProviders()` works.
+With this in mind, it's easy to overwrite providers, just put them at the end
+of the list. This is exactly how `addProviders()` works.
+
 </Callout>
 
 ```ts
@@ -116,7 +117,7 @@ In case your module extends the `Query` type or other types and does not depend 
 To turn on the transformation please enable `replaceExtensions` flag in options - `testModule(mod, options)`.
 
 <Tabs items={['my-module.spec.ts', 'my-module.ts']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.spec.ts"
 import 'reflect-metadata'
@@ -132,8 +133,8 @@ test('ing', () => {
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.ts"
 import { createModule, gql } from 'graphql-modules'
@@ -152,7 +153,7 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 The `replaceExtensions` flag turned your module's schema into a valid and executable schema.
@@ -162,7 +163,7 @@ The `replaceExtensions` flag turned your module's schema into a valid and execut
 In case your module extends the `Query` type or other types and using `replaceExtensions` flag won't work, `testkit.testModule` allows defining additional `typeDefs` and `resolvers`.
 
 <Tabs items={['my-module.spec.ts', 'my-module.ts']}>
-<Tab label="my-module.spec.ts">
+<Tabs.Tab>
 
 ```ts filename="my-module.spec.ts"
 import 'reflect-metadata'
@@ -192,8 +193,8 @@ test('ing', () => {
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.ts"
 import { createModule, gql } from 'graphql-modules'
@@ -208,7 +209,7 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 In the example above, the `replaceExtensions` transformed `extend type Query` into `type Query` and additional typeDefs and resolvers were provided. As you can see, these two approaches of extending the schema can be used together and simplified testing a lot.
@@ -218,7 +219,7 @@ In the example above, the `replaceExtensions` transformed `extend type Query` in
 The `testkit.testModule` allows to add type definitions from other modules using `inheritTypeDefs` option. Thanks to tree-shaking performed by `inheritTypeDefs`, your tested module includes only the relevant types.
 
 <Tabs items={['my-module.spec.ts', 'my-module.ts', 'other-module.ts']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.spec.ts"
 import 'reflect-metadata'
@@ -235,8 +236,8 @@ test('ing', () => {
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.ts"
 import { createModule, gql } from 'graphql-modules'
@@ -251,8 +252,8 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="other-module.ts"
 import { createModule, gql } from 'graphql-modules'
@@ -276,7 +277,7 @@ export const otherModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 In the example above, the tested module inherits `User` type from `other-module` and thanks to tree-shaking the `Message` type and `Query.messages` and `Query.users` are not in the schema.
@@ -388,7 +389,7 @@ The `testkit.testInjector` lets you play with providers purely on the Injector l
 ### testInjector
 
 <Tabs items={['logger.spec.ts', 'logger.ts']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts filename="logger.spec.ts"
 import 'reflect-metadata'
@@ -415,8 +416,8 @@ test('ing', () => {
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="logger.ts"
 import { Injectable, Inject, InjectionToken, Scope } from 'graphql-modules'
@@ -441,7 +442,7 @@ export class Logger {
 }
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 In the example above, thanks to the abstraction, we were able to provide a custom transport layer for our Logger.
@@ -474,7 +475,7 @@ Testing a middleware requires a GraphQL Schema. Using `testkit.testModule` fits 
 Depending on the complexity of a middleware function, you may want to use or mock different pieces of GraphQL Modules. We tried to cover the most common scenario in the example below.
 
 <Tabs items={['my-module.spec.ts', 'my-module.ts', 'auth.ts']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.spec.ts"
 import 'reflect-metadata'
@@ -502,8 +503,8 @@ test('ing', () => {
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="my-module.ts"
 import { createModule, gql } from 'graphql-modules'
@@ -538,8 +539,8 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="auth.ts"
 import { Injectable, Inject, Scope, CONTEXT } from 'graphql-modules'
@@ -564,7 +565,7 @@ async function authMiddleware({ context }, next) {
 }
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 The `authMiddleware` prevents private data from leaking out by using `AuthProvider.isLoggedIn()` method. The `isLoggedIn` flag is provided via context of the GraphQL operation. This is done for simplicity of the example but usually, you would validate a visitor's session or something similar.

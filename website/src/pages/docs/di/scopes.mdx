@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Scopes
 
@@ -8,14 +8,14 @@ Scope defines a life cycle of `Providers` and `InjectionToken`. There are two ki
 
 As mentioned before, `Singleton` scope is the default choice in GraphQL Modules. Every Service and Token is created even before the first incoming GraphQL operation and never gets destroyed (only when Node process is terminated).
 
-<Callout type='warning' >
+<Callout type="warning">
   We decided to make it the default choice, because of performance-related
   reasons. In most cases, there's no need to instantiate classes on every new
   request and dispose them later on.
 </Callout>
 
 <Tabs items={['Service', 'Factory Provider']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { Injectable, createModule } from 'graphql-modules'
 
@@ -28,9 +28,9 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import { Injectable, InjectionToken, createModule } from 'graphql-modules'
 
@@ -51,7 +51,7 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Operation
@@ -70,7 +70,7 @@ To improve the performance a bit, GraphQL Modules instantiate services on demand
 All services and tokens are destroyed right after the GraphQL execution phase.
 
 <Tabs items={['Service', 'Factory Provider']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts
 import { Injectable, Scope, createModule } from 'graphql-modules'
@@ -86,9 +86,10 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
 
-<Tab>
+</Tabs.Tab>
+
+<Tabs.Tab>
 ```ts
 import {
   Injectable,
@@ -115,7 +116,7 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Using Both

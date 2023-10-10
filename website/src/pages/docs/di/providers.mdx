@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Providers and Tokens
 
@@ -44,7 +44,7 @@ export const myModule = createModule({
 It's a shorthand expression for:
 
 <Tabs items={['Expression', 'Example']}>
-<Tab>
+<Tabs.Tab>
 
 ```typescript
 {
@@ -53,8 +53,8 @@ It's a shorthand expression for:
 }
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts filename="module.ts"
 import { createModule } from 'graphql-modules'
@@ -72,7 +72,7 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ### Value
@@ -80,7 +80,7 @@ export const myModule = createModule({
 Value provider requires a Token that represents a value, either `InjectionToken` or a class.
 
 <Tabs items={['Expression', 'Example']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts
 {
@@ -89,9 +89,9 @@ Value provider requires a Token that represents a value, either `InjectionToken`
 }
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts filename="keys.ts"
 import { InjectionToken } from 'graphql-modules'
 
@@ -114,7 +114,7 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ### Factory
@@ -122,7 +122,7 @@ export const myModule = createModule({
 In case you want to create a dependent value, using a factory provider is the answer. Factory can be useful also to create an instance of a class, for example when using third-party libraries.
 
 <Tabs items={['Expression', 'Example']}>
-<Tab label="Expression">
+<Tabs.Tab>
 
 ```ts
 {
@@ -137,9 +137,9 @@ In case you want to create a dependent value, using a factory provider is the an
 }
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts filename="keys.ts"
 import { InjectionToken } from 'graphql-modules'
 
@@ -167,7 +167,7 @@ export const myModule = createModule({
   ]
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Using Services and Tokens
@@ -179,7 +179,7 @@ Provider is a way to define a value and match it with a Token or a Service. Let'
 Accessing a service is fairly simple. You ask for a service in a constructor of a class or by using `Injector` directly.
 
 <Tabs items={['Resolver', 'Service']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts
 import { Auth } from './auth'
@@ -199,8 +199,8 @@ const resolvers = {
 `Injector` is available in GraphQL Context under `injector` property.
 </Callout>
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts
 import { Injectable } from 'graphql-modules'
@@ -220,7 +220,7 @@ class Posts {
   }
 }
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ### InjectionToken
@@ -228,7 +228,7 @@ class Posts {
 Consuming `InjectionToken` is very similar to `Service`. The only difference is that you need to use `@Inject` decorator but only in some cases.
 
 <Tabs items={['Resolver', 'Service']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { ApiKey } from './keys'
 
@@ -250,9 +250,9 @@ const resolvers = {
 <Callout>
 `Injector` is available in GraphQL Context under `injector` property.
 </Callout>
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import { Injectable, Inject } from 'graphql-modules'
 import { ApiKey } from './keys'
@@ -276,7 +276,7 @@ class Posts {
 `@Inject` decorator is needed because of the limitation of the type system.
 </Callout>
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Global Providers and Token
@@ -284,7 +284,7 @@ class Posts {
 Module can share tokens and providers with other modules, even application. When enabling a global flag, the provider still depends on an original Injector.
 
 <Tabs items={['Definition', 'Usage']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts
 // Users module
@@ -302,15 +302,18 @@ export class Auth {
 }
 ```
 
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```ts
 // Posts module
 
 @Injectable()
 export class Posts {
-  constructor(private auth: Auth, private logger: Logger) {}
+  constructor(
+    private auth: Auth,
+    private logger: Logger
+  ) {}
 
   getMyPosts() {
     const me = this.auth.getCurrentUser()
@@ -321,7 +324,7 @@ export class Posts {
 }
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 In the scenario above, we've got two modules: Posts and Users.

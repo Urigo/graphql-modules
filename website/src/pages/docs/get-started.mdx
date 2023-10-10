@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Get Started
 
@@ -45,7 +45,8 @@ Each module contains GraphQL Type definitions, unique id and optionally resolver
 
 <Callout>
   That's not everything it can do, Module accepts also Providers ([Dependency
-  Injection](/docs/di/introduction)) and [Middlewares](/docs/advanced/middlewares).
+  Injection](/docs/di/introduction)) and
+  [Middlewares](/docs/advanced/middlewares).
 </Callout>
 
 #### What Happened Here?
@@ -76,8 +77,8 @@ const mySchema = application.schema
 ```
 
 <Callout type="warning">
-  Application doesn't allow providing schemas or resolvers, since it's only
-  a loader of your various modules.
+  Application doesn't allow providing schemas or resolvers, since it's only a
+  loader of your various modules.
 </Callout>
 
 ### Use Your Application
@@ -91,7 +92,7 @@ GraphQL-Modules allow you to do much more, like managing the lifecycle of your e
 Your GraphQL `Application` exposes `createExecution` and `createSubscription` methods, which are just plug-and-play replacements for the default functions from `graphql-js`.
 
 <Tabs items={['GraphQL Yoga', 'Apollo Server', 'Express GraphQL', 'GraphQL Helix', 'Other servers?']}>
-<Tab>
+<Tabs.Tab>
 
 If you are using [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), you can use [`useGraphQLModules`](https://envelop.dev/plugins/use-graphql-modules) plugin from Envelop.
 
@@ -108,9 +109,10 @@ server.start().then(() => {
   console.log(`🚀 Server ready`)
 })
 ```
-</Tab>
 
-<Tab>
+</Tabs.Tab>
+
+<Tabs.Tab>
 If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloExecutor` to get an executor that is adapted for this server, and integrates with it perfectly.
 
 ```ts
@@ -126,9 +128,10 @@ server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`)
 })
 ```
-</Tab>
 
-<Tab>
+</Tabs.Tab>
+
+<Tabs.Tab>
 If you are using [Express-GraphQL](https://github.com/graphql/express-graphql), here's how you do it:
 
 ```ts
@@ -154,9 +157,10 @@ server.listen(4000, () => {
   console.log(`🚀 Server ready at http://localhost:4000/`)
 })
 ```
-</Tab>
 
-<Tab>
+</Tabs.Tab>
+
+<Tabs.Tab>
 
 If you are using [GraphQL-Helix](https://github.com/contrawork/graphql-helix), here's how you do it:
 
@@ -196,9 +200,10 @@ app.listen(port, () => {
   console.log(`GraphQL server is running on port ${port}.`)
 })
 ```
-</Tab>
 
-<Tab>
+</Tabs.Tab>
+
+<Tabs.Tab>
 If you are using a different server or setup, you can get the custom `execute` and `subscribe` functions from your `Application`, and provide it to your server:
 
 ```ts
@@ -214,10 +219,12 @@ const subscribe = application.createSubscription()
 ```
 
 <Callout>
-In case you are still having issues, you can always [report an issue on a missing integration](https://github.com/Urigo/graphql-modules/issues/new), and we'll look into that ;)
+  In case you are still having issues, you can always [report an issue on a
+  missing integration](https://github.com/Urigo/graphql-modules/issues/new), and
+  we'll look into that ;)
 </Callout>
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Tutorial

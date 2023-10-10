@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Migration from v0.X
 
@@ -12,19 +12,19 @@ There's no regression in terms of bundle size because `core` was importing `di` 
 Making GraphQL Modules a single package should improve the developer experience.
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { gql, createModule, Injectable } from 'graphql-modules'
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import { GraphQLModule } from '@graphql-modules/core'
 import { Injectable } from '@graphql-modules/di'
 import gql from 'graphql-tag'
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## `DocumentNode` for `typeDefs`
@@ -32,7 +32,7 @@ import gql from 'graphql-tag'
 v0 accepted `string` as `typeDefs`, while v1 doesn't.
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { gql, createModule } from 'graphql-modules'
 
@@ -45,15 +45,15 @@ const myModule = createModule({
   `
 })
 ```
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 ```ts
 const myModule = GraphQLModule({
   // ...
   typeDefs: `type Query { foo: String }`
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Classes to Utility Functions
@@ -61,17 +61,17 @@ const myModule = GraphQLModule({
 You no longer need to create `new GraphQLModule()`, you can use `createModule` instead:
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 const myModule = createModule({ ... })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 const myModule = new GraphQLModule({ ... })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Resolvers Composition => Middleware
@@ -81,7 +81,7 @@ With version `0.x` we had resolvers-composition, which was our way to define wra
 In v1, we changed the name to Middlewares, and changed the API a bit, to make it more flexible and more compatible with similar middlewares implementations:
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 
 To define:
 
@@ -105,9 +105,9 @@ const myModule = createModule({
   }
 })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 To define:
 
 ```typescript
@@ -130,7 +130,7 @@ const myModule = new GraphQLModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Module/Application Structure
@@ -142,7 +142,7 @@ In v1, we changed behavior modules to be flat, and added `Application` to define
 You no longer need to define `imports` and define strict dependencies between modules, since they are all flatten and merged together by the `Application`.
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 ```typescript
 const moduleOne = createModule({ ... })
 const moduleTwo = createModule({ ... })
@@ -151,9 +151,9 @@ const application = createApplication({
   modules: [moduleOne, moduleTwo]
 })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```typescript
 const moduleOne = new GraphQLModule({ ... })
 const moduleTwo = new GraphQLModule({ imports: [moduleOne], ... })
@@ -162,7 +162,7 @@ const rootModule = new GraphQLModule({
   imports: [moduleTwo]
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Shared Injectables
@@ -172,7 +172,7 @@ In V0, you needed to create an `Injectable`, add it to a module, and then in ord
 Since we moved to a flatten structure of `Application`, all you need to do in order to share an `Injectable`, is just to add `global: true`:
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 ```typescript
 // Module 1
 
@@ -195,9 +195,9 @@ class MyOtherProvider {
 
 const moduleTwo = createModule({ ... })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```typescript
 // Module 1
 
@@ -221,7 +221,7 @@ const rootModule = new GraphQLModule({
   imports: [moduleTwo]
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Module Config
@@ -231,7 +231,7 @@ In V0, we had the concept of `ModuleConfig` which was a very specific way to ins
 In V1, it no longer exists, and we believe there is a simpler way to do that, with custom tokens.
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 
 ```typescript
 import { createModule, InjectionToken } from '@graphql-modules/core'
@@ -276,8 +276,8 @@ export class MyProvider {
   }
 }
 ```
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 
 ```typescript
 import { GraphQLModule } from '@graphql-modules/core'
@@ -310,7 +310,7 @@ export class MyProvider {
   }
 }
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Session
@@ -324,13 +324,13 @@ Internally, we are using Node's `async_hooks` to manage a context of an executio
 In v0, you could create a `context` per each module. In v1, `context` is external for GraphQL-Modules and it's not directly in use. You can do whatever you want with that, and just access it in GraphQL-Modules if you need, but we no longer require you to do specific things with your `context`.
 
 <Tabs items={['V1', 'V0']}>
-<Tab>
+<Tabs.Tab>
 With v1, you can manage your own `context` without anything special that needs to be done in order to GraphQL-Modules to work.
 
 You can inject `CONTEXT` in order to get access to the global execution context, and Modules you create doesn't take part in building that object.
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```typescript
 const MyModule = new GraphQLModule({
   context(session: MyModuleSession) {
@@ -343,7 +343,7 @@ const MyModule = new GraphQLModule({
   }
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Dependency Injection Scopes

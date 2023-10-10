@@ -26,7 +26,10 @@ export type GlobalProviderMap = {
 };
 
 export class ResolvedProvider {
-  constructor(public key: Key, public factory: ResolvedFactory) {}
+  constructor(
+    public key: Key,
+    public factory: ResolvedFactory
+  ) {}
 }
 
 export class ResolvedFactory {
@@ -55,7 +58,10 @@ export class ResolvedFactory {
 }
 
 export class Dependency {
-  constructor(public key: Key, public optional: boolean) {}
+  constructor(
+    public key: Key,
+    public optional: boolean
+  ) {}
 
   static fromKey(key: Key): Dependency {
     return new Dependency(key, false);

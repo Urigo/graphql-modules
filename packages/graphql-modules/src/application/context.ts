@@ -10,7 +10,7 @@ import { executionContext, ExecutionContextPicker } from './execution-context';
 export type ExecutionContextBuilder<
   TContext extends {
     [key: string]: any;
-  } = {}
+  } = {},
 > = (context: TContext) => {
   context: InternalAppContext;
   ɵdestroy(): void;
