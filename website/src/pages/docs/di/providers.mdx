@@ -196,7 +196,7 @@ const resolvers = {
 ```
 
 <Callout>
-`Injector` is available in GraphQL Context under `injector` property.
+  `Injector` is available in GraphQL Context under `injector` property.
 </Callout>
 
 </Tab>
@@ -233,9 +233,9 @@ Consuming `InjectionToken` is very similar to `Service`. The only difference is 
 import { ApiKey } from './keys'
 
 const resolvers = {
-  Query: {
-    me(parent, args, context, info) {
-      const apiKey = context.injector.get(ApiKey)
+Query: {
+me(parent, args, context, info) {
+const apiKey = context.injector.get(ApiKey)
 
       if (!this.key) {
         throw new Error('API key is required')
@@ -243,7 +243,7 @@ const resolvers = {
 
       return auth.getCurrentUser()
     }
-  }
+}
 }
 ```
 
@@ -273,7 +273,7 @@ class Posts {
 ```
 
 <Callout>
-`@Inject` decorator is needed because of the limitation of the type system.
+  `@Inject` decorator is needed because of the limitation of the type system.
 </Callout>
 
 </Tab>
@@ -310,7 +310,10 @@ export class Auth {
 
 @Injectable()
 export class Posts {
-  constructor(private auth: Auth, private logger: Logger) {}
+  constructor(
+    private auth: Auth,
+    private logger: Logger
+  ) {}
 
   getMyPosts() {
     const me = this.auth.getCurrentUser()

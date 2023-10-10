@@ -17,7 +17,7 @@
     "test": "jest",
     "prerelease": "yarn build",
     "release": "changeset publish",
-    "format": "prettier --ignore-path .gitignore --check --write \"{packages,website}/**/*.{js,jsx,json,css,md,mdx,ts,tsx}\"",
+    "format": "prettier --cache --ignore-path .gitignore --ignore-path .prettierignore --check --write \"{packages,website}/**/*.{js,jsx,json,css,md,mdx,ts,tsx}\"",
     "pr": "changeset",
     "lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
