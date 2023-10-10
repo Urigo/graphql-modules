@@ -21,7 +21,7 @@ import {
 import { createContextBuilder } from './context';
 import { executionCreator } from './execution';
 import { subscriptionCreator } from './subscription';
-import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
+import { apolloGatewayCreator } from './apollo';
 import { operationControllerCreator } from './operation-controller';
 import { Module } from '../module/types';
 
@@ -132,12 +132,9 @@ export function createApplication(
     });
     const createSubscription = subscriptionCreator({ contextBuilder });
     const createExecution = executionCreator({ contextBuilder });
-    const createSchemaForApollo = apolloSchemaCreator({
-      createSubscription,
-      contextBuilder,
+    const createApolloGateway = apolloGatewayCreator({
       schema,
-    });
-    const createApolloExecutor = apolloExecutorCreator({
+      typeDefs,
       createExecution,
     });
 
@@ -154,8 +151,7 @@ export function createApplication(
       createOperationController,
       createSubscription,
       createExecution,
-      createSchemaForApollo,
-      createApolloExecutor,
+      createApolloGateway,
       ɵfactory: applicationFactory,
       ɵconfig: config,
     };

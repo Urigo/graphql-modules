@@ -4,5 +4,10 @@ import { PostModule } from './post/post.module';
 
 export const graphqlApplication = createApplication({
   modules: [PostModule],
-  providers: [PubSub],
+  providers: [
+    {
+      provide: PubSub,
+      useValue: new PubSub(),
+    },
+  ],
 });

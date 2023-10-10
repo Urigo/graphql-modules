@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest] # remove windows to speed up the tests
-        node-version: [12, 16, 18]
+        node-version: [18, 20]
         graphql_version:
           - 15
           - 16
@@ -49,7 +49,7 @@ jobs:
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
-          nodeVersion: 18
+          nodeVersion: 20
       - name: Use GraphQL v${{matrix.graphql_version}}
         run: node ./scripts/match-graphql.js ${{matrix.graphql_version}}
       - name: Cache Jest

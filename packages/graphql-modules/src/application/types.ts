@@ -8,7 +8,7 @@ import {
 import type { Provider, Injector } from '../di';
 import type { Resolvers, Module, MockedModule } from '../module/types';
 import type { MiddlewareMap } from '../shared/middleware';
-import type { ApolloRequestContext } from './apollo';
+import type { ApolloGatewayInterface, ApolloRequestContext } from './apollo';
 import type { Single } from '../shared/types';
 import type { InternalAppContext } from './application';
 
@@ -67,16 +67,9 @@ export interface Application {
     execute?: typeof execute;
     controller?: OperationController;
   }): Execution;
-  /**
-   * @deprecated Use `createApolloExecutor`, `createExecution` and `createSubscription` methods instead.
-   */
-  createSchemaForApollo(): GraphQLSchema;
-  /**
-   * Experimental
-   */
-  createApolloExecutor(options?: {
+  createApolloGateway(options?: {
     controller?: OperationController;
-  }): ApolloExecutor;
+  }): ApolloGatewayInterface;
   /**
    * @internal
    */
