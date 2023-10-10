@@ -157,7 +157,7 @@ export const myModule = createModule({
     {
       provide: ApiKey,
       useFactory(config: Config) {
-        if (context.environment) {
+        if (config.environment) {
           return 'my-api-key'
         }
         return null
