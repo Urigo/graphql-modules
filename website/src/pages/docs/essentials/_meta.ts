@@ -1,4 +1,4 @@
-{
+export default{
   "type-definitions": "Type Definitions (SDL)",
   "resolvers": "Resolvers",
   "context": "Context",
