@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Get Started
 
@@ -92,7 +92,7 @@ GraphQL-Modules allow you to do much more, like managing the lifecycle of your e
 Your GraphQL `Application` exposes `createExecution` and `createSubscription` methods, which are just plug-and-play replacements for the default functions from `graphql-js`.
 
 <Tabs items={['GraphQL Yoga', 'Apollo Server', 'Express GraphQL', 'GraphQL Helix', 'Other servers?']}>
-<Tab>
+<Tabs.Tab>
 
 If you are using [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), you can use [`useGraphQLModules`](https://envelop.dev/plugins/use-graphql-modules) plugin from Envelop.
 
@@ -110,9 +110,9 @@ server.start().then(() => {
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloExecutor` to get an executor that is adapted for this server, and integrates with it perfectly.
 
 ```ts
@@ -129,9 +129,9 @@ server.listen().then(({ url }) => {
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 If you are using [Express-GraphQL](https://github.com/graphql/express-graphql), here's how you do it:
 
 ```ts
@@ -158,9 +158,9 @@ server.listen(4000, () => {
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 
 If you are using [GraphQL-Helix](https://github.com/contrawork/graphql-helix), here's how you do it:
 
@@ -201,9 +201,9 @@ app.listen(port, () => {
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 If you are using a different server or setup, you can get the custom `execute` and `subscribe` functions from your `Application`, and provide it to your server:
 
 ```ts
@@ -224,7 +224,7 @@ const subscribe = application.createSubscription()
   we'll look into that ;)
 </Callout>
 
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Tutorial

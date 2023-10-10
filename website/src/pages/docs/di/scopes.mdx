@@ -1,4 +1,4 @@
-import { Tabs, Tab, Callout } from '@theguild/components'
+import { Tabs, Callout } from '@theguild/components'
 
 # Scopes
 
@@ -15,7 +15,7 @@ As mentioned before, `Singleton` scope is the default choice in GraphQL Modules.
 </Callout>
 
 <Tabs items={['Service', 'Factory Provider']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { Injectable, createModule } from 'graphql-modules'
 
@@ -28,9 +28,9 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import { Injectable, InjectionToken, createModule } from 'graphql-modules'
 
@@ -51,7 +51,7 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Operation
@@ -70,7 +70,7 @@ To improve the performance a bit, GraphQL Modules instantiate services on demand
 All services and tokens are destroyed right after the GraphQL execution phase.
 
 <Tabs items={['Service', 'Factory Provider']}>
-<Tab>
+<Tabs.Tab>
 
 ```ts
 import { Injectable, Scope, createModule } from 'graphql-modules'
@@ -87,9 +87,9 @@ export const myModule = createModule({
 })
 ```
 
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import {
   Injectable,
@@ -116,7 +116,7 @@ export const myModule = createModule({
   // ...
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Using Both

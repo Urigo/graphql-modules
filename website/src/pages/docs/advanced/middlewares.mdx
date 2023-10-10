@@ -1,4 +1,4 @@
-import { Tabs, Tab } from '@theguild/components'
+import { Tabs } from '@theguild/components'
 
 # Middlewares
 
@@ -136,7 +136,7 @@ To intercept all fields of all possible types, use `*` mask twice:
 Now let's understand how to register middlewares in a Module and an Application. Take a look at the following example:
 
 <Tabs items={['Module', 'Application']}>
-<Tab>
+<Tabs.Tab>
 ```ts
 import { createModule } from 'graphql-modules';
 
@@ -149,9 +149,9 @@ const myModule = createModule({
   }
 })
 ```
-</Tab>
+</Tabs.Tab>
 
-<Tab>
+<Tabs.Tab>
 ```ts
 import { createApplication } from 'graphql-modules';
 
@@ -164,7 +164,7 @@ const application = createApplication({
   }
 })
 ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Execution order
