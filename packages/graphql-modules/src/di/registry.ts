@@ -3,7 +3,10 @@ import { resolveForwardRef } from './forward-ref';
 import { Type } from './providers';
 
 export class Key {
-  constructor(public token: Type<any>, public id: number) {
+  constructor(
+    public token: Type<any>,
+    public id: number
+  ) {
     if (!token) {
       throw new Error('Token must be defined!');
     }

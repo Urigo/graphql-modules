@@ -5,7 +5,7 @@ import type { ValueOrPromise } from '../shared/types';
 
 export function execute<
   TResult = { [key: string]: any },
-  TVariables = { [key: string]: any }
+  TVariables = { [key: string]: any },
 >(
   app: Application,
   inputs: Omit<ExecutionArgs, 'schema'> & {
