@@ -46,31 +46,31 @@ It's a shorthand expression for:
 <Tabs items={['Expression', 'Example']}>
 <Tabs.Tab>
 
-    ```typescript
-    {
-      provide: Data,
-      useClass: Data
-    }
-    ```
+```typescript
+{
+  provide: Data,
+  useClass: Data
+}
+```
 
 </Tabs.Tab>
 <Tabs.Tab>
 
-    ```ts filename="module.ts"
-    import { createModule } from 'graphql-modules'
-    import { Data } from './data'
+```ts filename="module.ts"
+import { createModule } from 'graphql-modules'
+import { Data } from './data'
 
-    export const myModule = createModule({
-    id: 'my-module',
-    // ...
-    providers: [
-  {
-    provide: Data,
-    useClass: Data
-  }
-    ]
-  })
-    ```
+export const myModule = createModule({
+  id: 'my-module',
+  // ...
+  providers: [
+    {
+      provide: Data,
+      useClass: Data
+    }
+  ]
+})
+```
 
 </Tabs.Tab>
 </Tabs>
@@ -82,37 +82,37 @@ Value provider requires a Token that represents a value, either `InjectionToken`
 <Tabs items={['Expression', 'Example']}>
 <Tabs.Tab>
 
-    ```ts
-    {
-      provide: ApiKey,
-      useValue: 'my-api-key'
-    }
-    ```
+```ts
+{
+  provide: ApiKey,
+  useValue: 'my-api-key'
+}
+```
 
 </Tabs.Tab>
 
 <Tabs.Tab>
-    ```ts filename="keys.ts"
-    import { InjectionToken } from 'graphql-modules'
+```ts filename="keys.ts"
+import { InjectionToken } from 'graphql-modules'
 
-    export const ApiKey = new InjectionToken<string>('api-key')
-    ```
+export const ApiKey = new InjectionToken<string>('api-key')
+```
 
-    ```ts filename="module.ts"
-    import { createModule } from 'graphql-modules'
-    import { ApiKey } from './keys'
+```ts filename="module.ts"
+import { createModule } from 'graphql-modules'
+import { ApiKey } from './keys'
 
-    export const myModule = createModule({
-      id: 'my-module',
-      // ...
-      providers: [
+export const myModule = createModule({
+  id: 'my-module',
+  // ...
+  providers: [
     {
       provide: ApiKey,
       useValue: 'my-api-key'
     }
-      ]
-    })
-    ```
+  ]
+})
+```
 
 </Tabs.Tab>
 </Tabs>
@@ -124,49 +124,49 @@ In case you want to create a dependent value, using a factory provider is the an
 <Tabs items={['Expression', 'Example']}>
 <Tabs.Tab>
 
-    ```ts
-    {
-      provide: ApiKey,
-      useFactory(config: Config) {
-      if (config.environment === 'production') {
+```ts
+{
+  provide: ApiKey,
+  useFactory(config: Config) {
+    if (config.environment === 'production') {
       return 'my-api-key';
     }
-      return null;
-    },
-      deps: [Config]
-    }
-    ```
+    return null;
+  },
+  deps: [Config]
+}
+```
 
 </Tabs.Tab>
 
 <Tabs.Tab>
-    ```ts filename="keys.ts"
-    import { InjectionToken } from 'graphql-modules'
+```ts filename="keys.ts"
+import { InjectionToken } from 'graphql-modules'
 
-    export const ApiKey = new InjectionToken<string>('api-key')
-    ```
+export const ApiKey = new InjectionToken<string>('api-key')
+```
 
-    ```ts filename="module.ts"
-    import { createModule } from 'graphql-modules'
-    import { ApiKey } from './keys'
+```ts filename="module.ts"
+import { createModule } from 'graphql-modules'
+import { ApiKey } from './keys'
 
-    export const myModule = createModule({
-      id: 'my-module',
-      // ...
-      providers: [
+export const myModule = createModule({
+  id: 'my-module',
+  // ...
+  providers: [
     {
       provide: ApiKey,
       useFactory(config: Config) {
-      if (context.environment) {
-      return 'my-api-key'
-    }
-      return null
-    },
+        if (context.environment) {
+          return 'my-api-key'
+        }
+        return null
+      },
       deps: [Config]
     }
-      ]
-    })
-    ```
+  ]
+})
+```
 </Tabs.Tab>
 </Tabs>
 
@@ -181,45 +181,45 @@ Accessing a service is fairly simple. You ask for a service in a constructor of 
 <Tabs items={['Resolver', 'Service']}>
 <Tabs.Tab>
 
-    ```ts
-    import { Auth } from './auth'
+```ts
+import { Auth } from './auth'
 
-    const resolvers = {
-    Query: {
+const resolvers = {
+  Query: {
     me(parent, args, context, info) {
-    const auth = context.injector.get(Auth)
+      const auth = context.injector.get(Auth)
 
-    return auth.getCurrentUser()
+      return auth.getCurrentUser()
+    }
   }
-  }
-  }
-    ```
+}
+```
 
-    <Callout>
-      `Injector` is available in GraphQL Context under `injector` property.
-    </Callout>
+<Callout>
+`Injector` is available in GraphQL Context under `injector` property.
+</Callout>
 
 </Tabs.Tab>
 <Tabs.Tab>
 
-    ```ts
-    import { Injectable } from 'graphql-modules'
-    import { Auth } from './auth'
+```ts
+import { Injectable } from 'graphql-modules'
+import { Auth } from './auth'
 
-    @Injectable()
-    class Posts {
-    constructor(private auth: Auth) {}
+@Injectable()
+class Posts {
+  constructor(private auth: Auth) {}
 
-    allPosts() {
+  allPosts() {
     if (!this.auth.isLoggedIn()) {
-    throw new Error('Auth required')
-  }
+      throw new Error('Auth required')
+    }
     return [
-    // ...
+      // ...
     ]
   }
-  }
-    ```
+}
+```
 </Tabs.Tab>
 </Tabs>
 
@@ -229,52 +229,52 @@ Consuming `InjectionToken` is very similar to `Service`. The only difference is 
 
 <Tabs items={['Resolver', 'Service']}>
 <Tabs.Tab>
-    ```ts
-    import { ApiKey } from './keys'
+```ts
+import { ApiKey } from './keys'
 
-    const resolvers = {
-    Query: {
+const resolvers = {
+  Query: {
     me(parent, args, context, info) {
-    const apiKey = context.injector.get(ApiKey)
+      const apiKey = context.injector.get(ApiKey)
 
-    if (!this.key) {
-    throw new Error('API key is required')
-  }
+      if (!this.key) {
+        throw new Error('API key is required')
+      }
 
-    return auth.getCurrentUser()
+      return auth.getCurrentUser()
+    }
   }
-  }
-  }
-    ```
+}
+```
 
-    <Callout>
-      `Injector` is available in GraphQL Context under `injector` property.
-    </Callout>
+<Callout>
+`Injector` is available in GraphQL Context under `injector` property.
+</Callout>
 </Tabs.Tab>
 
 <Tabs.Tab>
-    ```ts
-    import { Injectable, Inject } from 'graphql-modules'
-    import { ApiKey } from './keys'
+```ts
+import { Injectable, Inject } from 'graphql-modules'
+import { ApiKey } from './keys'
 
-    @Injectable()
-    class Posts {
-    constructor(@Inject(ApiKey) private key: string) {}
+@Injectable()
+class Posts {
+  constructor(@Inject(ApiKey) private key: string) {}
 
-    allPosts() {
+  allPosts() {
     if (!this.key) {
-    throw new Error('API key is required')
-  }
+      throw new Error('API key is required')
+    }
     return [
-    // ...
+      // ...
     ]
   }
-  }
-    ```
+}
+```
 
-    <Callout>
-      `@Inject` decorator is needed because of the limitation of the type system.
-    </Callout>
+<Callout>
+`@Inject` decorator is needed because of the limitation of the type system.
+</Callout>
 
 </Tabs.Tab>
 </Tabs>
@@ -286,43 +286,43 @@ Module can share tokens and providers with other modules, even application. When
 <Tabs items={['Definition', 'Usage']}>
 <Tabs.Tab>
 
-    ```ts
-    // Users module
+```ts
+// Users module
 
-    @Injectable({
-    global: true
-  })
-    export class Auth {
-    constructor(private logger: Logger) {}
+@Injectable({
+  global: true
+})
+export class Auth {
+  constructor(private logger: Logger) {}
 
-    getCurrentUser() {
+  getCurrentUser() {
     logger.debug(`Asking for authenticated user`)
     // ...
   }
-  }
-    ```
+}
+```
 
 </Tabs.Tab>
 <Tabs.Tab>
 
-    ```ts
-    // Posts module
+```ts
+// Posts module
 
-    @Injectable()
-    export class Posts {
+@Injectable()
+export class Posts {
   constructor(
     private auth: Auth,
     private logger: Logger
   ) {}
 
-    getMyPosts() {
+  getMyPosts() {
     const me = this.auth.getCurrentUser()
 
     logger.debug(`Asking for my posts`)
     // ...
   }
-  }
-    ```
+}
+```
 
 </Tabs.Tab>
 </Tabs>
@@ -349,17 +349,17 @@ import { ApiKey } from './keys'
 
 @Injectable()
 class Posts {
-constructor(@Inject(forwardRef(() => ApiKey)) private key: string) {}
+  constructor(@Inject(forwardRef(() => ApiKey)) private key: string) {}
 
-allPosts() {
-  if (!this.key) {
-    throw new Error('API key is required')
+  allPosts() {
+    if (!this.key) {
+      throw new Error('API key is required')
+    }
+
+    return [
+      // ...
+    ]
   }
-
-  return [
-    // ...
-  ]
-}
 }
 ```
 
