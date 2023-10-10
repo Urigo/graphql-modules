@@ -1,11 +1,11 @@
-import { wrapSchema } from '@graphql-tools/wrap';
-import { DocumentNode, execute, GraphQLSchema } from 'graphql';
-import { uniqueId } from '../shared/utils';
-import { InternalAppContext } from './application';
-import { ExecutionContextBuilder } from './context';
+import {
+  DocumentNode,
+  ExecutionResult,
+  GraphQLSchema,
+  concatAST,
+  print,
+} from 'graphql';
 import { Application } from './types';
-
-const CONTEXT_ID = Symbol.for('context-id');
 
 export interface ApolloRequestContext {
   document: DocumentNode;
@@ -17,109 +17,58 @@ export interface ApolloRequestContext {
   };
 }
 
-export function apolloExecutorCreator({
-  createExecution,
-}: {
-  createExecution: Application['createExecution'];
-}): Application['createApolloExecutor'] {
-  return function createApolloExecutor(options) {
-    const executor = createExecution(options);
-    return async function executorAdapter(
-      requestContext: ApolloRequestContext
-    ) {
-      return executor({
-        schema: requestContext.schema,
-        document: requestContext.document,
-        operationName: requestContext.operationName,
-        variableValues: requestContext.request.variables,
-        contextValue: requestContext.context,
-      });
-    };
-  };
+export interface ApolloGatewayLoadResult {
+  executor: ApolloExecutor;
 }
 
-export function apolloSchemaCreator({
-  createSubscription,
-  contextBuilder,
+export type ApolloExecutor = (
+  requestContext: ApolloRequestContext
+) => Promise<ExecutionResult>;
+
+export interface ApolloGatewayInterface {
+  onSchemaLoadOrUpdate(
+    callback: (schemaContext: {
+      apiSchema: GraphQLSchema;
+      coreSupergraphSdl: string;
+    }) => void
+  ): () => void;
+  load(): Promise<ApolloGatewayLoadResult>;
+  stop(): Promise<void>;
+}
+
+export function apolloGatewayCreator({
   schema,
+  typeDefs,
+  createExecution,
 }: {
-  createSubscription: Application['createSubscription'];
-  contextBuilder: ExecutionContextBuilder;
-  schema: GraphQLSchema;
-}) {
-  const createApolloSchema = () => {
-    const sessions: Record<
-      string,
-      {
-        count: number;
-        session: {
-          destroy(): void;
-          context: InternalAppContext;
-        };
-      }
-    > = {};
-    const subscription = createSubscription();
-
-    function getSession(ctx: any) {
-      if (!ctx[CONTEXT_ID]) {
-        ctx[CONTEXT_ID] = uniqueId((id) => !sessions[id]);
-        const { context, ɵdestroy: destroy } = contextBuilder(ctx);
-
-        sessions[ctx[CONTEXT_ID]] = {
-          count: 0,
-          session: {
-            context,
-            destroy() {
-              if (--sessions[ctx[CONTEXT_ID]].count === 0) {
-                destroy();
-                delete sessions[ctx[CONTEXT_ID]];
-                delete ctx[CONTEXT_ID];
-              }
-            },
+  schema: Application['schema'];
+  typeDefs: Application['typeDefs'];
+  createExecution: Application['createExecution'];
+}): Application['createApolloGateway'] {
+  return function createApolloGateway(options) {
+    const executor = createExecution(options);
+    return {
+      onSchemaLoadOrUpdate(callback) {
+        callback({
+          apiSchema: schema,
+          coreSupergraphSdl: print(concatAST(typeDefs)),
+        });
+        return () => {};
+      },
+      async load() {
+        return {
+          async executor(requestContext: ApolloRequestContext) {
+            return executor({
+              schema: requestContext.schema,
+              document: requestContext.document,
+              operationName: requestContext.operationName,
+              variableValues: requestContext.request.variables,
+              contextValue: requestContext.context,
+            });
           },
         };
-      }
-
-      sessions[ctx[CONTEXT_ID]].count++;
-
-      return sessions[ctx[CONTEXT_ID]].session;
-    }
-
-    return wrapSchema({
-      schema,
-      batch: true,
-      executor(input) {
-        if (input.operationType === 'subscription') {
-          return subscription({
-            schema,
-            document: input.document,
-            variableValues: input.variables as any,
-            contextValue: input.context,
-            rootValue: input.rootValue,
-            operationName: input.operationName,
-          });
-        }
-        // Create an execution context
-        const { context, destroy } = getSession(input.context!);
-
-        // It's important to wrap the executeFn within a promise
-        // so we can easily control the end of execution (with finally)
-        return Promise.resolve()
-          .then(
-            () =>
-              execute({
-                schema,
-                document: input.document,
-                contextValue: context,
-                variableValues: input.variables as any,
-                rootValue: input.rootValue,
-                operationName: input.operationName,
-              }) as any
-          )
-          .finally(destroy);
       },
-    });
+      async stop() {},
+    };
   };
-
-  return createApolloSchema;
 }
