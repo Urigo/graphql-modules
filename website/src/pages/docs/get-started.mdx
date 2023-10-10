@@ -91,76 +91,68 @@ GraphQL-Modules allow you to do much more, like managing the lifecycle of your e
 
 Your GraphQL `Application` exposes `createExecution` and `createSubscription` methods, which are just plug-and-play replacements for the default functions from `graphql-js`.
 
-<Tabs items={['GraphQL Yoga', 'Apollo Server', 'Express GraphQL', 'GraphQL Helix', 'Other servers?']}>
-<Tabs.Tab>
+<Tabs items={['GraphQL Yoga', 'Apollo Server', 'GraphQL HTTP', 'GraphQL Helix', 'Other servers?']}>
+<Tab>
 
 If you are using [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), you can use [`useGraphQLModules`](https://envelop.dev/plugins/use-graphql-modules) plugin from Envelop.
 
 ```ts
-import { createServer } from '@graphql-yoga/node'
+import { createServer } from 'http'
+import { createYoga } from 'graphql-yoga'
 import { useGraphQLModules } from '@envelop/graphql-modules'
 import { application } from './application'
 
-const server = createServer({
+const yoga = createYoga({
   plugins: [useGraphQLModules(application)]
 })
 
-server.start().then(() => {
-  console.log(`🚀 Server ready`)
-})
-```
-
-</Tabs.Tab>
-
-<Tabs.Tab>
-If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloExecutor` to get an executor that is adapted for this server, and integrates with it perfectly.
-
-```ts
-import { ApolloServer } from 'apollo-server'
-import { application } from './application'
-
-const executor = application.createApolloExecutor()
-const schema = application.schema
-
-const server = new ApolloServer({ schema, executor })
-
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
-})
-```
-
-</Tabs.Tab>
-
-<Tabs.Tab>
-If you are using [Express-GraphQL](https://github.com/graphql/express-graphql), here's how you do it:
-
-```ts
-import express from 'express'
-import graphqlHTTP from 'express-graphql'
-import { application } from './application'
-
-const execute = application.createExecution()
-const schema = application.schema
-
-const server = express()
-
-server.use(
-  '/',
-  graphqlHTTP({
-    schema,
-    customExecuteFn: execute,
-    graphiql: true
-  })
-)
+const server = createServer(yoga)
 
 server.listen(4000, () => {
   console.log(`🚀 Server ready at http://localhost:4000/`)
 })
 ```
 
-</Tabs.Tab>
+<Tab>
+If you are using [Apollo-Server](https://github.com/apollographql/apollo-server), you can use `createApolloGateway` to get an executor that is adapted for this server, and integrates with it perfectly.
 
-<Tabs.Tab>
+```ts
+import { ApolloServer } from '@apollo/server'
+import { application } from './application'
+
+const gateway = application.createApolloGateway()
+
+const server = new ApolloServer({ gateway })
+```
+</Tab>
+<Tab>
+If you are using [GraphQL HTTP](https://github.com/graphql/graphql-http), here's how you do it:
+
+```ts
+import http from 'http';
+import { createHandler } from 'graphql-http/lib/use/http';
+import { application } from './application';
+
+// Create the GraphQL over HTTP Node request handler
+const handler = createHandler({
+  schema: application.schema,
+  execute: application.createExecution(),
+})
+
+// Create a HTTP server using the listener on `/graphql`
+const server = http.createServer((req, res) => {
+  if (req.url.startsWith('/graphql')) {
+    handler(req, res);
+  } else {
+    res.writeHead(404).end();
+  }
+});
+
+server.listen(4000);
+console.log('Listening to port 4000');
+```
+</Tab>
+<Tab>
 
 If you are using [GraphQL-Helix](https://github.com/contrawork/graphql-helix), here's how you do it:
 
