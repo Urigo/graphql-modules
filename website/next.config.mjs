@@ -7,7 +7,6 @@ export default withGuildDocs({
       '/docs/di': '/docs/di/introduction',
       '/docs/legacy/recipes/type-graphql': '/docs/get-started',
       '/docs/introduction/getting-started': '/docs/get-started',
-      '/docs/guides/data-sources': '/docs/get-started',
       '/docs/guides/development-environment': '/docs/get-started',
       '/docs/recipes/db-connection-pooling': '/docs/get-started',
       '/docs/legacy/recipes/development-environment': '/docs/get-started',
