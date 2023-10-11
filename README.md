@@ -1,5 +1,3 @@
-[![GraphQL Conf 2023](/GraphQLConf-2023-Banner.png)](https://graphql.org/conf/)
-
 [![modules](https://user-images.githubusercontent.com/25294569/64067074-ed185b80-cc2a-11e9-8f4d-5f1e19feaa0a.gif)](https://graphql-modules.com/)
 
 [![npm version](https://badge.fury.io/js/graphql-modules.svg)](https://www.npmjs.com/package/graphql-modules)
