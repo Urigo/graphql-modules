@@ -11,4 +11,7 @@ export default {
     title: 'Docs',
     type: 'page',
   },
+  changelog: {
+    type: 'page',
+  },
 };
