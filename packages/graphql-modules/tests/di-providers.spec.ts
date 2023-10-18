@@ -12,6 +12,7 @@ import {
   testkit,
 } from '../src';
 import { ExecutionContext } from '../src/di';
+import { ApolloServer } from '@apollo/server';
 
 const Test = new InjectionToken<string>('test');
 
@@ -536,6 +537,100 @@ test('Operation scoped provider should be created once per GraphQL Operation', a
   expect(constructorSpy).toHaveBeenCalledWith(
     expect.objectContaining(contextValue)
   );
+
+  expect(loadSpy).toHaveBeenCalledTimes(2);
+  expect(loadSpy).toHaveBeenCalledWith(1);
+});
+
+test('Operation scoped provider should be created once per GraphQL Operation (Apollo Server)', async () => {
+  const constructorSpy = jest.fn();
+  const loadSpy = jest.fn();
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Dataloader {
+    constructor(@Inject(CONTEXT) context: GraphQLModulesGlobalContext) {
+      constructorSpy(context);
+    }
+
+    load(id: number) {
+      loadSpy(id);
+      return {
+        id,
+        title: 'Sample Title',
+      };
+    }
+  }
+
+  const postsModule = createModule({
+    id: 'posts',
+    providers: [Dataloader],
+    typeDefs: gql`
+      type Post {
+        id: Int!
+        title: String!
+      }
+      type Query {
+        post(id: Int!): Post!
+      }
+    `,
+    resolvers: {
+      Query: {
+        post(
+          _parent: {},
+          args: { id: number },
+          { injector }: GraphQLModulesModuleContext
+        ) {
+          return injector.get(Dataloader).load(args.id);
+        },
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [postsModule],
+  });
+
+  const apolloServer = new ApolloServer({
+    gateway: app.createApolloGateway(),
+  });
+
+  const query = gql`
+    {
+      foo: post(id: 1) {
+        id
+        title
+      }
+      bar: post(id: 1) {
+        id
+        title
+      }
+    }
+  `;
+
+  const result = await apolloServer.executeOperation({
+    query,
+  });
+
+  if (result.body.kind === 'incremental') {
+    throw new Error('Expected non-incremental response');
+  }
+
+  // Should resolve data correctly
+  expect(result.body.singleResult.errors).toBeUndefined();
+  expect(result.body.singleResult.data).toEqual({
+    foo: {
+      id: 1,
+      title: 'Sample Title',
+    },
+    bar: {
+      id: 1,
+      title: 'Sample Title',
+    },
+  });
+
+  expect(constructorSpy).toHaveBeenCalledTimes(1);
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);
