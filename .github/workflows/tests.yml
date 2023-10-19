@@ -24,7 +24,7 @@ jobs:
           - 16
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
@@ -45,7 +45,7 @@ jobs:
           - 16
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
