@@ -10,6 +10,7 @@ import {
   testkit,
 } from '../src';
 
+import { executionContext } from '../src/application/execution-context';
 import {
   getExecutionContextDependencyStore,
   getExecutionContextStore,
@@ -509,4 +510,43 @@ test('accessing a singleton provider with execution context in another singleton
     getName: expectedName,
     getDependencyName: expectedName,
   });
+});
+
+it('should provide context when created in separate async execution within same stack', async () => {
+  const create = async () =>
+    executionContext.create({
+      getApplicationContext() {
+        return 'app' as any;
+      },
+      getModuleContext() {
+        return 'mod' as any;
+      },
+    });
+  const destroy = await create();
+
+  expect(executionContext.getApplicationContext()).toBe('app');
+  expect(executionContext.getModuleContext('')).toBe('mod');
+
+  destroy();
+});
+
+it('should provide nested contexts', async () => {
+  const createPicker = (i: number) => ({
+    getApplicationContext() {
+      return ('app ' + i) as any;
+    },
+    getModuleContext() {
+      return ('mod ' + i) as any;
+    },
+  });
+
+  const destroy0 = executionContext.create(createPicker(0));
+  expect(executionContext.getApplicationContext()).toBe('app 0');
+
+  const destroy1 = executionContext.create(createPicker(1));
+  expect(executionContext.getApplicationContext()).toBe('app 1');
+  destroy1();
+
+  expect(executionContext.getApplicationContext()).toBe('app 0');
+  destroy0();
 });
