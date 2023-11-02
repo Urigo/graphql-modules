@@ -695,6 +695,10 @@ test('accessing a singleton provider with execution context in another singleton
     providers: [Foo, Bar, Baz],
     typeDefs: gql`
       type Query {
+        name: Name
+      }
+
+      type Name {
         getName: String
         getDependencyName: String
         getNameFromContext: String
@@ -702,6 +706,9 @@ test('accessing a singleton provider with execution context in another singleton
     `,
     resolvers: {
       Query: {
+        name: () => ({}),
+      },
+      Name: {
         getName: async (_a: {}, _b: {}, { injector }: GraphQLModules.Context) =>
           injector.get(Foo).getName(),
         getDependencyName: async (
