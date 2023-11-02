@@ -747,9 +747,11 @@ test('accessing a singleton provider with execution context in another singleton
 
   const query = gql`
     {
-      getName
-      getDependencyName
-      getNameFromContext
+      name {
+        getName
+        getDependencyName
+        getNameFromContext
+      }
     }
   `;
   const compiledQuery = compileQuery(app.schema, query, undefined);
@@ -786,9 +788,11 @@ test('accessing a singleton provider with execution context in another singleton
     const expectedName = `request-${i}`;
     expect(result.errors).not.toBeDefined();
     expect(result.data).toEqual({
-      getName: expectedName,
-      getDependencyName: expectedName,
-      getNameFromContext: expectedName,
+      name: {
+        getName: expectedName,
+        getDependencyName: expectedName,
+        getNameFromContext: expectedName,
+      },
     });
   }
 });
