@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 2.2.1
+
+### Patch Changes
+
+- [#2461](https://github.com/Urigo/graphql-modules/pull/2461) [`472733b1`](https://github.com/Urigo/graphql-modules/commit/472733b1b3b2f2b89ccc34f3e5093b16d082f13d) Thanks [@enisdenjo](https://github.com/enisdenjo)! - Execution context getters using closures
+
 ## 2.2.0
 
 ### Minor Changes
