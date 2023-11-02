@@ -12,7 +12,6 @@ import {
   Inject,
 } from '../src';
 import { compileQuery, isCompiledQuery } from 'graphql-jit';
-import { createContextBuilder } from '../src/application/context';
 
 const posts = ['Foo', 'Bar'];
 
