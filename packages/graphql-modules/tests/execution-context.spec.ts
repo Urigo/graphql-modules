@@ -604,7 +604,6 @@ test('accessing a singleton provider with execution context in another singleton
         useFactory(ctx) {
           return new Promise((resolve) => {
             setTimeout(() => {
-              console.log('resolved');
               resolve(`request-${ctx.requestId}`);
             }, Math.random() * 200);
           });
