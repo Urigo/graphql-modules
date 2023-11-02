@@ -8,6 +8,8 @@ import {
   gql,
   InjectionToken,
   testkit,
+  CONTEXT,
+  Inject,
 } from '../src';
 
 import {
@@ -509,4 +511,139 @@ test('accessing a singleton provider with execution context in another singleton
     getName: expectedName,
     getDependencyName: expectedName,
   });
+});
+
+test('accessing a singleton provider with execution context in another singleton provider (parallel requests)', async () => {
+  const spies = {
+    foo: jest.fn(),
+    bar: jest.fn(),
+    baz: jest.fn(),
+  };
+
+  const Name = new InjectionToken<Promise<string>>('name');
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Foo {
+    @ExecutionContext()
+    public context!: ExecutionContext;
+
+    constructor() {
+      spies.foo();
+    }
+
+    async getName() {
+      return this.context.injector.get(Name);
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Bar {
+    constructor(private foo: Foo) {
+      spies.bar();
+    }
+
+    async getName() {
+      return this.foo.getName();
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Baz {
+    constructor(
+      @Inject(Name)
+      private name: Promise<string>
+    ) {
+      spies.baz();
+    }
+
+    async getName() {
+      return this.name;
+    }
+  }
+
+  const mod = createModule({
+    id: 'mod',
+    providers: [Foo, Bar, Baz],
+    typeDefs: gql`
+      type Query {
+        getName: String
+        getDependencyName: String
+        getNameFromContext: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        getName: async (_a: {}, _b: {}, { injector }: GraphQLModules.Context) =>
+          injector.get(Foo).getName(),
+        getDependencyName: async (
+          _a: {},
+          _b: {},
+          { injector }: GraphQLModules.Context
+        ) => injector.get(Bar).getName(),
+        getNameFromContext: async (
+          _a: {},
+          _b: {},
+          { injector }: GraphQLModules.Context
+        ) => injector.get(Baz).getName(),
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [
+      {
+        provide: Name,
+        scope: Scope.Operation,
+        useFactory(ctx) {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              console.log('resolved');
+              resolve(`request-${ctx.requestId}`);
+            }, Math.random() * 200);
+          });
+        },
+        deps: [CONTEXT],
+      },
+    ],
+  });
+
+  const requests = new Array({ length: 5 }).map((_, i) => i);
+
+  const results = await Promise.all(
+    requests.map((i) =>
+      testkit.execute(app, {
+        contextValue: {
+          requestId: i,
+        },
+        document: gql`
+          {
+            getName
+            getDependencyName
+            getNameFromContext
+          }
+        `,
+      })
+    )
+  );
+
+  expect(spies.bar).toHaveBeenCalledTimes(results.length);
+  expect(spies.foo).toHaveBeenCalledTimes(results.length);
+
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    const expectedName = `request-${i}`;
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      getName: expectedName,
+      getDependencyName: expectedName,
+      getNameFromContext: expectedName,
+    });
+  }
 });
