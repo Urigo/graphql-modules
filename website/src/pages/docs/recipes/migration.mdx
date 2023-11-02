@@ -317,8 +317,6 @@ export class MyProvider {
 
 In v0, we had a concept of Session to manage the execution of each operation. In v1, we dropped it, in favor of a simpler solution.
 
-Internally, we are using Node's `async_hooks` to manage a context of an execution, which allow us to share Injectables between Singleton and Operation scope.
-
 ## Context
 
 In v0, you could create a `context` per each module. In v1, `context` is external for GraphQL-Modules and it's not directly in use. You can do whatever you want with that, and just access it in GraphQL-Modules if you need, but we no longer require you to do specific things with your `context`.
