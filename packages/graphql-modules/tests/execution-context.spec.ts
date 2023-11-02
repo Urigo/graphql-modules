@@ -709,6 +709,8 @@ test('accessing a singleton provider with execution context in another singleton
         name: () => ({}),
       },
       Name: {
+        // make sure that __isTypeOf works with JIT
+        __isTypeOf: () => true,
         getName: async (_a: {}, _b: {}, { injector }: GraphQLModules.Context) =>
           injector.get(Foo).getName(),
         getDependencyName: async (
