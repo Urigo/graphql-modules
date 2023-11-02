@@ -530,6 +530,27 @@ it('should provide context when created in separate async execution within same 
   destroy();
 });
 
+it('should provide context in nested async execution', async () => {
+  let destroy = () => {
+    // noop
+  };
+  await new Promise<void>((resolve) => {
+    destroy = executionContext.create({
+      getApplicationContext() {
+        return 'app' as any;
+      },
+      getModuleContext() {
+        return 'mod' as any;
+      },
+    });
+    resolve();
+  }).then(() => {
+    expect(executionContext.getApplicationContext()).toBe('app');
+    expect(executionContext.getModuleContext('')).toBe('mod');
+  });
+  destroy();
+});
+
 it('should provide nested contexts', async () => {
   const createPicker = (i: number) => ({
     getApplicationContext() {
