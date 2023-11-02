@@ -544,11 +544,14 @@ it('should provide context in nested async execution', async () => {
       },
     });
     resolve();
-  }).then(() => {
-    expect(executionContext.getApplicationContext()).toBe('app');
-    expect(executionContext.getModuleContext('')).toBe('mod');
-  });
-  destroy();
+  })
+    .then(() => {
+      expect(executionContext.getApplicationContext()).toBe('app');
+      expect(executionContext.getModuleContext('')).toBe('mod');
+    })
+    .finally(() => {
+      destroy();
+    });
 });
 
 it('should provide nested contexts', async () => {
