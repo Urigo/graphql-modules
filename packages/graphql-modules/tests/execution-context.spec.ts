@@ -637,7 +637,7 @@ test('accessing a singleton provider with execution context in another singleton
   }
 });
 
-test.only('accessing a singleton provider with execution context in another singleton provider (parallel requests and graphql-jit)', async () => {
+test('accessing a singleton provider with execution context in another singleton provider (parallel requests and graphql-jit)', async () => {
   const spies = {
     foo: jest.fn(),
     bar: jest.fn(),
