@@ -142,7 +142,11 @@ function wrapResolver({
     ) => {
       const ctx = {
         root,
-        context: context.ɵgetModuleContext(config.id, context),
+        context: isReferenceResolver
+          ? context.ɵgetModuleContext(config.id, context)
+          : // We mark the context object as possibly undefined,
+            // because graphql-jit for some reason doesn't pass it for isTypeOf or resolveType methods
+            context?.ɵgetModuleContext(config.id, context),
         info,
       };
 

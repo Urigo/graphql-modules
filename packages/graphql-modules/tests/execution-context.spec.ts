@@ -11,6 +11,7 @@ import {
   CONTEXT,
   Inject,
 } from '../src';
+import { compileQuery, isCompiledQuery } from 'graphql-jit';
 
 const posts = ['Foo', 'Bar'];
 
@@ -631,6 +632,169 @@ test('accessing a singleton provider with execution context in another singleton
       getName: expectedName,
       getDependencyName: expectedName,
       getNameFromContext: expectedName,
+    });
+  }
+});
+
+test('accessing a singleton provider with execution context in another singleton provider (parallel requests and graphql-jit)', async () => {
+  const spies = {
+    foo: jest.fn(),
+    bar: jest.fn(),
+    baz: jest.fn(),
+  };
+
+  const Name = new InjectionToken<Promise<string>>('name');
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Foo {
+    @ExecutionContext()
+    public context!: ExecutionContext;
+
+    constructor() {
+      spies.foo();
+    }
+
+    async getName() {
+      return this.context.injector.get(Name);
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Singleton,
+  })
+  class Bar {
+    constructor(private foo: Foo) {
+      spies.bar();
+    }
+
+    async getName() {
+      return this.foo.getName();
+    }
+  }
+
+  @Injectable({
+    scope: Scope.Operation,
+  })
+  class Baz {
+    constructor(
+      @Inject(Name)
+      private name: Promise<string>
+    ) {
+      spies.baz();
+    }
+
+    async getName() {
+      return this.name;
+    }
+  }
+
+  const mod = createModule({
+    id: 'mod',
+    providers: [Foo, Bar, Baz],
+    typeDefs: gql`
+      type Query {
+        name: Name
+      }
+
+      type Name {
+        getName: String
+        getDependencyName: String
+        getNameFromContext: String
+      }
+    `,
+    resolvers: {
+      Query: {
+        name: () => ({}),
+      },
+      Name: {
+        // make sure that __isTypeOf works with JIT
+        __isTypeOf: () => true,
+        getName: async (_a: {}, _b: {}, { injector }: GraphQLModules.Context) =>
+          injector.get(Foo).getName(),
+        getDependencyName: async (
+          _a: {},
+          _b: {},
+          { injector }: GraphQLModules.Context
+        ) => injector.get(Bar).getName(),
+        getNameFromContext: async (
+          _a: {},
+          _b: {},
+          { injector }: GraphQLModules.Context
+        ) => injector.get(Baz).getName(),
+      },
+    },
+  });
+
+  const app = createApplication({
+    modules: [mod],
+    providers: [
+      {
+        provide: Name,
+        scope: Scope.Operation,
+        useFactory(ctx) {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(`request-${ctx.requestId}`);
+            }, Math.random() * 200);
+          });
+        },
+        deps: [CONTEXT],
+      },
+    ],
+  });
+
+  const requests = new Array({ length: 5 }).map((_, i) => i);
+
+  const query = gql`
+    {
+      name {
+        getName
+        getDependencyName
+        getNameFromContext
+      }
+    }
+  `;
+  const compiledQuery = compileQuery(app.schema, query, undefined);
+
+  if (!isCompiledQuery(compiledQuery)) {
+    throw new Error('Failed to to compile a query');
+  }
+
+  const results = await Promise.all(
+    requests.map(async (i) => {
+      const controller = app.createOperationController({
+        context: {
+          requestId: i,
+        },
+        autoDestroy: false,
+      });
+      return Promise.resolve(
+        compiledQuery.query(
+          {}, // root
+          controller.context, // context
+          {} // variables
+        )
+      ).finally(() => {
+        controller.destroy();
+      });
+    })
+  );
+
+  expect(spies.bar).toHaveBeenCalledTimes(results.length);
+  expect(spies.foo).toHaveBeenCalledTimes(results.length);
+
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    const expectedName = `request-${i}`;
+    expect(result.errors).not.toBeDefined();
+    expect(result.data).toEqual({
+      name: {
+        getName: expectedName,
+        getDependencyName: expectedName,
+        getNameFromContext: expectedName,
+      },
     });
   }
 });
