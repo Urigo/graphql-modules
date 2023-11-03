@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 2.3.0
+
+### Minor Changes
+
+- [#2465](https://github.com/Urigo/graphql-modules/pull/2465) [`72403485`](https://github.com/Urigo/graphql-modules/commit/724034855db747d456110156758cb4b8cad26cc1) Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - Support graphql-jit
+
 ## 2.2.1
 
 ### Patch Changes
