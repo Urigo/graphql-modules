@@ -11,8 +11,8 @@ import {
   gql,
   testkit,
 } from '../src';
-import { execute } from 'graphql';
 import { ExecutionContext } from '../src/di';
+import { ApolloServer } from '@apollo/server';
 
 const Test = new InjectionToken<string>('test');
 
@@ -571,7 +571,6 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
         id: Int!
         title: String!
       }
-
       type Query {
         post(id: Int!): Post!
       }
@@ -593,10 +592,11 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
     modules: [postsModule],
   });
 
-  const schema = app.createSchemaForApollo();
+  const apolloServer = new ApolloServer({
+    gateway: app.createApolloGateway(),
+  });
 
-  const contextValue = { request: {}, response: {} };
-  const document = gql`
+  const query = gql`
     {
       foo: post(id: 1) {
         id
@@ -609,15 +609,17 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
     }
   `;
 
-  const result = await execute({
-    schema,
-    contextValue,
-    document,
+  const result = await apolloServer.executeOperation({
+    query,
   });
 
+  if (result.body.kind === 'incremental') {
+    throw new Error('Expected non-incremental response');
+  }
+
   // Should resolve data correctly
-  expect(result.errors).toBeUndefined();
-  expect(result.data).toEqual({
+  expect(result.body.singleResult.errors).toBeUndefined();
+  expect(result.body.singleResult.data).toEqual({
     foo: {
       id: 1,
       title: 'Sample Title',
@@ -629,9 +631,6 @@ test('Operation scoped provider should be created once per GraphQL Operation (Ap
   });
 
   expect(constructorSpy).toHaveBeenCalledTimes(1);
-  expect(constructorSpy).toHaveBeenCalledWith(
-    expect.objectContaining(contextValue)
-  );
 
   expect(loadSpy).toHaveBeenCalledTimes(2);
   expect(loadSpy).toHaveBeenCalledWith(1);

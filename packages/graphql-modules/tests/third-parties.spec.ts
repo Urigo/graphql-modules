@@ -6,7 +6,7 @@ import {
   Injectable,
   Scope,
 } from '../src';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer } from '@apollo/server';
 
 describe('Apollo Server', () => {
   test('cacheControl available in info object', async () => {
@@ -31,9 +31,7 @@ describe('Apollo Server', () => {
       modules: [mod],
     });
     const apollo = new ApolloServer({
-      typeDefs: app.typeDefs,
-      resolvers: app.resolvers,
-      executor: app.createApolloExecutor(),
+      gateway: app.createApolloGateway(),
     });
 
     const response = await apollo.executeOperation({
@@ -45,8 +43,10 @@ describe('Apollo Server', () => {
       operationName: 'foo',
     });
 
-    expect(response.errors).toBeUndefined();
-    expect(response.data?.foo).toBe(true);
+    assertResponseType(response.body, 'single');
+
+    expect(response.body.singleResult.errors).toBeUndefined();
+    expect(response.body.singleResult.data?.foo).toBe(true);
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
         setCacheHint: expect.any(Function),
@@ -54,7 +54,7 @@ describe('Apollo Server', () => {
     );
   });
 
-  test('createApolloExecutor should instantiate operation-scoped provider once per many fields', async () => {
+  test('createApolloGateway should instantiate operation-scoped provider once per many fields', async () => {
     const constructor = jest.fn();
     const log = jest.fn();
 
@@ -115,12 +115,10 @@ describe('Apollo Server', () => {
     });
 
     const apollo = new ApolloServer({
-      typeDefs: app.typeDefs,
-      resolvers: app.resolvers,
-      executor: app.createApolloExecutor(),
+      gateway: app.createApolloGateway(),
     });
 
-    const result = await apollo.executeOperation({
+    const response = await apollo.executeOperation({
       query: /* GraphQL */ `
         mutation m {
           m1
@@ -130,8 +128,10 @@ describe('Apollo Server', () => {
       operationName: 'm',
     });
 
-    expect(result.errors).toBeUndefined();
-    expect(result.data).toEqual({
+    assertResponseType(response.body, 'single');
+
+    expect(response.body.singleResult.errors).toBeUndefined();
+    expect(response.body.singleResult.data).toEqual({
       m1: 'm1',
       m2: 'm2',
     });
@@ -140,3 +140,12 @@ describe('Apollo Server', () => {
     expect(log).toBeCalledTimes(2);
   });
 });
+
+export function assertResponseType<T extends string>(
+  received: { kind: string },
+  kind: T
+): asserts received is { kind: T } {
+  if (received.kind !== kind) {
+    throw new Error(`Expected ${received.kind} to be ${kind}`);
+  }
+}

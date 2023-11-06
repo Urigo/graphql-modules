@@ -33,11 +33,8 @@ export function mockApplication(app: Application): MockedApplication {
       createExecution(options) {
         return sharedFactory().createExecution(options);
       },
-      createSchemaForApollo() {
-        return sharedFactory().createSchemaForApollo();
-      },
-      createApolloExecutor() {
-        return sharedFactory().createApolloExecutor();
+      createApolloGateway() {
+        return sharedFactory().createApolloGateway();
       },
       get ɵfactory() {
         return sharedFactory().ɵfactory;

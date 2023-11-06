@@ -14,7 +14,7 @@ describe('federation', () => {
 
   const {
     buildSubgraphSchema,
-  }: typeof import('@apollo/federation') = require('@apollo/federation');
+  }: typeof import('@apollo/subgraph') = require('@apollo/subgraph');
 
   test('allow __resolveReference', async () => {
     const mod = createModule({

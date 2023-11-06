@@ -96,30 +96,36 @@ let showedError = false;
 
 const executeAppWithDI = appWithDI.createExecution();
 const executeApp = app.createExecution();
-const apolloWithDIExecutor = appWithDI.createApolloExecutor();
+const apolloGWWithDI = appWithDI.createApolloGateway();
+const apolloGWWithDILoadResult$ = apolloGWWithDI.load();
 const executeApolloWithDI = (args: ExecutionArgs) => {
-  return apolloWithDIExecutor({
-    schema: args.schema,
-    document: args.document,
-    operationName: args.operationName,
-    context: args.contextValue,
-    request: {
-      variables: args.variableValues,
-    },
-  });
+  return apolloGWWithDILoadResult$.then(({ executor }) =>
+    executor({
+      schema: args.schema,
+      document: args.document,
+      operationName: args.operationName,
+      context: args.contextValue,
+      request: {
+        variables: args.variableValues,
+      },
+    })
+  );
 };
 
-const apolloExecutor = app.createApolloExecutor();
+const apolloGW = app.createApolloGateway();
+const apolloGWLoadResult$ = apolloGW.load();
 const executeApollo = (args: ExecutionArgs) => {
-  return apolloExecutor({
-    schema: args.schema,
-    document: args.document,
-    operationName: args.operationName,
-    context: args.contextValue,
-    request: {
-      variables: args.variableValues,
-    },
-  });
+  return apolloGWLoadResult$.then(({ executor }) =>
+    executor({
+      schema: args.schema,
+      document: args.document,
+      operationName: args.operationName,
+      context: args.contextValue,
+      request: {
+        variables: args.variableValues,
+      },
+    })
+  );
 };
 
 const query = parse(/* GraphQL */ `
@@ -162,11 +168,11 @@ const suites: Record<string, { name: string; runner: Function }> = {
   },
   'apollo-with-id': {
     name: 'ApolloServer (DI)',
-    runner: () => graphql(appWithDI.schema, executeApolloWithDI as any),
+    runner: () => graphql(appWithDI.schema, executeApolloWithDI),
   },
   apollo: {
     name: 'ApolloServer',
-    runner: () => graphql(app.schema, executeApollo as any),
+    runner: () => graphql(app.schema, executeApollo),
   },
 };
 
