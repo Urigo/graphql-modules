@@ -8,7 +8,7 @@ import {
   Scope,
   gql,
   testkit,
-} from '../src';
+} from '../src/index.js';
 
 test('Global context and module context should be reachable', async () => {
   const constructorSpy = jest.fn();

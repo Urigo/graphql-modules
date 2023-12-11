@@ -5,7 +5,7 @@ import {
   gql,
   Injectable,
   Scope,
-} from '../src';
+} from '../src/index.js';
 import { ApolloServer } from 'apollo-server-express';
 
 describe('Apollo Server', () => {

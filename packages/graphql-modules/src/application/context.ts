@@ -1,10 +1,10 @@
-import { Injector, ReflectiveInjector } from '../di';
-import { ResolvedProvider } from '../di/resolution';
-import { ID } from '../shared/types';
-import { once, merge } from '../shared/utils';
-import type { InternalAppContext, ModulesMap } from './application';
-import { attachGlobalProvidersMap } from './di';
-import { CONTEXT } from './tokens';
+import { Injector, ReflectiveInjector } from '../di/index.js';
+import { ResolvedProvider } from '../di/resolution.js';
+import { ID } from '../shared/types.js';
+import { once, merge } from '../shared/utils.js';
+import type { InternalAppContext, ModulesMap } from './application.js';
+import { attachGlobalProvidersMap } from './di.js';
+import { CONTEXT } from './tokens.js';
 
 export type ExecutionContextBuilder<
   TContext extends {

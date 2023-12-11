@@ -1,5 +1,10 @@
-export { Injectable, Optional, Inject, ExecutionContext } from './decorators';
-export { forwardRef } from './forward-ref';
+export {
+  Injectable,
+  Optional,
+  Inject,
+  ExecutionContext,
+} from './decorators.js';
+export { forwardRef } from './forward-ref.js';
 export {
   InjectionToken,
   Type,
@@ -14,6 +19,6 @@ export {
   Scope,
   onlySingletonProviders,
   onlyOperationProviders,
-} from './providers';
-export { Injector, ReflectiveInjector } from './injector';
-export { InjectionError } from './errors';
+} from './providers.js';
+export { Injector, ReflectiveInjector } from './injector.js';
+export { InjectionError } from './errors.js';

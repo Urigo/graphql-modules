@@ -1,4 +1,4 @@
-import { readInjectableMetadata } from './metadata';
+import { readInjectableMetadata } from './metadata.js';
 
 export const Type = Function;
 

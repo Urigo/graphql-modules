@@ -1,6 +1,6 @@
 import { DocumentNode, Kind } from 'graphql';
-import { ModuleConfig } from './types';
-import { NonDocumentNodeError, useLocation } from '../shared/errors';
+import { ModuleConfig } from './types.js';
+import { NonDocumentNodeError, useLocation } from '../shared/errors.js';
 
 /**
  * Create a list of DocumentNode objects based on Module's config.

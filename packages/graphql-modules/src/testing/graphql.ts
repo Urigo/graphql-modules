@@ -1,7 +1,7 @@
 import type { DocumentNode, ExecutionArgs, ExecutionResult } from 'graphql';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import type { Application, OperationController } from '../application/types';
-import type { ValueOrPromise } from '../shared/types';
+import type { Application, OperationController } from '../application/types.js';
+import type { ValueOrPromise } from '../shared/types.js';
 
 export function execute<
   TResult = { [key: string]: any },

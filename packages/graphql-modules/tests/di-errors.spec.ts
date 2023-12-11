@@ -5,9 +5,15 @@ import {
   Injectable,
   Inject,
   forwardRef,
-} from '../src/di';
-import { createApplication, createModule, Scope, gql, testkit } from '../src';
-import { stringify } from '../src/di/utils';
+} from '../src/di/index.js';
+import {
+  createApplication,
+  createModule,
+  Scope,
+  gql,
+  testkit,
+} from '../src/index.js';
+import { stringify } from '../src/di/utils.js';
 
 test('No Injectable error', () => {
   class NoAnnotations {

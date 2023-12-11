@@ -1,8 +1,8 @@
-import { mockApplication } from './test-application';
-import { testModule, mockModule } from './test-module';
-import { testInjector, readProviderOptions } from './test-injector';
-import { execute } from './graphql';
-import { provideEmpty } from './di';
+import { mockApplication } from './test-application.js';
+import { testModule, mockModule } from './test-module.js';
+import { testInjector, readProviderOptions } from './test-injector.js';
+import { execute } from './graphql.js';
+import { provideEmpty } from './di.js';
 
 export const testkit = {
   mockApplication,

@@ -11,8 +11,8 @@ import {
   InputValueDefinitionNode,
   Kind,
 } from 'graphql';
-import { ModuleConfig } from './types';
-import { ID } from '../shared/types';
+import { ModuleConfig } from './types.js';
+import { ID } from '../shared/types.js';
 
 export type Registry = Record<string, string[]>;
 

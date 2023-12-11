@@ -1,9 +1,9 @@
 import { wrapSchema } from '@graphql-tools/wrap';
 import { DocumentNode, execute, GraphQLSchema } from 'graphql';
-import { uniqueId } from '../shared/utils';
-import { InternalAppContext } from './application';
-import { ExecutionContextBuilder } from './context';
-import { Application } from './types';
+import { uniqueId } from '../shared/utils.js';
+import { InternalAppContext } from './application.js';
+import { ExecutionContextBuilder } from './context.js';
+import { Application } from './types.js';
 
 const CONTEXT_ID = Symbol.for('context-id');
 

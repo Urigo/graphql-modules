@@ -2,8 +2,8 @@ import {
   mergeMiddlewareMaps,
   createMiddleware,
   Middleware,
-} from '../src/shared/middleware';
-import { createApplication, createModule, gql, testkit } from '../src';
+} from '../src/shared/middleware.js';
+import { createApplication, createModule, gql, testkit } from '../src/index.js';
 
 test('should pick * middlewares before field and before type', async () => {
   const order: string[] = [];

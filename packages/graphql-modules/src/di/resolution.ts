@@ -6,12 +6,12 @@ import {
   Type,
   isClassProvider,
   isFactoryProvider,
-} from './providers';
-import { invalidProviderError, noAnnotationError } from './errors';
-import { Key } from './registry';
-import { resolveForwardRef } from './forward-ref';
-import { readInjectableMetadata, InjectableParamMetadata } from './metadata';
-import { ReflectiveInjector } from './injector';
+} from './providers.js';
+import { invalidProviderError, noAnnotationError } from './errors.js';
+import { Key } from './registry.js';
+import { resolveForwardRef } from './forward-ref.js';
+import { readInjectableMetadata, InjectableParamMetadata } from './metadata.js';
+import { ReflectiveInjector } from './injector.js';
 
 export type NormalizedProvider<T = any> =
   | ValueProvider<T>

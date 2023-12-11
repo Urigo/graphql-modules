@@ -5,7 +5,7 @@ import {
   Injectable,
   Scope,
   gql,
-} from '../src';
+} from '../src/index.js';
 import { PubSub } from 'graphql-subscriptions';
 import { ExecutionResult } from 'graphql';
 

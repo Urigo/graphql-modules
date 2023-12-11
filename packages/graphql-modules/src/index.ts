@@ -1,13 +1,13 @@
 // application
-export { createApplication } from './application/application';
-export * from './application/tokens';
-export * from './application/types';
+export { createApplication } from './application/application.js';
+export * from './application/tokens.js';
+export * from './application/types.js';
 
 // modules
-export { createModule } from './module/module';
-export * from './module/types';
-export * from './module/metadata';
-export * from './module/tokens';
+export { createModule } from './module/module.js';
+export * from './module/types.js';
+export * from './module/metadata.js';
+export * from './module/tokens.js';
 
 // di
 export {
@@ -25,13 +25,13 @@ export {
   forwardRef,
   InjectionToken,
   Scope,
-} from './di';
+} from './di/index.js';
 
 // shared
-export { Middleware, MiddlewareContext } from './shared/middleware';
+export { Middleware, MiddlewareContext } from './shared/middleware.js';
 import './shared/types';
-export { gql } from './shared/gql';
-export * from './shared/di';
+export { gql } from './shared/gql.js';
+export * from './shared/di.js';
 
 // testing
-export * from './testing';
+export * from './testing/index.js';

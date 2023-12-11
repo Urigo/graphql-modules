@@ -1,5 +1,5 @@
-import { noInjectableError } from './errors';
-import { Type, ProviderOptions, InjectionToken } from './providers';
+import { noInjectableError } from './errors.js';
+import { Type, ProviderOptions, InjectionToken } from './providers.js';
 
 export const INJECTABLE = Symbol('di:injectable');
 

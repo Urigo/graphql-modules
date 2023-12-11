@@ -7,7 +7,7 @@ import {
   Injectable,
   Scope,
   OnDestroy,
-} from '../src';
+} from '../src/index.js';
 
 test('should share context and injection', async () => {
   @Injectable({ scope: Scope.Operation })

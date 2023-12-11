@@ -6,10 +6,10 @@ import {
   GraphQLSchema,
   GraphQLTypeResolver,
 } from 'graphql';
-import { Application } from './types';
-import { ExecutionContextBuilder } from './context';
-import { Maybe } from '../shared/types';
-import { isNotSchema } from '../shared/utils';
+import { Application } from './types.js';
+import { ExecutionContextBuilder } from './context.js';
+import { Maybe } from '../shared/types.js';
+import { isNotSchema } from '../shared/utils.js';
 
 export function executionCreator({
   contextBuilder,

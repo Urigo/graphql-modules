@@ -1,4 +1,4 @@
-import { InjectionToken } from '../di';
+import { InjectionToken } from '../di/index.js';
 
 /**
  * @api

@@ -1,16 +1,16 @@
-import { Module, ModuleConfig, Resolvers } from './types';
-import { metadataFactory } from './metadata';
-import { createResolvers } from './resolvers';
-import { createTypeDefs } from './type-defs';
-import { MODULE_ID } from './tokens';
+import { Module, ModuleConfig, Resolvers } from './types.js';
+import { metadataFactory } from './metadata.js';
+import { createResolvers } from './resolvers.js';
+import { createTypeDefs } from './type-defs.js';
+import { MODULE_ID } from './tokens.js';
 import {
   ReflectiveInjector,
   onlySingletonProviders,
   onlyOperationProviders,
-} from '../di';
-import { ResolvedProvider, resolveProviders } from './../di/resolution';
-import { MiddlewareMap } from '../shared/middleware';
-import { Single } from '../shared/types';
+} from '../di/index.js';
+import { ResolvedProvider, resolveProviders } from './../di/resolution.js';
+import { MiddlewareMap } from '../shared/middleware.js';
+import { Single } from '../shared/types.js';
 
 export type ResolvedModule = {
   injector: ReflectiveInjector;

@@ -10,7 +10,7 @@ import {
   testkit,
   CONTEXT,
   Inject,
-} from '../src';
+} from '../src/index.js';
 import { compileQuery, isCompiledQuery } from 'graphql-jit';
 
 const posts = ['Foo', 'Bar'];
