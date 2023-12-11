@@ -1,7 +1,7 @@
-import { ModulesMap } from './application';
-import { ResolvedModule } from '../module/factory';
-import { ReflectiveInjector, Scope } from '../di';
-import { ResolvedProvider } from '../di/resolution';
+import { ModulesMap } from './application.js';
+import { ResolvedModule } from '../module/factory.js';
+import { ReflectiveInjector, Scope } from '../di/index.js';
+import { ResolvedProvider } from '../di/resolution.js';
 
 export function instantiateSingletonProviders({
   appInjector,

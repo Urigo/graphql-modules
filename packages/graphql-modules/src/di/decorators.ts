@@ -1,11 +1,11 @@
-import { Type, ProviderOptions, isType, InjectionToken } from './providers';
+import { Type, ProviderOptions, isType, InjectionToken } from './providers.js';
 import {
   INJECTABLE,
   InjectableMetadata,
   readInjectableMetadata,
   ensureInjectableMetadata,
-} from './metadata';
-import { Injector } from './injector';
+} from './metadata.js';
+import { Injector } from './injector.js';
 
 function ensureReflect() {
   if (!(Reflect && Reflect.getOwnMetadata)) {

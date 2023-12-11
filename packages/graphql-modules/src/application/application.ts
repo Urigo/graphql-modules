@@ -4,26 +4,26 @@ import {
   onlySingletonProviders,
   onlyOperationProviders,
   Scope,
-} from '../di';
-import { ResolvedModule } from '../module/factory';
-import { ID } from '../shared/types';
+} from '../di/index.js';
+import { ResolvedModule } from '../module/factory.js';
+import { ID } from '../shared/types.js';
 import {
   ModuleDuplicatedError,
   ModuleNonUniqueIdError,
-} from '../shared/errors';
-import { flatten, isDefined } from '../shared/utils';
-import { ApplicationConfig, Application } from './types';
+} from '../shared/errors.js';
+import { flatten, isDefined } from '../shared/utils.js';
+import { ApplicationConfig, Application } from './types.js';
 import {
   createGlobalProvidersMap,
   attachGlobalProvidersMap,
   instantiateSingletonProviders,
-} from './di';
-import { createContextBuilder } from './context';
-import { executionCreator } from './execution';
-import { subscriptionCreator } from './subscription';
-import { apolloSchemaCreator, apolloExecutorCreator } from './apollo';
-import { operationControllerCreator } from './operation-controller';
-import { Module } from '../module/types';
+} from './di.js';
+import { createContextBuilder } from './context.js';
+import { executionCreator } from './execution.js';
+import { subscriptionCreator } from './subscription.js';
+import { apolloSchemaCreator, apolloExecutorCreator } from './apollo.js';
+import { operationControllerCreator } from './operation-controller.js';
+import { Module } from '../module/types.js';
 
 export type ModulesMap = Map<ID, ResolvedModule>;
 
@@ -45,9 +45,9 @@ export interface InternalAppContext {
  *
  * ```typescript
  * import { createApplication } from 'graphql-modules';
- * import { usersModule } from './users';
- * import { postsModule } from './posts';
- * import { commentsModule } from './comments';
+ * import { usersModule } from './users.js';
+ * import { postsModule } from './posts.js';
+ * import { commentsModule } from './comments.js';
  *
  * const app = createApplication({
  *   modules: [

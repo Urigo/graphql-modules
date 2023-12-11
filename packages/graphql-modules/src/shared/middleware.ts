@@ -1,8 +1,8 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { mergeDeepWith } from 'ramda';
-import { ModuleMetadata } from './../module/metadata';
-import { isDefined } from './utils';
-import { ExtraMiddlewareError, useLocation } from './errors';
+import { ModuleMetadata } from './../module/metadata.js';
+import { isDefined } from './utils.js';
+import { ExtraMiddlewareError, useLocation } from './errors.js';
 
 export type Next<T = any> = () => Promise<T>;
 

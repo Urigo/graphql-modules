@@ -1,6 +1,6 @@
-import { stringify } from './utils';
-import { resolveForwardRef } from './forward-ref';
-import { Type } from './providers';
+import { stringify } from './utils.js';
+import { resolveForwardRef } from './forward-ref.js';
+import { Type } from './providers.js';
 
 export class Key {
   constructor(

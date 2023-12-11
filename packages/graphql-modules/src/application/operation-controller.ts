@@ -1,5 +1,5 @@
-import type { Application } from './types';
-import type { ExecutionContextBuilder } from './context';
+import type { Application } from './types.js';
+import type { ExecutionContextBuilder } from './context.js';
 
 export function operationControllerCreator(options: {
   contextBuilder: ExecutionContextBuilder<GraphQLModules.GlobalContext>;

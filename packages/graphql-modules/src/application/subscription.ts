@@ -5,14 +5,14 @@ import {
   subscribe,
   SubscriptionArgs,
 } from 'graphql';
-import { Maybe } from '../shared/types';
+import { Maybe } from '../shared/types.js';
 import {
   tapAsyncIterator,
   isAsyncIterable,
   isNotSchema,
-} from '../shared/utils';
-import { ExecutionContextBuilder } from './context';
-import { Application } from './types';
+} from '../shared/utils.js';
+import { ExecutionContextBuilder } from './context.js';
+import { Application } from './types.js';
 
 export function subscriptionCreator({
   contextBuilder,

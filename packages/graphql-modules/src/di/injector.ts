@@ -1,17 +1,17 @@
-import { Type, InjectionToken, Provider } from './providers';
+import { Type, InjectionToken, Provider } from './providers.js';
 import {
   ResolvedProvider,
   resolveProviders,
   Dependency,
   GlobalProviderMap,
-} from './resolution';
-import { Key } from './registry';
+} from './resolution.js';
+import { Key } from './registry.js';
 import {
   noProviderError,
   cyclicDependencyError,
   instantiationError,
-} from './errors';
-import { ExecutionContext } from './decorators';
+} from './errors.js';
+import { ExecutionContext } from './decorators.js';
 
 const _THROW_IF_NOT_FOUND = new Object();
 const UNDEFINED = new Object();

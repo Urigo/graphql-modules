@@ -1,5 +1,5 @@
-import { stringify } from './utils';
-import { Type } from './providers';
+import { stringify } from './utils.js';
+import { Type } from './providers.js';
 
 export type ForwardRefFn<T> = () => T;
 

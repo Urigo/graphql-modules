@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { mergeResolvers } from '@graphql-tools/merge';
-import { createApplication, createModule, gql } from '../src';
+import { createApplication, createModule, gql } from '../src/index.js';
 import { versionInfo } from 'graphql';
 
 describe('federation', () => {

@@ -1,5 +1,5 @@
-import { moduleFactory } from './factory';
-import { ModuleConfig } from './types';
+import { moduleFactory } from './factory.js';
+import { ModuleConfig } from './types.js';
 
 /**
  * @api

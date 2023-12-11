@@ -1,10 +1,10 @@
 import { DocumentNode } from 'graphql';
-import { ModuleFactory } from './factory';
-import { ID, Plural } from '../shared/types';
-import { ModuleMetadata } from './metadata';
-import { Provider } from '../di';
-import { MiddlewareMap } from '../shared/middleware';
-import { ResolvedProvider } from '../di/resolution';
+import { ModuleFactory } from './factory.js';
+import { ID, Plural } from '../shared/types.js';
+import { ModuleMetadata } from './metadata.js';
+import { Provider } from '../di/index.js';
+import { MiddlewareMap } from '../shared/middleware.js';
+import { ResolvedProvider } from '../di/resolution.js';
 
 export type TypeDefs = Plural<DocumentNode>;
 export type Resolvers = Plural<Record<string, any>>;

@@ -7,7 +7,7 @@ import {
   ExecutionContext,
   gql,
   testkit,
-} from '../src';
+} from '../src/index.js';
 
 const posts = ['Foo', 'Bar'];
 

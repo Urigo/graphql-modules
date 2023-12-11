@@ -1,7 +1,7 @@
-import { Injector, ReflectiveInjector } from '../di/injector';
-import { Provider, TypeProvider } from '../di/providers';
-import { CONTEXT } from '../application/tokens';
-import { readInjectableMetadata } from '../di/metadata';
+import { Injector, ReflectiveInjector } from '../di/injector.js';
+import { Provider, TypeProvider } from '../di/providers.js';
+import { CONTEXT } from '../application/tokens.js';
+import { readInjectableMetadata } from '../di/metadata.js';
 
 export function testInjector(providers: Provider[]): Injector {
   const resolvedProviders = ReflectiveInjector.resolve([

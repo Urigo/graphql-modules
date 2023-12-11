@@ -20,11 +20,11 @@ import {
   ScalarTypeExtensionNode,
   NamedTypeNode,
 } from 'graphql';
-import { moduleFactory } from '../module/factory';
-import { createApplication } from '../application/application';
-import { ApplicationConfig } from '../application/types';
-import { MockedModule, Module, ModuleConfig } from '../module/types';
-import { createModule } from '../module/module';
+import { moduleFactory } from '../module/factory.js';
+import { createApplication } from '../application/application.js';
+import { ApplicationConfig } from '../application/types.js';
+import { MockedModule, Module, ModuleConfig } from '../module/types.js';
+import { createModule } from '../module/module.js';
 
 type TestModuleConfig = {
   replaceExtensions?: boolean;

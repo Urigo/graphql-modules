@@ -1,5 +1,5 @@
 import { GraphQLFieldResolver, GraphQLTypeResolver } from 'graphql';
-import { Injector } from '../di';
+import { Injector } from '../di/index.js';
 
 export type ID = string;
 export type Nil = undefined | null;

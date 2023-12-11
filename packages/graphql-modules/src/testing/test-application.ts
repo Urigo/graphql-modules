@@ -2,10 +2,10 @@ import {
   Application,
   ApplicationConfig,
   MockedApplication,
-} from '../application/types';
-import { Provider } from '../di';
-import { MockedModule } from '../module/types';
-import { share } from '../shared/utils';
+} from '../application/types.js';
+import { Provider } from '../di/index.js';
+import { MockedModule } from '../module/types.js';
+import { share } from '../shared/utils.js';
 
 export function mockApplication(app: Application): MockedApplication {
   function mockedFactory(newConfig?: ApplicationConfig): MockedApplication {

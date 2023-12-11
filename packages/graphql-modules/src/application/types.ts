@@ -5,12 +5,12 @@ import {
   GraphQLSchema,
   ExecutionResult,
 } from 'graphql';
-import type { Provider, Injector } from '../di';
-import type { Resolvers, Module, MockedModule } from '../module/types';
-import type { MiddlewareMap } from '../shared/middleware';
-import type { ApolloRequestContext } from './apollo';
-import type { Single } from '../shared/types';
-import type { InternalAppContext } from './application';
+import type { Provider, Injector } from '../di/index.js';
+import type { Resolvers, Module, MockedModule } from '../module/types.js';
+import type { MiddlewareMap } from '../shared/middleware.js';
+import type { ApolloRequestContext } from './apollo.js';
+import type { Single } from '../shared/types.js';
+import type { InternalAppContext } from './application.js';
 
 type Execution = typeof execute;
 type Subscription = typeof subscribe;

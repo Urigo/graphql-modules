@@ -1,5 +1,5 @@
-import { InjectionToken } from '../di';
-import { ID } from '../shared/types';
+import { InjectionToken } from '../di/index.js';
+import { ID } from '../shared/types.js';
 
 /**
  * @api

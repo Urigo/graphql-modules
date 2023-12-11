@@ -6,23 +6,23 @@ import {
   FieldNode,
   GraphQLResolveInfo,
 } from 'graphql';
-import { Resolvers, ModuleConfig } from './types';
-import { ModuleMetadata } from './metadata';
-import { InternalAppContext } from '../application/application';
-import { Single, ResolveFn, ID, ResolveTypeFn } from './../shared/types';
+import { Resolvers, ModuleConfig } from './types.js';
+import { ModuleMetadata } from './metadata.js';
+import { InternalAppContext } from '../application/application.js';
+import { Single, ResolveFn, ID, ResolveTypeFn } from './../shared/types.js';
 import {
   useLocation,
   ExtraResolverError,
   ResolverDuplicatedError,
   ResolverInvalidError,
-} from './../shared/errors';
-import { isNil, isDefined, isPrimitive } from '../shared/utils';
+} from './../shared/errors.js';
+import { isNil, isDefined, isPrimitive } from '../shared/utils.js';
 import {
   createMiddleware,
   mergeMiddlewareMaps,
   MiddlewareMap,
   validateMiddlewareMap,
-} from '../shared/middleware';
+} from '../shared/middleware.js';
 
 const resolverMetadataProp = Symbol('metadata');
 

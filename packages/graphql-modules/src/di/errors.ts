@@ -1,13 +1,13 @@
-import { InjectableParamMetadata } from './metadata';
-import { Type, InjectionToken } from './providers';
+import { InjectableParamMetadata } from './metadata.js';
+import { Type, InjectionToken } from './providers.js';
 import {
   stringify,
   wrappedError,
   ERROR_ORIGINAL_ERROR,
   getOriginalError,
-} from './utils';
-import { ReflectiveInjector } from './injector';
-import { Key } from './registry';
+} from './utils.js';
+import { ReflectiveInjector } from './injector.js';
+import { Key } from './registry.js';
 
 export function invalidProviderError(provider: any) {
   return Error(

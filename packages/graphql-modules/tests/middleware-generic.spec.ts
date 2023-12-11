@@ -1,4 +1,4 @@
-import { compose, Middleware } from '../src/shared/middleware';
+import { compose, Middleware } from '../src/shared/middleware.js';
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms || 1));

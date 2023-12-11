@@ -10,9 +10,9 @@ import {
   Scope,
   gql,
   testkit,
-} from '../src';
+} from '../src/index.js';
 import { execute } from 'graphql';
-import { ExecutionContext } from '../src/di';
+import { ExecutionContext } from '../src/di/index.js';
 
 const Test = new InjectionToken<string>('test');
 

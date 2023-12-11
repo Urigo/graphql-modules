@@ -1,4 +1,4 @@
-import { ID } from './types';
+import { ID } from './types.js';
 
 export class ModuleNonUniqueIdError extends ExtendableBuiltin(Error) {
   constructor(message: string, ...rest: string[]) {
