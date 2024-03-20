@@ -21,7 +21,8 @@
     "pr": "changeset",
     "lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\"",
     "benchmark:basic": "NODE_ENV=production ts-node --project tsconfig.app.json benchmark/basic.case.ts",
-    "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build"
+    "deploy-website": "cd website && yarn && yarn build && mkdir graphql-modules && mv build/* graphql-modules && mv graphql-modules build",
+    "temp": "exit 0"
   },
   "devDependencies": {
     "@apollo/federation": "0.38.1",
