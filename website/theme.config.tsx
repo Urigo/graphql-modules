@@ -1,10 +1,12 @@
 /* eslint sort-keys: error */
-import { defineConfig, Giscus, useTheme } from '@theguild/components';
+import { defineConfig, Giscus, PRODUCTS, useTheme } from '@theguild/components';
 import { useRouter } from 'next/router';
 
 export default defineConfig({
+  description: '',
   docsRepositoryBase:
     'https://github.com/Urigo/graphql-modules/tree/master/website',
+  logo: PRODUCTS.MODULES.logo,
   main({ children }) {
     const { resolvedTheme } = useTheme();
     const { route } = useRouter();
@@ -28,5 +30,5 @@ export default defineConfig({
       </>
     );
   },
-  siteName: 'MODULES',
+  websiteName: 'MODULES',
 });
