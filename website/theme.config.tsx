@@ -6,7 +6,7 @@ export default defineConfig({
   description: PRODUCTS.MODULES.title,
   docsRepositoryBase:
     'https://github.com/Urigo/graphql-modules/tree/master/website',
-  logo: PRODUCTS.MODULES.logo({ className: 'w-8' }),
+  logo: PRODUCTS.MODULES.logo({ className: 'w-9' }),
   main({ children }) {
     const { resolvedTheme } = useTheme();
     const { route } = useRouter();
