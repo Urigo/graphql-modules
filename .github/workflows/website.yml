@@ -36,5 +36,5 @@ jobs:
           projectName: graphql-modules
           prId: ${{ github.event.pull_request.number }}
           websiteDirectory: ./
-          buildScript: yarn build && cd website && yarn build && yarn next export
+          buildScript: yarn build && cd website && yarn build
           artifactDir: website/out
