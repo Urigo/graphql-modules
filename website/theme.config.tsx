@@ -30,5 +30,5 @@ export default defineConfig({
       </>
     );
   },
-  websiteName: 'MODULES',
+  websiteName: 'GraphQL-Modules',
 });
