@@ -3,7 +3,7 @@ import { defineConfig, Giscus, PRODUCTS, useTheme } from '@theguild/components';
 import { useRouter } from 'next/router';
 
 export default defineConfig({
-  description: PRODUCTS.MODULES.title,
+  description: 'GraphQL server tooling',
   docsRepositoryBase:
     'https://github.com/Urigo/graphql-modules/tree/master/website',
   logo: PRODUCTS.MODULES.logo({ className: 'w-9' }),
