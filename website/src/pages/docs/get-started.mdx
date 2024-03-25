@@ -97,15 +97,18 @@ Your GraphQL `Application` exposes `createExecution` and `createSubscription` me
 If you are using [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), you can use [`useGraphQLModules`](https://envelop.dev/plugins/use-graphql-modules) plugin from Envelop.
 
 ```ts
-import { createServer } from '@graphql-yoga/node'
+import { createServer } from "node:http"
+import { createYoga } from "graphql-yoga"
 import { useGraphQLModules } from '@envelop/graphql-modules'
 import { application } from './application'
 
-const server = createServer({
-  plugins: [useGraphQLModules(application)]
+const yoga = createYoga({
+  plugins: [useGraphQLModules(application)],
 })
 
-server.start().then(() => {
+const server = createServer(yoga)
+
+server.listen(4000, () => {
   console.log(`🚀 Server ready`)
 })
 ```
