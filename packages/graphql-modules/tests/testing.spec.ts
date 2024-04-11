@@ -424,16 +424,14 @@ describe('execute', () => {
     });
 
     const app = createApplication({ modules: [mod] });
-    const query: TypedDocumentNode<
-      { foo: { id: string } },
-      { id: string }
-    > = gql`
-      query getFoo($id: String!) {
-        foo(id: $id) {
-          id
+    const query: TypedDocumentNode<{ foo: { id: string } }, { id: string }> =
+      gql`
+        query getFoo($id: String!) {
+          foo(id: $id) {
+            id
+          }
         }
-      }
-    `;
+      `;
 
     const result = await testkit.execute(app, {
       document: query,
