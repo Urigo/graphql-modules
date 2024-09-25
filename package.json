@@ -37,7 +37,7 @@
     "@graphql-yoga/node": "3.9.1",
     "@types/benchmark": "2.1.5",
     "graphql-jit": "0.8.4",
-    "@types/express": "4.17.21",
+    "@types/express": "5.0.0",
     "@types/jest": "29.5.11",
     "@types/node": "20.10.3",
     "@types/ramda": "0.29.9",
