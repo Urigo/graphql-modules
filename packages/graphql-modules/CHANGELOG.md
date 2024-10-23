@@ -1,5 +1,11 @@
 # graphql-modules
 
+## 2.4.0
+
+### Minor Changes
+
+- [#2503](https://github.com/Urigo/graphql-modules/pull/2503) [`cf6e51f`](https://github.com/Urigo/graphql-modules/commit/cf6e51f7e0f331da33f4c4e66297f0e3f4b0dfa1) Thanks [@n1ru4l](https://github.com/n1ru4l)! - Support passing an abstract class to `Injector.get` call and `Provider` value.
+
 ## 2.3.0
 
 ### Minor Changes
