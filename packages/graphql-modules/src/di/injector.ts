@@ -1,4 +1,4 @@
-import { Type, InjectionToken, Provider } from './providers';
+import { Type, InjectionToken, Provider, AbstractType } from './providers';
 import {
   ResolvedProvider,
   resolveProviders,
@@ -27,7 +27,10 @@ type ExecutionContextGetter = () => ExecutionContext | never;
 // We use ReflectiveInjector everywhere
 // but we don't want to leak its API to everyone
 export abstract class Injector {
-  abstract get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: any): T;
+  abstract get<T>(
+    token: Type<T> | InjectionToken<T> | AbstractType<T>,
+    notFoundValue?: any
+  ): T;
 }
 
 export class ReflectiveInjector implements Injector {

@@ -43,7 +43,7 @@ export interface FactoryProvider<T> extends BaseProvider<T> {
 }
 
 export interface BaseProvider<T> extends ProviderOptions {
-  provide: Type<T> | InjectionToken<T>;
+  provide: Type<T> | InjectionToken<T> | AbstractType<T>;
 }
 
 export interface TypeProvider<T> extends Type<T> {}
