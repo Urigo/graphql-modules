@@ -14,7 +14,7 @@
     "ts:check": "tsc --project tsconfig.json --noEmit",
     "ci:lint": "eslint \"packages/**/*.{js,jsx,ts,tsx}\" --output-file eslint_report.json --format json",
     "build": "tsc --project tsconfig.json && bob build",
-    "test": "jest",
+    "test": "jest --config jest.config.base.js",
     "prerelease": "yarn build",
     "release": "changeset publish",
     "format": "prettier --cache --ignore-path .gitignore --ignore-path .prettierignore --check --write \"{packages,website}/**/*.{js,jsx,json,css,md,mdx,ts,tsx}\"",
@@ -90,5 +90,6 @@
   "lint-staged": {
     "*.ts": "eslint",
     "*{js,json,css,md,ts,tsx}": "prettier --write"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
