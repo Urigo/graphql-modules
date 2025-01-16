@@ -1,4 +1,4 @@
-website/src/pages/docs/advanced/middlewares.mdx
-website/src/pages/docs/advanced/subscriptions.mdx
-website/src/pages/docs/di/providers.mdx
-website/src/pages/docs/recipes/migration.mdx
+website/src/content/advanced/middlewares.mdx
+website/src/content/advanced/subscriptions.mdx
+website/src/content/di/providers.mdx
+website/src/content/recipes/migration.mdx
