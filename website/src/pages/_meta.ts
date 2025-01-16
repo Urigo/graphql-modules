@@ -1,17 +1,17 @@
 export default {
   index: {
-    title: 'Home',
-    type: 'page',
     display: 'hidden',
-    theme: {
-      layout: 'raw',
-    },
   },
   docs: {
     title: 'Documentation',
     type: 'page',
   },
   changelog: {
-    type: 'page',
+    theme: {
+      toc: false,
+      timestamp: false,
+      sidebar: false,
+      breadcrumb: false,
+    },
   },
 };
