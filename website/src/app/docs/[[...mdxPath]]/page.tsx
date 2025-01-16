@@ -1,5 +1,8 @@
 import { NextPageProps } from '@theguild/components';
-import { generateStaticParamsFor, importPage } from '@theguild/components/pages';
+import {
+  generateStaticParamsFor,
+  importPage,
+} from '@theguild/components/pages';
 import { Giscus } from '../../../giscus';
 import { useMDXComponents } from '../../../mdx-components';
 

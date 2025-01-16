@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import {
   FeatureList,
   HeroGradient,
@@ -6,13 +5,26 @@ import {
   NPMBadge,
   IFeatureListProps,
 } from '@theguild/components';
+import api from '../../public/assets/img/home/api-feat.svg';
+import reuse from '../../public/assets/img/home/reuse-feat.svg';
+import extend from '../../public/assets/img/home/extend-feat.svg';
+import easy from '../../public/assets/img/home/easy-feat.svg';
+import rocket from '../../public/assets/img/home/rocket.svg';
+import workers from '../../public/assets/img/home/workers-full.svg';
+import { metadata as rootMetadata, ScalarsLogo } from './layout';
 
-import api from '../public/assets/img/home/api-feat.svg';
-import reuse from '../public/assets/img/home/reuse-feat.svg';
-import extend from '../public/assets/img/home/extend-feat.svg';
-import easy from '../public/assets/img/home/easy-feat.svg';
-import rocket from '../public/assets/img/home/rocket.svg';
-import workers from '../public/assets/img/home/workers-full.svg';
+export const metadata = {
+  title: 'GraphQL Modules',
+  alternates: {
+    // to remove leading slash
+    canonical: '.',
+  },
+  openGraph: {
+    ...rootMetadata.openGraph,
+    // to remove leading slash
+    url: '.',
+  },
+};
 
 const FEATURE_LIST: IFeatureListProps['items'] = [
   {
@@ -60,7 +72,7 @@ const FEATURE_LIST: IFeatureListProps['items'] = [
   },
 ];
 
-export const IndexPage = (): ReactElement => {
+export default function IndexPage() {
   return (
     <>
       <HeroGradient
@@ -96,4 +108,4 @@ export const IndexPage = (): ReactElement => {
       />
     </>
   );
-};
+}
