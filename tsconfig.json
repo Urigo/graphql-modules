@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "incremental": true,
-
-    "baseUrl": ".",
-    "rootDir": "packages",
     "outDir": "dist",
+    "baseUrl": ".",
 
+    "target": "es2021",
     "module": "esnext",
-    "target": "es2018",
-
     "moduleResolution": "node",
+
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 

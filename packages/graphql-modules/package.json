@@ -11,24 +11,30 @@
   "version": "2.4.0",
   "author": "Kamil Kisiela",
   "license": "MIT",
+  "type": "module",
   "sideEffects": false,
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./index.d.ts"
+      "require": {
+        "types": "./dist/typings/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      },
+      "import": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "default": {
+        "types": "./dist/typings/index.d.ts",
+        "default": "./dist/esm/index.js"
+      }
     },
-    "./*": {
-      "require": "./dist/*.js",
-      "import": "./dist/*.mjs",
-      "types": "./*.d.ts"
-    }
+    "./package.json": "./package.json"
   },
-  "typings": "dist/index.d.ts",
+  "typings": "dist/typings/index.d.ts",
   "typescript": {
-    "definition": "dist/index.d.ts"
+    "definition": "dist/typings/index.d.ts"
   },
   "scripts": {
     "prepack": "bob prepack"
@@ -47,6 +53,7 @@
     "directory": "dist"
   },
   "buildOptions": {
+    "input": "./src/index.ts",
     "copy": [
       "LICENSE.md",
       "README.md"
