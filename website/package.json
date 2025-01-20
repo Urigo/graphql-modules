@@ -33,6 +33,9 @@
     "@types/node": "22.10.7",
     "@types/react": "18.3.18",
     "cross-env": "7.0.3",
+    "postcss-import": "16.1.0",
+    "postcss-lightningcss": "1.0.1",
+    "tailwindcss": "3.4.17",
     "typescript": "5.7.3"
   }
 }
