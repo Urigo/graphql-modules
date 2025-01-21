@@ -2,9 +2,12 @@ name: Benchmark
 
 on: [push]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Benchmark:
-    name: Benchmark on node ${{ matrix.node_version }}
     uses: the-guild-org/shared-config/.github/workflows/ci-node-matrix.yml@main
     with:
       script: 'yarn build && yarn benchmark:basic'
