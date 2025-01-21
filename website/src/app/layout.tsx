@@ -14,13 +14,13 @@ import {
 } from '@theguild/components/server';
 import '@theguild/components/style.css';
 
-const description = PRODUCTS.SCALARS.title;
-const websiteName = 'GraphQL Scalars';
+const description = PRODUCTS.MODULES.title;
+const websiteName = 'GraphQL Modules';
 
 export const metadata = getDefaultMetadata({
   description,
   websiteName,
-  productName: 'SCALARS',
+  productName: 'MODULES',
 });
 
 const RootLayout: FC<{
