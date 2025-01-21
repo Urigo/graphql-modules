@@ -53,7 +53,7 @@ jobs:
       - name: Use GraphQL v${{matrix.graphql_version}}
         run: node ./scripts/match-graphql.js ${{matrix.graphql_version}} && yarn install --no-frozen-lockfile
       - name: Cache Jest
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .cache/jest
           key: ${{ runner.os }}-${{matrix.node-version}}-${{matrix.graphql_version}}-jest-${{ hashFiles('yarn.lock') }}
