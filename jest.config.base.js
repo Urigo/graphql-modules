@@ -3,7 +3,6 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 
 const ROOT_DIR = __dirname;
 const TSCONFIG_PATH = resolve(ROOT_DIR, 'tsconfig.json');
-const TSCONFIG_TEST_PATH = resolve(ROOT_DIR, 'tsconfig.test.json');
 const tsconfig = require(TSCONFIG_PATH);
 const CI = !!process.env.CI;
 
@@ -12,7 +11,7 @@ module.exports = (dir) => {
     testEnvironment: 'node',
     rootDir: dir,
     reporters: ['default'],
-    modulePathIgnorePatterns: ['dist'],
+    modulePathIgnorePatterns: ['dist', '.bob'],
     moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
       prefix: `${ROOT_DIR}/`,
     }),

@@ -28,10 +28,13 @@ export function isAsyncIterable(obj: any): obj is AsyncIterableIterator<any> {
   return obj && typeof obj[Symbol.asyncIterator] === 'function';
 }
 
-export function tapAsyncIterator<T>(
-  iterable: AsyncIterable<T>,
+export function tapAsyncIterator<
+  T,
+  TAsyncIterableIterator extends AsyncIterableIterator<T>,
+>(
+  iterable: TAsyncIterableIterator,
   doneCallback: () => void
-): AsyncGenerator<T> {
+): TAsyncIterableIterator {
   const iteratorMethod = iterable[Symbol.asyncIterator];
   const iterator = iteratorMethod.call(iterable);
 
@@ -53,9 +56,9 @@ export function tapAsyncIterator<T>(
         throw error;
       }
     },
-    async return() {
+    async return(value: any) {
       try {
-        const result = await iterator.return!();
+        const result = await iterator.return!(value);
 
         return mapResult(result);
       } catch (error) {
@@ -63,14 +66,14 @@ export function tapAsyncIterator<T>(
         throw error;
       }
     },
-    async throw(error) {
+    throw(error) {
       doneCallback();
       return iterator.throw!(error);
     },
     [Symbol.asyncIterator]() {
       return this;
     },
-  };
+  } as TAsyncIterableIterator;
 }
 
 export function once(cb: () => void) {
