@@ -8,6 +8,7 @@ import {
 } from '../src';
 import { PubSub } from 'graphql-subscriptions';
 import { ExecutionResult } from 'graphql';
+import { isAsyncIterable } from '../src/shared/utils';
 
 test('Operation-Scope provider instantiated on every subscription', async () => {
   const spies = {
@@ -35,7 +36,7 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
     }
 
     listen() {
-      return this.pubsub.asyncIterator(['MESSAGE']);
+      return this.pubsub.asyncIterableIterator(['MESSAGE']);
     }
   }
 
@@ -124,11 +125,11 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
   const execute = app.createExecution();
   const subscribe = app.createSubscription();
 
-  const sub = (await subscribe({
+  const sub = await subscribe({
     schema: app.schema,
     contextValue: createContext(),
     document: subscription,
-  })) as AsyncIterableIterator<ExecutionResult>;
+  });
 
   await execute({
     schema: app.schema,
@@ -150,6 +151,9 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
 
   let receivedEvents: ExecutionResult[] = [];
 
+  if (!isAsyncIterable(sub)) {
+    throw new Error('Subscription is not async iterable');
+  }
   for await (let event of sub) {
     receivedEvents.push(event);
     if (receivedEvents.length === 2) {
