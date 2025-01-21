@@ -36,7 +36,7 @@ test('Operation-Scope provider instantiated on every subscription', async () => 
     }
 
     listen() {
-      return this.pubsub.asyncIterator(['MESSAGE']);
+      return this.pubsub.asyncIterableIterator(['MESSAGE']);
     }
   }
 
