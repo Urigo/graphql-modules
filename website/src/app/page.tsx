@@ -114,33 +114,9 @@ function Hero(props: { children: ReactNode; className?: string }) {
   );
 }
 
-function HeroLinks(props: { children: ReactNode }) {
-  return (
-    <div className="relative z-10 flex justify-center gap-2 px-0.5 max-sm:flex-col sm:gap-4">
-      {props.children}
-    </div>
-  );
-}
-
-function HeroFeatures(props: { children: ReactNode }) {
-  return (
-    <ul className="mx-auto flex list-none gap-x-6 gap-y-2 text-sm font-medium max-md:flex-col [&>li]:flex [&>li]:items-center [&>li]:gap-2">
-      {props.children}
-    </ul>
-  );
-}
-
-function Page(props: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn('flex h-full flex-col', props.className)}>
-      {props.children}
-    </div>
-  );
-}
-
 export default function IndexPage() {
   return (
-    <Page className="mx-auto max-w-[90rem]">
+    <div className="flex h-full flex-col mx-auto max-w-[90rem]">
       <Hero className="mx-4 max-sm:mt-2 md:mx-6">
         <Heading
           as="h1"
@@ -154,7 +130,7 @@ export default function IndexPage() {
           create reusable, maintainable, testable and extendable modules out of
           your GraphQL server.
         </p>
-        <HeroFeatures>
+        <ul className="mx-auto flex list-none gap-x-6 gap-y-2 text-sm font-medium max-md:flex-col [&>li]:flex [&>li]:items-center [&>li]:gap-2">
           <li>
             <CheckIcon className="text-green-800" />
             Fully open source
@@ -163,8 +139,8 @@ export default function IndexPage() {
             <CheckIcon className="text-green-800" />
             No vendor lock
           </li>
-        </HeroFeatures>
-        <HeroLinks>
+        </ul>
+        <div className="relative z-10 flex justify-center gap-2 px-0.5 max-sm:flex-col sm:gap-4">
           <CallToAction variant="primary-inverted" href="/docs">
             Get started
           </CallToAction>
@@ -178,12 +154,12 @@ export default function IndexPage() {
             <GitHubIcon className="size-6" />
             GitHub
           </CallToAction>
-        </HeroLinks>
+        </div>
       </Hero>
       <EverythingHTTPSection />
 
       <ToolsAndLibrariesCards className="mx-4 mt-6 md:mx-6" />
-    </Page>
+    </div>
   );
 }
 
