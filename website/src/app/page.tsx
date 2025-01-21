@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { FC } from 'react';
 import {
   CallToAction,
   CheckIcon,
@@ -25,40 +25,37 @@ export const metadata = {
   },
 };
 
-function Hero(props: { children: ReactNode; className?: string }) {
+const Hero: FC<{ className?: string }> = (props) => {
   return (
     <div
       className={cn(
-        'relative isolate flex max-w-[90rem] flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-blue-400 px-4 py-6 sm:py-12 md:gap-8 lg:py-24',
+        'mx-4 max-sm:mt-2 md:mx-6 relative isolate flex max-w-[90rem] flex-col items-center justify-center gap-6 overflow-hidden rounded-3xl bg-blue-400 px-4 py-6 sm:py-12 md:gap-8 lg:py-24',
         props.className
       )}
     >
       <DecorationIsolation className="-z-10">
         <ModulesLogo
           className={cn(
-            'absolute right-[-180px] top-[calc(50%-180px)] size-[360px] fill-[url(#codegen-hero-gradient)] stroke-white/10 stroke-[0.1px] md:hidden xl:block',
-            'lg:left-[-250px] lg:top-1/2 lg:-translate-y-1/2 lg:size-[500px]'
+            'absolute fill-[url(#gradient-white2)] stroke-white/10 max-lg:hidden',
+            '-left-1/2 top-1/2 -translate-y-1/2'
           )}
+          strokeWidth="0.1"
+          width="auto"
+          height="50%"
         />
-        <ModulesLogo className="absolute right-[-150px] top-2 size-[672px] fill-[url(#codegen-hero-gradient)] stroke-white/10 stroke-[0.1px] max-md:hidden" />
-        <svg>
-          <defs>
-            <linearGradient
-              id="codegen-hero-gradient"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="100%"
-            >
-              <stop offset="11.66%" stopColor="rgba(255, 255, 255, 0.10)" />
-              <stop offset="74.87%" stopColor="rgba(255, 255, 255, 0.30)" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <ModulesLogo
+          className={cn(
+            'absolute top-1/2 -translate-y-1/2 fill-[url(#gradient-white2)] stroke-white/10',
+            '-right-1/2 lg:-right-1/3',
+            'h-2/3 lg:h-[calc(100%-5%)]'
+          )}
+          strokeWidth="0.1"
+          width="auto"
+        />
       </DecorationIsolation>
       <div className="relative">
         <ModulesLogo
-          fill="url(#paint1_linear_858_2389)"
+          fill="url(#gradient-white)"
           className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 size-1/2"
         />
         <svg
@@ -68,24 +65,19 @@ function Hero(props: { children: ReactNode; className?: string }) {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect
-            width="96"
-            height="96"
-            rx="24"
-            fill="url(#paint0_linear_858_2389)"
-          />
+          <rect width="96" height="96" rx="24" fill="url(#green-bg)" />
           <rect
             x="0.5"
             y="0.5"
             width="95"
             height="95"
             rx="23.5"
-            stroke="url(#paint1_linear_858_2389)"
+            stroke="url(#gradient-white)"
           />
           <path d="M57.0264 32.1652H48.9577L53.8032 27.3197L48.4855 22L43.1658 27.3197L48.0114 32.1652H39.9427C38.9042 32.1652 37.9069 32.5786 37.1721 33.3134L23 47.4855L28.3197 52.8052L45.715 35.4099C47.2452 33.8797 49.7258 33.8797 51.2561 35.4099L68.6513 52.8052L73.971 47.4855L59.797 33.3114C59.0622 32.5767 58.0649 32.1632 57.0264 32.1632V32.1652ZM48.4854 63.3623L43.1665 68.6811L48.4854 74L53.8042 68.6811L48.4854 63.3623ZM39.9446 52.8054H48.4855H48.4894H57.0303C58.0688 52.8054 59.0661 53.2188 59.8008 53.9536L63.89 58.0428L58.5704 63.3625L51.258 56.0501C49.7277 54.5198 47.2472 54.5198 45.7169 56.0501L38.4045 63.3625L33.0848 58.0428L37.174 53.9536C37.9088 53.2188 38.9061 52.8054 39.9446 52.8054Z" />
           <defs>
             <linearGradient
-              id="paint0_linear_858_2389"
+              id="green-bg"
               x1="0"
               y1="0"
               x2="96"
@@ -96,7 +88,7 @@ function Hero(props: { children: ReactNode; className?: string }) {
               <stop offset="1" stopColor="#15433C" />
             </linearGradient>
             <linearGradient
-              id="paint1_linear_858_2389"
+              id="gradient-white"
               x1="0"
               y1="0"
               x2="96"
@@ -106,58 +98,66 @@ function Hero(props: { children: ReactNode; className?: string }) {
               <stop stopColor="white" stopOpacity="0.8" />
               <stop offset="1" stopColor="white" stopOpacity="0.4" />
             </linearGradient>
+            <linearGradient
+              id="gradient-white2"
+              x1="1"
+              y1="2"
+              x2="161"
+              y2="171"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="white" stopOpacity="0.1" />
+              <stop offset="1" stopColor="white" stopOpacity="0.7" />
+            </linearGradient>
           </defs>
         </svg>
       </div>
-      {props.children}
+      <Heading
+        as="h1"
+        size="xl"
+        className="mx-auto max-w-3xl text-balance text-center"
+      >
+        Enterprise Grade Tooling for Your GraphQL Server
+      </Heading>
+      <p className="mx-auto w-[512px] max-w-[80%] text-center leading-6 text-green-800">
+        GraphQL Modules is a toolset of libraries and guidelines dedicated to
+        create reusable, maintainable, testable and extendable modules out of
+        your GraphQL server.
+      </p>
+      <ul className="mx-auto flex list-none gap-x-6 gap-y-2 text-sm font-medium max-md:flex-col [&>li]:flex [&>li]:items-center [&>li]:gap-2">
+        <li>
+          <CheckIcon className="text-green-800" />
+          Fully open source
+        </li>
+        <li>
+          <CheckIcon className="text-green-800" />
+          No vendor lock
+        </li>
+      </ul>
+      <div className="relative z-10 flex justify-center gap-2 px-0.5 max-sm:flex-col sm:gap-4">
+        <CallToAction variant="primary-inverted" href="/docs">
+          Get started
+        </CallToAction>
+        <CallToAction variant="secondary-inverted" href="/changelog">
+          Changelog
+        </CallToAction>
+        <CallToAction
+          variant="tertiary"
+          href="https://github.com/Urigo/graphql-modules"
+        >
+          <GitHubIcon className="size-6" />
+          GitHub
+        </CallToAction>
+      </div>
     </div>
   );
-}
+};
 
 export default function IndexPage() {
   return (
     <div className="flex h-full flex-col mx-auto max-w-[90rem]">
-      <Hero className="mx-4 max-sm:mt-2 md:mx-6">
-        <Heading
-          as="h1"
-          size="xl"
-          className="mx-auto max-w-3xl text-balance text-center"
-        >
-          Enterprise Grade Tooling for Your GraphQL Server
-        </Heading>
-        <p className="mx-auto w-[512px] max-w-[80%] text-center leading-6 text-green-800">
-          GraphQL Modules is a toolset of libraries and guidelines dedicated to
-          create reusable, maintainable, testable and extendable modules out of
-          your GraphQL server.
-        </p>
-        <ul className="mx-auto flex list-none gap-x-6 gap-y-2 text-sm font-medium max-md:flex-col [&>li]:flex [&>li]:items-center [&>li]:gap-2">
-          <li>
-            <CheckIcon className="text-green-800" />
-            Fully open source
-          </li>
-          <li>
-            <CheckIcon className="text-green-800" />
-            No vendor lock
-          </li>
-        </ul>
-        <div className="relative z-10 flex justify-center gap-2 px-0.5 max-sm:flex-col sm:gap-4">
-          <CallToAction variant="primary-inverted" href="/docs">
-            Get started
-          </CallToAction>
-          <CallToAction variant="secondary-inverted" href="/changelog">
-            Changelog
-          </CallToAction>
-          <CallToAction
-            variant="tertiary"
-            href="https://github.com/Urigo/graphql-modules"
-          >
-            <GitHubIcon className="size-6" />
-            GitHub
-          </CallToAction>
-        </div>
-      </Hero>
+      <Hero />
       <EverythingHTTPSection />
-
       <ToolsAndLibrariesCards className="mx-4 mt-6 md:mx-6" />
     </div>
   );
