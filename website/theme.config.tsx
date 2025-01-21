@@ -6,6 +6,7 @@ export default defineConfig({
   description: 'GraphQL server tooling',
   docsRepositoryBase:
     'https://github.com/Urigo/graphql-modules/tree/master/website',
+  // @ts-expect-error - something is wrong with the types
   logo: PRODUCTS.MODULES.logo({ className: 'w-9' }),
   main({ children }) {
     const { resolvedTheme } = useTheme();
