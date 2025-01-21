@@ -24,12 +24,13 @@ node_modules
 .env
 
 # Builds
-dist
+dist/
 
 # IDE
-.idea
+.idea/
 
 .bob
 tsconfig.tsbuildinfo
 
-.next
+.next/
+out/
