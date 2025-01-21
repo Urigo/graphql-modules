@@ -174,7 +174,7 @@ export default function IndexPage() {
           </CallToAction>
           <CallToAction
             variant="tertiary"
-            href="https://github.com/dotansimha/graphql-yoga"
+            href="https://github.com/Urigo/graphql-modules"
           >
             <GitHubIcon className="size-6" />
             GitHub
@@ -203,7 +203,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
       >
         Integrates with any GraphQL Server
       </Heading>
-      <p className="text-green-800 sm:text-center mt-4">
+      <p className="text-green-800 sm:text-center mt-4 text-balance">
         GraphQL Modules is a set of extra tools, structures and guidelines
         around your GraphQL schema. You’ll see how effective those tools are
         once you’ll start growing and scaling your GraphQL server.
