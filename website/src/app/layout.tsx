@@ -29,6 +29,10 @@ const RootLayout: FC<{
   const logo = <ModulesLogo fill="currentColor" className="h-auto w-8" />;
   return (
     <GuildLayout
+      htmlProps={{
+        // Override nav width
+        className: '[&>.light_#h-navmenu-container]:max-w-[1392px]'
+      }}
       websiteName={websiteName}
       description={description}
       logo={logo}
