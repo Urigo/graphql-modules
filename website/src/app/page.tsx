@@ -11,13 +11,12 @@ import {
 import { metadata as rootMetadata } from './layout';
 
 export const metadata = {
-  title: 'GraphQL Modules',
   alternates: {
     // to remove leading slash
     canonical: '.',
   },
   openGraph: {
-    ...rootMetadata.openGraph,
+    ...rootMetadata!.openGraph,
     // to remove leading slash
     url: '.',
   },
