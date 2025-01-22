@@ -24,7 +24,7 @@ export const metadata = {
 
 export default function IndexPage() {
   return (
-    <div className="flex h-full flex-col mx-auto max-w-[90rem]">
+    <div className="flex h-full flex-col mx-auto max-w-[90rem] overflow-hidden">
       <Hero
         heading="Enterprise Grade Tooling for Your GraphQL Server"
         text="GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server."
@@ -46,19 +46,14 @@ export default function IndexPage() {
         </CallToAction>
       </Hero>
       <EverythingHTTPSection />
-      <ToolsAndLibrariesCards className="mx-4 mt-6 md:mx-6" />
+      <ToolsAndLibrariesCards />
     </div>
   );
 }
 
 function EverythingHTTPSection({ className }: { className?: string }) {
   return (
-    <section
-      className={cn(
-        'px-4 py-6 sm:py-12 md:px-6 lg:py-16 xl:px-[120px]',
-        className
-      )}
-    >
+    <section className={cn('px-4 py-6 sm:py-12 md:px-6 lg:py-16', className)}>
       <Heading
         as="h2"
         size="md"
@@ -71,7 +66,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
         around your GraphQL schema. You’ll see how effective those tools are
         once you’ll start growing and scaling your GraphQL server.
       </p>
-      <ul className="mt-6 flex flex-wrap justify-center gap-2 md:mt-16 md:gap-6">
+      <ul className="mt-6 grid md:grid-cols-2 xl:grid-cols-4 gap-2 md:mt-16 md:gap-6">
         <InfoCard
           as="li"
           heading="Reusable Modules"
@@ -96,7 +91,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
               <circle cx="14.7659" cy="29.6605" r="8.82" />
             </svg>
           }
-          className="flex-1 rounded-2xl md:rounded-3xl"
+          className="rounded-2xl md:rounded-3xl"
         >
           Modules are defined by their GraphQL schema (Schema first design).
         </InfoCard>
@@ -114,7 +109,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
               <path d="M2.6999 8.14983H15.2999V2.74983H2.6999V8.14983ZM17.0999 1.84983V16.2498C17.0999 16.4885 17.0051 16.7174 16.8363 16.8862C16.6675 17.055 16.4386 17.1498 16.1999 17.1498H1.7999C1.56121 17.1498 1.33229 17.055 1.16351 16.8862C0.994723 16.7174 0.899902 16.4885 0.899902 16.2498V1.84983C0.899902 1.61113 0.994723 1.38222 1.16351 1.21343C1.33229 1.04465 1.56121 0.949829 1.7999 0.949829H16.1999C16.4386 0.949829 16.6675 1.04465 16.8363 1.21343C17.0051 1.38222 17.0999 1.61113 17.0999 1.84983ZM15.2999 9.94983H2.6999V15.3498H15.2999V9.94983ZM4.4999 11.7498H7.1999V13.5498H4.4999V11.7498ZM4.4999 4.54983H7.1999V6.34983H4.4999V4.54983Z" />
             </svg>
           }
-          className="flex-1 basis-full rounded-2xl md:basis-0 md:rounded-3xl"
+          className="rounded-2xl md:rounded-3xl"
         >
           Manage multiple teams and features, multiple micro-services and
           servers.
@@ -139,7 +134,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
               <path d="m19 9-5 5-4-4-3 3" />
             </svg>
           }
-          className="flex-1 basis-full rounded-2xl md:rounded-3xl lg:basis-0"
+          className="rounded-2xl md:rounded-3xl"
         >
           A clear, gradual path from a very simple and fast, single-file
           modules, to scalable ones.
@@ -165,7 +160,7 @@ function EverythingHTTPSection({ className }: { className?: string }) {
               <path d="M12 16H4" />
             </svg>
           }
-          className="flex-1 basis-full rounded-2xl md:rounded-3xl lg:basis-0"
+          className="rounded-2xl md:rounded-3xl"
         >
           A rich toolset around testing, mocking and separation.
         </InfoCard>

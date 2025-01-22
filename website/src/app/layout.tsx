@@ -31,7 +31,7 @@ const RootLayout: FC<{
     <GuildLayout
       htmlProps={{
         // Override nav width
-        className: '[&>.light_#h-navmenu-container]:max-w-[1392px]'
+        className: '[&>.light_#h-navmenu-container]:max-w-[1392px]',
       }}
       websiteName={websiteName}
       description={description}
