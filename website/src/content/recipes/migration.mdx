@@ -16,6 +16,7 @@ Making GraphQL Modules a single package should improve the developer experience.
 ```ts
 import { gql, createModule, Injectable } from 'graphql-modules'
 ```
+
 </Tabs.Tab>
 
 <Tabs.Tab>
@@ -24,6 +25,7 @@ import { GraphQLModule } from '@graphql-modules/core'
 import { Injectable } from '@graphql-modules/di'
 import gql from 'graphql-tag'
 ```
+
 </Tabs.Tab>
 </Tabs>
 
@@ -33,6 +35,7 @@ v0 accepted `string` as `typeDefs`, while v1 doesn't.
 
 <Tabs items={['V1', 'V0']}>
 <Tabs.Tab>
+
 ```ts
 import { gql, createModule } from 'graphql-modules'
 
@@ -45,6 +48,7 @@ const myModule = createModule({
   `
 })
 ```
+
 </Tabs.Tab>
 <Tabs.Tab>
 ```ts
@@ -82,7 +86,6 @@ In v1, we changed the name to Middlewares, and changed the API a bit, to make it
 
 <Tabs items={['V1', 'V0']}>
 <Tabs.Tab>
-
 To define:
 
 ```typescript
@@ -105,6 +108,7 @@ const myModule = createModule({
   }
 })
 ```
+
 </Tabs.Tab>
 
 <Tabs.Tab>
@@ -143,6 +147,7 @@ You no longer need to define `imports` and define strict dependencies between mo
 
 <Tabs items={['V1', 'V0']}>
 <Tabs.Tab>
+
 ```typescript
 const moduleOne = createModule({ ... })
 const moduleTwo = createModule({ ... })
@@ -151,9 +156,11 @@ const application = createApplication({
   modules: [moduleOne, moduleTwo]
 })
 ```
+
 </Tabs.Tab>
 
 <Tabs.Tab>
+
 ```typescript
 const moduleOne = new GraphQLModule({ ... })
 const moduleTwo = new GraphQLModule({ imports: [moduleOne], ... })
@@ -162,6 +169,7 @@ const rootModule = new GraphQLModule({
   imports: [moduleTwo]
 })
 ```
+
 </Tabs.Tab>
 </Tabs>
 
@@ -173,6 +181,7 @@ Since we moved to a flatten structure of `Application`, all you need to do in or
 
 <Tabs items={['V1', 'V0']}>
 <Tabs.Tab>
+
 ```typescript
 // Module 1
 
@@ -195,9 +204,11 @@ class MyOtherProvider {
 
 const moduleTwo = createModule({ ... })
 ```
+
 </Tabs.Tab>
 
 <Tabs.Tab>
+
 ```typescript
 // Module 1
 
@@ -221,6 +232,7 @@ const rootModule = new GraphQLModule({
   imports: [moduleTwo]
 })
 ```
+
 </Tabs.Tab>
 </Tabs>
 
@@ -276,6 +288,7 @@ export class MyProvider {
   }
 }
 ```
+
 </Tabs.Tab>
 <Tabs.Tab>
 
@@ -310,6 +323,7 @@ export class MyProvider {
   }
 }
 ```
+
 </Tabs.Tab>
 </Tabs>
 
@@ -326,6 +340,7 @@ In v0, you could create a `context` per each module. In v1, `context` is externa
 With v1, you can manage your own `context` without anything special that needs to be done in order to GraphQL-Modules to work.
 
 You can inject `CONTEXT` in order to get access to the global execution context, and Modules you create doesn't take part in building that object.
+
 </Tabs.Tab>
 
 <Tabs.Tab>

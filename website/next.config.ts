@@ -1,7 +1,7 @@
 import { withGuildDocs } from '@theguild/components/next.config';
 
 export default withGuildDocs({
-  redirects: () =>
+  redirects: async () =>
     Object.entries({
       '/di/introduction': '/docs/di/introduction',
       '/docs/di': '/docs/di/introduction',
@@ -27,4 +27,10 @@ export default withGuildDocs({
       permanent: true,
     })),
   output: 'export',
+  env: {
+    SITE_URL: 'https://the-guild.dev/graphql/modules',
+  },
+  nextraConfig: {
+    contentDirBasePath: '/docs',
+  },
 });

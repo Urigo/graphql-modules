@@ -1,0 +1,16 @@
+---
+searchable: false
+---
+
+import fs from 'node:fs/promises'
+import { compileMdx, MDXRemote } from '@theguild/components/server'
+
+# Changelog
+
+<MDXRemote
+  compiledSource={await compileMdx(
+    (await fs.readFile('../packages/graphql-modules/CHANGELOG.md', 'utf8'))
+      // Remove first line
+      .replace(/^# .+/, '')
+  )}
+/>

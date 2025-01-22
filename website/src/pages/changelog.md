@@ -1,1 +1,0 @@
-../../../packages/graphql-modules/CHANGELOG.md

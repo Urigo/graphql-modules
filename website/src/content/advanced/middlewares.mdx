@@ -137,8 +137,9 @@ Now let's understand how to register middlewares in a Module and an Application.
 
 <Tabs items={['Module', 'Application']}>
 <Tabs.Tab>
+
 ```ts
-import { createModule } from 'graphql-modules';
+import { createModule } from 'graphql-modules'
 
 const myModule = createModule({
   // ...
@@ -149,11 +150,13 @@ const myModule = createModule({
   }
 })
 ```
+
 </Tabs.Tab>
 
 <Tabs.Tab>
+
 ```ts
-import { createApplication } from 'graphql-modules';
+import { createApplication } from 'graphql-modules'
 
 const application = createApplication({
   // ...
@@ -164,6 +167,7 @@ const application = createApplication({
   }
 })
 ```
+
 </Tabs.Tab>
 </Tabs>
 
