@@ -1,5 +1,13 @@
 # graphql-modules
 
+## 2.4.1
+
+### Patch Changes
+
+- [#2479](https://github.com/Urigo/graphql-modules/pull/2479) [`482499a`](https://github.com/Urigo/graphql-modules/commit/482499a6b288e716a519ef4068a8e74de1b2c45e) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`ramda@^0.30.0` ↗︎](https://www.npmjs.com/package/ramda/v/0.30.0) (from `^0.29.0`, in `dependencies`)
+
 ## 2.4.0
 
 ### Minor Changes
