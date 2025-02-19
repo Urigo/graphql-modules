@@ -24,22 +24,39 @@ export type ModuleFactory = (app: {
   middlewares: MiddlewareMap;
 }) => ResolvedModule;
 
+function lazy<T>(getter: () => T) {
+  let called = false;
+  let computedValue: T;
+
+  return {
+    get value() {
+      if (!called) {
+        called = true;
+        computedValue = getter();
+      }
+
+      return computedValue;
+    },
+  };
+}
+
 export function moduleFactory(config: ModuleConfig): Module {
   const typeDefs = createTypeDefs(config);
   const metadata = metadataFactory(typeDefs, config);
-  const providers =
+  const providers = lazy(() =>
     typeof config.providers === 'function'
       ? config.providers()
-      : config.providers;
+      : config.providers
+  );
 
   // Filter providers and keep them this way
   // so we don't do this filtering multiple times.
   // Providers don't change over time, so it's safe to do it.
-  const operationProviders = ReflectiveInjector.resolve(
-    onlyOperationProviders(providers)
+  const operationProviders = lazy(() =>
+    ReflectiveInjector.resolve(onlyOperationProviders(providers.value))
   );
-  const singletonProviders = ReflectiveInjector.resolve(
-    onlySingletonProviders(providers)
+  const singletonProviders = lazy(() =>
+    ReflectiveInjector.resolve(onlySingletonProviders(providers.value))
   );
 
   const mod: Module = {
@@ -47,15 +64,12 @@ export function moduleFactory(config: ModuleConfig): Module {
     config,
     metadata,
     typeDefs,
-    providers,
-    operationProviders,
-    singletonProviders,
     // Factory is called once on application creation,
     // before we even handle GraphQL Operation
     factory(app) {
       const resolvedModule: Partial<ResolvedModule> = mod;
-      resolvedModule.singletonProviders = singletonProviders;
-      resolvedModule.operationProviders = operationProviders;
+      resolvedModule.singletonProviders = singletonProviders.value;
+      resolvedModule.operationProviders = operationProviders.value;
 
       // Create a  module-level Singleton injector
       const injector = ReflectiveInjector.createFromResolved({
@@ -90,3 +104,49 @@ export function moduleFactory(config: ModuleConfig): Module {
 
   return mod;
 }
+
+// class ModuleImpl implements Module {
+//   id: Module['id'];
+//   config: Module['config'];
+//   metadata: Module['metadata'];
+//   typeDefs: Module['typeDefs'];
+//   private _providers: Module['providers'];
+//   private _operationProviders: Module['operationProviders'];
+//   private _singletonProviders: Module['singletonProviders'];
+//   factory: Module['factory'];
+
+//   constructor(mod: Module) {
+//     this.id = mod.id;
+//     this.config = mod.config;
+//     this.metadata = mod.metadata;
+//     this.typeDefs = mod.typeDefs;
+//     this._providers = mod.providers;
+//     this._operationProviders = mod.operationProviders;
+//     this._singletonProviders = mod.singletonProviders;
+//     this.factory = mod.factory;
+//   }
+
+//   get providers() {
+//     return this._providers;
+//   }
+
+//   set providers(providers) {
+//     this._providers = providers;
+//   }
+
+//   get operationProviders() {
+//     return this._operationProviders;
+//   }
+
+//   set operationProviders(operationProviders) {
+//     this._operationProviders = operationProviders;
+//   }
+
+//   get singletonProviders() {
+//     return this._singletonProviders;
+//   }
+
+//   set singletonProviders(singletonProviders) {
+//     this._singletonProviders = singletonProviders;
+//   }
+// }
