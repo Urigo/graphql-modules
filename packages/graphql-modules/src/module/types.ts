@@ -4,7 +4,6 @@ import { ID, Plural } from '../shared/types';
 import { ModuleMetadata } from './metadata';
 import { Provider } from '../di';
 import { MiddlewareMap } from '../shared/middleware';
-import { ResolvedProvider } from '../di/resolution';
 
 export type TypeDefs = Plural<DocumentNode>;
 export type Resolvers = Plural<Record<string, any>>;
@@ -42,12 +41,9 @@ export interface ModuleConfig {
 
 export interface Module {
   id: ID;
-  providers?: Provider[];
   typeDefs: DocumentNode[];
   metadata: ModuleMetadata;
   factory: ModuleFactory;
-  operationProviders: ResolvedProvider[];
-  singletonProviders: ResolvedProvider[];
   config: ModuleConfig;
 }
 
