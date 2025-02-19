@@ -1,5 +1,21 @@
 # graphql-modules
 
+## 3.0.0
+
+### Major Changes
+
+- [#2563](https://github.com/Urigo/graphql-modules/pull/2563) [`f40de70`](https://github.com/Urigo/graphql-modules/commit/f40de701d886da2344f4ceca18022748a207a4cd) Thanks [@kamilkisiela](https://github.com/kamilkisiela)! - **BREAKING** Providers of each module are now resolved of upon application creation.
+
+  This makes Dependency Injection less strict and not dependent on the order of module imports (hello circular imports).
+
+  **BREAKING** Removed `providers`, `operationProviders` and `singletonProviders` from the `Module` interface (unlikely you were using them).
+
+### Patch Changes
+
+- [#2479](https://github.com/Urigo/graphql-modules/pull/2479) [`482499a`](https://github.com/Urigo/graphql-modules/commit/482499a6b288e716a519ef4068a8e74de1b2c45e) Thanks [@renovate](https://github.com/apps/renovate)! - dependencies updates:
+
+  - Updated dependency [`ramda@^0.30.0` ↗︎](https://www.npmjs.com/package/ramda/v/0.30.0) (from `^0.29.0`, in `dependencies`)
+
 ## 2.4.0
 
 ### Minor Changes
