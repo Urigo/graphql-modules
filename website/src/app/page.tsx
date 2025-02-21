@@ -28,7 +28,7 @@ export default function IndexPage() {
       <Hero
         heading="Enterprise Grade Tooling for Your GraphQL Server"
         text="GraphQL Modules is a toolset of libraries and guidelines dedicated to create reusable, maintainable, testable and extendable modules out of your GraphQL server."
-        logo={<ModulesLogo />}
+        top={<ModulesLogo />}
         checkmarks={['Fully open source', 'No vendor lock']}
       >
         <CallToAction variant="primary-inverted" href="/docs">
