@@ -71,7 +71,7 @@
     "ts-jest": "29.2.5",
     "ts-node": "10.9.2",
     "typescript": "5.7.3",
-    "ws": "8.18.0"
+    "ws": "8.18.1"
   },
   "prettier": {
     "trailingComma": "es5",
