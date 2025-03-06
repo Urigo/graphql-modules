@@ -2134,10 +2134,10 @@
     "@envelop/types" "3.0.2"
     tslib "^2.5.0"
 
-"@envelop/graphql-modules@7.1.1":
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-7.1.1.tgz#9a8531eb6494bdd3000679f610c7825b4113e497"
-  integrity sha512-rjRpL71PQ7YFsQWVLj3CzhWqrIL7jR1eCFby20enicblMNywn/wwqmTqLfzerzHgKJFS7RwUyOAKhjHpC9FcoQ==
+"@envelop/graphql-modules@7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@envelop/graphql-modules/-/graphql-modules-7.1.2.tgz#56725efc3207f1f5a8b59a87b564e692a15fc776"
+  integrity sha512-l0ZPS2tqrtE8Nn5Ja/2eI3xVkeTaIKj1XHq2XCxtuit27OfDgGCIQtvtvQ3UJ1J54lyYSs/ftXS2uwspFG3GQw==
   dependencies:
     tslib "^2.5.0"
 
