@@ -28,7 +28,7 @@ jobs:
           - 16
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
@@ -49,7 +49,7 @@ jobs:
           - 16
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
@@ -57,7 +57,7 @@ jobs:
       - name: Use GraphQL v${{matrix.graphql_version}}
         run: node ./scripts/match-graphql.js ${{matrix.graphql_version}} && yarn install --no-frozen-lockfile
       - name: Cache Jest
-        uses: actions/cache@v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
         with:
           path: .cache/jest
           key: ${{ runner.os }}-${{matrix.node-version}}-${{matrix.graphql_version}}-jest-${{ hashFiles('yarn.lock') }}
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Master
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Setup env
         uses: the-guild-org/shared-config/setup@main
         with:
